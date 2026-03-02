@@ -124,11 +124,7 @@ When raising issues about technical decisions:
 
 ## Growth Path Items
 
-When you see decisions that are appropriate for current maturity but will need enhancement:
-
-> "Acceptable for MVP. Note: Prod will require proper secrets management (suggest AWS Secrets Manager or similar)."
-
-Mark as LOW severity. These go to "Future Developments" section.
+Use the "Don't over-spec" and "Don't under-spec" guidelines above to calibrate severity. The maturity tables define what is expected at each level — experts should raise issues through the normal closed-scope criteria (a/b/c) and calibrate severity accordingly.
 
 ---
 

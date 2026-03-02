@@ -56,6 +56,10 @@ Foundations follows two scope principles:
 
 **Level of detail:** Named technologies with brief rationale. "PostgreSQL for relational data because [reason]" not just "a database".
 
+**Sufficient when:**
+- Each PRD-implied technology domain (language, database, cloud, messaging) has a named selection with brief rationale
+- No domain required by the PRD is left without a selection or an explicit Open Question entry
+
 ---
 
 ### 2. Architecture Patterns
@@ -68,6 +72,10 @@ Foundations follows two scope principles:
 
 **Level of detail:** Pattern choices with rationale. Not implementation details.
 
+**Sufficient when:**
+- Deployment model, communication pattern, and component deployment approach are each named
+- Choices are consistent with each other and no PRD requirement is blocked by an unstated selection
+
 ---
 
 ### 3. Authentication & Authorization
@@ -77,6 +85,11 @@ Foundations follows two scope principles:
 - What authorization model (RBAC, ABAC, etc.)?
 
 **Level of detail:** Technology selection and approach only. Session timeout values, token lifetimes, rotation schedules, and provider-specific configuration belong in Architecture Overview or Component Specs.
+
+**Sufficient when:**
+- Authentication approach and provider are named
+- Authorization model is named if the PRD implies access control
+- No token lifetimes, session timeouts, or rotation schedules are included
 
 ---
 
@@ -89,6 +102,10 @@ Foundations follows two scope principles:
 - Audit fields (created_at, updated_at, created_by)?
 
 **Level of detail:** Concrete conventions that all components follow.
+
+**Sufficient when:**
+- Naming convention, primary key type, timestamp format, soft/hard delete approach, and audit fields are each stated
+- Conventions are cross-cutting (apply to multiple entities), not entity-specific
 
 ---
 
@@ -103,6 +120,10 @@ Foundations follows two scope principles:
 
 **Level of detail:** Patterns and formats that all APIs follow.
 
+**Sufficient when:**
+- API style, versioning strategy, error response pattern, and pagination approach are each stated
+- Conventions define the pattern, not parameter-level specifics (no default page sizes, max limits, or exact field names)
+
 ---
 
 ### 6. Error Handling
@@ -115,6 +136,10 @@ Foundations follows two scope principles:
 
 **Level of detail:** Patterns and conventions, not component-specific handling. Specific timeout values and retry counts belong in Component Specs.
 
+**Sufficient when:**
+- Error categorization approach, client/internal information boundary, cross-boundary propagation pattern, and retry approach are each stated
+- No retry counts or intervals are included
+
 ---
 
 ### 7. Logging & Observability
@@ -124,6 +149,12 @@ Foundations follows two scope principles:
 - What correlation/trace ID approach?
 
 **Level of detail:** Tool selection and cross-cutting patterns (structured format, correlation ID approach). Log levels, retention periods, metrics definitions, and alerting thresholds belong in Architecture Overview.
+
+**Sufficient when:**
+- Logging stack and format (structured/unstructured) are named
+- Correlation/trace ID approach is stated if the system has multiple components
+- Metrics platform is named if the PRD implies monitoring needs
+- No log levels, retention periods, metrics definitions, or alert thresholds are included
 
 ---
 
@@ -138,6 +169,10 @@ Foundations follows two scope principles:
 
 **Level of detail:** Non-negotiable security requirements that apply to all components. Specific header values, provider-specific configuration (token lifecycles, monitoring baselines), and component-specific security controls belong in Architecture Overview or Component Specs.
 
+**Sufficient when:**
+- Secrets management, encryption (at rest and in transit), input validation, and dependency scanning approaches are each named
+- No header values, provider-specific configuration, or component-specific controls are included
+
 ---
 
 ### 9. Testing Conventions
@@ -147,6 +182,11 @@ Foundations follows two scope principles:
 - What test data management approach?
 
 **Level of detail:** Framework selection and cross-cutting patterns. Coverage targets and component-specific test strategies belong in Component Specs.
+
+**Sufficient when:**
+- Test framework(s) for unit and integration testing are named
+- Test data management approach is stated if relevant
+- No coverage targets or component-specific test strategies are included
 
 ---
 
@@ -159,6 +199,11 @@ Foundations follows two scope principles:
 
 **Level of detail:** Platform and tooling selection. Environment configuration, resource sizing, backup retention periods, and deployment specifics belong in Architecture Overview.
 
+**Sufficient when:**
+- CI/CD platform and IaC approach are named
+- Feature flag approach is stated or explicitly deferred
+- No environment configuration, resource sizing, or deployment-specific values are included
+
 ---
 
 ### 11. Open Questions
@@ -169,6 +214,10 @@ Foundations follows two scope principles:
 - What needs more research?
 
 **Level of detail:** Explicit acknowledgment of unknowns.
+
+**Sufficient when:**
+- All known deferred decisions from other sections are listed with what depends on them
+- This section is complete by definition — it captures acknowledged unknowns
 
 ---
 

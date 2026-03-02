@@ -56,7 +56,6 @@ Check the Blueprint for the project's target maturity level (MVP/Prod/Enterprise
 
 - **Don't over-spec**: For MVP, don't raise enterprise concerns (circuit breakers, comprehensive testing) as HIGH.
 - **Don't under-spec**: For Enterprise, missing audit trails or security controls IS high severity.
-- **Flag growth path**: Note items acceptable for current maturity but needed at next level as LOW with a note.
 
 ---
 

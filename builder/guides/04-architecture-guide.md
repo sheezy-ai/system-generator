@@ -38,6 +38,11 @@ The Architecture Overview follows two scope principles:
 
 **Level of detail:** A simple context diagram description. Who/what is outside the system, and how do they interact with it at a high level.
 
+**Sufficient when:**
+- System boundary is defined (what is inside vs outside)
+- External systems and actors are identified with their relationship to the system
+- Key inputs and outputs at the system boundary are stated
+
 ---
 
 ### 2. Component Decomposition
@@ -54,6 +59,12 @@ Example:
 - **Event Store**: Persists event data, provides query interface for retrieval
 - **Discovery API**: Exposes event search and filtering to clients
 
+**Sufficient when:**
+- Each major component is named with a one-sentence responsibility
+- No two components have overlapping or ambiguous responsibility boundaries
+- Decomposition rationale is stated
+- No component includes implementation detail (capability lists, workflows, field names, SQL)
+
 ---
 
 ### 3. Data Flows
@@ -65,6 +76,12 @@ Example:
 
 **Level of detail:** Describe the primary flows. "User submits event → Ingestion validates → Store persists → Discovery indexes". Not detailed schemas or API contracts.
 
+**Sufficient when:**
+- Primary data flows between components are described
+- Key data entities and their movement through the system are identified
+- Data origin and terminus points are clear
+- No detailed schemas or API contracts included
+
 ---
 
 ### 4. Integration Points
@@ -75,6 +92,11 @@ Example:
 - What external systems are integrated?
 
 **Level of detail:** Identify the integration style and rationale. Not the specific protocols or message formats - those belong in component specs.
+
+**Sufficient when:**
+- Integration style (sync/async/event) between each communicating component pair is stated
+- External system integrations are identified with approach
+- No specific protocols, message formats, or endpoint definitions
 
 ---
 
@@ -100,6 +122,11 @@ Example:
 - **Async event processing**: Events queued for reliability; consumers process at their own pace (Source: Round 1: ARCH-003)
 - **Read/write separation**: Separate store for writes vs search index for reads (Source: Round 1: ARCH-007)
 
+**Sufficient when:**
+- Significant architectural choices are stated with rationale
+- Patterns and approaches are named (not just described abstractly)
+- PRD constraints that influenced decisions are referenced where applicable
+
 ---
 
 ### 6. Component Spec List
@@ -121,6 +148,12 @@ Example:
 
 **Why data ownership matters:** Component specs define authoritative schemas for the data they own. Dependent components reference these schemas rather than duplicating them. This means upstream components (data owners) must be specified before their dependents.
 
+**Sufficient when:**
+- Every component has a named spec with one-line scope
+- Data ownership is assigned for each component that stores data
+- Dependencies between specs are noted
+- No spec content or detailed scope breakdowns included
+
 ---
 
 ### 7. Cross-Cutting Concerns
@@ -131,6 +164,11 @@ Example:
 - What patterns apply across all components?
 
 **Level of detail:** Identify the concerns and reference Foundations for conventions. Do not restate Foundations content (retry policies, secrets lists, security headers). Component-specific concerns (per-stage log fields, pipeline-specific retry behaviour) belong in Component Specs.
+
+**Sufficient when:**
+- Each cross-cutting concern references the relevant Foundations section
+- Architecture-level context is added only where the concern affects component boundaries or data flows
+- No Foundations content restated (no retry tables, secrets lists, header values)
 
 ---
 
@@ -156,6 +194,11 @@ Example:
 
 **Downstream flow:** These architecture-level contracts feed into the 05-components cross-cutting specification (`specs/cross-cutting.md`), where they are populated with detailed schemas extracted from component specs and verified by the Contract Verifier during each component review round.
 
+**Sufficient when:**
+- Cross-component data structures are identified with producer and consumer
+- Contract direction is stated
+- No schema definitions or field-level detail
+
 ---
 
 ### 9. Open Questions
@@ -166,6 +209,11 @@ Example:
 - What assumptions are being made?
 
 **Level of detail:** Explicit list of unknowns. Better to acknowledge gaps than pretend certainty.
+
+**Sufficient when:**
+- All deferred decisions from other sections are listed
+- Each question states what needs resolution and what it blocks
+- Complete by definition (captures acknowledged unknowns)
 
 ---
 

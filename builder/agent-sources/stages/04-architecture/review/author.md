@@ -31,11 +31,9 @@ Given the current Architecture Overview and approved solutions from human review
 6. **Skip unresolved discussions** — Issues without resolution confirmation
 7. **Read consolidated issues** for additional context if needed
 8. Apply approved changes from each resolved discussion's proposed change
-9. **Document no-change decisions** — For resolved issues where no change was needed, add rationale notes (see Documenting Review Decisions)
-10. **Add scope deferral notes** — For items listed in the Deferred Items table, add scope notes (see Documenting Review Decisions)
-11. **Write change log** to `04-author-output.md`
-12. **Create updated Architecture Overview** — First copy the input Architecture Overview to `05-updated-architecture.md`, then apply targeted Edit operations for each change. Do NOT regenerate the entire document.
-13. Do NOT rely on any summaries - read the source files directly
+9. **Write change log** to `04-author-output.md`
+10. **Create updated Architecture Overview** — First copy the input Architecture Overview to `05-updated-architecture.md`, then apply targeted Edit operations for each change. Do NOT regenerate the entire document.
+11. Do NOT rely on any summaries - read the source files directly
 
 ---
 
@@ -48,7 +46,7 @@ Given the current Architecture Overview and approved solutions from human review
 5. **Flag ambiguity** — If a solution is unclear, flag it rather than guess
 6. **Capture design rationale** — When applying solutions, document *why* decisions were made, not just *what* changed. This preserves institutional knowledge and prevents future "why is it like this?" questions
 7. **Maintain Data Contracts** — If changes affect component responsibilities or data flows, update Data Contracts section accordingly
-8. **Document review decisions** — Record no-change rationale and scope deferral notes in the document to prevent future re-raises
+8. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. The pipeline handles re-raise prevention structurally.
 
 ---
 
@@ -78,8 +76,6 @@ Given the current Architecture Overview and approved solutions from human review
 - **Skipped**: [N] (PENDING, NEEDS_DISCUSSION, or REJECTED)
 - **Discussions Incorporated**: [N]
 - **Unresolved Discussions**: [N]
-- **No-Change Rationale Added**: [N]
-- **Scope Notes Added**: [N]
 
 ---
 
@@ -259,53 +255,6 @@ If a discussion lacks `>> RESOLVED`:
 
 ---
 
-## Documenting Review Decisions
-
-After applying all changes, process two additional categories. These prevent future experts from re-raising issues that were already considered.
-
-### No-Change Rationale
-
-For each resolved issue where the human decided **no change was needed**, add a brief rationale note in the relevant document section.
-
-**How to find them**: In `03-issues-discussion.md`, look for `>> RESOLVED` issues where the human response indicates no change (e.g., "no change needed", "acceptable as-is", "not a concern") or where no `**Proposed Architecture change**:` block exists.
-
-**What to add**: An HTML comment near the relevant content:
-
-```markdown
-<!-- Reviewed: ARCH-011 - Single-region deployment confirmed as acceptable for MVP; multi-region deferred to scaling phase. -->
-```
-
-**Log in change log** as:
-
-```markdown
-### Rationale [N]: [ARCH-ID] - [Issue Summary]
-- **Action**: NO_CHANGE_DOCUMENTED
-- **Section**: [Architecture section]
-- **Rationale**: [Why no change was needed]
-```
-
-### Scope Deferral Notes
-
-The `03-issues-discussion.md` file includes a **Deferred Items** table at the top, listing issues the Scope Filter routed to downstream stages. For each deferred item, add a brief scope note in the relevant document section.
-
-**What to add**: An HTML comment near the relevant content:
-
-```markdown
-<!-- Scope: Circuit breaker configuration and retry policies are defined per-component. -->
-```
-
-**Log in change log** as:
-
-```markdown
-### Scope Note [N]: [ARCH-ID] - [Issue Summary]
-- **Action**: SCOPE_NOTE_ADDED
-- **Section**: [Architecture section]
-- **Deferred To**: [Downstream stage]
-- **Note**: [What was added]
-```
-
----
-
 ## Decision Source References
 
 When updating the Architecture Overview's Key Technical Decisions section, include a source reference to enable traceability:
@@ -350,8 +299,6 @@ Example changelog entry:
 - [ ] Design rationale is documented for each significant decision (inline or in Design Decisions section)
 - [ ] Alternatives considered are noted where trade-offs were evaluated
 - [ ] Unresolved discussions flagged in change log
-- [ ] No-change closures have rationale documented in relevant document sections
-- [ ] Deferred items have scope notes in relevant document sections
 - [ ] Data Contracts section updated if component responsibilities changed
 - [ ] Contract changes documented in changelog
 - [ ] All changes stay at structural level (no implementation detail added)

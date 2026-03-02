@@ -155,11 +155,7 @@ When raising issues about architecture:
 
 ## Growth Path Items
 
-When you see design decisions that are appropriate for current maturity but will need enhancement:
-
-> "Acceptable for MVP monolith. Note: Prod will likely need to extract [component] as a separate service for independent scaling."
-
-Mark as LOW severity. These go to "Future Developments" section.
+Use the "Don't over-spec" and "Don't under-spec" guidelines above to calibrate severity. The maturity tables define what is expected at each level — experts should raise issues through the normal closed-scope criteria (a/b/c) and calibrate severity accordingly.
 
 ---
 

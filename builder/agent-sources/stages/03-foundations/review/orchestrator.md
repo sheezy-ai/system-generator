@@ -83,9 +83,9 @@ Foundations review uses a **single stage** with 4 technical experts:
 
 **Notes:**
 - All 4 experts run in parallel
-- Focus is on validating decisions against PRD requirements
+- Focus is on verifying guide coverage and PRD alignment (closed-scope review)
 - Security Engineer provides critical security decision review
-- Multiple rounds until no HIGH issues remain
+- Rounds continue until the zero-issues gate triggers or human chooses to exit
 
 ---
 
@@ -212,7 +212,7 @@ Output: [resolved file path]
      - Foundations guide path
      - Maturity guide path: `guides/03-foundations-maturity.md`
      - Output file path
-   - Agents identify **issues** within their domain
+   - Agents verify Foundations against guide criteria and PRD requirements within their domain
    - Agents write directly to output files
 
 4. **Wait for all agents to complete**
@@ -252,7 +252,9 @@ Output: [resolved file path]
 
 13. **Update state file**: Mark Step 3 complete
 
-14. **Automatically proceed to Step 3b**
+14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–9 and proceed directly to Step 10 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
+    - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
 
@@ -596,7 +598,8 @@ This gate is mandatory. Do not skip it.
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 1 → 2 → 3 → 3b → 4: Proceed automatically until Step 4 Discussion
+- Steps 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 10 (Promote)
+- Steps 3 → 3b → 4: If kept issues exist, proceed automatically until Step 4 Discussion
 - Steps 5 → 6+7 (parallel) → 8: Execute without pausing between verification steps
 - Step 8 → 9: Execute after human decisions collected (if needed)
 
@@ -611,12 +614,11 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 ## Exit Criteria
 
-Review workflow exits when ALL of the following are met:
+The review exits via one of two paths:
 
-1. **No HIGH-severity issues remain** — Safety net. No unresolved critical gaps.
-2. **Convergence** — The ratio of new substantive issues per round is declining. If a round produces only LOW/cosmetic issues or refinements to things already addressed, the document has converged.
-3. **Downstream-readiness** — The next stage's author could start working from this document without needing to come back and ask questions that should have been resolved at this level.
-4. **Issue character shift** — Issues being raised are no longer about missing or wrong decisions, but about wording, examples, or edge cases. The shift from "decisions not made" to "decisions not fully documented" signals diminishing returns.
+1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–9 and proceeds directly to Step 10 (Promote).
+
+2. **Human override**: After Step 9, the user can choose to exit even if issues were found in the current round. This is a fallback for cases where remaining issues are not worth another round.
 
 **After final round**: Run the Foundations Promoter (Step 10) to split the reviewed Foundations into three documents: `foundations.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
 

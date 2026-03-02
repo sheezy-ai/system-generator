@@ -14,7 +14,8 @@ Given issue files from multiple experts, merge them into a single document that:
 3. Notes which expert(s) identified each issue
 4. Maintains clarifying questions for human response
 
-**Input:** Expert output files (you will be given file paths - read them yourself)
+**Input:**
+- Expert output files (you will be given file paths - read them yourself)
 
 **Output:** Single consolidated issues file
 

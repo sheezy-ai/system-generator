@@ -228,8 +228,13 @@ Output: [resolved file path]
    - If source doesn't exist, **error and stop**
 
 3. **Spawn expert agents in parallel**
-   - Pass: Architecture Overview path (`round-[N]/00-architecture.md`), Foundations path, PRD path, Maturity guide (`guides/04-architecture-maturity.md`), output path
-   - Agents identify **issues only** (no solutions)
+   - Pass to each agent:
+     - Architecture Overview path: `round-[N]/00-architecture.md`
+     - Foundations path, PRD path
+     - Architecture guide path
+     - Maturity guide path: `guides/04-architecture-maturity.md`
+     - Output file path
+   - Agents verify Architecture Overview against guide criteria and PRD/Foundations requirements within their domain
    - Agents write to `01-[expert-name].md`
 
 5. **Update state file**: Mark Step 1 complete
@@ -267,7 +272,9 @@ Output: [resolved file path]
 
 13. **Update state file**: Mark Step 3 complete
 
-14. **Automatically proceed to Step 3b**
+14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–9 and proceed directly to Step 10 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
+    - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
 
@@ -614,7 +621,9 @@ This gate is mandatory. Do not skip it.
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 1 → 2 → 3 → 3b → 4: Proceed automatically until Step 4 Discussion
+- Steps 1 → 2 → 3: Proceed automatically through expert review, consolidation, and filtering
+- **Zero-issues gate** (after Step 3): If zero kept issues, skip directly to Step 10 (Promote)
+- Steps 3b → 4: Proceed to issue analysis and discussion
 - Steps 5 → 6+7 (parallel) → 8: Execute without pausing between verification steps
 - Step 8 → 9: Execute after human decisions collected (if needed)
 
@@ -629,12 +638,9 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 ## Exit Criteria
 
-Review workflow exits when ALL of the following are met:
+The review exits when a round produces **zero kept issues** after consolidation, re-raise detection, and scope/depth filtering. The zero-issues gate at Step 3 triggers this automatically, proceeding directly to promotion.
 
-1. **No HIGH-severity issues remain** — Safety net. No unresolved critical gaps.
-2. **Convergence** — The ratio of new substantive issues per round is declining. If a round produces only LOW/cosmetic issues or refinements to things already addressed, the document has converged.
-3. **Downstream-readiness** — The next stage's author could start working from this document without needing to come back and ask questions that should have been resolved at this level.
-4. **Issue character shift** — Issues being raised are no longer about missing or wrong decisions, but about wording, examples, or edge cases. The shift from "decisions not made" to "decisions not fully documented" signals diminishing returns.
+The human override at Step 9 (next round or exit?) remains as a fallback for cases where the human decides the document is ready despite remaining issues.
 
 **After final round**: Run the Architecture Promoter (Step 10) to split the reviewed Architecture Overview into three documents: `architecture.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
 

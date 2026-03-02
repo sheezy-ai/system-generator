@@ -296,4 +296,4 @@ Stages 06–12 use different structures defined by their coordinators. Deferred 
 
 ## Learning More
 
-See `builder/docs/overview.md` for framework details.
+See `system-builder/docs/overview.md` for framework details.
