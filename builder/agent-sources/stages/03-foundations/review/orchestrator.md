@@ -103,7 +103,7 @@ agents/review/
 └── workflow/
     ├── consolidator.md
     ├── author.md
-    └── verifier.md
+    └── change-verifier.md
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── alignment-verifier.md              # Verifies alignment with source documents

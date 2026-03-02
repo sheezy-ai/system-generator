@@ -83,7 +83,7 @@ agents/review/
 └── workflow/                          # Sequential processing steps
     ├── consolidator.md
     ├── author.md
-    └── verifier.md
+    └── change-verifier.md
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── scope-filter.md                    # Filters issues and outputs summary format
@@ -110,7 +110,7 @@ versions/
 │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
 │   ├── 04-author-output.md
 │   ├── 05-updated-blueprint.md
-│   └── 06-verification-report.md
+│   └── 06-change-verification-report.md
 └── round-2/
     └── ...
 ```
@@ -240,7 +240,9 @@ Output: [resolved file path]
 
 13. **Update state file**: Mark Step 3 complete, add history entry
 
-14. **Automatically proceed to Step 3b**
+14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–6 and proceed directly to Step 7 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
+    - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
 
@@ -379,7 +381,7 @@ This gate is mandatory. Do not skip it.
     - Pass: paths to issues-summary (with resolutions) + author output + updated Blueprint + output path
     - Agent verifies each resolution was applied correctly
     - Agent checks for level violations (scope creep)
-    - Agent writes to `system-design/01-blueprint/versions/round-[N]/06-verification-report.md`
+    - Agent writes to `system-design/01-blueprint/versions/round-[N]/06-change-verification-report.md`
 
 32. **Update state file**: Mark Step 6 complete, add history entry
 
@@ -390,14 +392,24 @@ This gate is mandatory. Do not skip it.
     - PARTIALLY_RESOLVED → Update state: status = WAITING_FOR_HUMAN, ask user to decide
 
 34. **If user chooses next round**: Update state file to increment round, reset to Step 1
-35. **If user chooses exit**: Update state file: status = COMPLETE
+35. **If user chooses exit**: Proceed to Step 7 (Promote)
+
+### Step 7: Promote
+
+36. **Copy reviewed Blueprint to canonical path**:
+    - Copy `system-design/01-blueprint/versions/round-[N]/05-updated-blueprint.md` to `system-design/01-blueprint/blueprint.md`
+
+37. **Verify output file exists**: `system-design/01-blueprint/blueprint.md`
+
+38. **Update state file**: status = COMPLETE
 
 ---
 
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 1 → 2 → 3 → 3b → 4: Proceed automatically until Step 4 Discussion
+- Steps 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 7 (Promote)
+- Steps 3 → 3b → 4: If kept issues exist, proceed automatically until Step 4 Discussion
 - Steps 5 → 6: Once all issues are RESOLVED, execute these steps without pausing
 
 **Human checkpoints:**
@@ -410,14 +422,13 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 ## Exit Criteria
 
-Review workflow exits when ALL of the following are met:
+The review exits via one of two paths:
 
-1. **No HIGH-severity issues remain** — Safety net. No unresolved critical gaps.
-2. **Convergence** — The ratio of new substantive issues per round is declining. If a round produces only LOW/cosmetic issues or refinements to things already addressed, the document has converged.
-3. **Downstream-readiness** — The next stage's author could start working from this document without needing to come back and ask questions that should have been resolved at this level.
-4. **Issue character shift** — Issues being raised are no longer about missing or wrong decisions, but about wording, examples, or edge cases. The shift from "decisions not made" to "decisions not fully documented" signals diminishing returns.
+1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–6 and proceeds directly to Step 7 (Promote).
 
-**After final round**: When satisfied, manually copy the final `system-design/01-blueprint/versions/round-N/05-updated-blueprint.md` to `system-design/01-blueprint/blueprint.md` to promote it. The original is preserved until you explicitly overwrite it.
+2. **Human override**: After Step 6, the user can choose to exit even if issues were found in the current round. This is a fallback for cases where remaining issues are not worth another round.
+
+**After final round**: Run the Promote step (Step 7) to copy the reviewed Blueprint to its canonical path at `system-design/01-blueprint/blueprint.md`.
 
 ---
 

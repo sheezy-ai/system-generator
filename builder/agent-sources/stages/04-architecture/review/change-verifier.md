@@ -26,7 +26,7 @@ Given the original issues, approved solutions, and updated Architecture Overview
 3. **Read author output** (`04-author-output.md`) to see what changes were made
 4. **Read updated Architecture Overview** (`05-updated-architecture.md`) to verify changes were applied correctly
 5. Perform verification analysis
-6. **Write your complete output** to `07-verification-report.md`
+6. **Write your complete output** to `06-change-verification-report.md`
 7. Do NOT rely on any summaries - read the source files directly
 
 ---
@@ -182,7 +182,7 @@ For each issue, ask:
 
 ## File Output
 
-**Output file**: `[OUTPUT_DIR]/round-[N]/07-verification-report.md`
+**Output file**: `[OUTPUT_DIR]/round-[N]/06-change-verification-report.md`
 
 Write your complete output to this file. Include a header:
 
