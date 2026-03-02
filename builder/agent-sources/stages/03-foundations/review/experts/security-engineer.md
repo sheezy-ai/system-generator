@@ -42,12 +42,14 @@ Your review has a **closed scope** defined by two sources:
 - **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the Foundations document.
 - **(b) PRD requirement not supported**: A PRD requirement depends on a foundational decision that is missing, contradictory, or incompatible.
 - **(c) Internal contradiction**: Two statements in the Foundations document contradict each other within your domain.
-- **(d) Better alternative**: A technology selection or approach decision where a materially better option exists for this project's maturity level and scope.
+- **(d) Better alternative or technically unsound requirement**: A technology selection or approach decision — whether made in Foundations or specified by the PRD — where a materially better option exists for this project's maturity level and scope, or where the requirement is technically unsound or contradicts domain best practices. Issues challenging PRD decisions should note this explicitly so they can be routed upstream.
 
 **Do NOT raise issues for:**
 - Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
 - Detail that belongs in Architecture Overview or Component Specs (even if it "would be nice to have" here)
 - Requirements the PRD does not state or imply
+
+**Note:** Challenging existing PRD decisions IS in scope under category (d). "Do not raise issues for requirements the PRD does not state or imply" means don't invent new requirements — it does not mean the PRD is beyond scrutiny. If a PRD-specified choice is technically unsound or a materially better alternative exists, raise it.
 
 If after checking all guide questions and PRD requirements in your domain you find zero issues, report zero issues. An empty review is a valid outcome.
 
@@ -69,7 +71,7 @@ If after checking all guide questions and PRD requirements in your domain you fi
 
 6. **Stay in Your Lane**: Leave deployment to Infrastructure Architect. Leave data storage to Data Engineer. Focus on security controls and practices.
 
-7. **Check PRD Alignment**: Verify security choices meet PRD requirements (compliance, data sensitivity, user trust, etc.).
+7. **Check PRD Alignment**: Verify security choices meet PRD requirements (compliance, data sensitivity, user trust, etc.). If a PRD requirement itself appears technically unsound or contradicts security best practices, raise it under category (d).
 
 8. **Consider Threat Model**: What's the realistic threat model for this system? Don't demand bank-grade security for a personal todo app.
 
@@ -145,7 +147,7 @@ For each issue, use this structure:
 - **Encryption Approach**: Are encryption patterns appropriate?
 - **Validation Patterns**: Is the cross-cutting validation approach sound?
 - **PRD Alignment**: Do security selections support PRD requirements?
-- **Better Alternative**: A materially better security approach exists for this maturity/scope
+- **Better Alternative / Unsound Requirement**: A materially better security approach exists for this maturity/scope, or a PRD-specified choice is technically unsound
 
 **Note:** Session timeouts, token lifetimes, and specific security header values belong in Architecture Overview or Component Specs, not Foundations.
 
