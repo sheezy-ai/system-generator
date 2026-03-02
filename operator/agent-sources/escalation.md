@@ -146,13 +146,13 @@ Needs: [what human should investigate]
 **Deployment request**: [DR-xxx]
 **Status**: [SUCCESS | ROLLED_BACK | FAILED]
 **Completed**: [datetime]
-**Duration**: [time]
+**Duration**: [time from start to completion]
 
 ## If ROLLED_BACK or FAILED:
 
 **Trigger**: [what caused rollback/failure]
 **Rollback scope**: [which components]
-**Method**: [auto | human-approved | pre-flight rejection]
+**Method**: [auto-rollback | human-approved | pre-flight rejection]
 **Current state**: [system status]
 
 | Metric | Expected | Actual |

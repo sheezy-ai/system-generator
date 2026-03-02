@@ -148,19 +148,21 @@ Impact analysis:
 
 ## Deployment notes
 
-- Database migration required: Yes/No
-- New environment variables: [list or "none"]
-- Configuration changes: [list or "none"]
+- Database migration required: Yes / No
+  - If yes: migration description and rollback strategy
+- New environment variables: [list, if any]
+- Configuration changes: [list, if any]
 
 ## Test results
 
-- Unit tests: PASS/FAIL
-- Integration tests: PASS/FAIL
-- Contract tests: PASS/FAIL
+- Unit tests: PASS ([N] tests)
+- Integration tests: PASS ([N] tests)
+- Contract tests: PASS ([N] contracts verified)
 
 ## Post-deployment monitoring
 
-Watch metrics: [metric] -- expected: [value], regression if: [condition]
+Watch these metrics specifically:
+- [metric name] — expected: [description], regression looks like: [description]
 
 ## Rollback criteria
 
@@ -181,8 +183,8 @@ Human-approval rollback if: [condition]
 
 ## What to watch
 
-| Metric/behaviour | Normal range | Alert if | Component |
-|-----------------|--------------|----------|-----------|
+| Metric / behaviour | Normal range | Alert if | Component |
+|-------------------|-------------|----------|-----------|
 | [metric] | [range] | [condition] | [component] |
 
 ## Context

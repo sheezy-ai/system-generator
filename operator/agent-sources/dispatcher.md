@@ -162,7 +162,7 @@ The Dispatcher recognises these inbound signal formats:
 
 ## What to watch
 
-| Metric/behaviour | Normal range | Alert if | Component |
+| Metric / behaviour | Normal range | Alert if | Component |
 
 ## Context
 ...
