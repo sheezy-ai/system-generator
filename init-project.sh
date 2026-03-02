@@ -4,7 +4,7 @@
 # Usage: ./init-project.sh [target-directory]
 #
 # Creates system-design/ structure in the target directory (defaults to current directory).
-# Builds agents/ in the system-builder directory (where this script lives).
+# Builds agents/ in the builder, operator, and maintainer directories.
 #
 # Idempotent - only creates what's missing, never overwrites.
 #
@@ -19,13 +19,16 @@
 #   - system-design/01-blueprint/versions/out-of-scope.md
 #   - system-design/README.md
 #
-# Creates in system-builder directory:
-#   - agents/ (built from agent-sources/)
+# Builds in system-generator:
+#   - builder/agents/ (from builder/agent-sources/)
+#   - operator/agents/ (from operator/agent-sources/)
+#   - maintainer/agents/ (from maintainer/agent-sources/)
 
 set -e
 
 # Determine directories
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILDER_ROOT="$SCRIPT_DIR/builder"
 TARGET_DIR="${1:-.}"
 
 # Convert to absolute path
@@ -37,7 +40,9 @@ TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
 
 echo "Initialising project structure..."
 echo "  Target: $TARGET_DIR"
-echo "  Agents: $SCRIPT_DIR/agents"
+echo "  Builder agents: $BUILDER_ROOT/agents"
+echo "  Operator agents: $SCRIPT_DIR/operator/agents"
+echo "  Maintainer agents: $SCRIPT_DIR/maintainer/agents"
 echo ""
 
 # Track what we create
@@ -156,22 +161,22 @@ copy_guide() {
     fi
 }
 
-copy_guide "$SCRIPT_DIR/guides/01-blueprint-guide.md" "$TARGET_DIR/system-design/01-blueprint/guide.md"
-copy_guide "$SCRIPT_DIR/guides/02-prd-guide.md" "$TARGET_DIR/system-design/02-prd/guide.md"
-copy_guide "$SCRIPT_DIR/guides/02-prd-maturity.md" "$TARGET_DIR/system-design/02-prd/maturity.md"
-copy_guide "$SCRIPT_DIR/guides/03-foundations-guide.md" "$TARGET_DIR/system-design/03-foundations/guide.md"
-copy_guide "$SCRIPT_DIR/guides/03-foundations-maturity.md" "$TARGET_DIR/system-design/03-foundations/maturity.md"
-copy_guide "$SCRIPT_DIR/guides/04-architecture-guide.md" "$TARGET_DIR/system-design/04-architecture/guide.md"
-copy_guide "$SCRIPT_DIR/guides/04-architecture-maturity.md" "$TARGET_DIR/system-design/04-architecture/maturity.md"
-copy_guide "$SCRIPT_DIR/guides/05-components-guide.md" "$TARGET_DIR/system-design/05-components/guide.md"
-copy_guide "$SCRIPT_DIR/guides/05-components-maturity.md" "$TARGET_DIR/system-design/05-components/maturity.md"
-copy_guide "$SCRIPT_DIR/guides/06-tasks-guide.md" "$TARGET_DIR/system-design/06-tasks/guide.md"
+copy_guide "$BUILDER_ROOT/guides/01-blueprint-guide.md" "$TARGET_DIR/system-design/01-blueprint/guide.md"
+copy_guide "$BUILDER_ROOT/guides/02-prd-guide.md" "$TARGET_DIR/system-design/02-prd/guide.md"
+copy_guide "$BUILDER_ROOT/guides/02-prd-maturity.md" "$TARGET_DIR/system-design/02-prd/maturity.md"
+copy_guide "$BUILDER_ROOT/guides/03-foundations-guide.md" "$TARGET_DIR/system-design/03-foundations/guide.md"
+copy_guide "$BUILDER_ROOT/guides/03-foundations-maturity.md" "$TARGET_DIR/system-design/03-foundations/maturity.md"
+copy_guide "$BUILDER_ROOT/guides/04-architecture-guide.md" "$TARGET_DIR/system-design/04-architecture/guide.md"
+copy_guide "$BUILDER_ROOT/guides/04-architecture-maturity.md" "$TARGET_DIR/system-design/04-architecture/maturity.md"
+copy_guide "$BUILDER_ROOT/guides/05-components-guide.md" "$TARGET_DIR/system-design/05-components/guide.md"
+copy_guide "$BUILDER_ROOT/guides/05-components-maturity.md" "$TARGET_DIR/system-design/05-components/maturity.md"
+copy_guide "$BUILDER_ROOT/guides/06-tasks-guide.md" "$TARGET_DIR/system-design/06-tasks/guide.md"
 
 # --- System README ---
 
-readme_source="$SCRIPT_DIR/agent-sources/system-readme.md"
+readme_source="$BUILDER_ROOT/agent-sources/system-readme.md"
 readme_dest="$TARGET_DIR/system-design/README.md"
-agents_path="$SCRIPT_DIR/agents"
+agents_path="$BUILDER_ROOT/agents"
 project_path="$TARGET_DIR"
 
 if [[ -f "$readme_dest" ]]; then
@@ -182,10 +187,10 @@ else
     created+=("$readme_dest")
 fi
 
-# --- Build Agent Prompts (in system-builder directory) ---
+# --- Build Agent Prompts (all three frameworks) ---
 
 echo "Building agent prompts..."
-"$SCRIPT_DIR/agent-sources/build-prompts.sh"
+"$SCRIPT_DIR/build-prompts.sh"
 echo ""
 
 # --- Report ---

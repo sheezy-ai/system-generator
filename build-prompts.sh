@@ -1,20 +1,27 @@
 #!/bin/bash
-# Build expert prompts from source files
+# Build agent prompts from source files for all three frameworks
 # Injects common sections and substitutes placeholders
+#
+# Builder: 12 stages + universal + specialist agents
+# Operator: 6 agents
+# Maintainer: 8 agents
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-AGENTS_DIR="$PROJECT_ROOT/agents"
+
+# Builder paths
+BUILDER_ROOT="$SCRIPT_DIR/builder"
+BUILDER_SOURCES="$BUILDER_ROOT/agent-sources"
+AGENTS_DIR="$BUILDER_ROOT/agents"
 
 # Explicit paths for agent prompts (these get substituted into generated files)
 AGENTS_PATH="$AGENTS_DIR"
-GUIDES_PATH="$PROJECT_ROOT/guides"
+GUIDES_PATH="$BUILDER_ROOT/guides"
 SYSTEM_DESIGN_PATH="/Users/sean.sheehan/projects/experiential/experiential-design"
 
 # Source stage configuration
-source "$SCRIPT_DIR/stage-config.sh"
+source "$BUILDER_SOURCES/stage-config.sh"
 
 # Map source stage names to output directory names
 get_output_dir() {
@@ -41,7 +48,7 @@ inject_common_sections() {
     local content="$1"
 
     # Inject shared common sections
-    for common_file in "$SCRIPT_DIR/common"/*.md; do
+    for common_file in "$BUILDER_SOURCES/common"/*.md; do
         if [[ -f "$common_file" ]]; then
             local section_name=$(basename "$common_file" .md)
             local marker="<!-- INJECT: $section_name -->"
@@ -63,7 +70,7 @@ inject_common_sections() {
 inject_create_sections() {
     local content="$1"
 
-    for common_file in "$SCRIPT_DIR/common/create"/*.md; do
+    for common_file in "$BUILDER_SOURCES/common/create"/*.md; do
         if [[ -f "$common_file" ]]; then
             local section_name=$(basename "$common_file" .md)
             local marker="<!-- INJECT: $section_name -->"
@@ -80,7 +87,7 @@ inject_create_sections() {
 inject_review_sections() {
     local content="$1"
 
-    for common_file in "$SCRIPT_DIR/common/review"/*.md; do
+    for common_file in "$BUILDER_SOURCES/common/review"/*.md; do
         if [[ -f "$common_file" ]]; then
             local section_name=$(basename "$common_file" .md)
             local marker="<!-- INJECT: $section_name -->"
@@ -418,12 +425,19 @@ build_specialist_agent() {
     echo "  Built: $output_file"
 }
 
-# Main build process
+# ===================================================================
+# Build Builder agent prompts
+# ===================================================================
+
+echo "Building Builder prompts..."
+echo ""
+
+# Build Create prompts
 echo "Building Create prompts..."
 echo ""
 
 # Clean stale create output files
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/create" ]]; then
         stage=$(basename "$stage_dir")
         output_dir_name=$(get_output_dir "$stage")
@@ -431,7 +445,7 @@ for stage_dir in "$SCRIPT_DIR/stages"/*; do
     fi
 done
 
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/create" ]]; then
         stage=$(basename "$stage_dir")
         echo "Stage: $stage"
@@ -464,7 +478,7 @@ echo "Building Initialize prompts..."
 echo ""
 
 # Clean stale initialize output files
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/initialize" ]]; then
         stage=$(basename "$stage_dir")
         output_dir_name=$(get_output_dir "$stage")
@@ -472,7 +486,7 @@ for stage_dir in "$SCRIPT_DIR/stages"/*; do
     fi
 done
 
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/initialize" ]]; then
         stage=$(basename "$stage_dir")
         echo "Stage: $stage"
@@ -496,7 +510,7 @@ echo "Building Cross-Cutting prompts..."
 echo ""
 
 # Clean stale cross-cutting output files
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/cross-cutting" ]]; then
         stage=$(basename "$stage_dir")
         output_dir_name=$(get_output_dir "$stage")
@@ -504,7 +518,7 @@ for stage_dir in "$SCRIPT_DIR/stages"/*; do
     fi
 done
 
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/cross-cutting" ]]; then
         stage=$(basename "$stage_dir")
         echo "Stage: $stage"
@@ -528,7 +542,7 @@ echo "Building Coherence prompts..."
 echo ""
 
 # Clean stale coherence output files
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/coherence" ]]; then
         stage=$(basename "$stage_dir")
         output_dir_name=$(get_output_dir "$stage")
@@ -536,7 +550,7 @@ for stage_dir in "$SCRIPT_DIR/stages"/*; do
     fi
 done
 
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/coherence" ]]; then
         stage=$(basename "$stage_dir")
         echo "Stage: $stage"
@@ -560,7 +574,7 @@ echo "Building Review prompts..."
 echo ""
 
 # Clean stale review output files
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/review" ]]; then
         stage=$(basename "$stage_dir")
         output_dir_name=$(get_output_dir "$stage")
@@ -568,7 +582,7 @@ for stage_dir in "$SCRIPT_DIR/stages"/*; do
     fi
 done
 
-for stage_dir in "$SCRIPT_DIR/stages"/*; do
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
     if [[ -d "$stage_dir/review" ]]; then
         stage=$(basename "$stage_dir")
         echo "Stage: $stage"
@@ -615,12 +629,12 @@ echo "Building 06-tasks prompts..."
 echo ""
 
 # Clean stale 06-tasks output files
-if [[ -d "$SCRIPT_DIR/stages/06-tasks" ]]; then
-    clean_output_dir "$AGENTS_DIR/06-tasks" "$SCRIPT_DIR/stages/06-tasks"
+if [[ -d "$BUILDER_SOURCES/stages/06-tasks" ]]; then
+    clean_output_dir "$AGENTS_DIR/06-tasks" "$BUILDER_SOURCES/stages/06-tasks"
 fi
 
-if [[ -d "$SCRIPT_DIR/stages/06-tasks" ]]; then
-    for tasks_file in "$SCRIPT_DIR/stages/06-tasks"/*.md; do
+if [[ -d "$BUILDER_SOURCES/stages/06-tasks" ]]; then
+    for tasks_file in "$BUILDER_SOURCES/stages/06-tasks"/*.md; do
         if [[ -f "$tasks_file" ]]; then
             build_tasks_file "$tasks_file"
         fi
@@ -635,12 +649,12 @@ echo "Building 07-conventions prompts..."
 echo ""
 
 # Clean stale 07-conventions output files
-if [[ -d "$SCRIPT_DIR/stages/07-conventions" ]]; then
-    clean_output_dir "$AGENTS_DIR/07-conventions" "$SCRIPT_DIR/stages/07-conventions"
+if [[ -d "$BUILDER_SOURCES/stages/07-conventions" ]]; then
+    clean_output_dir "$AGENTS_DIR/07-conventions" "$BUILDER_SOURCES/stages/07-conventions"
 fi
 
-if [[ -d "$SCRIPT_DIR/stages/07-conventions" ]]; then
-    for conventions_file in "$SCRIPT_DIR/stages/07-conventions"/*.md; do
+if [[ -d "$BUILDER_SOURCES/stages/07-conventions" ]]; then
+    for conventions_file in "$BUILDER_SOURCES/stages/07-conventions"/*.md; do
         if [[ -f "$conventions_file" ]]; then
             build_stage_file "07-conventions" "$conventions_file"
         fi
@@ -655,12 +669,12 @@ echo "Building 08-build prompts..."
 echo ""
 
 # Clean stale 08-build output files
-if [[ -d "$SCRIPT_DIR/stages/08-build" ]]; then
-    clean_output_dir "$AGENTS_DIR/08-build" "$SCRIPT_DIR/stages/08-build"
+if [[ -d "$BUILDER_SOURCES/stages/08-build" ]]; then
+    clean_output_dir "$AGENTS_DIR/08-build" "$BUILDER_SOURCES/stages/08-build"
 fi
 
-if [[ -d "$SCRIPT_DIR/stages/08-build" ]]; then
-    for build_file in "$SCRIPT_DIR/stages/08-build"/*.md; do
+if [[ -d "$BUILDER_SOURCES/stages/08-build" ]]; then
+    for build_file in "$BUILDER_SOURCES/stages/08-build"/*.md; do
         if [[ -f "$build_file" ]]; then
             build_stage_file "08-build" "$build_file"
         fi
@@ -675,12 +689,12 @@ echo "Building 09-verification prompts..."
 echo ""
 
 # Clean stale 09-verification output files
-if [[ -d "$SCRIPT_DIR/stages/09-verification" ]]; then
-    clean_output_dir "$AGENTS_DIR/09-verification" "$SCRIPT_DIR/stages/09-verification"
+if [[ -d "$BUILDER_SOURCES/stages/09-verification" ]]; then
+    clean_output_dir "$AGENTS_DIR/09-verification" "$BUILDER_SOURCES/stages/09-verification"
 fi
 
-if [[ -d "$SCRIPT_DIR/stages/09-verification" ]]; then
-    for verification_file in "$SCRIPT_DIR/stages/09-verification"/*.md; do
+if [[ -d "$BUILDER_SOURCES/stages/09-verification" ]]; then
+    for verification_file in "$BUILDER_SOURCES/stages/09-verification"/*.md; do
         if [[ -f "$verification_file" ]]; then
             build_stage_file "09-verification" "$verification_file"
         fi
@@ -695,12 +709,12 @@ echo "Building 10-provisioning prompts..."
 echo ""
 
 # Clean stale 10-provisioning output files
-if [[ -d "$SCRIPT_DIR/stages/10-provisioning" ]]; then
-    clean_output_dir "$AGENTS_DIR/10-provisioning" "$SCRIPT_DIR/stages/10-provisioning"
+if [[ -d "$BUILDER_SOURCES/stages/10-provisioning" ]]; then
+    clean_output_dir "$AGENTS_DIR/10-provisioning" "$BUILDER_SOURCES/stages/10-provisioning"
 fi
 
-if [[ -d "$SCRIPT_DIR/stages/10-provisioning" ]]; then
-    for provisioning_file in "$SCRIPT_DIR/stages/10-provisioning"/*.md; do
+if [[ -d "$BUILDER_SOURCES/stages/10-provisioning" ]]; then
+    for provisioning_file in "$BUILDER_SOURCES/stages/10-provisioning"/*.md; do
         if [[ -f "$provisioning_file" ]]; then
             build_stage_file "10-provisioning" "$provisioning_file"
         fi
@@ -715,12 +729,12 @@ echo "Building 11-packaging prompts..."
 echo ""
 
 # Clean stale 11-packaging output files
-if [[ -d "$SCRIPT_DIR/stages/11-packaging" ]]; then
-    clean_output_dir "$AGENTS_DIR/11-packaging" "$SCRIPT_DIR/stages/11-packaging"
+if [[ -d "$BUILDER_SOURCES/stages/11-packaging" ]]; then
+    clean_output_dir "$AGENTS_DIR/11-packaging" "$BUILDER_SOURCES/stages/11-packaging"
 fi
 
-if [[ -d "$SCRIPT_DIR/stages/11-packaging" ]]; then
-    for packaging_file in "$SCRIPT_DIR/stages/11-packaging"/*.md; do
+if [[ -d "$BUILDER_SOURCES/stages/11-packaging" ]]; then
+    for packaging_file in "$BUILDER_SOURCES/stages/11-packaging"/*.md; do
         if [[ -f "$packaging_file" ]]; then
             build_stage_file "11-packaging" "$packaging_file"
         fi
@@ -735,12 +749,12 @@ echo "Building 12-operations-readiness prompts..."
 echo ""
 
 # Clean stale 12-operations-readiness output files
-if [[ -d "$SCRIPT_DIR/stages/12-operations-readiness" ]]; then
-    clean_output_dir "$AGENTS_DIR/12-operations-readiness" "$SCRIPT_DIR/stages/12-operations-readiness"
+if [[ -d "$BUILDER_SOURCES/stages/12-operations-readiness" ]]; then
+    clean_output_dir "$AGENTS_DIR/12-operations-readiness" "$BUILDER_SOURCES/stages/12-operations-readiness"
 fi
 
-if [[ -d "$SCRIPT_DIR/stages/12-operations-readiness" ]]; then
-    for ops_readiness_file in "$SCRIPT_DIR/stages/12-operations-readiness"/*.md; do
+if [[ -d "$BUILDER_SOURCES/stages/12-operations-readiness" ]]; then
+    for ops_readiness_file in "$BUILDER_SOURCES/stages/12-operations-readiness"/*.md; do
         if [[ -f "$ops_readiness_file" ]]; then
             build_stage_file "12-operations-readiness" "$ops_readiness_file"
         fi
@@ -755,12 +769,12 @@ echo "Building universal-agents prompts..."
 echo ""
 
 # Clean stale universal-agents output files
-if [[ -d "$SCRIPT_DIR/universal-agents" ]]; then
-    clean_output_dir "$AGENTS_DIR/universal-agents" "$SCRIPT_DIR/universal-agents"
+if [[ -d "$BUILDER_SOURCES/universal-agents" ]]; then
+    clean_output_dir "$AGENTS_DIR/universal-agents" "$BUILDER_SOURCES/universal-agents"
 fi
 
-if [[ -d "$SCRIPT_DIR/universal-agents" ]]; then
-    for agent_file in "$SCRIPT_DIR/universal-agents"/*.md; do
+if [[ -d "$BUILDER_SOURCES/universal-agents" ]]; then
+    for agent_file in "$BUILDER_SOURCES/universal-agents"/*.md; do
         if [[ -f "$agent_file" ]]; then
             build_universal_agent "$agent_file"
         fi
@@ -775,12 +789,12 @@ echo "Building specialist-agents prompts..."
 echo ""
 
 # Clean stale specialist-agents output files
-if [[ -d "$SCRIPT_DIR/specialist-agents" ]]; then
-    clean_output_dir "$AGENTS_DIR/specialist-agents" "$SCRIPT_DIR/specialist-agents"
+if [[ -d "$BUILDER_SOURCES/specialist-agents" ]]; then
+    clean_output_dir "$AGENTS_DIR/specialist-agents" "$BUILDER_SOURCES/specialist-agents"
 fi
 
-if [[ -d "$SCRIPT_DIR/specialist-agents" ]]; then
-    for agent_file in "$SCRIPT_DIR/specialist-agents"/*.md; do
+if [[ -d "$BUILDER_SOURCES/specialist-agents" ]]; then
+    for agent_file in "$BUILDER_SOURCES/specialist-agents"/*.md; do
         if [[ -f "$agent_file" ]]; then
             build_specialist_agent "$agent_file"
         fi
@@ -800,8 +814,8 @@ echo ""
 echo "Building Operator prompts..."
 echo ""
 
-# Operator paths (resolved to absolute paths)
-OPERATOR_ROOT="$(cd "$PROJECT_ROOT/.." && pwd)/operator"
+# Operator paths
+OPERATOR_ROOT="$SCRIPT_DIR/operator"
 OPERATOR_SOURCES="$OPERATOR_ROOT/agent-sources"
 OPERATOR_AGENTS="$OPERATOR_ROOT/agents"
 
@@ -868,8 +882,8 @@ echo ""
 echo "Building Maintainer prompts..."
 echo ""
 
-# Maintainer paths (resolved to absolute paths)
-MAINTAINER_ROOT="$(cd "$PROJECT_ROOT/.." && pwd)/maintainer"
+# Maintainer paths
+MAINTAINER_ROOT="$SCRIPT_DIR/maintainer"
 MAINTAINER_SOURCES="$MAINTAINER_ROOT/agent-sources"
 MAINTAINER_AGENTS="$MAINTAINER_ROOT/agents"
 
@@ -879,7 +893,7 @@ MAINTAINER_AGENTS="$MAINTAINER_ROOT/agents"
 # GENERATOR_ROOT: absolute path to system-generator root (for ARTEFACT-SPEC.md and other generator-level docs)
 MAINTAINER_AGENTS_PATH="$MAINTAINER_AGENTS"
 BUILDER_AGENTS_PATH="$AGENTS_DIR"
-GENERATOR_ROOT="$(cd "$PROJECT_ROOT/.." && pwd)"
+GENERATOR_ROOT="$SCRIPT_DIR"
 
 # Project-specific paths — override via environment for project-specific builds
 # If not set, placeholders remain in output for resolution at project init time

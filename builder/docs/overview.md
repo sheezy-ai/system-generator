@@ -227,7 +227,6 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   └── specialist-agents/
 │       └── technical-writer.md
 ├── agent-sources/                 # Source templates for agents
-│   ├── build-prompts.sh           # Build script
 │   ├── stage-config.sh            # Stage configuration
 │   ├── common/                    # Shared content injected into prompts
 │   ├── stages/                    # Stage-specific templates
