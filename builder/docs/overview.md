@@ -16,10 +16,10 @@ If you're new to system-builder, read these docs in order:
 ### 1. Initialise the project
 
 ```bash
-./init-project.sh
+../init-project.sh
 ```
 
-This creates the required `system/` directories, deferred items files, pending issues files, and shared files. Safe to run multiple times.
+This creates the required `system/` directories, deferred items files, pending issues files, and shared files. Safe to run multiple times. The script lives at the system-generator root (one level above `builder/`).
 
 ### 2. Run a workflow
 
@@ -50,7 +50,7 @@ The orchestrator will guide you through each step, pausing for human input where
 
 ## Stage Progression
 
-Documentation progresses through eleven stages, each building on the previous:
+Documentation progresses through twelve stages, each building on the previous:
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
@@ -74,10 +74,10 @@ Documentation progresses through eleven stages, each building on the previous:
                                                │
        ┌───────────────────────────────────────┘
        ▼
-┌──────────────┐     ┌──────────────┐
-│ Provisioning │ ──▶ │  Packaging   │
-│  (runbook)   │     │ (deliverable)│
-└──────────────┘     └──────────────┘
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ Provisioning │ ──▶ │  Packaging   │ ──▶ │  Operations  │
+│  (runbook)   │     │ (deliverable)│     │ (readiness)  │
+└──────────────┘     └──────────────┘     └──────────────┘
 ```
 
 | Stage | Purpose | Level of Detail |
@@ -93,6 +93,7 @@ Documentation progresses through eleven stages, each building on the previous:
 | **Verification** | Lint, type check, unit test execution on built code | Execution. Real tool output. |
 | **Provisioning** | Provisioning runbook from infrastructure tasks + built IaC | Operational. Real infrastructure commands. |
 | **Packaging** | Standalone deliverable with developer-facing documentation | Handoff. Self-sustaining project. |
+| **Operations Readiness** | Maintenance and operations artefact extraction | Operational. SLOs, runbooks, traceability. |
 
 Stages 01–05 have guides (in `guides/`) that define what belongs at each level of abstraction.
 
@@ -240,13 +241,14 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   ├── 01-blueprint-guide.md
 │   ├── 02-prd-guide.md
 │   └── ...
-├── system/                        # Output (generated documents)
-│   ├── 01-blueprint/
-│   │   ├── blueprint.md
-│   │   └── versions/
-│   └── ...
-└── init-project.sh                # Initialises system/ and builds agents/
+└── system/                        # Output (generated documents)
+    ├── 01-blueprint/
+    │   ├── blueprint.md
+    │   └── versions/
+    └── ...
 ```
+
+Scripts `init-project.sh` and `build-prompts.sh` live at the system-generator root (one level above `builder/`).
 
 ## Round Numbering
 

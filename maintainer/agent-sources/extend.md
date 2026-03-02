@@ -144,7 +144,8 @@ If issues found, resolve them in the spec proposal before presenting to Human. I
    - Priority: standard
    - Source workflow: Extend
    - Change reference: CR-xxx
-   - Components, test results (including contract tests), rollback criteria
+   - Components, test results with counts (unit: N tests, integration: N tests, contract: N contracts verified), rollback criteria
+   - If database migration required: migration description and rollback strategy
 
 4. Update Change Record status: DEPLOYING
 

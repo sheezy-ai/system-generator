@@ -136,7 +136,7 @@ Receive a classified signal (depth=Patch), verify the classification, propose a 
    - Priority: standard (or hotfix for critical security patches)
    - Source workflow: Patch
    - Change reference: CR-xxx
-   - Components, test results, rollback criteria
+   - Components, test results with counts (unit: N tests, integration: N tests, contract: N contracts verified), rollback criteria
 
 3. Update Change Record status: DEPLOYING
 

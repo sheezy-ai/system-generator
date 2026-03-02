@@ -6,7 +6,7 @@ A framework for creating product documentation through AI-assisted workflows. Gu
 
 1. **Initialise** the project structure:
    ```bash
-   ./init-project.sh
+   ../init-project.sh
    ```
 
 2. **Write your concept** in `system/01-blueprint/concept.md`
@@ -37,8 +37,11 @@ A framework for creating product documentation through AI-assisted workflows. Gu
 ## Stage Progression
 
 ```
-Blueprint → PRD → Foundations → Architecture → Component Specs → Tasks
-  (why)    (what)   (shared)    (structure)     (how)         (do)
+Blueprint → PRD → Foundations → Architecture → Component Specs → Tasks →
+  (why)    (what)   (shared)    (structure)       (how)         (do)
+
+Conventions → Build → Verification → Provisioning → Packaging → Operations Readiness
+ (standards)  (code)   (execute)      (runbook)    (deliverable)   (readiness)
 ```
 
 Each stage produces documentation at a specific level of abstraction:
@@ -51,6 +54,12 @@ Each stage produces documentation at a specific level of abstraction:
 | Architecture | How is the system structured? | Components, data flows, boundaries |
 | Component Specs | How do we build each part? | APIs, schemas, behaviour, tests |
 | Tasks | What work items exist? | Implementable units of work |
+| Conventions | What standards apply? | File paths, commands, build patterns |
+| Build | What code is produced? | Modules, tests, IaC |
+| Verification | Does the code pass checks? | Lint, type check, test execution |
+| Provisioning | How is infrastructure set up? | Provisioning runbook, real commands |
+| Packaging | What is the deliverable? | Standalone project with docs |
+| Operations Readiness | Is the system operable? | SLOs, runbooks, traceability |
 
 ## Key Navigation
 

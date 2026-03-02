@@ -101,7 +101,11 @@ Needs: [what human should investigate]
 
 ## What was observed
 
-[Alert, first detected, duration, affected components, user impact]
+**Alert**: [alert name from monitoring definitions]
+**First detected**: [datetime]
+**Duration**: [how long the issue has persisted]
+**Affected component(s)**: [list]
+**User impact**: [description]
 
 ## Metrics
 
@@ -117,15 +121,19 @@ Needs: [what human should investigate]
 
 ## Operator's assessment
 
-[Probable cause, ruled out causes]
+**Probable cause**: [why this is code/design, not operational]
+**Ruled out**: [operational causes that were eliminated]
 
 ## Current state
 
-[Mitigation in place (Y/N), system status (Healthy|Degraded|Partially down|Down), SLO impact]
+**Mitigation in place**: Yes / No — [description if yes]
+**System status**: Healthy | Degraded | Partially down | Down
+**SLO impact**: [which SLOs affected, budget burn rate]
 
 ## Context
 
-[Recent deployments, related incidents]
+- Recent deployments: [last 24 hours]
+- Related incidents: [links to incident log entries]
 ```
 
 **Required fields:** ID, created, severity, suggested signal type, what was observed, metrics table, what Operator tried table, assessment, current state, context
@@ -140,11 +148,7 @@ Needs: [what human should investigate]
 **Completed**: [datetime]
 **Duration**: [time]
 
-## Result
-
-[If SUCCESS: deployment confirmed, all health checks passing]
-
-[If ROLLED_BACK or FAILED:]
+## If ROLLED_BACK or FAILED:
 
 **Trigger**: [what caused rollback/failure]
 **Rollback scope**: [which components]

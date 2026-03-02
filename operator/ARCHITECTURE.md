@@ -484,6 +484,12 @@ System-Operator needs to interact with infrastructure, monitoring systems, and n
 | | `renew(domain)` — trigger certificate renewal | Routine |
 | **Security** | `rotate_secret(secret_name, method)` — rotate a secret using defined method | Routine |
 | | `scan_vulnerabilities(scope)` — run dependency vulnerability scan | Routine |
+| **Read** | Read file contents (artefacts, state, runbooks) | All agents |
+| **Write** | Create or overwrite files (state, logs) | Dispatcher, Incident, Deployment, Capacity |
+| **Edit** | Modify file sections | (not used — Operator does not modify artefacts) |
+| **Glob** | Find files by pattern | Dispatcher, Incident, Deployment, Escalation, Capacity |
+| **Grep** | Search file contents | Dispatcher, Incident, Deployment, Escalation, Capacity |
+| **Task** | Spawn subagents for parallel or delegated work | Dispatcher, Incident, Deployment, Capacity, Escalation |
 
 ### Implementation notes
 
