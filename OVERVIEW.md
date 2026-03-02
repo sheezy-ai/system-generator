@@ -193,21 +193,28 @@ Breaking change to either contract = major version. New capabilities with unchan
 
 ```
 system-generator/
+  README.md                   ← repo landing page
   OVERVIEW.md                 ← this document
   ARTEFACT-SPEC.md            ← shared artefact format definitions
   INTEGRATION.md              ← Operator ↔ Maintainer signal contract
+  build-prompts.sh            ← builds agent prompts for all three frameworks
+  init-project.sh             ← scaffolds a new project and builds agents
   builder/                    ← System-Builder (creates systems)
     README.md                    quick start and stage overview
     agent-sources/               source templates for agent prompts
-    agents/                      built agent prompts
+    agents/                      built agent prompts (gitignored)
     docs/                        framework documentation
     guides/                      stage guides (abstraction levels)
-  operator/
+  operator/                   ← System-Operator (runs systems)
     OVERVIEW.md                  concept and workflows
     ARCHITECTURE.md              agent design and coordination
-  maintainer/
+    agent-sources/               source templates for agent prompts
+    agents/                      built agent prompts (gitignored)
+  maintainer/                 ← System-Maintainer (evolves systems)
     OVERVIEW.md                  concept and workflows
     ARCHITECTURE.md              agent design and coordination
+    agent-sources/               source templates for agent prompts
+    agents/                      built agent prompts (gitignored)
 ```
 
 ---

@@ -598,10 +598,10 @@ System-Maintainer's tool set is thinner than System-Operator's. Most interaction
 | Tool | Operations | Used by |
 |------|-----------|---------|
 | **Read** | Read file contents (code, specs, artefacts) | All agents |
-| **Write** | Create or overwrite files (code, specs, artefacts) | Patch, Extend, Evolve, Artefact Sync |
+| **Write** | Create or overwrite files (code, specs, artefacts) | Dispatcher, Investigation, Patch, Extend, Evolve, Artefact Sync, Consistency Verifier |
 | **Edit** | Modify file sections (spec updates, code changes) | Patch, Extend, Evolve, Artefact Sync |
-| **Grep** | Search code and doc contents | Investigation, Consistency Verifier |
-| **Glob** | Find files by pattern | Investigation, Consistency Verifier |
+| **Grep** | Search code and doc contents | All agents |
+| **Glob** | Find files by pattern | All agents |
 | **Test** | `run_tests(scope)` — run test suite (all, component, file) | Patch, Extend, Evolve |
 | | `run_tests(component, type)` — run specific test type (unit, integration, contract) | Patch, Extend, Evolve |
 | **Notifier** | `send_notification(channel, severity, message)` — send to notification channel | Escalation |
