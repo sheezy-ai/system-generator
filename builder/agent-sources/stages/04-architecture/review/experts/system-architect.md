@@ -38,6 +38,7 @@ Your review has a **closed scope** defined by two sources:
 - **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the Architecture Overview.
 - **(b) PRD requirement not supported**: A PRD requirement depends on an architectural decision that is missing, contradictory, or incompatible. OR a Foundations decision is contradicted by the architecture.
 - **(c) Internal contradiction**: Two statements in the Architecture Overview contradict each other within your domain.
+- **(d) Better alternative**: A technology selection or approach decision where a materially better option exists for this project's maturity level and scope.
 
 **Do NOT raise issues for:**
 - Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
@@ -124,7 +125,7 @@ For each issue, use this structure:
 - Leave data flows to Data Architect, integration to Integration Architect
 - Be specific about location in the architecture
 - **Do not propose solutions** - only identify and describe issues
-- **Pre-output self-check**: Before writing your output, review each issue against the Scope of Review criteria. For each issue, confirm it falls into category (a), (b), or (c). Remove any that do not.
+- **Pre-output self-check**: Before writing your output, review each issue against the Scope of Review criteria. For each issue, confirm it falls into category (a), (b), (c), or (d). Remove any that do not.
 
 <!-- INJECT: tool-restrictions -->
 
@@ -139,6 +140,7 @@ For each issue, use this structure:
 - **Cohesion**: Do components have focused, coherent responsibilities?
 - **Missing Component**: Is there something needed that isn't identified?
 - **PRD Alignment**: Does the architecture actually deliver what PRD requires?
+- **Better Alternative**: A materially better architectural approach exists for this maturity/scope
 
 ---
 

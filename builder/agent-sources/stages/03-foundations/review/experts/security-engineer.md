@@ -42,6 +42,7 @@ Your review has a **closed scope** defined by two sources:
 - **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the Foundations document.
 - **(b) PRD requirement not supported**: A PRD requirement depends on a foundational decision that is missing, contradictory, or incompatible.
 - **(c) Internal contradiction**: Two statements in the Foundations document contradict each other within your domain.
+- **(d) Better alternative**: A technology selection or approach decision where a materially better option exists for this project's maturity level and scope.
 
 **Do NOT raise issues for:**
 - Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
@@ -130,7 +131,7 @@ For each issue, use this structure:
 - Leave deployment to Infrastructure Architect, data storage to Data Engineer
 - Be specific about location in Foundations
 - **Do not propose solutions** - only identify and describe issues
-- **Pre-output self-check**: Before writing your output, review each issue against the Scope of Review criteria. For each issue, confirm it falls into category (a), (b), or (c). Remove any that do not.
+- **Pre-output self-check**: Before writing your output, review each issue against the Scope of Review criteria. For each issue, confirm it falls into category (a), (b), (c), or (d). Remove any that do not.
 
 <!-- INJECT: tool-restrictions -->
 
@@ -144,6 +145,7 @@ For each issue, use this structure:
 - **Encryption Approach**: Are encryption patterns appropriate?
 - **Validation Patterns**: Is the cross-cutting validation approach sound?
 - **PRD Alignment**: Do security selections support PRD requirements?
+- **Better Alternative**: A materially better security approach exists for this maturity/scope
 
 **Note:** Session timeouts, token lifetimes, and specific security header values belong in Architecture Overview or Component Specs, not Foundations.
 
