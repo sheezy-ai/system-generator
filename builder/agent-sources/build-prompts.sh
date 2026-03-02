@@ -790,4 +790,157 @@ fi
 echo "Specialist-agents build complete."
 echo ""
 
+echo "Builder build complete."
+echo ""
+
+# ===================================================================
+# Build Operator agent prompts
+# ===================================================================
+
+echo "Building Operator prompts..."
+echo ""
+
+# Operator paths (resolved to absolute paths)
+OPERATOR_ROOT="$(cd "$PROJECT_ROOT/.." && pwd)/operator"
+OPERATOR_SOURCES="$OPERATOR_ROOT/agent-sources"
+OPERATOR_AGENTS="$OPERATOR_ROOT/agents"
+
+# Operator-specific placeholder values
+# OPERATOR_AGENTS_PATH is resolved at build time (absolute path to built agents)
+OPERATOR_AGENTS_PATH="$OPERATOR_AGENTS"
+
+# Project-specific paths — override via environment for project-specific builds
+# If not set, placeholders remain in output for resolution at project init time
+OPERATOR_ARTEFACTS_PATH="${OPERATOR_ARTEFACTS_PATH:-}"
+OPERATOR_STATE_PATH="${OPERATOR_STATE_PATH:-}"
+
+# Build a single operator agent file
+build_operator_agent() {
+    local agent_file="$1"
+    local agent_name=$(basename "$agent_file" .md)
+
+    local output_file="$OPERATOR_AGENTS/$agent_name.md"
+
+    # Start with the core file
+    local content
+    content=$(cat "$agent_file")
+
+    # Inject common sections (shared from builder/agent-sources/common/)
+    content=$(inject_common_sections "$content")
+
+    # Substitute operator-specific placeholders
+    content="${content//\{\{OPERATOR_AGENTS_PATH\}\}/$OPERATOR_AGENTS_PATH}"
+
+    # Substitute project-specific paths only if set (otherwise placeholders remain)
+    if [[ -n "$OPERATOR_ARTEFACTS_PATH" ]]; then
+        content="${content//\{\{ARTEFACTS_PATH\}\}/$OPERATOR_ARTEFACTS_PATH}"
+    fi
+    if [[ -n "$OPERATOR_STATE_PATH" ]]; then
+        content="${content//\{\{STATE_PATH\}\}/$OPERATOR_STATE_PATH}"
+    fi
+
+    # Write output
+    mkdir -p "$(dirname "$output_file")"
+    echo "$content" > "$output_file"
+    echo "  Built: $output_file"
+}
+
+# Clean stale operator output files
+if [[ -d "$OPERATOR_SOURCES" ]]; then
+    clean_output_dir "$OPERATOR_AGENTS" "$OPERATOR_SOURCES"
+fi
+
+if [[ -d "$OPERATOR_SOURCES" ]]; then
+    for agent_file in "$OPERATOR_SOURCES"/*.md; do
+        if [[ -f "$agent_file" ]]; then
+            build_operator_agent "$agent_file"
+        fi
+    done
+fi
+
+echo "Operator build complete."
+echo ""
+
+# ===================================================================
+# Build Maintainer agent prompts
+# ===================================================================
+
+echo "Building Maintainer prompts..."
+echo ""
+
+# Maintainer paths (resolved to absolute paths)
+MAINTAINER_ROOT="$(cd "$PROJECT_ROOT/.." && pwd)/maintainer"
+MAINTAINER_SOURCES="$MAINTAINER_ROOT/agent-sources"
+MAINTAINER_AGENTS="$MAINTAINER_ROOT/agents"
+
+# Build-time resolved placeholder values
+# MAINTAINER_AGENTS_PATH: absolute path to built maintainer agents
+# BUILDER_AGENTS_PATH: absolute path to built builder agents (for Evolve Agent invoking SB review)
+# GENERATOR_ROOT: absolute path to system-generator root (for ARTEFACT-SPEC.md and other generator-level docs)
+MAINTAINER_AGENTS_PATH="$MAINTAINER_AGENTS"
+BUILDER_AGENTS_PATH="$AGENTS_DIR"
+GENERATOR_ROOT="$(cd "$PROJECT_ROOT/.." && pwd)"
+
+# Project-specific paths — override via environment for project-specific builds
+# If not set, placeholders remain in output for resolution at project init time
+MAINTAINER_MAINTENANCE_PATH="${MAINTAINER_MAINTENANCE_PATH:-}"
+MAINTAINER_OPERATIONS_PATH="${MAINTAINER_OPERATIONS_PATH:-}"
+MAINTAINER_SOURCE_PATH="${MAINTAINER_SOURCE_PATH:-}"
+MAINTAINER_STATE_PATH="${MAINTAINER_STATE_PATH:-}"
+
+# Build a single maintainer agent file
+build_maintainer_agent() {
+    local agent_file="$1"
+    local agent_name=$(basename "$agent_file" .md)
+
+    local output_file="$MAINTAINER_AGENTS/$agent_name.md"
+
+    # Start with the core file
+    local content
+    content=$(cat "$agent_file")
+
+    # Inject common sections (shared from builder/agent-sources/common/)
+    content=$(inject_common_sections "$content")
+
+    # Substitute build-time resolved placeholders
+    content="${content//\{\{MAINTAINER_AGENTS_PATH\}\}/$MAINTAINER_AGENTS_PATH}"
+    content="${content//\{\{BUILDER_AGENTS_PATH\}\}/$BUILDER_AGENTS_PATH}"
+    content="${content//\{\{GENERATOR_ROOT\}\}/$GENERATOR_ROOT}"
+
+    # Substitute project-specific paths only if set (otherwise placeholders remain)
+    if [[ -n "$MAINTAINER_MAINTENANCE_PATH" ]]; then
+        content="${content//\{\{MAINTENANCE_PATH\}\}/$MAINTAINER_MAINTENANCE_PATH}"
+    fi
+    if [[ -n "$MAINTAINER_OPERATIONS_PATH" ]]; then
+        content="${content//\{\{OPERATIONS_PATH\}\}/$MAINTAINER_OPERATIONS_PATH}"
+    fi
+    if [[ -n "$MAINTAINER_SOURCE_PATH" ]]; then
+        content="${content//\{\{SOURCE_PATH\}\}/$MAINTAINER_SOURCE_PATH}"
+    fi
+    if [[ -n "$MAINTAINER_STATE_PATH" ]]; then
+        content="${content//\{\{STATE_PATH\}\}/$MAINTAINER_STATE_PATH}"
+    fi
+
+    # Write output
+    mkdir -p "$(dirname "$output_file")"
+    echo "$content" > "$output_file"
+    echo "  Built: $output_file"
+}
+
+# Clean stale maintainer output files
+if [[ -d "$MAINTAINER_SOURCES" ]]; then
+    clean_output_dir "$MAINTAINER_AGENTS" "$MAINTAINER_SOURCES"
+fi
+
+if [[ -d "$MAINTAINER_SOURCES" ]]; then
+    for agent_file in "$MAINTAINER_SOURCES"/*.md; do
+        if [[ -f "$agent_file" ]]; then
+            build_maintainer_agent "$agent_file"
+        fi
+    done
+fi
+
+echo "Maintainer build complete."
+echo ""
+
 echo "Build complete."
