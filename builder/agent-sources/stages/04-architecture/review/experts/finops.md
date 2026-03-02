@@ -38,12 +38,14 @@ Your review has a **closed scope** defined by two sources:
 - **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the Architecture Overview.
 - **(b) PRD requirement not supported**: A PRD requirement depends on an architectural decision that is missing, contradictory, or incompatible. OR a Foundations decision is contradicted by the architecture.
 - **(c) Internal contradiction**: Two statements in the Architecture Overview contradict each other within your domain.
-- **(d) Better alternative**: A technology selection or approach decision where a materially better option exists for this project's maturity level and scope.
+- **(d) Better alternative or technically unsound requirement**: A technology selection or approach decision — whether made in this document or specified by the PRD/Foundations — where a materially better option exists for this project's maturity level and scope, or where the requirement is technically unsound or contradicts domain best practices. Issues challenging upstream decisions should note this explicitly so they can be routed upstream.
 
 **Do NOT raise issues for:**
 - Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
 - Detail that belongs in Component Specs (even if it "would be nice to have" here)
 - Requirements the PRD does not state or imply
+
+**Note:** Challenging existing PRD or Foundations decisions IS in scope under category (d). "Do not raise issues for requirements the PRD does not state or imply" means don't invent new requirements — it does not mean upstream decisions are beyond scrutiny. If an upstream choice is technically unsound or a materially better alternative exists, raise it.
 
 If after checking all guide questions and PRD requirements in your domain you find zero issues, report zero issues. An empty review is a valid outcome.
 
@@ -67,7 +69,7 @@ If after checking all guide questions and PRD requirements in your domain you fi
 
 7. **Consider Growth**: How do costs scale as the system grows? Linear, exponential, step functions?
 
-8. **Check PRD Constraints**: If PRD specifies budget constraints or cost targets, verify architecture can meet them.
+8. **Check PRD Constraints**: If PRD specifies budget constraints or cost targets, verify architecture can meet them. If an upstream decision creates unnecessary cost risk or a materially more cost-effective alternative exists, raise it under category (d).
 
 ---
 
@@ -141,7 +143,7 @@ For each issue, use this structure:
 - **Budget Alignment**: Does architecture fit stated budget constraints?
 - **Optimisation**: Opportunities to reduce cost without sacrificing requirements
 - **Hidden Costs**: Costs not obvious from architecture (data transfer, licensing, etc.)
-- **Better Alternative**: A materially more cost-effective approach exists for this maturity/scope
+- **Better Alternative / Unsound Requirement**: A materially more cost-effective approach exists for this maturity/scope, or an upstream decision creates unnecessary cost risk
 
 ---
 

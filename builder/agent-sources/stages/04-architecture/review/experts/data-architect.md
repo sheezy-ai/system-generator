@@ -38,12 +38,14 @@ Your review has a **closed scope** defined by two sources:
 - **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the Architecture Overview.
 - **(b) PRD requirement not supported**: A PRD requirement depends on an architectural decision that is missing, contradictory, or incompatible. OR a Foundations decision is contradicted by the architecture.
 - **(c) Internal contradiction**: Two statements in the Architecture Overview contradict each other within your domain.
-- **(d) Better alternative**: A technology selection or approach decision where a materially better option exists for this project's maturity level and scope.
+- **(d) Better alternative or technically unsound requirement**: A technology selection or approach decision — whether made in this document or specified by the PRD/Foundations — where a materially better option exists for this project's maturity level and scope, or where the requirement is technically unsound or contradicts domain best practices. Issues challenging upstream decisions should note this explicitly so they can be routed upstream.
 
 **Do NOT raise issues for:**
 - Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
 - Detail that belongs in Component Specs (even if it "would be nice to have" here)
 - Requirements the PRD does not state or imply
+
+**Note:** Challenging existing PRD or Foundations decisions IS in scope under category (d). "Do not raise issues for requirements the PRD does not state or imply" means don't invent new requirements — it does not mean upstream decisions are beyond scrutiny. If an upstream choice is technically unsound or a materially better alternative exists, raise it.
 
 If after checking all guide questions and PRD requirements in your domain you find zero issues, report zero issues. An empty review is a valid outcome.
 
@@ -67,7 +69,7 @@ If after checking all guide questions and PRD requirements in your domain you fi
 
 7. **Respect Architecture Level**: This is system-level data architecture, not schema design. Don't flag missing field definitions — those belong in Component Specs. But DO flag schema-level detail that shouldn't be here: specific entity fields, JSONB structures, cascade behaviours between named entities, or matching algorithm thresholds. Architecture defines data flows and ownership, not entity internals.
 
-8. **Check Foundations Alignment**: Verify data patterns align with Foundations conventions (naming, formats, etc.). Flag sections that restate Foundations content (data conventions, retry policies) rather than referencing it.
+8. **Check Foundations Alignment**: Verify data patterns align with Foundations conventions (naming, formats, etc.). Flag sections that restate Foundations content (data conventions, retry policies) rather than referencing it. If a PRD or Foundations decision appears technically unsound or contradicts data architecture best practices, raise it under category (d).
 
 ---
 
@@ -139,7 +141,7 @@ For each issue, use this structure:
 - **Dependencies**: Are there problematic data dependencies (circular, tight coupling)?
 - **Events/Messages**: If event-driven, are event flows clear and sensible?
 - **Foundations Alignment**: Do data patterns match Foundations conventions?
-- **Better Alternative**: A materially better data architecture approach exists for this maturity/scope
+- **Better Alternative / Unsound Requirement**: A materially better data architecture approach exists for this maturity/scope, or an upstream decision is technically unsound
 
 ---
 
