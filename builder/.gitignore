@@ -1,0 +1,5 @@
+tmp/
+
+# Generated outputs - built by init-project.sh / build-prompts.sh
+agents/
+system/
