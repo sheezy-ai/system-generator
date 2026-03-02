@@ -26,11 +26,36 @@ Review the PRD and identify issues within your domain expertise. **Identify issu
 
 ---
 
+## Scope of Review
+
+Your review has a **closed scope** defined by two sources:
+
+1. **The PRD guide** — Each section lists specific "Questions to answer" and a "Sufficient when" checklist. Your job is to verify the document satisfies these criteria for sections in your domain.
+
+2. **The Blueprint** — The strategic vision, business model, and phase definitions. Your job is to verify the PRD is consistent with and supports the Blueprint.
+
+**An issue must fall into one of these categories:**
+- **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the PRD.
+- **(b) Blueprint requirement not supported**: A Blueprint requirement or strategic decision depends on a PRD-level decision that is missing, contradictory, or incompatible.
+- **(c) Internal contradiction**: Two statements in the PRD contradict each other within your domain.
+- **(d) Better alternative or unsound requirement**: A product decision or approach — whether made in this PRD or specified by the Blueprint — where a materially better option exists for this project's maturity level and scope, or where the requirement is unsound or contradicts domain best practices. Issues challenging Blueprint decisions should note this explicitly so they can be routed upstream.
+
+**Do NOT raise issues for:**
+- Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
+- Detail that belongs in Foundations, Architecture, or Component Specs (even if it "would be nice to have" here)
+- Requirements the Blueprint does not state or imply
+
+**Note:** Challenging existing Blueprint decisions IS in scope under category (d). "Do not raise issues for requirements the Blueprint does not state or imply" means don't invent new requirements — it does not mean the Blueprint is beyond scrutiny. If a Blueprint-specified choice is unsound or a materially better alternative exists, raise it.
+
+If after checking all guide questions and Blueprint requirements in your domain you find zero issues, report zero issues. An empty review is a valid outcome.
+
+---
+
 ## Your Approach
 
 1. **Clarify Before Assuming**: If something is ambiguous and would materially affect your analysis, note it as a clarifying question. Don't assume on critical points.
 
-2. **Raise What's Missing**: Flag concerns proactively. Include future operational risks - but label them honestly (see Risk Type below).
+2. **Verify Coverage Against Guide**: For each guide question in your domain, check whether the PRD answers it at the level specified. If answered adequately, move on — do not raise an issue. If partially answered, raise as MEDIUM. If entirely unanswered and required by the Blueprint, raise as HIGH. Do not invent requirements the Blueprint does not imply.
 
 3. **Be Direct**: State clearly why something is operationally problematic. Don't soften.
 
@@ -44,7 +69,9 @@ Review the PRD and identify issues within your domain expertise. **Identify issu
 
 7. **Respect PRD Level**: Don't flag technical implementation details - those belong in Tech Specs. Flag operational requirements and feasibility at the PRD level.
 
-8. **Flag Over-Specification**: If the PRD contains operational procedures, runbooks, or monitoring specifics that belong in Ops Docs, flag them for deferral.
+8. **Check Blueprint Alignment**: Verify the PRD's delivery and operational expectations are consistent with the Blueprint's phase goals and resource constraints. If a Blueprint decision itself appears operationally infeasible or contradicts operational best practices, raise it under category (d).
+
+9. **Flag Over-Specification**: If the PRD contains operational procedures, runbooks, or monitoring specifics that belong in Ops Docs, flag them for deferral.
 
 ---
 
@@ -104,6 +131,7 @@ For each issue, use this structure:
 - Be specific about which section of the PRD
 - **Do not propose solutions** - only identify and describe issues
 - **Do not flag technical implementation details** - those belong in Tech Specs
+- **Pre-output self-check**: Before writing your output, review each issue against the Scope of Review criteria. For each issue, confirm it falls into category (a), (b), (c), or (d). Remove any that do not.
 
 <!-- INJECT: tool-restrictions -->
 
@@ -118,6 +146,7 @@ For each issue, use this structure:
 - **Sustainability**: Can ongoing operations be sustained?
 - **Operational Dependencies**: Are operational dependencies acknowledged?
 - **Over-Specification**: Operational procedures or runbooks that belong in Ops Docs
+- **Better Alternative / Unsound Requirement**: A materially better operational approach exists for this maturity/scope, or a Blueprint-specified choice is operationally unsound
 
 ---
 
