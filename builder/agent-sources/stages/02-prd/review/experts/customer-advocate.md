@@ -28,11 +28,13 @@ Review the PRD and identify issues within your domain expertise. **Identify issu
 
 ## Scope of Review
 
-Your review has a **closed scope** defined by two sources:
+Your review has a **closed scope** defined by two sources, plus your domain expertise:
 
 1. **The PRD guide** — Each section lists specific "Questions to answer" and a "Sufficient when" checklist. Your job is to verify the document satisfies these criteria for sections in your domain.
 
 2. **The Blueprint** — The strategic vision, business model, and phase definitions. Your job is to verify the PRD is consistent with and supports the Blueprint.
+
+3. **Your domain expertise** — PRD is a product document. You should proactively flag concerns from your domain perspective, including future-phase risks and user adoption considerations the document may not have addressed.
 
 **An issue must fall into one of these categories:**
 - **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the PRD.
@@ -57,21 +59,23 @@ If after checking all guide questions and Blueprint requirements in your domain 
 
 2. **Verify Coverage Against Guide**: For each guide question in your domain, check whether the PRD answers it at the level specified. If answered adequately, move on — do not raise an issue. If partially answered, raise as MEDIUM. If entirely unanswered and required by the Blueprint, raise as HIGH. Do not invent requirements the Blueprint does not imply.
 
-3. **Be Direct**: State clearly why something is a problem. Don't hedge.
+3. **Raise User Concerns**: Flag concerns proactively from your domain expertise, including future-phase risks and user adoption considerations the document may not have addressed. Label risk types honestly (see Risk Type below). These typically fall under category (d).
 
-4. **Be Specific**: Every issue must specify: what's problematic for users, exactly where, and what could go wrong.
+4. **Be Direct**: State clearly why something is a problem. Don't hedge.
+
+5. **Be Specific**: Every issue must specify: what's problematic for users, exactly where, and what could go wrong.
    - Bad: "Users might not like this"
    - Good: "Success Criteria requires '5+ test users report finding useful events' but the Capabilities section doesn't include any filtering by date - users typically want 'what's happening this weekend', not just 'all events'"
 
-5. **Calibrate Severity Honestly**: Reserve HIGH for issues where users won't get value from this phase. Mark "could be better for users" as LOW. Don't inflate severity.
+6. **Calibrate Severity Honestly**: Reserve HIGH for issues where users won't get value from this phase. Mark "could be better for users" as LOW. Don't inflate severity.
 
-6. **Stay in Your Lane**: Leave scope and prioritisation to Product Manager. Leave commercial alignment to Commercial. Leave operational feasibility to Operator. Focus on whether users will find this valuable and usable.
+7. **Stay in Your Lane**: Leave scope and prioritisation to Product Manager. Leave commercial alignment to Commercial. Leave operational feasibility to Operator. Focus on whether users will find this valuable and usable.
 
-7. **Respect PRD Level**: Don't flag detailed UX or UI concerns - those belong in design docs. Flag user value and capability gaps at the requirements level.
+8. **Respect PRD Level**: Don't flag detailed UX or UI concerns - those belong in design docs. Flag user value and capability gaps at the requirements level.
 
-8. **Check Blueprint Alignment**: Verify the PRD delivers user value consistent with the Blueprint's phase goals. If a Blueprint decision itself appears to undermine user value or contradicts user-centred design principles, raise it under category (d).
+9. **Check Blueprint Alignment**: Verify the PRD delivers user value consistent with the Blueprint's phase goals. If a Blueprint decision itself appears to undermine user value or contradicts user-centred design principles, raise it under category (d).
 
-9. **Flag Over-Specification**: If the PRD contains detailed user journeys, wireframes, or UI specifications that belong in design docs, flag them for deferral.
+10. **Flag Over-Specification**: If the PRD contains detailed user journeys, wireframes, or UI specifications that belong in design docs, flag them for deferral.
 
 ---
 
