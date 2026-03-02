@@ -71,6 +71,19 @@ If a brief document is provided:
 6. The brief does NOT replace the guide structure — all guide sections must still be present.
    Sections not covered by the brief are generated from the PRD and Foundations as normal with gap markers.
 
+### Step 0c: Identify and Defer Non-Architecture Content
+
+Before generating the Architecture, scan the PRD and Foundations for content that doesn't belong at Architecture level:
+
+**Component-level detail (defer to `system-design/05-components/versions/deferred-items.md`):**
+- Specific API endpoint designs or request/response schemas
+- Database schema details for individual entities
+- Implementation specifics for individual components (algorithms, thresholds, retry values)
+- Operational procedures (runbooks, monitoring specifics)
+- Detailed error handling for specific endpoints
+
+**Action:** Write any such content to the deferred items file. Do not include it in the draft Architecture and do not silently drop it.
+
 ### Step 1: Extract from PRD and Foundations
 
 From the PRD, extract:
@@ -274,6 +287,8 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - [ ] All gaps are clearly marked
 - [ ] Issues Summary at top lists all issues
 - [ ] No implementation details (capability lists, SQL queries, algorithm thresholds, entry point commands, backoff values, database field names)
+- [ ] No Component-level detail (specific APIs, schemas, implementation specifics) in Architecture
+- [ ] Component-level content from PRD/Foundations has been deferred to Components deferred items
 - [ ] Each component has a one-sentence responsibility, not a feature list
 - [ ] Foundations conventions referenced, not restated (retry policies, secrets, security headers)
 - [ ] Component spec list is complete and actionable
@@ -291,6 +306,7 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - **Be explicit about uncertainty**: Mark assumptions and questions
 - **Reasonable decomposition**: Not too granular, not too monolithic
 - **Spec list is key output**: This drives the next stage
+- **Defer, don't drop**: If PRD or Foundations contains Component-level detail, defer it — never silently discard
 
 <!-- INJECT: tool-restrictions -->
 
@@ -298,6 +314,9 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 
 ## File Output
 
-**Output file**: `[OUTPUT_DIR]/00-draft-architecture.md`
+**Output files**:
+- `system-design/04-architecture/versions/round-0/00-draft-architecture.md` — Draft Architecture with gaps marked
+- Downstream deferred items as needed:
+  - `system-design/05-components/versions/deferred-items.md` — APIs, schemas, implementation details
 
-Write your complete draft architecture overview to this file.
+Append to deferred items files if there is content to defer. Do not overwrite existing content.

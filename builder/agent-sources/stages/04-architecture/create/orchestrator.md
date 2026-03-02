@@ -4,15 +4,15 @@
 
 ## Purpose
 
-Initialize the Architecture stage by setting up structure and generating a draft Architecture Overview from the PRD and Foundations. The human then augments the draft before running the Review workflow.
+Initialize the Architecture stage by setting up structure, generating a draft Architecture Overview from the PRD and Foundations, resolving any gaps through structured discussion, and promoting the final draft to `architecture.md` for the Review workflow.
 
-**Flow:** Orchestrator (this) → Human augments → Review workflow
+**Flow:** Orchestrator (this) → Generator → Gap Discussion (if gaps) → Author (if gaps) → Promote → Review workflow
 
 ---
 
 ## When to Run
 
-Run this orchestrator once at the start of the Architecture stage, after the PRD and Foundations are complete.
+Run this orchestrator at the start of the Architecture stage, after the PRD and Foundations are complete. Safe to re-invoke — the orchestrator reads its state file and resumes from the last completed step.
 
 ---
 
@@ -20,11 +20,15 @@ Run this orchestrator once at the start of the Architecture stage, after the PRD
 
 **PRD**: `system-design/02-prd/prd.md`
 **Foundations**: `system-design/03-foundations/foundations.md`
+**State file**: `system-design/04-architecture/versions/workflow-state.md`
 **Output directory**: `system-design/04-architecture/versions/round-0`
 **Draft output**: `system-design/04-architecture/versions/round-0/00-draft-architecture.md`
-**State file**: `system-design/04-architecture/versions/workflow-state.md`
+**Gap discussion**: `system-design/04-architecture/versions/round-0/01-gap-discussion.md`
+**Author output**: `system-design/04-architecture/versions/round-0/02-author-output.md`
+**Updated draft**: `system-design/04-architecture/versions/round-0/03-updated-architecture.md`
 **Brief (optional)**: `system-design/04-architecture/brief.md`
-**Final outputs** (created by Review workflow promoter):
+**Promoted output**: `system-design/04-architecture/architecture.md`
+**Final outputs** (created by Review workflow promoter — overwrites promoted output):
 - `system-design/04-architecture/architecture.md` — Clean current-scope Architecture Overview
 - `system-design/04-architecture/decisions.md` — Design rationale and trade-offs
 - `system-design/04-architecture/future.md` — Deferred items and future considerations
@@ -36,10 +40,16 @@ Run this orchestrator once at the start of the Architecture stage, after the PRD
 ```
 agents/04-architecture/create/
 ├── orchestrator.md                    # This file
-└── generator.md                       # Creates draft from PRD + Foundations
+├── generator.md                       # Creates draft from PRD + Foundations
+└── author.md                          # Applies resolved gap discussions
+
+agents/universal-agents/
+├── gap-formatter.md                   # Extracts gaps into discussion format
+├── gap-analyst.md                     # Proposes solutions for each gap
+└── discussion-facilitator.md          # Facilitates gap discussions
 
 agents/04-architecture/review/
-├── orchestrator.md                    # Review workflow (run after human augments)
+├── orchestrator.md                    # Review workflow (run after create completes)
 ├── experts/
 └── workflow/
 ```
@@ -50,14 +60,62 @@ agents/04-architecture/review/
 
 ```
 system-design/04-architecture/
-├── architecture.md                # Clean current-scope (created by Review promoter)
+├── architecture.md                # Promoted from create (then overwritten by Review promoter)
 ├── decisions.md                   # Design rationale (created by Review promoter)
 ├── future.md                      # Deferred items (created by Review promoter)
 └── versions/
     ├── deferred-items.md           # Upstream gaps for this stage
     ├── pending-issues.md          # Issues logged against this stage
+    ├── workflow-state.md              # Unified workflow state (shared with Review)
     └── round-0/
-        └── 00-draft-architecture.md
+        ├── 00-draft-architecture.md             # Generator output
+        ├── 01-gap-discussion.md                 # Gap formatter output (if gaps exist)
+        ├── 02-author-output.md                  # Author changelog (if gaps exist)
+        └── 03-updated-architecture.md           # Author output (if gaps exist)
+```
+
+---
+
+## Workflow State Management
+
+**State file**: `system-design/04-architecture/versions/workflow-state.md`
+
+### On Start/Resume
+
+1. **Check if state file exists**:
+   - **If NO**: Fresh start — create state file, begin at Step 1
+   - **If YES**: Read it, resume from the first incomplete step
+
+2. **Resume logic**:
+   - Steps 1-3b (Validate & Setup) are idempotent — always re-run on resume for validation
+   - Step 4 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
+   - Steps 5-7 conditional on `Gaps Exist` flag — if `false`, skip to Step 8
+   - Step 6 can resume at WAITING_FOR_HUMAN — re-read discussion file and continue loop
+   - Step 8 (Promote) — if marked complete, workflow is done
+
+3. **Update state file** at each step transition (instructions inline below)
+
+### State File Format
+
+```markdown
+# Architecture Workflow State
+
+**Current Round**: 0
+**Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
+**Gaps Exist**: unknown | true | false
+
+## Progress
+
+### Round 0 (Creation)
+- [ ] Step 1-3b: Validate & Setup
+- [ ] Step 4: Run Generator
+- [ ] Step 5: Format & Analyse Gaps
+- [ ] Step 6: Discussion Loop
+- [ ] Step 7: Apply Decisions
+- [ ] Step 8: Promote & Report
+
+## History
+- YYYY-MM-DD HH:MM: Creation workflow started
 ```
 
 ---
@@ -66,23 +124,30 @@ system-design/04-architecture/
 
 **Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately with Step 1.
 
+**State file updates**: Update the state file before and after each step as instructed below. These updates enable workflow resume and provide audit trail.
+
 **IMPORTANT: File-First Principle**
 - Do NOT pass file contents or summaries to agents
 - Only pass file PATHS - agents read files themselves
 
 **Orchestrator Boundaries**
 - You READ input files to validate they exist
-- You SPAWN the Generator agent to do work
+- You SPAWN agents (Generator, Gap Formatter, Discussion Facilitator, Author) to do work
 - You CREATE structure files (deferred-items.md, pending-issues.md)
-- You DO NOT write the draft Architecture - the Generator does that
+- You COPY the final draft to `architecture.md` (promotion)
+- You DO NOT write draft Architecture content, gap discussion content, or author output — agents do that
 
 ### Step 1: Validate Prerequisites
 
+0. **Update state file**: Set status = IN_PROGRESS (create state file if fresh start)
+
 1. **Check PRD exists** at `system-design/02-prd/prd.md`
    - **If NO**: Error - "Cannot initialize Architecture - PRD not found"
+   - **If YES**: Continue
 
 2. **Check Foundations exists** at `system-design/03-foundations/foundations.md`
    - **If NO**: Error - "Cannot initialize Architecture - Foundations not found"
+   - **If YES**: Continue
 
 ### Step 2: Setup Structure
 
@@ -115,10 +180,13 @@ system-design/04-architecture/
    <!-- No issues logged yet -->
    ```
 
+4. **Ensure downstream deferred items files exist** (Generator may append to these):
+   - `system-design/05-components/versions/deferred-items.md`
+
 ### Step 3: Deferred Items Intake
 
 1. **Read deferred items** at `system-design/04-architecture/versions/deferred-items.md`
-   - Note: May already contain items deferred by Foundations Generator
+   - Note: May already contain items deferred by PRD or Foundations Generators
 
 2. **If empty or no PENDING items**: Skip to Step 4
 
@@ -144,7 +212,11 @@ system-design/04-architecture/
 2. **If brief exists**: Will be passed to Generator as additional input
 3. **If no brief**: Continue without (standard generation)
 
+4. **Update state file**: Mark "Step 1-3b: Validate & Setup" complete `[x]`, add history entry
+
 ### Step 4: Run Generator
+
+**On resume**: If Step 4 already marked complete, verify `00-draft-architecture.md` exists and skip to Step 5. Do NOT re-run the Generator (it appends to downstream deferred items files and would create duplicates).
 
 1. **Spawn Generator agent** using Task tool:
    ```
@@ -158,62 +230,252 @@ system-design/04-architecture/
    - Brief: system-design/04-architecture/brief.md (if exists)
 
    Output: system-design/04-architecture/versions/round-0/00-draft-architecture.md
+
+   Downstream deferred items (Generator may append):
+   - Components: system-design/05-components/versions/deferred-items.md
    ```
 
 2. **Wait for Generator to complete**
 
 3. **Verify output exists** at `system-design/04-architecture/versions/round-0/00-draft-architecture.md`
 
-### Step 5: Report to Human
+4. **Update state file**: Mark "Step 4: Run Generator" complete `[x]`, add history entry
 
-1. **Read the draft** to extract:
-   - Gap count (markers: `[QUESTION`, `[DECISION NEEDED`, `[ASSUMPTION`, `[TODO`, `[CLARIFY`)
-   - Component list (from Section 6: Component Spec List)
-   - Data contracts (from Section 8: Data Contracts)
+### Step 5: Format & Analyse Gaps
 
-2. **Present summary**:
+1. **Read the draft** at `system-design/04-architecture/versions/round-0/00-draft-architecture.md`
+
+2. **Check for Issues Summary section** — Look for `## Issues Summary` heading
+
+3. **If no Issues Summary, or all subsections empty** (Must Answer, Should Answer, and Assumptions all show "None" or similar):
+   - **Update state file**: Set `Gaps Exist` = `false`, mark Steps 5-7 complete `[x]`, add history entry "No gaps found — skipping to promotion"
+   - **Skip Steps 5-7, proceed to Step 8**
+
+4. **Spawn Gap Formatter agent** using Task tool:
    ```
-   Architecture initialization complete.
+   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/gap-formatter.md
 
-   Draft Architecture: system-design/04-architecture/versions/round-0/00-draft-architecture.md
+   Input:
+   - Draft: system-design/04-architecture/versions/round-0/00-draft-architecture.md
 
-   Brief: [Used / Not provided]
-
-   Gap summary:
-   - [N] MUST_ANSWER items
-   - [M] SHOULD_ANSWER items
-   - [K] Assumptions to validate
-
-   Components identified:
-   - [component-1]
-   - [component-2]
-   - ...
-
-   Data contracts identified: [N] contracts
-
-   Next steps:
-   1. Review the draft - validate component boundaries, data flows
-   2. Optionally ask Claude to tidy up the draft
-   3. When ready, run the Architecture Review workflow
+   Output: system-design/04-architecture/versions/round-0/01-gap-discussion.md
    ```
 
-### Step 6: Record Completion
+5. **Wait for Gap Formatter to complete**
 
-1. **Write state file** at `system-design/04-architecture/versions/workflow-state.md`:
-   ```markdown
-   # Architecture Workflow State
+6. **Verify output exists** at `system-design/04-architecture/versions/round-0/01-gap-discussion.md`
 
-   **Current Round**: 0
-   **Status**: COMPLETE
+7. **Read output** — count gaps by severity for the Step 6 handoff message
 
-   ## Progress
-
-   ### Round 0 (Creation)
-   - [x] Step 1: Generate Architecture
-
-   ## History
-   - [date]: Creation workflow complete
+8. **Spawn Gap Analyst agents** using Task tool (batch by section, same grouping as Discussion Facilitator):
    ```
+   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/gap-analyst.md
+
+   Context documents:
+   - Draft Architecture: system-design/04-architecture/versions/round-0/00-draft-architecture.md
+   - PRD: system-design/02-prd/prd.md
+   - Foundations: system-design/03-foundations/foundations.md
+   - Brief: system-design/04-architecture/brief.md (if exists)
+
+   Gap discussion file: system-design/04-architecture/versions/round-0/01-gap-discussion.md
+   Gaps: [GAP-001, GAP-002, ...]
+   ```
+
+9. **Wait for all Gap Analyst agents to complete**
+
+10. **Verify analyst responses were written** (MANDATORY):
+    - Count `>> AGENT:` markers in the gap discussion file
+    - Compare to total number of gaps
+    - If counts don't match: identify missing gaps and re-invoke Gap Analyst for those only
+
+11. **Update state file**: Set `Gaps Exist` = `true`, mark "Step 5: Format & Analyse Gaps" complete `[x]`, add history entry with gap counts
+
+### Step 6: Discussion Loop
+
+**On resume**: If status = WAITING_FOR_HUMAN for Step 6, re-read `01-gap-discussion.md` and continue the discussion loop from step 11(a) below — identify which gaps still need responses.
+
+8. **Update state file**: Set status = WAITING_FOR_HUMAN, add history entry
+
+9. **Notify user** gap analysis is ready for review:
+   ```
+   Gap analysis complete.
+
+   Discussion file: system-design/04-architecture/versions/round-0/01-gap-discussion.md
+
+   - [N] HIGH (Must Answer) gaps
+   - [M] MEDIUM (Should Answer) gaps
+   - [K] LOW (Assumptions to Validate) gaps
+
+   Each gap has a proposed solution with options, trade-offs, and recommendation.
+   Please review each proposal and respond using >> HUMAN: markers:
+   - Accept: "Agreed", "Yes", "That works"
+   - Modify: State what you'd change
+   - Reject/Discuss: Explain your concern
+
+   When done, let me know and I'll process your responses.
+   ```
+
+**STOP: Wait for human response before proceeding.**
+
+Do NOT enter the discussion loop until the human has added actual response content after `>> HUMAN:` markers. An empty `>> HUMAN:` marker (as generated by Gap Formatter) is a placeholder for where the human WILL respond — it is not a response itself.
+
+Only proceed to step 10 after the human signals they have responded (e.g., "done", "ready", "I've responded", or resumes the conversation after editing the file).
+
+10. **Discussion markers**:
+   - Human responds using `>> HUMAN:` prefix
+   - Agent responds using `>> AGENT:` prefix
+   - `>> RESOLVED` marks discussion complete (added by orchestrator only)
+
+11. **Discussion loop**:
+
+    a. **Identify gaps needing agent response**: Read file, find gaps where last entry is `>> HUMAN:` without subsequent `>> AGENT:`
+
+    b. **Group gaps into batches** (2-3 batches recommended):
+       - Group by Architecture section number (gaps contain `**Section**: §N`)
+       - Batch 1: Sections 1-3 (System Context, Component Decomposition, Data Flows)
+       - Batch 2: Sections 4-6 (Integration Points, Key Technical Decisions, Component Spec List)
+       - Batch 3: Sections 7-9 (Cross-Cutting Concerns, Data Contracts, Open Questions)
+       - If fewer than 4 gaps total, use fewer batches
+
+    c. **Invoke Discussion Facilitator agents** (one per batch, in parallel):
+       ```
+       Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
+
+       Context documents:
+       - Draft Architecture: system-design/04-architecture/versions/round-0/00-draft-architecture.md
+       - PRD: system-design/02-prd/prd.md
+       - Foundations: system-design/03-foundations/foundations.md
+
+       Issues file: system-design/04-architecture/versions/round-0/01-gap-discussion.md
+       Issues: [GAP-001, GAP-002, ...]
+       ```
+
+    d. **Wait for all agents to complete**
+
+    e. **Verify agent responses were written** (MANDATORY):
+       - Count `>> AGENT:` markers in the gap discussion file
+       - Compare to number of gaps that were assigned to Discussion Facilitators
+       - If counts match: Proceed to step (f)
+       - If counts don't match:
+         - Identify which gaps are missing `>> AGENT:` responses
+         - Re-invoke Discussion Facilitators for ONLY the missing gaps
+         - Repeat verification until all assigned gaps have responses
+
+    f. **Present to human**: "Please review the agent responses and reply to each gap."
+
+    g. **Wait for human responses**
+
+    h. **After human responds**, read file and for each gap:
+       - If last entry is `>> HUMAN:` after `>> AGENT:` AND response indicates closure → add `>> RESOLVED`
+       - If last entry is `>> HUMAN:` with question, pushback, or request → leave open
+
+    i. **If any gaps unresolved**: Go to step (a)
+
+    j. **If all gaps resolved**: Proceed to Step 7
+
+12. **Resolution indicators** (human response after `>> AGENT:` that signals done):
+    - Agreement: "Yes", "Agreed", "That works", "Fine", "OK"
+    - Dismissal: "Not a concern", "Not relevant", "Ignore", "Skip"
+    - Acceptance: "Makes sense", "Fair enough", "Understood"
+
+13. **Continue discussion indicators** (do NOT mark resolved):
+    - Questions: "?", "What about", "How would", "Can you"
+    - Requests: "Please", "Can you", "I'd like", "Show me"
+    - Pushback: "I disagree", "That's not right", "But what about"
+
+### Step 6→7 Gate
+
+**Before invoking Author:**
+1. Read `01-gap-discussion.md`
+2. Verify EVERY gap has `>> RESOLVED` marker
+3. If any gap lacks `>> RESOLVED`: Do NOT proceed. Continue discussion loop.
+4. Only proceed to Step 7 when all gaps show `>> RESOLVED`
+
+This gate is mandatory. Do not skip it.
+
+5. **Update state file**: Mark "Step 6: Discussion Loop" complete `[x]`, set status = IN_PROGRESS, add history entry "All gaps resolved"
+
+### Step 7: Apply Decisions
+
+14. **Spawn Author agent** using Task tool:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/04-architecture/create/author.md
+
+    Input:
+    - Draft Architecture: system-design/04-architecture/versions/round-0/00-draft-architecture.md
+    - Gap discussion: system-design/04-architecture/versions/round-0/01-gap-discussion.md
+    - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
+
+    Output:
+    - Change log: system-design/04-architecture/versions/round-0/02-author-output.md
+    - Updated Architecture: system-design/04-architecture/versions/round-0/03-updated-architecture.md
+    ```
+
+15. **Wait for Author to complete**
+
+16. **Verify outputs exist**:
+    - `system-design/04-architecture/versions/round-0/02-author-output.md`
+    - `system-design/04-architecture/versions/round-0/03-updated-architecture.md`
+
+17. **Update state file**: Mark "Step 7: Apply Decisions" complete `[x]`, add history entry
+
+### Step 8: Promote & Report
+
+18. **Determine final draft path**:
+    - If Steps 5-7 ran (gaps existed): Use `system-design/04-architecture/versions/round-0/03-updated-architecture.md`
+    - If Steps 5-7 were skipped (no gaps): Use `system-design/04-architecture/versions/round-0/00-draft-architecture.md`
+
+19. **Copy final draft to `architecture.md`** using Bash cp:
+    ```
+    cp [final draft path] system-design/04-architecture/architecture.md
+    ```
+
+20. **Verify promotion** — Confirm `system-design/04-architecture/architecture.md` exists
+
+21. **Update state file**: Mark "Step 8: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
+
+22. **Check downstream deferred items** for items the Generator deferred
+
+23. **Present summary**:
+    ```
+    Architecture creation complete.
+
+    Draft: system-design/04-architecture/versions/round-0/00-draft-architecture.md
+    [If gaps resolved:]
+    Updated: system-design/04-architecture/versions/round-0/03-updated-architecture.md
+    Promoted to: system-design/04-architecture/architecture.md
+
+    Brief: [Used / Not provided]
+
+    [If gaps were resolved:]
+    Gap resolution:
+    - [N] gaps discussed
+    - [M] changes applied by author
+    - [K] flagged for attention (see 02-author-output.md)
+
+    [If no gaps:]
+    No gaps found — brief was fully specified.
+
+    Deferred to downstream:
+    - [X] items to Components deferred items
+
+    Next steps:
+    1. Review architecture.md — verify promoted content looks correct
+    2. When ready, run the Architecture Review workflow
+       (Review reads from: system-design/04-architecture/architecture.md)
+    ```
+
+---
+
+## Stopping Points
+
+**Automatic flow (do NOT pause for human confirmation):**
+- Steps 1 → 2 → 3 → 3b → 4 → 5: Proceed automatically through to gap analysis
+- Step 7 → 8: Execute after all gaps resolved
+
+**Human checkpoints:**
+- **Step 6** — WAITING FOR HUMAN for gap discussion until all gaps resolved
+- **Step 5 → 8 skip** — If no gaps, proceed automatically from Step 5 check to Step 8
 
 ---
 
@@ -225,6 +487,13 @@ system-design/04-architecture/
 | Foundations not found | Error: "Cannot initialize Architecture - Foundations not found at system-design/03-foundations/foundations.md" |
 | Generator fails | Error: Report failure details |
 | Draft not created | Error: "Generator completed but draft not found at expected path" |
+| Gap Formatter fails | Error: Report failure details |
+| Gap discussion file not created | Error: "Gap Formatter completed but output not found at expected path" |
+| Author fails | Error: Report failure details |
+| Author output files not created | Error: "Author completed but outputs not found at expected paths" |
+| Promotion copy fails | Error: "Failed to copy final draft to architecture.md" |
+| State file corrupted/unreadable | Warning: Report issue, re-create state from file existence checks |
+| Resume: draft missing but Step 4 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
 
 ---
 
@@ -232,15 +501,17 @@ system-design/04-architecture/
 
 After this orchestrator completes:
 
-1. **Human reviews draft** - Opens `00-draft-architecture.md`, validates component decomposition, data flows
-2. **Human optionally tidies** - Can ask Claude to clean up the draft
-3. **Human runs Review workflow** - Invokes the Architecture Review orchestrator
+1. **Human reviews promoted Architecture** — Opens `system-design/04-architecture/architecture.md`
+2. **Human optionally makes manual edits** — Can refine directly
+3. **Human runs Review workflow** — Invokes the Architecture Review orchestrator
+
+**IMPORTANT**: The Review workflow reads from `system-design/04-architecture/architecture.md` for Round 1. This file is created by the promotion step (Step 8). It MUST exist before starting the Review workflow.
 
 The Review workflow will:
-- Run expert reviewers on the draft
+- Run expert reviewers on the Architecture
 - Facilitate discussion on issues found
-- Author the final Architecture
-- Verify alignment with PRD and Foundations
+- Author changes and verify alignment with PRD and Foundations
+- Promote final version (overwriting `architecture.md` with reviewed version)
 
 ---
 
