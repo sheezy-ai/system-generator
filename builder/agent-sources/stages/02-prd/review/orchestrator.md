@@ -472,7 +472,7 @@ This gate is mandatory. Do not skip it.
 
     | ID | Status | Summary |
     |----|--------|---------|
-    | CLU-001 | PARTIALLY_RESOLVED | [summary] |
+    | PRD-001 | PARTIALLY_RESOLVED | [summary] |
 
     ## Alignment Verification
 
@@ -525,7 +525,7 @@ This gate is mandatory. Do not skip it.
 
     | ID | Summary | Status |
     |----|---------|--------|
-    | CLU-001 | [summary] | PARTIALLY_RESOLVED |
+    | PRD-001 | [summary] | PARTIALLY_RESOLVED |
 
     For each: **ACCEPT** (proceed as-is) or **REWORK** (return to Author)?
 
