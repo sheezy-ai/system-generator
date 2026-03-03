@@ -30,11 +30,9 @@ Given the current PRD and approved solutions from human review, apply the change
 5. **Skip unresolved discussions** — Issues without resolution confirmation
 6. **Read consolidated issues** for additional context if needed
 7. Apply approved changes from each resolved discussion's proposed change
-8. **Document no-change decisions** — For resolved issues where no change was needed, add rationale notes (see Documenting Review Decisions)
-9. **Add scope deferral notes** — For items listed in the Deferred Items table, add scope notes (see Documenting Review Decisions)
-10. **Write change log** to `04-author-output.md`
-11. **Create updated PRD** — First copy the input PRD to `05-updated-prd.md`, then apply targeted Edit operations for each change. Do NOT regenerate the entire document.
-12. Do NOT rely on any summaries - read the source files directly
+8. **Write change log** to `04-author-output.md`
+9. **Create updated PRD** — First copy the input PRD to `05-updated-prd.md`, then apply targeted Edit operations for each change. Do NOT regenerate the entire document.
+10. Do NOT rely on any summaries - read the source files directly
 
 ---
 
@@ -48,7 +46,7 @@ Given the current PRD and approved solutions from human review, apply the change
 6. **Document changes** — Produce clear change log for traceability
 7. **Flag ambiguity** — If a solution is unclear, flag it rather than guess
 8. **Summarize deferred items** — Include deferred items summary for handoff
-9. **Document review decisions** — Record no-change rationale and scope deferral notes in the document to prevent future re-raises
+9. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. The pipeline handles re-raise prevention structurally.
 
 ---
 
@@ -89,8 +87,6 @@ Given the current PRD and approved solutions from human review, apply the change
 - **Skipped**: [N] (PENDING, NEEDS_DISCUSSION, or REJECTED)
 - **Discussions Incorporated**: [N]
 - **Unresolved Discussions**: [N]
-- **No-Change Rationale Added**: [N]
-- **Scope Notes Added**: [N]
 
 ---
 
@@ -230,53 +226,6 @@ If a discussion lacks `>> RESOLVED`:
 
 ---
 
-## Documenting Review Decisions
-
-After applying all changes, process two additional categories. These prevent future experts from re-raising issues that were already considered.
-
-### No-Change Rationale
-
-For each resolved issue where the human decided **no change was needed**, add a brief rationale note in the relevant document section.
-
-**How to find them**: In `03-issues-discussion.md`, look for `>> RESOLVED` issues where the human response indicates no change (e.g., "no change needed", "acceptable as-is", "not a concern") or where no `**Proposed PRD change**:` block exists.
-
-**What to add**: An HTML comment near the relevant content:
-
-```markdown
-<!-- Reviewed: PRD-009 - Manual moderation workflow confirmed as acceptable for MVP volume. -->
-```
-
-**Log in change log** as:
-
-```markdown
-### Rationale [N]: [PRD-ID] - [Issue Summary]
-- **Action**: NO_CHANGE_DOCUMENTED
-- **Section**: [PRD section]
-- **Rationale**: [Why no change was needed]
-```
-
-### Scope Deferral Notes
-
-The `03-issues-discussion.md` file includes a **Deferred Items** table at the top, listing issues the Scope Filter routed to downstream stages. For each deferred item, add a brief scope note in the relevant document section.
-
-**What to add**: An HTML comment near the relevant content:
-
-```markdown
-<!-- Scope: Database indexing strategy is defined in the Foundations document. -->
-```
-
-**Log in change log** as:
-
-```markdown
-### Scope Note [N]: [PRD-ID] - [Issue Summary]
-- **Action**: SCOPE_NOTE_ADDED
-- **Section**: [PRD section]
-- **Deferred To**: [Downstream stage]
-- **Note**: [What was added]
-```
-
----
-
 ## Decision Source References
 
 When updating the PRD's Key Decisions section, include a source reference to enable traceability:
@@ -303,8 +252,7 @@ This enables tracing any decision back to its originating discussion in `version
 - [ ] PRD voice and tone preserved
 - [ ] Deferred items summarized for handoff
 - [ ] Unresolved discussions flagged in change log
-- [ ] No-change closures have rationale documented in relevant document sections
-- [ ] Deferred items have scope notes in relevant document sections
+- [ ] No `<!-- Reviewed: -->` or `<!-- Scope: -->` HTML comments added to document
 
 ---
 

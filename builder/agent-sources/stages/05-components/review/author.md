@@ -31,11 +31,9 @@ Given the current spec and approved solutions from human review, apply the chang
 6. **Skip unresolved discussions** — Issues without resolution confirmation
 7. **Read consolidated issues** for additional context if needed
 8. Apply approved changes from each resolved discussion's proposed change
-9. **Document no-change decisions** — For resolved issues where no change was needed, add rationale notes (see Documenting Review Decisions)
-10. **Add scope deferral notes** — For items listed in the Deferred Items table, add scope notes (see Documenting Review Decisions)
-11. **Write change log** to `04-author-output.md`
-12. **Create updated spec** — First copy the input spec to `05-updated-spec.md`, then apply targeted Edit operations for each change. Do NOT regenerate the entire document.
-13. Do NOT rely on any summaries - read the source files directly
+9. **Write change log** to `04-author-output.md`
+10. **Create updated spec** — First copy the input spec to `05-updated-spec.md`, then apply targeted Edit operations for each change. Do NOT regenerate the entire document.
+11. Do NOT rely on any summaries - read the source files directly
 
 ---
 
@@ -47,7 +45,7 @@ Given the current spec and approved solutions from human review, apply the chang
 4. **Document changes** — Produce clear change log for traceability
 5. **Flag ambiguity** — If a solution is unclear, flag it rather than guess
 6. **Capture design rationale** — When applying solutions, document *why* decisions were made, not just *what* changed. This preserves institutional knowledge and prevents future "why is it like this?" questions
-7. **Document review decisions** — Record no-change rationale and scope deferral notes in the document to prevent future re-raises
+7. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. The pipeline handles re-raise prevention structurally.
 
 ---
 
@@ -77,8 +75,6 @@ Given the current spec and approved solutions from human review, apply the chang
 - **Skipped**: [N] (PENDING, NEEDS_DISCUSSION, or REJECTED)
 - **Discussions Incorporated**: [N]
 - **Unresolved Discussions**: [N]
-- **No-Change Rationale Added**: [N]
-- **Scope Notes Added**: [N]
 
 ---
 
@@ -458,53 +454,6 @@ If a discussion lacks `>> RESOLVED`:
 
 ---
 
-## Documenting Review Decisions
-
-After applying all changes, process two additional categories. These prevent future experts from re-raising issues that were already considered.
-
-### No-Change Rationale
-
-For each resolved issue where the human decided **no change was needed**, add a brief rationale note in the relevant document section.
-
-**How to find them**: In `03-issues-discussion.md`, look for `>> RESOLVED` issues where the human response indicates no change (e.g., "no change needed", "acceptable as-is", "not a concern") or where no `**Proposed Spec change**:` block exists.
-
-**What to add**: An HTML comment near the relevant content:
-
-```markdown
-<!-- Reviewed: SPEC-008 - VARCHAR(255) confirmed as sufficient for email addresses per RFC 5321. -->
-```
-
-**Log in change log** as:
-
-```markdown
-### Rationale [N]: [SPEC-ID] - [Issue Summary]
-- **Action**: NO_CHANGE_DOCUMENTED
-- **Section**: [Spec section]
-- **Rationale**: [Why no change was needed]
-```
-
-### Scope Deferral Notes
-
-The `03-issues-discussion.md` file includes a **Deferred Items** table at the top, listing issues the Scope Filter routed to downstream stages. For each deferred item, add a brief scope note in the relevant document section.
-
-**What to add**: An HTML comment near the relevant content:
-
-```markdown
-<!-- Scope: Rate limiting configuration is defined in the cross-cutting specification. -->
-```
-
-**Log in change log** as:
-
-```markdown
-### Scope Note [N]: [SPEC-ID] - [Issue Summary]
-- **Action**: SCOPE_NOTE_ADDED
-- **Section**: [Spec section]
-- **Deferred To**: [Downstream stage]
-- **Note**: [What was added]
-```
-
----
-
 ## Decision Source References
 
 When updating the Component Spec's Related Decisions section, include a source reference to enable traceability:
@@ -532,8 +481,7 @@ This enables tracing any decision back to its originating discussion in `version
 - [ ] Lateral component items written to destination pending-issues files
 - [ ] Non-component items logged in author output (not written to files)
 - [ ] Unresolved discussions flagged in change log
-- [ ] No-change closures have rationale documented in relevant document sections
-- [ ] Deferred items have scope notes in relevant document sections
+- [ ] No `<!-- Reviewed: -->` or `<!-- Scope: -->` HTML comments added to document
 - [ ] Contract schemas in cross-cutting.md updated if Data Model sections changed
 - [ ] Shared types in cross-cutting.md updated if type definitions changed
 - [ ] All changes stay at contract level (no code or upstream convention restating added)

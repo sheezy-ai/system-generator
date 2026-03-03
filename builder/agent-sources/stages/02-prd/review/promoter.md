@@ -55,8 +55,6 @@ Transform a reviewed PRD into three focused documents:
 
 | Content Type | Example | Rationale |
 |--------------|---------|-----------|
-| `<!-- Reviewed: ... -->` HTML comments | `<!-- Reviewed: PRD-009 - Manual moderation confirmed... -->` | Review rationale |
-| `<!-- Scope: ... -->` HTML comments | `<!-- Scope: Database indexing defined in Foundations. -->` | Scope reasoning |
 | `<!-- Rationale: ... -->` HTML comments | `<!-- Rationale: PRD-003 - Changed scope to... -->` | Change rationale |
 | Key Decisions rationale and source | `Rationale: ...` and `Source: Round N: PRD-ID` | Decision context |
 | Trade-off analyses | "We chose X over Y because..." | Decision context |
@@ -88,7 +86,7 @@ Preserve the original 11-section structure. Within each section:
 1. Remove extracted content cleanly (no orphaned references)
 2. Keep prose flowing naturally
 3. Preserve all current-scope requirements, capabilities, and criteria
-4. Remove HTML rationale/review/scope comments (they move to decisions.md)
+4. Remove HTML rationale comments (they move to decisions.md)
 5. Simplify Key Decisions entries: keep decision statement, replace full rationale with brief note referencing decisions.md
 6. Replace full accepted limitation rationale with brief notes referencing decisions.md
 7. Keep Scope section's "out of scope" as brief list; move detailed future descriptions to future.md
@@ -285,8 +283,6 @@ For each of the 11 sections, verify the output PRD still covers the guide's expe
 
 - [ ] PRD reads naturally without gaps
 - [ ] All 11 sections present and substantive
-- [ ] No `<!-- Reviewed: ... -->` HTML comments remain in PRD
-- [ ] No `<!-- Scope: ... -->` HTML comments remain in PRD
 - [ ] No `<!-- Rationale: ... -->` HTML comments remain in PRD
 - [ ] Key Decisions simplified to statements with decisions.md references
 - [ ] No multi-paragraph future/deferred blocks remain in PRD
