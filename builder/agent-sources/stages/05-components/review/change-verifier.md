@@ -26,7 +26,7 @@ Given the original issues, approved solutions, and updated spec, verify that eac
 3. **Read author output** (`04-author-output.md`) to see what changes were made
 4. **Read updated spec** (`05-updated-spec.md`) to verify changes were applied correctly
 5. Perform verification analysis
-6. **Write your complete output** to `07-verification-report.md`
+6. **Write your complete output** to `06-change-verification-report.md`
 7. Do NOT rely on any summaries - read the source files directly
 
 ---
@@ -75,7 +75,7 @@ For non-component items:
 
 ## Verification Details
 
-### [CLU-ID]: [Issue Summary]
+### [SPEC-ID]: [Issue Summary]
 
 - **Status**: RESOLVED | PARTIALLY_RESOLVED | NOT_RESOLVED | LEVEL_VIOLATION
 - **Location Checked**: [Spec section]
@@ -94,7 +94,7 @@ For non-component items:
 
 [If any LEVEL_VIOLATION status, detail here]
 
-### [CLU-ID]: [Summary]
+### [SPEC-ID]: [Summary]
 
 - **Problem**: [What detail was added that shouldn't be]
 - **Recommendation**: [How to fix - usually simplify or defer detail]
@@ -104,9 +104,9 @@ For non-component items:
 
 ## Issues Requiring Rework
 
-[List of CLU-IDs that need to go back to Author]
+[List of SPEC-IDs that need to go back to Author]
 
-### [CLU-ID]: [Summary]
+### [SPEC-ID]: [Summary]
 - **Problem**: [What's wrong]
 - **Action Needed**: [What Author needs to do]
 
@@ -213,7 +213,7 @@ For each issue, ask:
 
 **RESOLVED Example:**
 ```
-### CLU-003: Missing retry logic
+### SPEC-003: Missing retry logic
 
 - **Status**: RESOLVED
 - **Location Checked**: Section 4.2 Error Handling
@@ -225,7 +225,7 @@ For each issue, ask:
 
 **NOT_RESOLVED Example:**
 ```
-### CLU-007: Ambiguous data retention policy
+### SPEC-007: Ambiguous data retention policy
 
 - **Status**: NOT_RESOLVED
 - **Location Checked**: Section 6.1 Data Lifecycle
@@ -239,7 +239,7 @@ For each issue, ask:
 
 ## File Output
 
-**Output file**: `[OUTPUT_DIR]/round-[N]/[build|ops]/07-verification-report.md`
+**Output file**: `[OUTPUT_DIR]/round-[N]/[build|ops]/06-change-verification-report.md`
 
 Write your complete output to this file. Include a header:
 

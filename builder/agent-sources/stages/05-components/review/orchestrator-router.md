@@ -160,8 +160,8 @@ Options: SYNC_ALL, DEFER_ALL, or specify per issue
 **Collect decisions, update state:**
 ```markdown
 ## Pending Decisions
-- CLU-001: ACCEPT
-- CLU-003: REWORK
+- SPEC-001: ACCEPT
+- SPEC-003: REWORK
 - halt_action: PROCEED_ANYWAY
 - sync_action: SYNC_ALL
 ```
@@ -219,9 +219,18 @@ Part: [build|ops]
 }
 ```
 
+Or, if zero issues after routing:
+```
+{
+  status: "ZERO_ISSUES",
+  issues_file: "[path]",
+  issue_count: 0
+}
+```
+
 **On return:**
-- State is already WAITING_FOR_HUMAN at Step 5
-- Present issues to human (see above)
+- **If `ZERO_ISSUES`**: The spec is complete for this part. Skip Discussion and Post-Discussion phases. Proceed directly to Step 12 (Promote).
+- **If `READY_FOR_DISCUSSION`**: State is already WAITING_FOR_HUMAN at Step 5. Present issues to human (see above).
 
 ### Discussion
 
@@ -326,7 +335,7 @@ State file already updated by pre-discussion. Router just reads and presents.
 ## Pending Return
 status: NEEDS_DECISIONS
 partially_resolved:
-  - CLU-001: [summary]
+  - SPEC-001: [summary]
 halt_blockers:
   - PI-002: [summary]
 pending_issue_sync:
@@ -339,7 +348,7 @@ pending_issue_sync:
 **Status**: IN_PROGRESS
 
 ## Pending Decisions
-- CLU-001: ACCEPT
+- SPEC-001: ACCEPT
 - halt_action: PROCEED_ANYWAY
 - sync_action: SYNC_ALL
 ```

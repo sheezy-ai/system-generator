@@ -17,7 +17,7 @@ Given an updated producer component spec and the cross-cutting specification, ve
 - Previous verification report (if exists)
 
 **Output:**
-- Verification report (`round-[N]/[build|ops]/09-contract-verification.md`)
+- Verification report (`round-[N]/[build|ops]/08-contract-verification.md`)
 - Updated pending-issues.md (if mismatches found)
 - Updated cross-cutting.md (status changes)
 
@@ -69,7 +69,7 @@ Also check pending-issues for previous FAILs that are now PASSing (fixes).
 
 ### Step 5: Generate Report
 
-Write to `round-[N]/[build|ops]/09-contract-verification.md`:
+Write to `round-[N]/[build|ops]/08-contract-verification.md`:
 
 ```markdown
 # Contract Verification Report
@@ -236,7 +236,7 @@ Same as Create verifier, plus:
 ## File Output
 
 **Output files**:
-- `versions/[component-name]/round-[N]/[build|ops]/09-contract-verification.md` - Verification report
+- `versions/[component-name]/round-[N]/[build|ops]/08-contract-verification.md` - Verification report
 - `versions/[component-name]/pending-issues.md` - Updated (new issues and/or resolutions)
 - `specs/cross-cutting.md` - Updated contract statuses
 

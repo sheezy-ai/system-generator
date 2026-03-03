@@ -164,8 +164,8 @@ Router re-dispatches after collecting human decisions.
 Read `## Pending Decisions` section:
 ```markdown
 ## Pending Decisions
-- CLU-001: ACCEPT
-- CLU-003: REWORK
+- SPEC-001: ACCEPT
+- SPEC-003: REWORK
 - halt_action: PROCEED_ANYWAY
 - sync_action: SYNC_ALL
 ```
@@ -276,7 +276,7 @@ Router dispatches after human confirms EXIT.
 {
   status: "NEEDS_REWORK",
   not_resolved: [
-    { id: "CLU-001", summary: "..." },
+    { id: "SPEC-001", summary: "..." },
     ...
   ]
 }
@@ -288,7 +288,7 @@ Router informs human, re-dispatches with Action: RUN.
 {
   status: "NEEDS_DECISIONS",
   partially_resolved: [
-    { id: "CLU-001", summary: "..." },
+    { id: "SPEC-001", summary: "..." },
     ...
   ],
   halt_blockers: [

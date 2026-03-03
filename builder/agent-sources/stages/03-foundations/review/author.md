@@ -265,7 +265,7 @@ This enables tracing any decision back to its originating discussion in `version
 - `[OUTPUT_DIR]/round-[N]/04-author-output.md` — Change log and notes
 - `[OUTPUT_DIR]/round-[N]/05-updated-foundations.md` — The updated Foundations
 
-### 05-author-output.md format:
+### 04-author-output.md format:
 
 ```
 # Author Output

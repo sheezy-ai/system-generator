@@ -283,7 +283,9 @@ versions/
 
 13. **Update state file**: Mark Step 3 complete
 
-14. **Automatically proceed to Step 4**
+14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
+    - **If zero kept issues**: Skip Steps 4–5. Update state file with history entry: "Zero kept issues after routing — proceeding to promotion." Return `ZERO_ISSUES` status to router (see Return to Router below).
+    - **If one or more kept issues**: Automatically proceed to Step 4.
 
 ---
 
@@ -337,6 +339,16 @@ After Step 4 completes, return structured data to router:
   high_count: [HIGH severity count],
   medium_count: [MEDIUM severity count],
   low_count: [LOW severity count]
+}
+```
+
+If zero issues after Step 3 (zero-issues gate):
+
+```
+{
+  status: "ZERO_ISSUES",
+  issues_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/03-issues-discussion.md",
+  issue_count: 0
 }
 ```
 

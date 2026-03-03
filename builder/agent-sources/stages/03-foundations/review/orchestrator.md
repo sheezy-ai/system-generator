@@ -9,7 +9,7 @@
 ### On Start/Resume
 
 1. **Check if state file exists**:
-   - **If NO**: Create it, initialize Round 1 Step 1
+   - **If NO**: Create it, initialize Round 1 Step 0
    - **If YES**: Read it and check `Current Round`:
      - **If Round 0 and Status COMPLETE**: Creation finished — initialize Round 1, preserve existing history
      - **If Round 0 and Status not COMPLETE**: Error — "Creation workflow still in progress"
@@ -37,7 +37,8 @@
 ## Progress
 
 ### Round 1
-- [x] Step 1: Expert Review
+- [x] Step 0: Pending Issue Check
+- [ ] Step 1: Expert Review
 - [ ] Step 2: Consolidation
 - [ ] Step 3: Filter Issues (Scope Filter)
 - [ ] Step 3b: Issue Analysis
@@ -148,7 +149,7 @@ system-design/03-foundations/
 
 ## Orchestration Steps
 
-**Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately with Step 1.
+**Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately with Step 0.
 
 **IMPORTANT: File-First Principle**
 - Do NOT pass file contents or summaries to agents
@@ -195,6 +196,25 @@ Output: [resolved file path]
 ```
 
 **State file updates**: Update the state file before and after each step as instructed below. These updates enable workflow resume and provide audit trail.
+
+### Step 0: Pending Issue Check
+
+**On workflow start**, check for pending issues logged against this document:
+
+1. **Read** `system-design/03-foundations/versions/pending-issues.md` (if it exists)
+
+2. **Check for unresolved issues**:
+   - If unresolved pending issues exist, **notify human**:
+     ```
+     Note: [N] pending issue(s) logged against this Foundations from downstream stages.
+     These will be incorporated into the review at Step 2 (Consolidation).
+     See system-design/03-foundations/versions/pending-issues.md for details.
+     ```
+   - If no unresolved issues, proceed silently
+
+3. **Proceed to Step 1** (pending issues will be merged by Consolidator)
+
+---
 
 ### Step 1: Expert Issue Identification (Parallel)
 
@@ -598,7 +618,7 @@ This gate is mandatory. Do not skip it.
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 10 (Promote)
+- Steps 0 → 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 10 (Promote)
 - Steps 3 → 3b → 4: If kept issues exist, proceed automatically until Step 4 Discussion
 - Steps 5 → 6+7 (parallel) → 8: Execute without pausing between verification steps
 - Step 8 → 9: Execute after human decisions collected (if needed)

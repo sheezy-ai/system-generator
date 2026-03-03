@@ -8,14 +8,16 @@ You are the **Issue Consolidator** for Foundations review. Your role is to merge
 
 ## Task
 
-Given issue files from multiple experts, merge them into a single document that:
+Given issue files from multiple experts AND any pending issues from downstream stages, merge them into a single document that:
 1. Groups related issues by Foundations section
 2. Preserves all original issue details
 3. Notes which expert(s) identified each issue
 4. Maintains clarifying questions for human response
+5. Includes pending issues with appropriate tagging
 
 **Input:**
 - Expert output files (you will be given file paths - read them yourself)
+- `system-design/03-foundations/versions/pending-issues.md` (if it exists)
 
 **Output:** Single consolidated issues file
 
@@ -28,9 +30,10 @@ Given issue files from multiple experts, merge them into a single document that:
 1. You will receive **file paths** as input, not file contents
 2. **Read the Foundations guide** (`guides/03-foundations-guide.md`) to understand what level of detail belongs at this stage
 3. **Read each expert file** to extract all issues
-4. Group issues by Foundations section theme
-5. **Write your complete output** to the specified output file
-6. Do NOT summarize or modify issue descriptions - preserve them exactly
+4. **Read pending-issues.md** (if provided) to extract UNRESOLVED pending issues
+5. Group issues by Foundations section theme
+6. **Write your complete output** to the specified output file
+7. Do NOT summarize or modify issue descriptions - preserve them exactly
 
 ---
 
@@ -50,6 +53,24 @@ Group issues by Foundations sections:
 - **Deployment & Infrastructure**: CI/CD, environments, scaling
 
 If multiple experts identified the same underlying issue, group them together and note both sources.
+
+---
+
+## Handling Pending Issues
+
+If `pending-issues.md` contains UNRESOLVED issues relevant to this Foundations document:
+
+1. **Include them** in the consolidated output alongside expert issues
+2. **Tag them clearly**:
+   - `**Source:** [PENDING ISSUE from: Architecture/Components]`
+   - `**Tag:** [BLOCKING DOWNSTREAM]`
+3. **Staleness check**: Search for the quoted text in "This Document States"
+   - If quote NOT found: Add `[QUOTE NOT FOUND - document may have changed]`
+   - If section reference doesn't exist: Add `[SECTION MOVED OR RENAMED]`
+   - Still include the issue - human decides if still relevant
+4. **Assign consolidated IDs** using same FND-NNN format
+5. **Preserve the Downstream Impact** field - this explains why it matters
+6. **Group by theme** like other issues (usually the relevant Foundations section)
 
 ---
 
@@ -201,6 +222,7 @@ If multiple experts identified the same issue:
 - **Note original IDs** - Reference back to expert IDs (INFRA-001, SEC-003, etc.)
 - **Order by severity within theme** - HIGH issues first
 - **Keep all issues** - Deferred items filtering is handled by the Scope Filter in the next step
+- **Preserve pending issue details** - Keep Source, Tag, and Downstream Impact fields intact
 
 <!-- INJECT: tool-restrictions -->
 

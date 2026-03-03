@@ -58,13 +58,13 @@ Given the current spec and approved solutions from human review, apply the chang
 
 ## Change Log
 
-### Change 1: [CLU-ID] - [Issue Summary]
+### Change 1: [SPEC-ID] - [Issue Summary]
 - **Action**: APPLIED | FLAGGED
 - **Location**: [Spec section]
 - **What Changed**: [Description of the change]
 - **Flag Reason** (if FLAGGED): [Why this needs human clarification]
 
-### Change 2: [CLU-ID] - [Issue Summary]
+### Change 2: [SPEC-ID] - [Issue Summary]
 [Continue for each approved solution...]
 
 ---
@@ -119,7 +119,7 @@ These require case-by-case handling outside the component review process.
 ## Change Markers (Optional)
 
 If helpful for review, you may mark changes in the spec with:
-<!-- CHANGED: CLU-ID - brief note -->
+<!-- CHANGED: SPEC-ID - brief note -->
 
 These markers help the Verifier locate changes.
 
@@ -136,7 +136,7 @@ Add HTML comments near the relevant code/schema for small, localised decisions:
 ```markdown
 ## Email Address Normalization
 
-<!-- Rationale: CLU-003 - Aligns with Stage 1's existing normalise_email() function.
+<!-- Rationale: SPEC-003 - Aligns with Stage 1's existing normalise_email() function.
      Alternatives rejected: case-sensitive matching (allowlist bypass risk),
      database collation (PostgreSQL-specific, reduces portability). -->
 
@@ -150,7 +150,7 @@ For architectural choices or decisions affecting multiple parts of the spec, add
 ```markdown
 ## Design Decisions
 
-### DD-001: Email Normalization Strategy (CLU-003)
+### DD-001: Email Normalization Strategy (SPEC-003)
 
 **Decision**: Normalize all email addresses to lowercase at application layer before storage.
 
@@ -188,7 +188,7 @@ As you apply changes, verify each change stays at Component Spec level. The guid
 If an approved solution would add code or restate upstream conventions, flag it:
 
 ```
-### Change N: CLU-012 - [Issue Summary]
+### Change N: SPEC-012 - [Issue Summary]
 
 - **Action**: FLAGGED
 - **Section**: Data Model
@@ -216,7 +216,7 @@ If an approved solution would add code or restate upstream conventions, flag it:
 If a solution is ambiguous:
 
 ```
-### Change N: [CLU-ID] - [Issue Summary]
+### Change N: [SPEC-ID] - [Issue Summary]
 - **Action**: FLAGGED
 - **Location**: [Where it would be applied]
 - **Issue**: [What's ambiguous]
@@ -471,13 +471,13 @@ For each resolved issue where the human decided **no change was needed**, add a 
 **What to add**: An HTML comment near the relevant content:
 
 ```markdown
-<!-- Reviewed: CLU-008 - VARCHAR(255) confirmed as sufficient for email addresses per RFC 5321. -->
+<!-- Reviewed: SPEC-008 - VARCHAR(255) confirmed as sufficient for email addresses per RFC 5321. -->
 ```
 
 **Log in change log** as:
 
 ```markdown
-### Rationale [N]: [CLU-ID] - [Issue Summary]
+### Rationale [N]: [SPEC-ID] - [Issue Summary]
 - **Action**: NO_CHANGE_DOCUMENTED
 - **Section**: [Spec section]
 - **Rationale**: [Why no change was needed]
@@ -496,7 +496,7 @@ The `03-issues-discussion.md` file includes a **Deferred Items** table at the to
 **Log in change log** as:
 
 ```markdown
-### Scope Note [N]: [CLU-ID] - [Issue Summary]
+### Scope Note [N]: [SPEC-ID] - [Issue Summary]
 - **Action**: SCOPE_NOTE_ADDED
 - **Section**: [Spec section]
 - **Deferred To**: [Downstream stage]
@@ -551,7 +551,7 @@ This enables tracing any decision back to its originating discussion in `version
 - `[OUTPUT_DIR]/round-[N]/[build|ops]/05-updated-spec.md` — The updated specification
 - `[SPECS_DIR]/cross-cutting.md` — Update with contract schema/shared type changes (Edit)
 
-### 05-author-output.md format:
+### 04-author-output.md format:
 
 ```
 # Author Output
