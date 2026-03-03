@@ -67,8 +67,14 @@ Update the state file:
 
 **Output directory**: `system-design/02-prd/versions`
 **State file**: `system-design/02-prd/versions/workflow-state.md`
+**Working files**: `system-design/02-prd/versions/round-[N]/`
 
-Review uses `round-1`, `round-2`, etc. Creation workflow uses `round-0`. This allows both workflows to share the same `versions/` folder with a unified state file, preserving the original PRD and maintaining full version history.
+**Final outputs** (created by promoter at exit):
+- `system-design/02-prd/prd.md` — Clean current-scope PRD
+- `system-design/02-prd/decisions.md` — Product decision rationale and trade-offs
+- `system-design/02-prd/future.md` — Deferred features and future considerations
+
+Review uses `round-1`, `round-2`, etc. Creation workflow uses `round-0`. Both share this state file.
 
 ---
 
@@ -88,7 +94,8 @@ agents/review/
 └── workflow/                          # Sequential processing steps
     ├── consolidator.md
     ├── author.md
-    └── change-verifier.md
+    ├── change-verifier.md
+    └── promoter.md
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── alignment-verifier.md              # Verifies alignment with source documents
@@ -597,10 +604,19 @@ This gate is mandatory. Do not skip it.
 
 ### Step 10: Promote
 
-49. **Copy reviewed PRD to canonical path**:
-    - Copy `system-design/02-prd/versions/round-[N]/05-updated-prd.md` to `system-design/02-prd/prd.md`
+49. **Run PRD Promoter agent**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/02-prd/review/promoter.md
 
-50. **Verify output file exists**: `system-design/02-prd/prd.md`
+    Input: system-design/02-prd/versions/round-[N]/05-updated-prd.md
+    ```
+    - Agent splits the reviewed PRD into three focused documents
+    - Agent writes to `system-design/02-prd/prd.md`, `decisions.md`, and `future.md`
+
+50. **Verify output files exist**:
+    - `system-design/02-prd/prd.md`
+    - `system-design/02-prd/decisions.md`
+    - `system-design/02-prd/future.md`
 
 51. **Update state file**: status = COMPLETE
 
@@ -631,7 +647,7 @@ The review exits via one of two paths:
 
 2. **Human override**: After Step 9, the user can choose to exit even if issues were found in the current round. This is a fallback for cases where remaining issues are not worth another round.
 
-**After final round**: Run the Promote step (Step 10) to copy the reviewed PRD to its canonical path at `system-design/02-prd/prd.md`.
+**After final round**: Run the PRD Promoter (Step 10) to split the reviewed PRD into three documents: `prd.md` (clean requirements), `decisions.md` (rationale), and `future.md` (deferred items).
 
 ---
 
