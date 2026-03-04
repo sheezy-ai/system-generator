@@ -46,7 +46,7 @@ Given the Architecture Overview, Foundations, and a component name, create a dra
 5. **Read the component deferred items** to incorporate upstream gaps/issues marked as STILL_RELEVANT or PARTIALLY_ADDRESSED
 6. **Read component brief** (if provided) to incorporate settled decisions and prescriptive direction
 7. Synthesize into a draft spec, applying Foundations conventions
-7. **Write your complete output** to the specified file
+8. **Write your complete output** to the specified file
 
 ---
 
@@ -281,7 +281,7 @@ Follow the Tech Spec Guide structure:
 
 ---
 
-## Gap Summary
+## Issues Summary
 
 **Total gaps in this draft:**
 - QUESTION: [N]

@@ -42,8 +42,8 @@ Given a PRD, create a draft Foundations document that:
 4. **Read validated deferred items** (if provided) to incorporate upstream gaps/issues marked as STILL_RELEVANT or PARTIALLY_ADDRESSED
 5. **Read brief document** (if provided) to incorporate settled decisions and prescriptive direction
 6. **Defer non-Foundations content** to appropriate files
-6. Generate draft Foundations
-7. **Write all output files** (draft Foundations + deferred items files if needed)
+7. Generate draft Foundations
+8. **Write all output files** (draft Foundations + deferred items files if needed)
 
 ---
 
@@ -141,7 +141,7 @@ Use these markers consistently:
 
 ### Gap Priority
 
-When listing issues in the Gap Summary, categorize by priority:
+When listing issues in the Issues Summary, categorize by priority:
 
 | Priority | When to Use | Examples |
 |----------|-------------|----------|
@@ -163,7 +163,7 @@ Default to Must Answer if uncertain.
 
 ---
 
-## Gap Summary
+## Issues Summary
 
 Before this document is complete, the following need attention:
 
@@ -319,7 +319,7 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - [ ] All Foundations guide sections are present
 - [ ] Content is derived from PRD where available
 - [ ] All gaps are clearly marked with appropriate marker
-- [ ] Gap Summary at top lists all issues
+- [ ] Issues Summary at top lists all issues
 - [ ] Brief content incorporated where in scope (no brief decisions re-marked as gaps)
 - [ ] No Architecture-level detail (system decomposition, retention periods, scaling thresholds) in Foundations
 - [ ] No Component-level detail (specific APIs, schemas, provider-specific configuration) in Foundations

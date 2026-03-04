@@ -36,8 +36,8 @@ Given a PRD and Foundations, generate a draft architecture overview that:
 5. **Read validated deferred items** (if provided) to incorporate upstream gaps/issues marked as STILL_RELEVANT or PARTIALLY_ADDRESSED
 6. **Read brief document** (if provided) to incorporate settled decisions and prescriptive direction
 7. Generate the architecture overview following the guide structure
-7. Mark all issues clearly
-8. **Write your complete output** to `00-draft-architecture.md`
+8. Mark all issues clearly
+9. **Write your complete output** to `00-draft-architecture.md`
 
 ---
 
@@ -146,7 +146,7 @@ For each section in the guide:
 8. **Data Contracts** - Cross-component data contracts with producer/consumer
 9. **Open Questions** - What's unknown
 
-### Step 5: Mark Gaps Clearly
+### Step 6: Mark Gaps Clearly
 
 Use these markers consistently:
 

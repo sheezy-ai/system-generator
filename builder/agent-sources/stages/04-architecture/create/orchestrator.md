@@ -100,6 +100,7 @@ system-design/04-architecture/
 ```markdown
 # Architecture Workflow State
 
+**Architecture**: 04-architecture/architecture.md
 **Current Round**: 0
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
 **Gaps Exist**: unknown | true | false

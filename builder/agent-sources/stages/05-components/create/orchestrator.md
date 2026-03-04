@@ -109,6 +109,7 @@ system-design/05-components/
 ```markdown
 # [Component Name] Workflow State
 
+**Current Round**: 0
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
 **Gaps Exist**: unknown | true | false
 
@@ -162,11 +163,14 @@ system-design/05-components/
 
 ### Step 2: Deferred Items Intake
 
-1. **Read deferred items** at `system-design/05-components/versions/[component-name]/deferred-items.md`
+1. **Check if deferred items file exists** at `system-design/05-components/versions/[component-name]/deferred-items.md`
+   - **If file doesn't exist**: Skip to Step 2b
 
-2. **If empty or no PENDING items**: Skip to Step 2b
+2. **Read deferred items**
 
-3. **If has PENDING items**:
+3. **If empty or no PENDING items**: Skip to Step 2b
+
+4. **If has PENDING items**:
 
    a. **Read final upstream documents**:
       - `system-design/04-architecture/architecture.md`
@@ -222,9 +226,9 @@ system-design/05-components/
 
 1. **Read the draft** at `system-design/05-components/versions/[component-name]/round-0/00-draft-spec.md`
 
-2. **Check for Gap Summary section** — Look for `## Gap Summary` heading
+2. **Check for Issues Summary section** — Look for `## Issues Summary` heading
 
-3. **If no Gap Summary, or all counts are 0**:
+3. **If no Issues Summary, or all counts are 0**:
    - **Update per-component state file**: Set `Gaps Exist` = `false`, mark Steps 4-6 complete `[x]`, add history entry "No gaps found — skipping to promotion"
    - **Skip Steps 4-6, proceed to Step 7**
 
