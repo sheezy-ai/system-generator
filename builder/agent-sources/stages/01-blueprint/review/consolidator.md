@@ -99,7 +99,7 @@ If multiple experts identified the same underlying issue, group them together an
 
 **Status**: PENDING (awaiting response) / ANSWERED
 
-Once all questions are answered, proceed to the Solution Proposer phase.
+Once all questions are answered, proceed to the Scope Filter filtering phase.
 
 ---
 
@@ -119,7 +119,6 @@ Once all questions are answered, proceed to the Solution Proposer phase.
 
 [Original questions, or "None"]
 
->> RESPONSE:
 
 ---
 
@@ -165,7 +164,6 @@ If multiple experts identified the same issue:
 
 [Merge questions from all experts]
 
->> RESPONSE:
 ```
 
 ---

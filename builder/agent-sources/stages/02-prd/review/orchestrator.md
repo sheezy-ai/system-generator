@@ -222,7 +222,7 @@ Output: [resolved file path]
 
      Which option?
      ```
-   - If human chooses "RESOLVE FIRST": Set status = BLOCKED_UPSTREAM_SYNC, halt workflow
+   - If human chooses "RESOLVE FIRST": Set status = BLOCKED_UPSTREAM_ISSUE, halt workflow
    - If human chooses "PROCEED ANYWAY": Note in state file, continue to Step 1
 
 3. **Proceed to Step 1** (pending issues will be merged by Consolidator)
@@ -249,6 +249,8 @@ Output: [resolved file path]
    - Agents include clarifying questions where needed
    - Agents check Blueprint alignment
    - Agents write directly to `system-design/02-prd/versions/round-[N]/01-[expert-name].md`
+
+4. **Wait for all agents to complete**
 
 5. **Update state file**: Mark Step 1 complete, add history entry
 
@@ -451,7 +453,7 @@ This gate is mandatory. Do not skip it.
 35. **Update state file**: Set Step 8, status = IN_PROGRESS
 
 36. **Read all verification reports** and aggregate findings:
-    - `06-change-verification-report.md` - check for PARTIALLY_RESOLVED or NOT_RESOLVED
+    - `06-change-verification-report.md` - check for PARTIALLY_RESOLVED, NOT_RESOLVED, or LEVEL_VIOLATION
     - `07-alignment-report.md` - check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
 
 37. **Write verification summary** to `08-verification-summary.md`:
@@ -467,6 +469,7 @@ This gate is mandatory. Do not skip it.
     - RESOLVED: [N]
     - PARTIALLY_RESOLVED: [N]
     - NOT_RESOLVED: [N]
+    - LEVEL_VIOLATION: [N]
 
     ### Items Needing Decision (if any)
 
@@ -507,7 +510,7 @@ This gate is mandatory. Do not skip it.
        - Update state file: Mark Step 8 complete
        - Automatically proceed to Step 9
 
-    b. **If NEEDS_REWORK** (NOT_RESOLVED items exist):
+    b. **If NEEDS_REWORK** (NOT_RESOLVED or LEVEL_VIOLATION items exist):
        - Present to human: "Changes not applied correctly. Returning to Author."
        - Return to Step 5 (Author)
 

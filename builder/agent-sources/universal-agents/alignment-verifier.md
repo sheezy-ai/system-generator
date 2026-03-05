@@ -170,7 +170,7 @@ The decision documentation explains WHY the difference exists, but doesn't elimi
 
 ## Pending Issue Severity
 
-When classifying as PENDING_ISSUE, assess severity:
+When classifying as SYNC_UPSTREAM or REVIEW_NEEDED, assess severity:
 
 | Severity | Meaning | Workflow Impact |
 |----------|---------|-----------------|

@@ -9,7 +9,7 @@
 ### On Start/Resume
 
 1. **Check if state file exists**:
-   - **If NO**: Create it, initialize Round 1 Step 0
+   - **If NO**: Create it, initialize Round 1 Step 1
    - **If YES**: Read it and check `Current Round`:
      - **If Round 0 and Status COMPLETE**: Creation finished — initialize Round 1, preserve existing history
      - **If Round 0 and Status not COMPLETE**: Error — "Creation workflow still in progress"
@@ -37,10 +37,9 @@
 ## Progress
 
 ### Round 1
-- [x] Step 0: Pending Issue Check
 - [ ] Step 1: Expert Review
 - [ ] Step 2: Consolidation
-- [ ] Step 3: Filter Issues (Scope Filter)
+- [ ] Step 3: Scope Filter
 - [ ] Step 3b: Issue Analysis
 - [ ] Step 4: Discussion
 - [ ] Step 5: Apply Changes
@@ -149,7 +148,7 @@ system-design/03-foundations/
 
 ## Orchestration Steps
 
-**Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately with Step 0.
+**Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately with Step 1.
 
 **IMPORTANT: File-First Principle**
 - Do NOT pass file contents or summaries to agents
@@ -253,7 +252,7 @@ Output: [resolved file path]
 
 10. **Automatically proceed to Step 3**
 
-### Step 3: Filter Issues (Scope Filter)
+### Step 3: Scope Filter
 
 11. **Update state file**: Set Step 3, status = IN_PROGRESS
 

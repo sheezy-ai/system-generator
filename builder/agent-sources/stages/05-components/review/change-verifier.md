@@ -22,7 +22,7 @@ Given the original issues, approved solutions, and updated spec, verify that eac
 ## File-First Operation
 
 1. You will receive **file paths** as input, not file contents
-2. **Read the solutions file** (`03-issues-discussion.md`) to understand issues and approved solutions (look for `>> RESPONSE:` with acceptance)
+2. **Read the solutions file** (`03-issues-discussion.md`) to understand issues and approved solutions (look for `>> RESOLVED` markers indicating accepted solutions)
 3. **Read author output** (`04-author-output.md`) to see what changes were made
 4. **Read updated spec** (`05-updated-spec.md`) to verify changes were applied correctly
 5. Perform verification analysis
@@ -42,7 +42,7 @@ For each issue/solution pair:
 
 For non-component items:
 1. **Check** all PKG items from consolidated issues appear in Author's non-component items summary
-2. **Check** any additional PKG items from Solution Proposer are captured
+2. **Check** any additional PKG items from issue discussions are captured
 3. **Verify** destinations are appropriate (these are NOT written to files, only logged)
 
 ---
@@ -118,7 +118,7 @@ Confirm non-component items (destined outside component specs) were properly cap
 
 - [ ] All PKG items from consolidated issues are listed in Author output
 - [ ] Destinations are correctly identified (Foundations / PRD / Operational Docs / System-Builder / Future Phase)
-- [ ] Any additional PKG items from Solution Proposer are captured
+- [ ] Any additional PKG items from issue discussions are captured
 - [ ] These items are logged only, NOT written to files
 
 | PKG ID | Summary | Destination | Logged? |

@@ -205,6 +205,8 @@ Output: [resolved file path]
    - Agents include clarifying questions where needed
    - Agents write directly to `system-design/01-blueprint/versions/round-[N]/01-[expert-name].md`
 
+4. **Wait for all agents to complete**
+
 5. **Update state file**: Mark Step 1 complete, add history entry
 
 6. **Automatically proceed to Step 2** (no human checkpoint needed here)

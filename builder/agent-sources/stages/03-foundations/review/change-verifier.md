@@ -22,7 +22,7 @@ Given the original issues, approved solutions, and updated Foundations, verify t
 ## File-First Operation
 
 1. You will receive **file paths** as input, not file contents
-2. **Read the solutions file** (`03-issues-discussion.md`) to understand issues and approved solutions (look for `>> RESPONSE:` with acceptance)
+2. **Read the solutions file** (`03-issues-discussion.md`) to understand issues and approved solutions (look for `>> RESOLVED` markers indicating accepted solutions)
 3. **Read author output** (`04-author-output.md`) to see what changes were made
 4. **Read updated Foundations** (`05-updated-foundations.md`) to verify changes were applied correctly
 5. Perform verification analysis

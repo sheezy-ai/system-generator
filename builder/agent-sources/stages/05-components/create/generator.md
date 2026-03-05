@@ -281,7 +281,7 @@ Follow the Tech Spec Guide structure:
 
 ---
 
-## Issues Summary
+## Gap Summary
 
 **Total gaps in this draft:**
 - QUESTION: [N]
@@ -310,6 +310,24 @@ Use these markers inline:
 
 ---
 
+## Coverage Self-Review
+
+**Run this step after drafting content, before citation self-verification.** This catches sections where the generator failed to address a guide requirement — either with content or an explicit gap marker.
+
+1. **Re-read the stage guide** — Focus on each section's "Questions to answer" and "Sufficient when" criteria
+2. **For each "Questions to answer" item** — Verify the draft addresses it with either:
+   - Substantive content (a decision, convention, or description), OR
+   - An explicit gap marker (`[QUESTION]`, `[DECISION NEEDED]`, `[ASSUMPTION]`, `[TODO]`, `[CLARIFY]`)
+3. **For each "Sufficient when" criterion** — Verify the draft satisfies it, or has an explicit gap marker for the missing element
+4. **Add missing gap markers** — For any unaddressed question or unmet criterion:
+   - Add an appropriate gap marker in the relevant document section
+   - Add a corresponding entry to the Gap Summary (categorise as Must Answer if it blocks completion, Should Answer otherwise)
+5. **Do not invent content** — If you don't have enough information to address a question, mark it as a gap. The purpose is coverage, not fabrication.
+
+Do NOT skip this step. A draft with explicit gaps is more useful than a draft with silent omissions.
+
+---
+
 ## Citation Self-Verification
 
 **Run this step after writing the draft content, before writing the output file.** This catches wrong section numbers and misquoted source text — the two most common generator errors.
@@ -328,6 +346,7 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 ## Quality Checks
 
 Before writing output, verify:
+- [ ] Coverage self-review completed (all guide "Questions to answer" and "Sufficient when" criteria addressed or gap-marked)
 - [ ] Citation self-verification completed (all §N references and quoted values verified against source)
 - [ ] Brief content incorporated where in scope (no brief decisions re-marked as gaps)
 - [ ] Only covers the specified component

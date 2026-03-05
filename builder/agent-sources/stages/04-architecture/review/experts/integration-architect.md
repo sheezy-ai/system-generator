@@ -108,7 +108,6 @@ For each issue, use this structure:
 
 [Questions that would materially affect how this issue should be addressed. If none, write "None".]
 
->> RESPONSE:
 
 ---
 ```

@@ -43,7 +43,7 @@ For each issue/solution pair:
 
 For deferred items:
 1. **Check** all PKG items from consolidated issues appear in Author's deferred items summary
-2. **Check** any additional PKG items from Solution Proposer are captured
+2. **Check** any additional PKG items from issue discussions are captured
 3. **Verify** destinations are appropriate
 
 ---
@@ -66,7 +66,7 @@ For deferred items:
 **Review Date**: [date]
 **Round**: [N]
 **Input**:
-- Solutions from 03-solutions.md
+- Solutions from 03-issues-discussion.md
 - Updated PRD from 05-updated-prd.md
 - Change log from 04-author-output.md
 
@@ -131,7 +131,7 @@ Confirm deferred items were properly captured:
 
 - [ ] All PKG items from consolidated issues are listed in Author output
 - [ ] Destinations are correctly identified
-- [ ] Any additional deferred items from Solution Proposer are captured
+- [ ] Any additional deferred items from issue discussions are captured
 - [ ] No PRD content that should be deferred was left in
 
 | PKG ID | Summary | Destination | Captured? |

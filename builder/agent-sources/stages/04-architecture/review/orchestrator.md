@@ -40,7 +40,7 @@
 ### Round 1
 - [x] Step 1: Expert Review
 - [ ] Step 2: Consolidation
-- [ ] Step 3: Filter Issues (Scope Filter)
+- [ ] Step 3: Scope Filter
 - [ ] Step 3b: Issue Analysis
 - [ ] Step 4: Discussion
 - [ ] Step 5: Apply Changes
@@ -237,6 +237,8 @@ Output: [resolved file path]
    - Agents verify Architecture Overview against guide criteria and PRD/Foundations requirements within their domain
    - Agents write to `01-[expert-name].md`
 
+4. **Wait for all agents to complete**
+
 5. **Update state file**: Mark Step 1 complete
 
 6. **Automatically proceed to Step 2**
@@ -253,7 +255,7 @@ Output: [resolved file path]
 
 10. **Automatically proceed to Step 3**
 
-### Step 3: Filter Issues (Scope Filter)
+### Step 3: Scope Filter
 
 11. **Update state file**: Set Step 3, status = IN_PROGRESS
 

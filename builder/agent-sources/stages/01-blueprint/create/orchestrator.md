@@ -217,9 +217,9 @@ Items deferred here from upstream stages. Review when starting this stage's work
 
 1. **Read the draft** at `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md`
 
-2. **Check for Issues Summary section** — Look for `## Issues Summary` heading
+2. **Check for Gap Summary section** — Look for `## Gap Summary` heading
 
-3. **If no Issues Summary, or all subsections empty** (Must Answer, Should Answer, and Assumptions all show "None" or similar):
+3. **If no Gap Summary, or all subsections empty** (Must Answer, Should Answer, and Assumptions all show "None" or similar):
    - **Update state file**: Set `Gaps Exist` = `false`, mark Steps 4-6 complete `[x]`, add history entry "No gaps found — skipping to promotion"
    - **Skip Steps 4-6, proceed to Step 7**
 

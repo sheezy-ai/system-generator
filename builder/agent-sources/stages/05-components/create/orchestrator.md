@@ -226,9 +226,9 @@ system-design/05-components/
 
 1. **Read the draft** at `system-design/05-components/versions/[component-name]/round-0/00-draft-spec.md`
 
-2. **Check for Issues Summary section** — Look for `## Issues Summary` heading
+2. **Check for Gap Summary section** — Look for `## Gap Summary` heading
 
-3. **If no Issues Summary, or all counts are 0**:
+3. **If no Gap Summary, or all counts are 0**:
    - **Update per-component state file**: Set `Gaps Exist` = `false`, mark Steps 4-6 complete `[x]`, add history entry "No gaps found — skipping to promotion"
    - **Skip Steps 4-6, proceed to Step 7**
 

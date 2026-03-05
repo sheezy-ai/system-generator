@@ -40,7 +40,7 @@ Given the draft Component Spec and resolved gap discussions, apply the changes f
 
 1. **Apply resolutions faithfully** — Implement exactly what was approved in `**Proposed Spec change**:` blocks
 2. **Remove gap markers** — Strip the inline `[QUESTION: ...]`, `[DECISION NEEDED: ...]`, `[ASSUMPTION: ...]`, `[TODO: ...]`, `[CLARIFY: ...]` markers for applied changes
-3. **Update Issues Summary** — Mark resolved items as checked `[x]` or update counts in the Issues Summary section
+3. **Update Gap Summary** — Mark resolved items as checked `[x]` or update counts in the Gap Summary section
 4. **Maintain consistency** — Ensure changes don't break other parts of the Spec
 5. **Preserve formatting** — Match the existing Spec style and tone
 6. **Document changes** — Produce clear change log for traceability
@@ -66,10 +66,10 @@ For each resolved gap:
 1. **Find the `**Proposed Spec change**:` block** — This is the exact text to apply
 2. **Locate the gap marker in the draft** — Find the corresponding `[MARKER: ...]` in the document body
 3. **Apply the proposed change** — Replace the marker (and any surrounding placeholder text) with the proposed change text
-4. **Update the Issues Summary** — Find the matching item and update (decrement count or mark resolved)
+4. **Update the Gap Summary** — Find the matching item and update (decrement count or mark resolved)
 5. **Log the change** — Record in the change log
 
-If all Issues Summary counts reach 0 after applying changes, replace the Issues Summary section content with:
+If all Gap Summary counts reach 0 after applying changes, replace the Gap Summary section content with:
 ```
 All gaps resolved during creation workflow.
 ```
@@ -132,7 +132,7 @@ This preserves the original structure and is more reliable than regeneration.
 2. **Look back up the thread** for the last `**Proposed Spec change**:` block
 3. **Apply the proposed change** exactly as written
 4. **Remove the corresponding inline marker** from the document
-5. **Update Issues Summary** — update counts or mark resolved
+5. **Update Gap Summary** — update counts or mark resolved
 6. **Log in change log**
 
 If a discussion lacks `>> RESOLVED`:
@@ -174,7 +174,7 @@ If a proposed change is ambiguous or conflicts with existing content:
 - [ ] Each resolved discussion has a corresponding change log entry
 - [ ] No unapproved changes were made
 - [ ] Gap markers removed for all applied changes
-- [ ] Issues Summary updated for all applied changes
+- [ ] Gap Summary updated for all applied changes
 - [ ] Flagged items clearly explain what clarification is needed
 - [ ] Updated Spec maintains internal consistency
 - [ ] Unresolved discussions noted in change log as skipped

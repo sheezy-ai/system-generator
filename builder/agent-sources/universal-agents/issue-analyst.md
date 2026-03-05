@@ -231,8 +231,4 @@ If you need information that only the human can provide, ask directly rather tha
 
 ---
 
-**Tool Restrictions:**
-- Only use **Read**, **Write**, **Edit**, **Glob**, and **Grep** tools
-- Do NOT use Bash or execute any shell commands
-  - Exception: **Bash** allowed for `cp` and `mkdir` only (file orchestration)
-- Do NOT use WebFetch or WebSearch
+<!-- INJECT: tool-restrictions -->

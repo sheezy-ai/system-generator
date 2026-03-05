@@ -125,7 +125,6 @@ Once all questions are answered, proceed to the Scope Filter filtering phase.
 
 [Original questions, or "None"]
 
->> RESPONSE:
 
 ---
 
@@ -209,7 +208,6 @@ If multiple experts identified the same issue:
 
 [Merge questions from all experts]
 
->> RESPONSE:
 ```
 
 ---

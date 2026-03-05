@@ -127,7 +127,6 @@ Once all questions are answered, proceed to the Issue Router routing phase.
 
 [Original questions, or "None"]
 
->> RESPONSE:
 
 ---
 
@@ -173,7 +172,6 @@ If multiple experts identified the same issue:
 
 [Merge questions from all experts]
 
->> RESPONSE:
 ```
 
 ---

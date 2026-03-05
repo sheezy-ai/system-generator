@@ -113,7 +113,6 @@ For each issue, use this structure:
 
 [Questions that would help understand operational constraints or requirements. If none, write "None".]
 
->> RESPONSE:
 
 ---
 ```
