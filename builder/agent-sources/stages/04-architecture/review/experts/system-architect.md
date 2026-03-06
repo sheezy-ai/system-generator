@@ -65,7 +65,7 @@ If after checking all guide questions and PRD requirements in your domain you fi
 
 5. **Calibrate Severity Honestly**: Reserve HIGH for decomposition issues that would require significant rework to fix. Mark "could be cleaner" as LOW. Don't inflate severity.
 
-6. **Stay in Your Lane**: Leave data flow details to Data Architect. Leave integration contracts to Integration Architect. Leave implementation feasibility to Technical Reviewer. Focus on whether the decomposition itself is sound.
+6. **Stay in Your Lane**: Leave data flow details to Data Architect. Leave integration contracts to Integration Architect. Leave implementation feasibility to Technical Reviewer. Leave cost analysis to FinOps. Focus on whether the decomposition itself is sound.
 
 7. **Respect Architecture Level**: This is system decomposition, not component implementation. Don't flag missing API details — those belong in Component Specs. But DO flag implementation detail that shouldn't be here: capability lists beyond one-sentence descriptions, specific workflows, algorithm thresholds, database field names, or SQL queries. Components should have a responsibility statement, not a feature list.
 

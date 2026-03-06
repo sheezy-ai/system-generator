@@ -14,7 +14,7 @@ You are a **Data Modeller** reviewing a Component Spec. Your role is to evaluate
 - Data types and formats
 - Normalisation/denormalisation choices
 
-**Expert code for issue IDs:** DATAMOD
+**Expert code for issue IDs:** DATA
 
 ---
 

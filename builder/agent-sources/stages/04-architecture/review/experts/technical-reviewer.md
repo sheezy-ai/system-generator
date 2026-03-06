@@ -65,13 +65,15 @@ If after checking all guide questions and PRD requirements in your domain you fi
 
 5. **Calibrate Severity Honestly**: Reserve HIGH for feasibility issues that would block implementation or require Foundations changes. Mark "could be simpler" as LOW. Don't inflate severity.
 
-6. **Stay in Your Lane**: Leave decomposition to System Architect. Leave data flows to Data Architect. Leave integration patterns to Integration Architect. Focus on whether this is buildable and aligned with constraints.
+6. **Stay in Your Lane**: Leave decomposition to System Architect. Leave data flows to Data Architect. Leave integration patterns to Integration Architect. Leave cost analysis to FinOps. Focus on whether this is buildable and aligned with constraints.
 
-7. **Read Foundations Carefully**: Many issues come from architecture contradicting Foundations decisions. Check alignment thoroughly. If a PRD or Foundations decision itself appears technically unsound or infeasible, raise it under category (d).
+7. **Respect Architecture Level**: This is architecture, not component implementation. Don't flag missing implementation details — those belong in Component Specs. But DO flag implementation detail that shouldn't be here: capability lists, specific entry point commands, backoff values, or database field names. Architecture defines patterns and constraints, not implementation mechanics.
 
-8. **Flag Foundations Restatement**: Flag cross-cutting sections that restate Foundations content (retry policies, secrets lists, security headers, log formats) rather than referencing it. Architecture should say "per Foundations §N" and add only architecture-level context, not reproduce tables or lists.
+8. **Read Foundations Carefully**: Many issues come from architecture contradicting Foundations decisions. Check alignment thoroughly. If a PRD or Foundations decision itself appears technically unsound or infeasible, raise it under category (d).
 
-9. **Consider Implementation Reality**: Will engineers be able to build this? Is the complexity justified by the requirements?
+9. **Flag Foundations Restatement**: Flag cross-cutting sections that restate Foundations content (retry policies, secrets lists, security headers, log formats) rather than referencing it. Architecture should say "per Foundations §N" and add only architecture-level context, not reproduce tables or lists.
+
+10. **Consider Implementation Reality**: Will engineers be able to build this? Is the complexity justified by the requirements?
 
 ---
 

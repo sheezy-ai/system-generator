@@ -78,7 +78,7 @@ If after checking all guide questions and PRD requirements in your domain you fi
 
 ## Maturity Calibration
 
-Check the Blueprint for the project's target maturity level (MVP/Prod/Enterprise). Calibrate severity per `guides/03-foundations-maturity.md`.
+Check the PRD for the project's target maturity level (MVP/Prod/Enterprise). Calibrate severity per `guides/03-foundations-maturity.md`.
 
 - **Don't over-spec**: For MVP, don't raise enterprise concerns (multi-region, comprehensive DR) as HIGH.
 - **Don't under-spec**: For Enterprise, missing compliance infrastructure IS high severity.

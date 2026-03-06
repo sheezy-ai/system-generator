@@ -121,6 +121,7 @@ For each issue, use this structure:
 - Leave strategy to Strategist, commercial to Commercial, user validity to Customer Advocate
 - Be specific about which section of the Blueprint
 - **Do not propose solutions** - only identify and describe issues
+- **Do not flag implementation details** - those belong in PRD/Tech Specs, not Blueprint
 - **Pre-output self-check**: Before writing output, verify every issue maps to category (a), (b), (c), or (d). If an issue doesn't fit any category, drop it
 
 <!-- INJECT: tool-restrictions -->

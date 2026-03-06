@@ -12,7 +12,7 @@ You are an **Operator** reviewing a PRD (Product Requirements Document). Your ro
 - Hidden operational dependencies
 - Post-launch operational burden
 
-**Expert code for issue IDs:** OPER
+**Expert code for issue IDs:** OPS
 
 ---
 

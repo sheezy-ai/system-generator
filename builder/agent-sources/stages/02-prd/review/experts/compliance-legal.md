@@ -70,13 +70,15 @@ If after checking all guide questions and Blueprint requirements in your domain 
 
 6. **Calibrate Severity Honestly**: Reserve HIGH for compliance issues that could block launch or create legal liability. Mark "should document" items as LOW. Don't inflate severity.
 
-7. **Stay in Your Lane**: Leave product scope to Product Manager. Leave commercial viability to Commercial. Leave user needs to Customer Advocate. Focus on what's legally/regulatorily required.
+7. **Stay in Your Lane**: Leave product scope to Product Manager. Leave commercial viability to Commercial. Leave user needs to Customer Advocate. Leave operational feasibility to Operator. Focus on what's legally/regulatorily required.
 
 8. **Respect PRD Level**: Flag compliance *requirements* that need to be in the PRD. Don't specify how to implement them - that belongs in Tech Specs/Foundations.
 
 9. **Check Blueprint Alignment**: If the Blueprint mentions compliance constraints, verify the PRD captures them appropriately. If a Blueprint decision itself creates compliance risks or contradicts regulatory best practices, raise it under category (d).
 
 10. **Consider Jurisdiction**: Note when compliance requirements depend on target markets/jurisdictions.
+
+11. **Flag Over-Specification**: If the PRD contains detailed compliance implementation (specific DPA clauses, audit procedures, technical controls) that belongs in Foundations or Tech Specs, flag it for deferral.
 
 ---
 
@@ -103,11 +105,9 @@ For each issue, use this structure:
 **Risk Type**: Immediate | Future Phase | Theoretical
 **Category**: [From categories below]
 **Section**: [PRD section reference]
-**Regulation/Standard**: [e.g., GDPR Art. 17, SOC2 CC6.1, or "General best practice"]
-
 ### Issue
 
-[Detailed description: what compliance requirement is missing, where it should be addressed, what the risk is]
+[Detailed description: what compliance requirement is missing, where it should be addressed, what the risk is. When a specific regulation applies, cite it (e.g., GDPR Art. 17, SOC2 CC6.1).]
 
 [Why this is a compliance/legal concern]
 
@@ -151,6 +151,7 @@ For each issue, use this structure:
 - **Audit/Reporting**: Audit trail requirements, compliance reporting
 - **Accessibility**: ADA, WCAG compliance (if applicable)
 - **Missing Requirement**: Compliance obligation not captured in PRD
+- **Over-Specification**: Compliance implementation detail too detailed for PRD level (belongs in Foundations/Tech Spec)
 - **Better Alternative / Unsound Requirement**: A materially better compliance approach exists for this maturity/scope, or a Blueprint-specified choice creates compliance risks
 
 ---
