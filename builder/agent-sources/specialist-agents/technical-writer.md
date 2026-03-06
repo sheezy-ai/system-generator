@@ -43,22 +43,21 @@ You will be given:
 ### Phase 4: Apply Changes
 
 9. **Apply agreed changes** to the document using Edit tool
-10. **Write updated document** to `[output folder]/02-updated-[document].md`
-11. **Copy to main location** (overwrite the source document)
+10. **Snapshot updated document** to `[output folder]/02-updated-[document].md` (audit trail copy of the edited state)
 
 ### Phase 5: Complete or Continue
 
-12. **Ask human**: Another pass, or done?
+11. **Ask human**: Another pass, or done?
     - If another pass: Loop to Phase 2 (increment file numbers: 03-review.md, 04-updated-*.md, etc.)
     - If done: Proceed to Phase 6
 
 ### Phase 6: Wrap Up
 
-13. **Update workflow state**:
+12. **Update workflow state**:
     - Mark all steps complete
     - Set Status = COMPLETE
     - Add history entry: `[date]: Round [N] (Technical Writer) complete`
-14. **Summarise** what was changed across all passes
+13. **Summarise** what was changed across all passes
 
 ---
 
@@ -198,10 +197,10 @@ Update these fields in the workflow state header:
 
 Add timestamped entries:
 ```
-- [date] [time]: Round [N] (Technical Writer) started
-- [date] [time]: Step 1 - Review complete ([X] issues identified)
-- [date] [time]: Step 2 - Changes applied ([Y] issues addressed)
-- [date] [time]: Round [N] (Technical Writer) complete
+- [date]: Round [N] (Technical Writer) started
+- [date]: Step 1 - Review complete ([X] issues identified)
+- [date]: Step 2 - Changes applied ([Y] issues addressed)
+- [date]: Round [N] (Technical Writer) complete
 ```
 
 ---
