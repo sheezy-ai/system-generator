@@ -44,20 +44,11 @@ Populate cross-cutting specification from completed specs.
 
 ## Processing Order
 
-Components are processed in dependency order from the workflow-state.md Component Dependencies table:
+Read the Component Dependencies table from `versions/workflow-state.md` to determine processing order. Components are processed in priority/dependency order.
 
-| # | Component | Dependencies | Reconcile? |
-|---|-----------|--------------|------------|
-| 1 | event-directory | none | No |
-| 2 | email-ingestion | event-directory | Yes |
-| 3 | shared-llm-client | none | No |
-| 4 | extraction-agent | event-directory, shared-llm-client | Yes |
-| 5 | paraphrasing-agent | shared-llm-client | Yes |
-| 6 | geocoding-module | event-directory, shared-llm-client | Yes |
-| 7 | quality-gate-module | extraction-agent, paraphrasing-agent, geocoding-module | Yes |
-| 8 | data-processing-job | email-ingestion, extraction-agent, paraphrasing-agent, geocoding-module, quality-gate-module | Yes |
-| 9 | admin-api | event-directory, data-processing-job | Yes |
-| 10 | consumer-api | event-directory | Yes |
+For each component, determine `Reconcile?`:
+- **No**: Component has no dependencies (no consumed interfaces to reconcile)
+- **Yes**: Component has dependencies and at least one producer has been processed
 
 These are build-order dependencies. The extractor discovers actual integration points from spec content.
 
@@ -95,7 +86,7 @@ Rule: If a file path appears in your agent invocation, don't read it yourself.
    - List all `.md` files in `specs/` directory
    - Exclude `cross-cutting.md`
    - Verify against Processing Order table above
-   - **If any required spec missing**: Error — "Missing spec(s): [list]. All 10 application-layer specs must be present."
+   - **If any required spec missing**: Error — "Missing spec(s): [list]. All application-layer specs must be present."
 
 4. **Create working directories** (use Bash with mkdir):
    - `versions/cross-cutting/`
@@ -112,10 +103,10 @@ Rule: If a file path appears in your agent invocation, don't read it yourself.
    ```
    Cross-cutting population starting.
 
-   Found 10 completed component specs.
-   Processing in dependency order — will pause for review after each component.
+   Found [N] completed component specs.
+   Processing in dependency order.
 
-   Starting with: event-directory (1/10)
+   Starting with: [first-component] (1/[N])
    ```
 
 8. **Proceed to Step 2**
@@ -228,7 +219,7 @@ All produced contracts are registered automatically. All mismatches are document
 
 ### Step 3: Finalise
 
-After all 10 components are processed:
+After all components are processed:
 
 1. **Update cross-cutting.md status section**:
    ```markdown
@@ -237,7 +228,7 @@ After all 10 components are processed:
    **Population**: COMPLETE
    **Started**: [start date]
    **Completed**: [today's date]
-   **Source Specs**: 10 component specs
+   **Source Specs**: [N] component specs
 
    Contracts extracted incrementally in dependency order with reconciliation.
    Use contract verification in reviews to detect regressions.
@@ -280,7 +271,7 @@ After all 10 components are processed:
 6. **Update population state**: Set workflow status to COMPLETE
 
 7. **Update stage state** (`versions/workflow-state.md`):
-   - Add history entry: "[date]: Cross-cutting populated with [N] contracts from 10 component specs"
+   - Add history entry: "[date]: Cross-cutting populated with [N] contracts from [N] component specs"
 
 8. **Present final summary to human**:
 
@@ -289,15 +280,15 @@ After all 10 components are processed:
 
    **Output**: specs/cross-cutting.md
    **Contracts**: [N] defined
-   **Components processed**: 10/10
+   **Components processed**: [N]/[N]
    **Status**: COMPLETE
 
    ### Per-Component Breakdown
 
    | # | Component | Contracts | Consumed | Clean | Mismatches |
    |---|-----------|-----------|----------|-------|------------|
-   | 1 | event-directory | [N] | - | - | - |
-   | 2 | email-ingestion | [N] | [N] | [N] | [N] |
+   | 1 | [component-1] | [N] | - | - | - |
+   | 2 | [component-2] | [N] | [N] | [N] | [N] |
    | ... | | | | | |
 
    [If any mismatches were found:]
@@ -348,7 +339,7 @@ After all 10 components are processed:
    Deferred items: versions/cross-cutting/deferred-items.md
    ```
 
-9. **Return**: `{ status: "COMPLETE", contracts: [N], components: 10, mismatches: [M], deferred_items_gaps: [N] }`
+9. **Return**: `{ status: "COMPLETE", contracts: [N], components: [N], mismatches: [M], deferred_items_gaps: [N] }`
 
 ---
 
@@ -367,16 +358,11 @@ After all 10 components are processed:
 
 | # | Component | Status | Contracts Registered |
 |---|-----------|--------|---------------------|
-| 1 | event-directory | PENDING | - |
-| 2 | email-ingestion | PENDING | - |
-| 3 | shared-llm-client | PENDING | - |
-| 4 | extraction-agent | PENDING | - |
-| 5 | paraphrasing-agent | PENDING | - |
-| 6 | geocoding-module | PENDING | - |
-| 7 | quality-gate-module | PENDING | - |
-| 8 | data-processing-job | PENDING | - |
-| 9 | admin-api | PENDING | - |
-| 10 | consumer-api | PENDING | - |
+| 1 | [component-1] | PENDING | - |
+| 2 | [component-2] | PENDING | - |
+| ... | ... | PENDING | - |
+
+Populate from the Component Dependencies table in versions/workflow-state.md.
 
 ## Current
 

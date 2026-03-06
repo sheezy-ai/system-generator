@@ -37,7 +37,7 @@ The monolithic deferred items file may exceed token limits. Process in chunks:
 
 ### Step 1: Get Component List
 
-Read Architecture Overview Section 6 (Component Spec List) to extract the list of components. Create a mapping of component names.
+Read the Architecture Overview to find the Component Spec List section. Extract the list of components with their responsibilities. Build a classification guide mapping keywords and signals to components based on each component's described responsibility and scope.
 
 ### Step 2: Index the Deferred Items
 
@@ -51,10 +51,10 @@ For each `## From [Source]` section:
 2. **For each item** (identified by `### [ITEM-ID]:`):
    - Analyse content to determine relevant component(s)
    - Classification signals:
-     - Explicit component mentions (e.g., "admin-api", "event-store")
-     - Architecture section references (e.g., "Section 2.1" = Admin Service)
-     - Keywords (e.g., "API endpoint" -> api components, "schema" -> event-store)
-     - Data entity mentions (e.g., "IntermediateExtraction" -> data-processing-job, event-store)
+     - Explicit component name mentions
+     - Architecture section references (match section numbers to components)
+     - Domain keywords matching component responsibilities from the classification guide built in Step 1
+     - Data entity mentions that map to specific component scopes
    - If item applies to multiple components, mark as cross-cutting
 3. **Append to appropriate deferred items file(s)**
 
@@ -71,17 +71,12 @@ Rename the monolithic deferred items file to `versions/deferred-items-archived-Y
 
 ## Component Classification Guide
 
-| Signal | Likely Component |
-|--------|------------------|
-| Admin Service, admin UI, admin endpoints | admin-api |
-| Consumer Service, public API, discovery | consumer-api |
-| Data Processing Job, pipeline, extraction, batch | data-processing-job |
-| Event Store, database, schema, entities | event-store |
-| Quality Gate, publication decision | quality-gate-module |
-| Geocoding, Nominatim, area taxonomy | geocoding-module |
-| Email ingestion, Gmail, OAuth | email-ingestion |
-| Infrastructure, deployment, Cloud Run | infrastructure |
-| Multiple components, cross-service | cross-cutting |
+Build this guide dynamically in Step 1 from the Architecture Overview. For each component, extract:
+- Component name (used as the classification target)
+- Responsibility description (provides domain keywords)
+- Key data entities or capabilities (provides signal words)
+
+Use the resulting mapping to classify deferred items. Items mentioning multiple components or cross-service concerns should be classified as cross-cutting.
 
 ---
 

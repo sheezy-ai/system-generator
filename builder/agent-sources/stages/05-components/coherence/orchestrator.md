@@ -50,7 +50,7 @@ Before running:
 
 ## Orchestration Flow
 
-**Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately.
+**Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Proceed immediately with Phase 1 (state gathering). Present findings before applying changes.
 
 ### Phase 1: Gather State
 
@@ -306,7 +306,7 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 
 | Condition | Action |
 |-----------|--------|
-| No COMPLETE components | Error: "Need at least 1 complete component to review coherence" |
+| Fewer than 2 COMPLETE components | Error: "Need at least 2 complete components to review coherence" |
 | No pending issues and cross-cutting DEFERRED | Warning: "No issues to resolve and contracts not populated - consider running cross-cutting population" |
 | Human aborts mid-phase | Save progress, report partial completion |
 

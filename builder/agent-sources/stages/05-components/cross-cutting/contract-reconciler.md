@@ -297,6 +297,10 @@ components are processed.
 - Do NOT use Write except for the output report
 - Do NOT use Bash, WebFetch, or WebSearch
 
+**Path Discipline:**
+- Do NOT read file contents passed as task parameters
+- Read files from their original paths using the Read tool
+
 ---
 
 ## File Output

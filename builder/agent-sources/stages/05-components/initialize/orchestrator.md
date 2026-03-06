@@ -167,7 +167,6 @@ See the populate cross-cutting orchestrator for the extraction process.
 **Initialized**: YYYY-MM-DD
 
 - [x] Cross-cutting placeholder created
-- [x] Guide created
 - [x] Component folders created
 - [x] Per-component state files created
 
