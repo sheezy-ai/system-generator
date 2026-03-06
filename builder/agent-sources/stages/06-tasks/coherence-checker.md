@@ -333,7 +333,7 @@ Note: LOW issues are reported but do not block PASS status. They are advisory fi
 - **Be practical**: Only flag issues that would cause real problems during implementation — not theoretical concerns
 - **Avoid false positives**: If the task file already documents a dependency or flow (even briefly in Notes), don't flag it as missing
 - **Read thoroughly**: Check Notes sections, not just Acceptance Criteria — cross-component dependencies are often documented in Notes
-- **Infrastructure vs Component awareness**: Apply all four checks regardless of task type, but calibrate severity to the context — a missing conditional path in an infrastructure setup script (which runs repeatedly) is more severe than in a one-time component implementation task
+- **Infrastructure vs Component awareness**: Apply all five checks regardless of task type, but calibrate severity to the context — a missing conditional path in an infrastructure setup script (which runs repeatedly) is more severe than in a one-time component implementation task
 
 <!-- INJECT: tool-restrictions -->
 

@@ -87,7 +87,7 @@ Derive all paths from the component name and type:
 
 **For infrastructure (type = infra):**
 - Generator: `infrastructure-generator.md`
-- Generator inputs: Foundations path, Architecture path
+- Generator inputs: Foundations path, Architecture path, Infrastructure Spec path
 - Extractor: `spec-item-extractor.md`
 - Extractor inputs: Foundations path, Architecture path, Infrastructure Spec path
 - Extractor output: `round-1/00-spec-items.md` (always round 1, reused across rounds)
@@ -157,7 +157,7 @@ If the component status is PENDING, start at Generate, round 1.
 
    **For infrastructure:**
 
-   Generator prompt: `Read the infrastructure task generator at: [infrastructure-generator.md path]\n\nGenerate infrastructure tasks. Foundations: [path]. Architecture: [path]. Task guide: [task-guide path]. Write to: [round-1/01-draft-tasks.md path]`
+   Generator prompt: `Read the infrastructure task generator at: [infrastructure-generator.md path]\n\nGenerate infrastructure tasks. Foundations: [path]. Architecture: [path]. Infrastructure spec: [path]. Task guide: [task-guide path]. Write to: [round-1/01-draft-tasks.md path]`
 
    Extractor prompt: `Read the spec-item extractor at: [spec-item-extractor.md path]\n\nExtract spec items for infrastructure. Foundations: [path]. Architecture: [path]. Infrastructure spec: [path]. Write to: [round-1/00-spec-items.md path]`
 
@@ -189,7 +189,13 @@ If the component status is PENDING, start at Generate, round 1.
 
    **Round 2+**: Spawn the generator only. The extractor, reviewer, and corrector outputs from round 1 are reused (the spec hasn't changed — only the tasks are being revised).
 
-   Generator prompt (round 2+): `Read the task generator at: [generator path]\n\nFix tasks for [component-name], round N. Source document: [path]. Foundations: [path]. Cross-cutting spec: [path]. Other task files: [glob or list]. Infrastructure task file: [path]. Task guide: [task-guide path]. Feedback report: [round-(N-1)/03-consolidated-report.md path]. Previous draft: [round-(N-1)/01-draft-tasks.md path]. Write to: [round-N/01-draft-tasks.md path]`
+   **For infrastructure:**
+
+   Generator prompt (round 2+): `Read the infrastructure task generator at: [infrastructure-generator.md path]\n\nFix infrastructure tasks, round N. Foundations: [path]. Architecture: [path]. Infrastructure spec: [path]. Task guide: [task-guide path]. Feedback report: [round-(N-1)/03-consolidated-report.md path]. Previous draft: [round-(N-1)/01-draft-tasks.md path]. Write to: [round-N/01-draft-tasks.md path]`
+
+   **For components:**
+
+   Generator prompt (round 2+): `Read the task generator at: [task-generator.md path]\n\nFix tasks for [component-name], round N. Source document: [path]. Foundations: [path]. Cross-cutting spec: [path]. Other task files: [glob or list]. Infrastructure task file: [path]. Task guide: [task-guide path]. Feedback report: [round-(N-1)/03-consolidated-report.md path]. Previous draft: [round-(N-1)/01-draft-tasks.md path]. Write to: [round-N/01-draft-tasks.md path]`
 
 4. Verify output exists: `round-N/01-draft-tasks.md`
 5. Verify extractor output exists: `versions/[component]/round-1/00-spec-items.md` (round 1 confirms creation; round 2+ confirms round-1 file still present)
@@ -276,7 +282,7 @@ Update only your component's row in the Processing Order table. Use the Edit too
 **Do NOT modify:**
 - Other components' rows
 - The History section
-- The workflow Status field (INITIALISING/IN_PROGRESS/COMPLETE — coordinator manages this)
+- The workflow Status field (IN_PROGRESS/CROSS_CHECKING/COMPLETE — coordinator manages this)
 
 ---
 

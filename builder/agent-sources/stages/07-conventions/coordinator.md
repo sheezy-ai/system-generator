@@ -36,8 +36,12 @@ The coordinator does NOT generate or review conventions directly. It manages the
 - Post-cross-reference versions: `07-conventions/conventions/versions/section-NN/xref-round-N/`
 - Cross-reference versions: `07-conventions/conventions/versions/cross-reference/round-N/`
 
+**Guides:**
+- Conventions guide: `{{GUIDES_PATH}}/07-conventions-guide.md`
+
 **Agent prompts:**
 - Section pipeline runner: `{{AGENTS_PATH}}/07-conventions/section-pipeline-runner.md`
+- Section reviewer: `{{AGENTS_PATH}}/07-conventions/conventions-reviewer.md`
 - Cross-reference reviewer: `{{AGENTS_PATH}}/07-conventions/cross-reference-reviewer.md`
 - Cross-reference fixer: `{{AGENTS_PATH}}/07-conventions/cross-reference-fixer.md`
 
@@ -243,7 +247,7 @@ When the cross-reference review fails, copy affected files then spawn the fixer 
 For each section copy modified in Step 7c, verify the fix did not break source fidelity:
 
 - Spawn the section reviewer as a subagent via Task tool:
-  - Prompt: `Read the conventions section reviewer at: {{AGENTS_PATH}}/07-conventions/conventions-reviewer.md\n\nReview section N (Section Name). Section file: 07-conventions/conventions/versions/section-NN/xref-round-R/01-section.md. Source items file: 07-conventions/conventions/versions/section-NN/source-items-reviewed.md. Write review report to: 07-conventions/conventions/versions/section-NN/xref-round-R/02-review-report.md`
+  - Prompt: `Read the conventions section reviewer at: {{AGENTS_PATH}}/07-conventions/conventions-reviewer.md\n\nReview section N (Section Name), round 1. Conventions guide: {{GUIDES_PATH}}/07-conventions-guide.md. Section file: 07-conventions/conventions/versions/section-NN/xref-round-R/01-section.md. Source items file: 07-conventions/conventions/versions/section-NN/source-items-reviewed.md. Write review report to: 07-conventions/conventions/versions/section-NN/xref-round-R/02-review-report.md`
 - Multiple section reviews can be spawned in parallel if they affect different sections
 - Extract status from each review report using Grep
 

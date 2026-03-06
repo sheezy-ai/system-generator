@@ -103,13 +103,13 @@ Use `ls` (Bash) to verify each file exists — do NOT Read files for existence c
 
 Use the Tier Grouping Algorithm (see below) to group components into tiers.
 
-#### Step 6: Write workflow state
-
-Create `08-build/versions/workflow-state.md` with the Processing Order table (see State Management below). Infrastructure is row 0 with status PENDING. Components follow in priority order. Set workflow status to `IN_PROGRESS`. Add history entry.
-
-#### Step 7: Create directories
+#### Step 6: Create directories
 
 - `08-build/versions/`
+
+#### Step 7: Write workflow state
+
+Create `08-build/versions/workflow-state.md` with the Processing Order table (see State Management below). Infrastructure is row 0 with status PENDING. Components follow in priority order. Set workflow status to `IN_PROGRESS`. Add history entry.
 
 #### Step 8: Process tiers
 

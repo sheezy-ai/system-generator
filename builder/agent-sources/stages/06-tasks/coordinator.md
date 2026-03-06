@@ -88,6 +88,7 @@ Read `06-tasks/versions/workflow-state.md` if it exists:
 - Verify `03-foundations/foundations.md` exists
 - Verify `04-architecture/architecture.md` exists
 - Verify `05-components/specs/infrastructure.md` exists
+- Verify `05-components/specs/cross-cutting.md` exists
 - For each component in the processing order, verify its spec exists in `05-components/specs/[component-name].md`
 - **If any missing**: Error — "Missing: [list]. Cannot proceed."
 

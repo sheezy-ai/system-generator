@@ -197,7 +197,7 @@ Update only your section's row in the Processing Order table. Use the Edit tool 
 - **State before action**: Update workflow state before and after every step transition. This enables resume on interruption.
 
 **Tool Restrictions:**
-- Only use **Read**, **Write**, **Edit**, **Glob**, and **Grep** tools
+- Only use **Read**, **Write**, **Edit**, **Glob**, **Grep**, and **Task** tools
 - Do NOT use Bash or execute any shell commands
   - Exception: **Bash** allowed for `ls`, `cp`, and `mkdir` only (file existence checks and orchestration)
   - Do NOT use git commands

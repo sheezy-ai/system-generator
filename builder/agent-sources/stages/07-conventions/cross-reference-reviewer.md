@@ -33,7 +33,7 @@ You will be invoked with:
 ## File-First Operation
 
 1. **Glob** `07-conventions/conventions/sections/*.md` to get the list of section files
-2. **Read all section files** — each section is small; reading all 12 is manageable
+2. **Read all section files** — each section is small; reading all 13 is manageable
 3. **Run both checks** across the full set of sections
 4. **Write the review report** to the specified output path
 

@@ -142,7 +142,7 @@ Minor conventions deviations that don't affect correctness should be noted but s
 
 **Tool Restrictions:**
 - Only use **Read**, **Glob**, and **Grep** tools
-- Do NOT use Write or Edit on any file except the review report
+- Do NOT use Edit on any file
 - Use **Write** only for creating the review report at the specified output path
 - Do NOT use Bash or execute any shell commands
 - Do NOT use WebFetch or WebSearch

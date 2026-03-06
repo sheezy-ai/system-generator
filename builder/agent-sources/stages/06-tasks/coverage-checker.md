@@ -93,7 +93,7 @@ Every task with a `Depends On` field must have valid, resolvable dependencies.
 | Format | Example | Resolves To |
 |--------|---------|-------------|
 | Within component | `TASK-003` | Task in same file |
-| Cross-component | `UserService/TASK-001` | Task in UserService task file |
+| Cross-component | `user-service/TASK-001` | Task in user-service task file |
 | Infrastructure | `Infrastructure/TASK-002` | Task in infrastructure task file |
 
 ### What to Validate
@@ -103,7 +103,7 @@ Every task with a `Depends On` field must have valid, resolvable dependencies.
 - No self-references (task depending on itself)
 
 **2. Cross-Component Dependencies**
-- Format is `ComponentName/TASK-NNN`
+- Format is `component-name/TASK-NNN`
 - Referenced component's task file exists (if provided)
 - Referenced task ID exists in that file
 - If task file not provided, mark as UNVERIFIED (not an error)
@@ -237,9 +237,9 @@ The following sections have all spec items covered:
 
 | Task | Depends On | Status |
 |------|------------|--------|
-| TASK-003 | UserService/TASK-001 | VALID |
-| TASK-007 | EventStore/TASK-005 | UNVERIFIED - task file not provided |
-| TASK-010 | BookingService/TASK-003 | INVALID - task not found in BookingService |
+| TASK-003 | user-service/TASK-001 | VALID |
+| TASK-007 | event-store/TASK-005 | UNVERIFIED - task file not provided |
+| TASK-010 | booking-service/TASK-003 | INVALID - task not found in booking-service |
 
 ### Infrastructure Dependencies
 

@@ -38,7 +38,7 @@ All system-design paths are relative to `{{SYSTEM_DESIGN_PATH}}/system-design/`.
 5. **Glob the project source tree** at `{{SYSTEM_DESIGN_PATH}}/` to discover what files exist
 6. **Grep component specs** for public endpoints and interfaces (for API coverage check)
 7. Run all checks
-7. Write the verification report
+8. Write the verification report
 
 ---
 

@@ -50,7 +50,7 @@ All project-relative paths below are relative to the system-design root director
 
 Rule: Pass file PATHS to worker agents — agents read files themselves. The exception is the task file, which the runner reads for tier computation and tier task extraction.
 
-**Context management**: The runner persists across all tiers and rounds for a component. Every document you Read stays in context. Keep context lean — use Grep for targeted extraction from review reports (e.g., extract status only), `ls` for existence checks. Worker agents (builder, reviewer) run in their own context via the Task tool and read their own inputs.
+**Context management**: The runner persists across all tiers and rounds for a component. Every document you Read stays in context. Keep context lean — use Grep for targeted extraction from review reports (e.g., extract status only), Glob for existence checks. Worker agents (builder, reviewer) run in their own context via the Task tool and read their own inputs.
 
 ---
 
@@ -150,7 +150,7 @@ Total: [N] tasks in [T] tiers
 
 ### Step 7: Write tier task files
 
-For each tier T (starting at 1):
+For each tier T (starting at 0):
 1. Create the tier directory: `versions/[component]/tier-T/` (via `mkdir -p`)
 2. Extract the markdown sections for each task in this tier from the full task file — each task occupies a contiguous block from `### TASK-NNN:` to the next `### TASK-` or end of file
 3. Write the tier task file at `versions/[component]/tier-T/00-tier-tasks.md`:
@@ -178,7 +178,7 @@ For each tier T (starting at 1):
 
 ### Tier Loop
 
-For each tier T (from 1 to N):
+For each tier T (from 0 to N):
 
 #### Tier Build
 
