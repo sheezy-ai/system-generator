@@ -71,6 +71,35 @@ The Consolidator groups issues by these Blueprint-specific themes:
 
 ---
 
+## Create Workflow
+
+Blueprint has a custom create workflow, unlike the generic Setup → Generate → Report pattern used by stages 02-05 (see `workflow-create.md`).
+
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Extract (promote + scope brief)
+
+The explore→generate cycle iterates for as many rounds as the human wants:
+- **Round 0** explores from `concept.md`
+- **Round 1+** explores from the previous round's draft
+- The human exits the loop by choosing to promote at Gap Resolution
+
+### Explore Phase (Steps 1-7)
+
+Identifies strategic dimensions of the concept, spawns parallel explorers for each dimension, consolidates enrichment proposals, and facilitates human review. Enrichments marked as simple are accepted into the Blueprint; meaty strategic choices are routed to the Decision Orchestrator.
+
+### Generate Phase (Steps 8-9)
+
+Generates a draft Blueprint from the primary source + accepted enrichments + any resolved decisions. Pending decisions are marked as gap markers. The human then reviews gaps and chooses to promote, answer gaps, or do another round.
+
+### Extract Phase (Steps 10-11)
+
+Promotes the final draft to `blueprint.md` and extracts `scope-brief.md` for downstream stages.
+
+### Decision Orchestrator (separate workflow)
+
+Strategic decisions identified during enrichment review are handled by a separate Decision Orchestrator — not inline in the create workflow. Each decision gets its own framework (evaluation criteria, approved by human) and analysis (options evaluated against criteria, human approves final decision). The Blueprint proceeds with pending decisions marked as gaps; resolved decisions are incorporated as settled content.
+
+---
+
 ## File Paths
 
 **Stage guide:** `guides/01-blueprint-guide.md`
@@ -79,8 +108,17 @@ The Consolidator groups issues by these Blueprint-specific themes:
 ```
 agents/01-blueprint/
 ├── create/
-│   ├── orchestrator.md
-│   └── generator.md
+│   ├── orchestrator.md              # Coordinates explore→generate loop
+│   ├── dimension-identifier.md      # Identifies strategic dimensions
+│   ├── dimension-explorer.md        # Explores one dimension deeply
+│   ├── exploration-consolidator.md  # Merges explorer outputs
+│   ├── enrichment-author.md         # Produces exploration summary
+│   ├── decision-orchestrator.md     # Handles one decision (separate workflow)
+│   ├── decision-framework.md        # Defines decision criteria with human
+│   ├── decision-analyst.md          # Evaluates options against framework
+│   ├── generator.md                 # Creates draft from inputs
+│   ├── author.md                    # Applies gap resolutions to draft
+│   └── scope-extractor.md          # Extracts scope brief from blueprint
 └── review/
     ├── orchestrator.md
     ├── author.md
@@ -98,27 +136,46 @@ agents/01-blueprint/
 ## Output Structure
 
 ```
-system/01-blueprint/
-├── blueprint.md                    # Final Blueprint
+system-design/01-blueprint/
+├── concept.md                         # Input (user provides)
+├── blueprint.md                       # Promoted from create (then overwritten by Review)
+├── scope-brief.md                     # Extracted scope for downstream stages
+├── decisions/                         # Decision analysis (one folder per decision)
+│   └── {decision-name}/
+│       ├── framework.md               # Evaluation criteria (human-approved)
+│       └── analysis.md                # Options evaluated, final decision
 └── versions/
-    ├── out-of-scope.md             # Content that doesn't belong in docs
-    ├── workflow-state.md           # Current workflow state
-    ├── round-0/                    # Create workflow output
-    │   └── 00-draft-blueprint.md   # Generator output (human augments this)
-    └── round-N/                    # Review workflow output
+    ├── deferred-items.md              # Items deferred from concept
+    ├── pending-issues.md              # Issues logged against this stage
+    ├── out-of-scope.md                # Non-documentation content from concept
+    ├── workflow-state.md              # Unified workflow state (shared with Review)
+    ├── explore/                       # Round 0 explore outputs
+    │   ├── 00-dimensions.md
+    │   ├── 01-explorer-*.md
+    │   ├── 02-enrichment-discussion.md
+    │   └── 03-exploration-summary.md
+    ├── round-0/                       # Round 0 generate outputs
+    │   ├── 00-draft-blueprint.md
+    │   └── ...
+    ├── round-{N}/                     # Round N (N≥1) — explore + generate together
+    │   ├── explore/
+    │   │   └── ...
+    │   ├── 00-draft-blueprint.md
+    │   └── ...
+    └── round-{R}/                     # Review workflow rounds (after promotion)
         ├── 01-[expert].md
         ├── 02-consolidated-issues.md
-        ├── 03-issues-discussion.md   # Inline discussions happen here
+        ├── 03-issues-discussion.md
         ├── 04-author-output.md
         ├── 05-updated-blueprint.md
         └── 06-alignment-report.md
 ```
 
 **Downstream deferred items (for Blueprint content that's too detailed):**
-- `system/02-prd/versions/deferred-items.md` - Features, UI/UX
-- `system/03-foundations/versions/deferred-items.md` - Technology choices
-- `system/04-architecture/versions/deferred-items.md` - System decomposition
-- `system/05-components/versions/deferred-items.md` - Data models, APIs
+- `system-design/02-prd/versions/deferred-items.md` - Features, UI/UX
+- `system-design/03-foundations/versions/deferred-items.md` - Technology choices
+- `system-design/04-architecture/versions/deferred-items.md` - System decomposition
+- `system-design/05-components/versions/deferred-items.md` - Data models, APIs
 
 ---
 

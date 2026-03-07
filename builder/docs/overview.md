@@ -113,6 +113,8 @@ Concept/Upstream ──▶ Generator ──▶ Human augments ──▶ Review W
 - **Human** reviews and fills in answers to open questions
 - **Review Workflow** refines the document through expert review cycles
 
+**Blueprint exception:** Blueprint has a custom create workflow with an Explore phase (strategic dimension exploration, enrichment review) and iterative rounds. See `01-blueprint.md` for details.
+
 ### Review Workflow
 
 Refines an existing document through iterative review cycles.
@@ -202,7 +204,16 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   ├── 01-blueprint/
 │   │   ├── create/
 │   │   │   ├── orchestrator.md
-│   │   │   └── generator.md
+│   │   │   ├── dimension-identifier.md
+│   │   │   ├── dimension-explorer.md
+│   │   │   ├── exploration-consolidator.md
+│   │   │   ├── enrichment-author.md
+│   │   │   ├── decision-orchestrator.md
+│   │   │   ├── decision-framework.md
+│   │   │   ├── decision-analyst.md
+│   │   │   ├── generator.md
+│   │   │   ├── author.md
+│   │   │   └── scope-extractor.md
 │   │   └── review/
 │   │       ├── orchestrator.md
 │   │       ├── author.md
@@ -255,6 +266,8 @@ Scripts `init-project.sh` and `build-prompts.sh` live at the system-generator ro
 Workflows use round numbers to track iterations:
 - `round-0`: Create workflow (initial document creation)
 - `round-1`, `round-2`, ...: Review workflow cycles
+
+**Blueprint exception:** Blueprint's create workflow supports multiple rounds (`round-0`, `round-1`, ...) before promotion. Round 0 explores from `concept.md`, round 1+ explores from the previous round's draft. Review rounds continue from where create left off.
 
 All rounds for a stage share a `versions/` folder with a unified state file.
 
