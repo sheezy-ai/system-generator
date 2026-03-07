@@ -85,6 +85,9 @@ agents/review/
     ├── author.md
     └── change-verifier.md
 
+Create agents (in {{AGENTS_PATH}}/01-blueprint/create/):
+└── scope-extractor.md                 # Re-extracts scope brief during promote
+
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── scope-filter.md                    # Filters issues and outputs summary format
 ├── issue-analyst.md                   # Pre-analyzes issues with options and trade-offs
@@ -403,7 +406,17 @@ This gate is mandatory. Do not skip it.
 
 37. **Verify output file exists**: `system-design/01-blueprint/blueprint.md`
 
-38. **Update state file**: status = COMPLETE
+38. **Re-extract scope brief** — The reviewed Blueprint may have changed scoping sections. Re-run the Scope Extractor to keep the scope brief consistent:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/scope-extractor.md
+
+    Input:
+    - Blueprint: system-design/01-blueprint/blueprint.md
+
+    Output: system-design/01-blueprint/scope-brief.md
+    ```
+
+39. **Update state file**: status = COMPLETE
 
 ---
 
