@@ -19,7 +19,7 @@ Create a Blueprint from:
 - Concept: {{PROJECT_PATH}}/system-design/01-blueprint/concept.md
 ```
 
-The create workflow has three phases: **Explore** (identifies strategic dimensions of the concept, explores each in parallel, human reviews enrichments), **Generate** (produces draft Blueprint from concept + accepted enrichments, resolves gaps), and **Extract** (promotes to `blueprint.md` and extracts `scope-brief.md` for downstream stages).
+The create workflow iterates through **Explore** (identifies strategic dimensions, explores each in parallel, human reviews enrichments) and **Generate** (produces draft Blueprint from concept + accepted enrichments, resolves gaps) rounds — round 0 works from the concept, round 1+ works from the previous round's draft. The human exits the loop by choosing to promote, which triggers **Extract** (promotes to `blueprint.md` and extracts `scope-brief.md` for downstream stages). Strategic decisions identified during enrichment review are handled by a separate Decision Orchestrator.
 
 **Review:**
 ```
