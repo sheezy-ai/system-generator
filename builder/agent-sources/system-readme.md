@@ -19,6 +19,8 @@ Create a Blueprint from:
 - Concept: {{PROJECT_PATH}}/system-design/01-blueprint/concept.md
 ```
 
+The create workflow has three phases: **Explore** (identifies strategic dimensions of the concept, explores each in parallel, human reviews enrichments), **Generate** (produces draft Blueprint from concept + accepted enrichments, resolves gaps), and **Extract** (promotes to `blueprint.md` and extracts `scope-brief.md` for downstream stages).
+
 **Review:**
 ```
 Read the Blueprint review orchestrator at:
@@ -258,11 +260,13 @@ The session handles workflow state updates automatically - it will add a new rou
 
 No manual promotion is needed for these stages.
 
-**Stages 01–02** (Blueprint, PRD) require manual promotion. Back up the original first:
+**Stage 01** (Blueprint) auto-promotes during both create and review. The review orchestrator also re-extracts `scope-brief.md` to keep it consistent with the reviewed Blueprint.
+
+**Stage 02** (PRD) requires manual promotion. Back up the original first:
 
 ```
-cp {{PROJECT_PATH}}/system-design/XX-stage/[doc].md {{PROJECT_PATH}}/system-design/XX-stage/versions/[doc]-original.md
-cp {{PROJECT_PATH}}/system-design/XX-stage/versions/round-N/06-updated-[doc].md {{PROJECT_PATH}}/system-design/XX-stage/[doc].md
+cp {{PROJECT_PATH}}/system-design/02-prd/prd.md {{PROJECT_PATH}}/system-design/02-prd/versions/prd-original.md
+cp {{PROJECT_PATH}}/system-design/02-prd/versions/round-N/06-updated-prd.md {{PROJECT_PATH}}/system-design/02-prd/prd.md
 ```
 
 ## Stage Progression
@@ -286,6 +290,7 @@ Work through stages in order:
 
 Each stage folder (01–05) contains:
 - **[document].md** — The main output
+- **scope-brief.md** — Focused scope brief for downstream stages (stage 01 only)
 - **decisions.md** — Design rationale and trade-offs (stages 03–05)
 - **future.md** — Deferred items and future considerations (stages 03–05)
 - **versions/** — Workflow history and artifacts
