@@ -47,12 +47,12 @@ A dimension is a strategic area where the concept has made choices (explicit or 
 
 ### Examples
 
-For a concept about an events discovery platform:
-- **Supply strategy** — The concept mentions email extraction. What other content sources could bootstrap supply? What are the trade-offs?
-- **Discovery model** — The concept mentions filtering and curation. How should users actually discover events? Browsing, search, recommendations, social?
-- **Geographic vs niche strategy** — The concept mentions both. Which is the stronger wedge? How do they interact?
-- **Content quality approach** — Extracted content may feel incomplete. How to bridge the quality gap?
-- **User acquisition path** — The concept mentions founder network. What other approaches suit the constraints?
+For a concept about a B2B SaaS tool:
+- **Go-to-market strategy** — The concept implies direct sales. What other channels suit the constraints? Product-led growth, partnerships, marketplaces?
+- **Pricing model** — The concept mentions subscriptions. What tier structure? Usage-based vs seat-based? Free tier or not?
+- **Build vs integrate** — The concept describes building a feature that mature third-party services already provide. When to build, when to integrate?
+- **Data acquisition** — The concept assumes users will input data manually. What other onboarding paths reduce friction?
+- **Competitive positioning** — The concept targets a crowded category. What wedge creates defensibility?
 
 ---
 
