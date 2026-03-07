@@ -168,6 +168,7 @@ Enrichments Rejected: [N]
 - You CREATE structure files (deferred-items.md, pending-issues.md)
 - You COPY the final draft to `blueprint.md` (promotion)
 - You DO NOT write draft content, exploration content, gap discussion content, or author output — agents do that
+- Spawn agents in FOREGROUND (not background) — agents need interactive approval for file writes
 
 ---
 
