@@ -100,7 +100,7 @@ Initialize Component Specs.
 Read the Component Spec create orchestrator at:
 {{AGENTS_PATH}}/05-components/create/orchestrator.md
 
-Initialize component: [component name]
+Create component spec for: [component name]
 ```
 
 Optional: place a per-component brief at `{{PROJECT_PATH}}/system-design/05-components/versions/[component-name]/brief.md` before running Create.
@@ -296,4 +296,4 @@ Stages 06–12 use different structures defined by their coordinators. Deferred 
 
 ## Learning More
 
-See `system-builder/docs/overview.md` for framework details.
+See `system-generator/builder/docs/overview.md` for framework details.
