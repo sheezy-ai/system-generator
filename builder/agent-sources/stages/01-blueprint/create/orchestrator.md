@@ -4,9 +4,9 @@
 
 ## Purpose
 
-Initialize the Blueprint stage by setting up structure, exploring strategic dimensions of the concept, generating a draft Blueprint enriched by exploration findings and any completed decision analyses, resolving any gaps through structured discussion, promoting the final draft, and extracting a scope brief for downstream stages.
+Initialize the Blueprint stage by setting up structure, exploring strategic dimensions of the concept, generating a draft Blueprint enriched by exploration findings and any completed decision analyses, resolving any gaps with the human, promoting the final draft, and extracting a scope brief for downstream stages.
 
-**Flow:** Setup → Explore (dimensions → enrichments) → Generate (draft → gaps → author) → Extract (promote + scope brief)
+**Flow:** Setup → Explore (dimensions → enrichments) → Generate (draft → gap resolution) → Extract (promote + scope brief)
 
 Strategic decisions identified during enrichment review are handled by the separate Decision Orchestrator, not this workflow. The Blueprint proceeds with pending decisions marked as gaps.
 
@@ -34,7 +34,7 @@ Run this orchestrator at the start of a new project, with a concept document. Sa
 
 **Generate phase outputs**:
 - `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md`
-- `system-design/01-blueprint/versions/round-0/01-gap-discussion.md`
+- `system-design/01-blueprint/versions/round-0/01-gap-resolutions.md`
 - `system-design/01-blueprint/versions/round-0/02-author-output.md`
 - `system-design/01-blueprint/versions/round-0/03-updated-blueprint.md`
 
@@ -57,13 +57,11 @@ agents/01-blueprint/create/
 ├── decision-framework.md              # Defines decision criteria with human (used by decision orchestrator)
 ├── decision-analyst.md                # Evaluates options against framework (used by decision orchestrator)
 ├── generator.md                       # Creates draft from concept + enrichments + decisions
-├── author.md                          # Applies resolved gap discussions
+├── author.md                          # Applies gap resolutions to draft
 └── scope-extractor.md                 # Extracts scope brief from blueprint
 
 agents/universal-agents/
-├── gap-formatter.md                   # Extracts gaps into discussion format
-├── gap-analyst.md                     # Proposes solutions for each gap
-└── discussion-facilitator.md          # Facilitates discussions
+└── discussion-facilitator.md          # Facilitates enrichment discussions
 ```
 
 ---
@@ -91,9 +89,9 @@ system-design/01-blueprint/
     │   └── 03-exploration-summary.md  # Enrichment Author output
     └── round-0/
         ├── 00-draft-blueprint.md      # Generator output
-        ├── 01-gap-discussion.md       # Gap Formatter output (if gaps exist)
-        ├── 02-author-output.md        # Author changelog (if gaps exist)
-        └── 03-updated-blueprint.md    # Author output (if gaps exist)
+        ├── 01-gap-resolutions.md      # Human's gap answers (if provided in conversation)
+        ├── 02-author-output.md        # Author changelog (if gaps resolved)
+        └── 03-updated-blueprint.md    # Author output (if gaps resolved)
 ```
 
 ---
@@ -115,8 +113,7 @@ system-design/01-blueprint/
    - Steps 2–7 (Explore phase) — if all marked SKIPPED, jump to Step 8
    - Step 6 resumes at WAITING_FOR_HUMAN — re-read enrichment discussion file and continue loop
    - Step 8 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
-   - Steps 9–11 conditional on `Gaps Exist` flag — if `false`, skip to Step 12
-   - Step 10 resumes at WAITING_FOR_HUMAN — re-read discussion file and continue loop
+   - Step 9 resumes at WAITING_FOR_HUMAN — re-read draft and present gap summary to human
 
 3. **Update state file** at each step transition (instructions inline below)
 
@@ -145,13 +142,11 @@ system-design/01-blueprint/
 
 ### Phase 2: Generate
 - [ ] Step 8: Run Generator
-- [ ] Step 9: Format & Analyse Gaps
-- [ ] Step 10: Gap Discussion
-- [ ] Step 11: Apply Decisions
+- [ ] Step 9: Gap Resolution
 
 ### Phase 3: Extract
-- [ ] Step 12: Promote
-- [ ] Step 13: Scope Extract
+- [ ] Step 10: Promote
+- [ ] Step 11: Scope Extract
 
 ## Explore Details
 
@@ -187,9 +182,9 @@ Decisions:
 **Orchestrator Boundaries**
 - You READ input files to validate they exist
 - You SPAWN agents to do work
-- You CREATE structure files (deferred-items.md, pending-issues.md)
+- You CREATE structure files (deferred-items.md, pending-issues.md, gap-resolutions.md)
 - You COPY the final draft to `blueprint.md` (promotion)
-- You DO NOT write draft content, exploration content, decision content, gap discussion content, or author output — agents do that
+- You DO NOT write draft content, exploration content, decision content, or author output — agents do that
 - Spawn agents in FOREGROUND (not background) — agents need interactive approval for file writes
 
 ---
@@ -513,189 +508,107 @@ Only proceed to step 3 after the human signals they have responded.
 
 6. **Update state file**: Mark "Step 8: Run Generator" complete `[x]`, add history entry
 
-### Step 9: Format & Analyse Gaps
+### Step 9: Gap Resolution (`WAITING_FOR_HUMAN`)
+
+**On resume**: If status = WAITING_FOR_HUMAN for Step 9, re-read draft and present gap summary to human.
 
 1. **Read the draft** at `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md`
 
 2. **Check for Gap Summary section** — Look for `## Gap Summary` heading
 
 3. **If no Gap Summary, or all subsections empty** (Must Answer, Should Answer, and Assumptions all show "None" or similar):
-   - **Update state file**: Set `Gaps Exist` = `false`, mark Steps 9-11 complete `[x]`, add history entry "No gaps found — skipping to promotion"
-   - **Skip Steps 9-11, proceed to Step 12**
+   - **Update state file**: Set `Gaps Exist` = `false`, mark "Step 9: Gap Resolution" complete `[x]`, add history entry "No gaps found"
+   - **Skip to Step 10**
 
-4. **Spawn Gap Formatter agent** using Task tool:
+4. **Update state file**: Set `Gaps Exist` = `true`, set status = WAITING_FOR_HUMAN
+
+5. **Notify user** the draft has gaps to review:
    ```
-   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/gap-formatter.md
+   Draft Blueprint generated.
 
-   Input:
-   - Draft: system-design/01-blueprint/versions/round-0/00-draft-blueprint.md
+   Draft: system-design/01-blueprint/versions/round-0/00-draft-blueprint.md
 
-   Output: system-design/01-blueprint/versions/round-0/01-gap-discussion.md
-   ```
+   The draft has the following gaps:
 
-5. **Wait for Gap Formatter to complete**
+   Must Answer:
+   - [List each must-answer gap]
 
-6. **Verify output exists** at `system-design/01-blueprint/versions/round-0/01-gap-discussion.md`
+   Should Answer:
+   - [List each should-answer gap]
 
-7. **Read output** — count gaps by severity for the Step 10 handoff message
+   Assumptions to Validate:
+   - [List each assumption]
 
-8. **Spawn Gap Analyst agents** using Task tool (batch by section, same grouping as Discussion Facilitator):
-   ```
-   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/gap-analyst.md
+   You can:
+   - Edit the draft directly — replace gap markers with your answers
+   - Provide answers here — I'll create a resolutions file and have the Author apply them
+   - Say "promote as-is" — gaps stay in the Blueprint for the Review workflow to address
 
-   Context documents:
-   - Draft Blueprint: system-design/01-blueprint/versions/round-0/00-draft-blueprint.md
-   [If exploration summary exists:]
-   - Exploration summary: system-design/01-blueprint/versions/explore/03-exploration-summary.md
-
-   Gap discussion file: system-design/01-blueprint/versions/round-0/01-gap-discussion.md
-   Gaps: [GAP-001, GAP-002, ...]
-   ```
-
-9. **Wait for all Gap Analyst agents to complete**
-
-10. **Verify analyst responses were written** (MANDATORY):
-    - Count `>> AGENT:` markers in the gap discussion file
-    - Compare to total number of gaps
-    - If counts don't match: identify missing gaps and re-invoke Gap Analyst for those only
-
-11. **Update state file**: Set `Gaps Exist` = `true`, mark "Step 9: Format & Analyse Gaps" complete `[x]`, add history entry with gap counts
-
-### Step 10: Gap Discussion (`WAITING_FOR_HUMAN`)
-
-**On resume**: If status = WAITING_FOR_HUMAN for Step 10, re-read `01-gap-discussion.md` and continue the discussion loop from step 10(a) below — identify which gaps still need responses.
-
-1. **Update state file**: Set status = WAITING_FOR_HUMAN
-
-2. **Notify user** gap analysis is ready for review:
-   ```
-   Gap analysis complete.
-
-   Discussion file: system-design/01-blueprint/versions/round-0/01-gap-discussion.md
-
-   - [N] HIGH (Must Answer) gaps
-   - [M] MEDIUM (Should Answer) gaps
-   - [K] LOW (Assumptions to Validate) gaps
-
-   Each gap has a proposed solution with options, trade-offs, and recommendation.
-   Please review each proposal and respond using >> HUMAN: markers:
-   - Accept: "Agreed", "Yes", "That works"
-   - Modify: State what you'd change
-   - Reject/Discuss: Explain your concern
-
-   When done, let me know and I'll process your responses.
+   When ready, let me know how you'd like to proceed.
    ```
 
 **STOP: Wait for human response before proceeding.**
 
-Do NOT enter the discussion loop until the human has added actual response content after `>> HUMAN:` markers. An empty `>> HUMAN:` marker is a placeholder, not a response.
+6. **After human responds**:
 
-Only proceed to step 3 after the human signals they have responded.
+   **If "promote as-is"** or human defers all gaps:
+   - Update state file: Mark "Step 9: Gap Resolution" complete `[x]`, add history entry "Gaps deferred to review"
+   - Proceed to Step 10 (promote will use `00-draft-blueprint.md` as-is)
 
-3. **Discussion markers**:
-   - Human responds using `>> HUMAN:` prefix
-   - Agent responds using `>> AGENT:` prefix
-   - `>> RESOLVED` marks discussion complete (added by orchestrator only)
+   **If human edited the draft directly**:
+   - Update state file: Mark "Step 9: Gap Resolution" complete `[x]`, add history entry "Gaps resolved by direct edit"
+   - Proceed to Step 10 (promote will use `00-draft-blueprint.md` as edited)
 
-4. **Discussion loop**:
+   **If human provides answers in conversation**:
+   - **Create gap resolutions file** at `system-design/01-blueprint/versions/round-0/01-gap-resolutions.md` recording the human's answers in gap discussion format:
+     ```markdown
+     # Gap Resolutions
 
-    a. **Identify gaps needing agent response**: Read file, find gaps where last entry is `>> HUMAN:` without subsequent `>> AGENT:`
+     Answers provided by the human for gaps in the draft Blueprint.
 
-    b. **Group gaps into batches** (2-3 batches recommended):
-       - Group by Blueprint section number (gaps contain `**Section**: §N`)
-       - Batch 1: Sections 1-4 (Vision, Target Users, Value Proposition, Business Model)
-       - Batch 2: Sections 5-8 (Principles, Maturity Target, Market Context, MVP Definition)
-       - Batch 3: Sections 9-11 (Success Criteria, Risks, Why Now, Future Vision)
-       - If fewer than 4 gaps total, use fewer batches
+     ---
 
-    c. **Invoke Discussion Facilitator agents** (one per batch, in parallel):
-       ```
-       Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
+     ## GAP-001
+     **Gap**: [The gap marker text from the draft]
+     **Section**: [Which Blueprint section contains this gap]
+     **Severity**: [Must Answer | Should Answer | Assumption]
 
-       Context documents:
-       - Draft Blueprint: system-design/01-blueprint/versions/round-0/00-draft-blueprint.md
+     >> HUMAN:
+     [The human's answer]
 
-       Issues file: system-design/01-blueprint/versions/round-0/01-gap-discussion.md
-       Issues: [GAP-001, GAP-002, ...]
-       ```
+     >> RESOLVED
 
-    d. **Wait for all agents to complete**
+     ---
 
-    e. **Verify agent responses were written** (MANDATORY):
-       - Count `>> AGENT:` markers in the gap discussion file
-       - Compare to number of gaps that were assigned to Discussion Facilitators
-       - If counts don't match:
-         - Identify which gaps are missing `>> AGENT:` responses
-         - Re-invoke Discussion Facilitators for ONLY the missing gaps
-         - Repeat verification until all assigned gaps have responses
+     ## GAP-002
+     [Same structure for each answered gap]
+     ```
+   - **Spawn Author agent** using Task tool:
+     ```
+     Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/author.md
 
-    f. **Present to human**: "Please review the agent responses and reply to each gap."
+     Input:
+     - Draft Blueprint: system-design/01-blueprint/versions/round-0/00-draft-blueprint.md
+     - Gap discussion: system-design/01-blueprint/versions/round-0/01-gap-resolutions.md
+     - Blueprint guide: {{GUIDES_PATH}}/01-blueprint-guide.md
 
-    g. **Wait for human responses**
-
-    h. **After human responds**, read file and for each gap:
-       - If last entry is `>> HUMAN:` after `>> AGENT:` AND response indicates closure → add `>> RESOLVED`
-       - If last entry is `>> HUMAN:` with question, pushback, or request → leave open
-
-    i. **If any gaps unresolved**: Go to step (a)
-
-    j. **If all gaps resolved**: Proceed to Step 11
-
-5. **Resolution indicators** (human response after `>> AGENT:` that signals done):
-    - Agreement: "Yes", "Agreed", "That works", "Fine", "OK"
-    - Dismissal: "Not a concern", "Not relevant", "Ignore", "Skip"
-    - Acceptance: "Makes sense", "Fair enough", "Understood"
-
-6. **Continue discussion indicators** (do NOT mark resolved):
-    - Questions: "?", "What about", "How would", "Can you"
-    - Requests: "Please", "Can you", "I'd like", "Show me"
-    - Pushback: "I disagree", "That's not right", "But what about"
-
-### Step 10→11 Gate
-
-**Before invoking Author:**
-1. Read `01-gap-discussion.md`
-2. Verify EVERY gap has `>> RESOLVED` marker
-3. If any gap lacks `>> RESOLVED`: Do NOT proceed. Continue discussion loop.
-4. Only proceed to Step 11 when all gaps show `>> RESOLVED`
-
-This gate is mandatory. Do not skip it.
-
-5. **Update state file**: Mark "Step 10: Gap Discussion" complete `[x]`, set status = IN_PROGRESS, add history entry "All gaps resolved"
-
-### Step 11: Apply Decisions
-
-1. **Spawn Author agent** using Task tool:
-    ```
-    Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/author.md
-
-    Input:
-    - Draft Blueprint: system-design/01-blueprint/versions/round-0/00-draft-blueprint.md
-    - Gap discussion: system-design/01-blueprint/versions/round-0/01-gap-discussion.md
-    - Blueprint guide: {{GUIDES_PATH}}/01-blueprint-guide.md
-
-    Output:
-    - Change log: system-design/01-blueprint/versions/round-0/02-author-output.md
-    - Updated Blueprint: system-design/01-blueprint/versions/round-0/03-updated-blueprint.md
-    ```
-
-2. **Wait for Author to complete**
-
-3. **Verify outputs exist**:
-    - `system-design/01-blueprint/versions/round-0/02-author-output.md`
-    - `system-design/01-blueprint/versions/round-0/03-updated-blueprint.md`
-
-4. **Update state file**: Mark "Step 11: Apply Decisions" complete `[x]`, set phase = Extract, add history entry
+     Output:
+     - Change log: system-design/01-blueprint/versions/round-0/02-author-output.md
+     - Updated Blueprint: system-design/01-blueprint/versions/round-0/03-updated-blueprint.md
+     ```
+   - Wait for Author to complete
+   - Verify outputs exist
+   - Update state file: Mark "Step 9: Gap Resolution" complete `[x]`, add history entry "Gaps resolved, Author applied changes"
 
 ---
 
 ## Phase 3: Extract
 
-### Step 12: Promote
+### Step 10: Promote
 
 1. **Determine final draft path**:
-    - If Steps 9-11 ran (gaps existed): Use `system-design/01-blueprint/versions/round-0/03-updated-blueprint.md`
-    - If Steps 9-11 were skipped (no gaps): Use `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md`
+    - If `system-design/01-blueprint/versions/round-0/03-updated-blueprint.md` exists (Author ran): Use it
+    - Otherwise: Use `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md`
 
 2. **Copy final draft to `blueprint.md`** using Bash cp:
     ```
@@ -704,9 +617,9 @@ This gate is mandatory. Do not skip it.
 
 3. **Verify promotion** — Confirm `system-design/01-blueprint/blueprint.md` exists
 
-4. **Update state file**: Mark "Step 12: Promote" complete `[x]`, add history entry
+4. **Update state file**: Mark "Step 10: Promote" complete `[x]`, add history entry
 
-### Step 13: Scope Extract
+### Step 11: Scope Extract
 
 1. **Spawn Scope Extractor agent** using Task tool:
     ```
@@ -722,7 +635,7 @@ This gate is mandatory. Do not skip it.
 
 3. **Verify output exists** at `system-design/01-blueprint/scope-brief.md`
 
-4. **Update state file**: Mark "Step 13: Scope Extract" complete `[x]`, set status = COMPLETE, add history entry
+4. **Update state file**: Mark "Step 11: Scope Extract" complete `[x]`, set status = COMPLETE, add history entry
 
 5. **Check downstream deferred items** for items the Generator deferred
 
@@ -739,24 +652,23 @@ This gate is mandatory. Do not skip it.
     - Exploration skipped
 
     Draft: system-design/01-blueprint/versions/round-0/00-draft-blueprint.md
-    [If gaps resolved:]
+    [If Author ran:]
     Updated: system-design/01-blueprint/versions/round-0/03-updated-blueprint.md
     Promoted to: system-design/01-blueprint/blueprint.md
     Scope brief: system-design/01-blueprint/scope-brief.md
+
+    [If gaps existed:]
+    Gap resolution:
+    - [N] gaps in draft
+    - [Resolved by: direct edit / Author / deferred to review]
+
+    [If no gaps:]
+    No gaps found — concept was fully specified.
 
     [If pending decisions exist:]
     Pending decisions (run Decision Orchestrator when ready):
     - {decision-1} (from ENR-NNN) — PENDING
     - {decision-2} (from ENR-MMM) — FRAMEWORK_APPROVED
-
-    [If gaps were resolved:]
-    Gap resolution:
-    - [N] gaps discussed
-    - [M] changes applied by author
-    - [K] flagged for attention (see 02-author-output.md)
-
-    [If no gaps:]
-    No gaps found — concept was fully specified.
 
     Deferred to downstream:
     - [W] items to PRD deferred items
@@ -782,17 +694,17 @@ This gate is mandatory. Do not skip it.
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2: Setup then identifier
 - Steps 4 → 5: Explorers then consolidator
-- Steps 7 → 8 → 9: Enrichment author then generator then gap analysis
-- Steps 11 → 12 → 13: Author then promote then scope extract
+- Steps 7 → 8: Enrichment author then generator
+- Steps 10 → 11: Promote then scope extract
 
 **Human checkpoints:**
 - **Step 3** — WAITING_FOR_HUMAN for dimension review
 - **Step 6** — WAITING_FOR_HUMAN for enrichment review until all enrichments resolved
-- **Step 10** — WAITING_FOR_HUMAN for gap discussion until all gaps resolved
+- **Step 9** — WAITING_FOR_HUMAN for gap resolution
 
 **Skip paths:**
 - **Explore skip** — If fewer than 2 dimensions (Step 2) or human says "skip" (Step 3) → jump to Step 8
-- **Gap skip** — If no gaps in draft (Step 9) → jump to Step 12
+- **Gap skip** — If no gaps in draft (Step 9) → jump to Step 10
 
 ---
 
@@ -808,8 +720,6 @@ This gate is mandatory. Do not skip it.
 | Enrichment Author fails | Error: Report failure details |
 | Generator fails | Error: Report failure details |
 | Draft not created | Error: "Generator completed but draft not found at expected path" |
-| Gap Formatter fails | Error: Report failure details |
-| Gap discussion file not created | Error: "Gap Formatter completed but output not found" |
 | Author fails | Error: Report failure details |
 | Author output files not created | Error: "Author completed but outputs not found" |
 | Scope Extractor fails | Error: Report failure details |
@@ -828,7 +738,7 @@ After this orchestrator completes:
 3. **Human optionally makes manual edits** — Can refine directly
 4. **Human runs Review workflow** — Invokes the Blueprint Review orchestrator
 
-**IMPORTANT**: The Review workflow reads from `system-design/01-blueprint/blueprint.md` for Round 1. This file is created by the promotion step (Step 12). It MUST exist before starting the Review workflow.
+**IMPORTANT**: The Review workflow reads from `system-design/01-blueprint/blueprint.md` for Round 1. This file is created by the promotion step (Step 10). It MUST exist before starting the Review workflow.
 
 The Review workflow will:
 - Run expert reviewers on the Blueprint
