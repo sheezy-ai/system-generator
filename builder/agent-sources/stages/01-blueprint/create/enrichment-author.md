@@ -30,7 +30,8 @@ Given the concept document and the enrichment discussion file (with all enrichme
 3. **Read the enrichment discussion file** to find resolved enrichments
 4. **Collect accepted enrichments** — Look for `>> RESOLVED [ACCEPTED]` markers
 5. **Collect rejected enrichments** — Look for `>> RESOLVED [REJECTED]` markers
-6. **Write** the exploration summary
+6. **Skip decision-needed enrichments** — Enrichments marked `>> RESOLVED [DECISION NEEDED]` are handled by the Decision Analysis step, not this agent
+7. **Write** the exploration summary
 
 ---
 
@@ -52,6 +53,11 @@ When the human's `>> HUMAN:` response starts with `accept with modification:`:
 For each enrichment marked `>> RESOLVED [REJECTED]`:
 1. Record the enrichment title and brief reason (from the human's response)
 2. No proposed content needed
+
+### Decision Needed Enrichments
+For each enrichment marked `>> RESOLVED [DECISION NEEDED]`:
+1. **Skip entirely** — These are handled by the Decision Analysis step (separate `decisions/` folder with framework and analysis documents)
+2. Record in the summary that the enrichment was routed to Decision Analysis
 
 ### Unresolved Enrichments
 If any enrichments lack `>> RESOLVED` markers, do NOT process them. Note them as unresolved in the summary.
@@ -94,6 +100,18 @@ If any enrichments lack `>> RESOLVED` markers, do NOT process them. Note them as
 | ID | Title | Reason |
 |----|-------|--------|
 | ENR-NNN | [Title] | [Brief reason from human response] |
+| ... | ... | ... |
+
+---
+
+## Decision Needed Enrichments
+
+These enrichments were routed to Decision Analysis for deeper evaluation.
+See `decisions/` folder for framework and analysis documents.
+
+| ID | Title | Decision Name |
+|----|-------|---------------|
+| ENR-NNN | [Title] | [decision-name] |
 | ... | ... | ... |
 
 ---

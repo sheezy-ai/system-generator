@@ -4,9 +4,11 @@
 
 ## Purpose
 
-Initialize the Blueprint stage by setting up structure, exploring strategic dimensions of the concept, generating a draft Blueprint enriched by exploration findings, resolving any gaps through structured discussion, promoting the final draft, and extracting a scope brief for downstream stages.
+Initialize the Blueprint stage by setting up structure, exploring strategic dimensions of the concept, generating a draft Blueprint enriched by exploration findings and any completed decision analyses, resolving any gaps through structured discussion, promoting the final draft, and extracting a scope brief for downstream stages.
 
 **Flow:** Setup → Explore (dimensions → enrichments) → Generate (draft → gaps → author) → Extract (promote + scope brief)
+
+Strategic decisions identified during enrichment review are handled by the separate Decision Orchestrator, not this workflow. The Blueprint proceeds with pending decisions marked as gaps.
 
 ---
 
@@ -25,6 +27,10 @@ Run this orchestrator at the start of a new project, with a concept document. Sa
 - `system-design/01-blueprint/versions/explore/01-explorer-{dim-name}.md`
 - `system-design/01-blueprint/versions/explore/02-enrichment-discussion.md`
 - `system-design/01-blueprint/versions/explore/03-exploration-summary.md`
+
+**Decision outputs** (managed by Decision Orchestrator):
+- `system-design/01-blueprint/decisions/{decision-name}/framework.md`
+- `system-design/01-blueprint/decisions/{decision-name}/analysis.md`
 
 **Generate phase outputs**:
 - `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md`
@@ -47,7 +53,10 @@ agents/01-blueprint/create/
 ├── dimension-explorer.md              # Explores one dimension deeply
 ├── exploration-consolidator.md        # Merges explorer outputs
 ├── enrichment-author.md               # Produces exploration summary
-├── generator.md                       # Creates draft from concept + enrichments
+├── decision-orchestrator.md           # Handles one decision (framework + analysis) — separate workflow
+├── decision-framework.md              # Defines decision criteria with human (used by decision orchestrator)
+├── decision-analyst.md                # Evaluates options against framework (used by decision orchestrator)
+├── generator.md                       # Creates draft from concept + enrichments + decisions
 ├── author.md                          # Applies resolved gap discussions
 └── scope-extractor.md                 # Extracts scope brief from blueprint
 
@@ -66,6 +75,10 @@ system-design/01-blueprint/
 ├── concept.md                         # Input (user provides)
 ├── blueprint.md                       # Promoted from create (then overwritten by Review)
 ├── scope-brief.md                     # Extracted scope for downstream stages
+├── decisions/                         # Decision analysis (one folder per decision)
+│   └── {decision-name}/
+│       ├── framework.md               # Evaluation criteria (human-approved)
+│       └── analysis.md                # Options evaluated, final decision
 └── versions/
     ├── deferred-items.md              # Items deferred from concept
     ├── pending-issues.md              # Issues logged against this stage
@@ -145,6 +158,15 @@ system-design/01-blueprint/
 Dimensions: [DIM-1, DIM-2, ...] or [none]
 Enrichments Accepted: [N]
 Enrichments Rejected: [N]
+Enrichments Decision Needed: [N]
+
+## Decision Analysis
+
+Decisions are handled by the Decision Orchestrator (separate workflow).
+Status is tracked here so the Generator knows which decisions are resolved.
+
+Decisions:
+  - {decision-name} (ENR-NNN): PENDING | FRAMEWORK_IN_PROGRESS | FRAMEWORK_APPROVED | ANALYSIS_IN_PROGRESS | COMPLETE
 
 ## History
 - YYYY-MM-DD HH:MM: Creation workflow started
@@ -167,7 +189,7 @@ Enrichments Rejected: [N]
 - You SPAWN agents to do work
 - You CREATE structure files (deferred-items.md, pending-issues.md)
 - You COPY the final draft to `blueprint.md` (promotion)
-- You DO NOT write draft content, exploration content, gap discussion content, or author output — agents do that
+- You DO NOT write draft content, exploration content, decision content, gap discussion content, or author output — agents do that
 - Spawn agents in FOREGROUND (not background) — agents need interactive approval for file writes
 
 ---
@@ -181,6 +203,7 @@ Enrichments Rejected: [N]
 1. **Create directories** (if not exist):
    ```
    system-design/01-blueprint/
+   ├── decisions/
    └── versions/
        ├── explore/
        └── round-0/
@@ -355,6 +378,7 @@ Enrichments Rejected: [N]
    - Accept: "accept"
    - Reject: "reject"
    - Accept with changes: "accept with modification: [your changes]"
+   - Decision needed: "decision needed: [decision-name]" — for meaty strategic choices that need their own analysis
    - Question/discuss: Write your question
 
    When done, let me know and I'll process your responses.
@@ -374,6 +398,7 @@ Only proceed to step 3 after the human signals they have responded.
        - If response indicates acceptance (`accept`, `agreed`, `yes`) → Add `>> RESOLVED [ACCEPTED]` after the human response
        - If response indicates rejection (`reject`, `no`, `not needed`) → Add `>> RESOLVED [REJECTED]` after the human response
        - If response starts with `accept with modification:` → Add `>> RESOLVED [ACCEPTED]` after the human response (the modification is preserved in the human's text)
+       - If response starts with `decision needed:` → Add `>> RESOLVED [DECISION NEEDED]: {decision-name}` after the human response (extract decision name from the human's text)
        - If response is a question or discussion point → Leave unresolved, spawn Discussion Facilitator
 
     c. **If any enrichments need discussion** (question/pushback from human):
@@ -392,15 +417,36 @@ Only proceed to step 3 after the human signals they have responded.
        - Wait for human response
        - Return to step (a)
 
-    d. **If all enrichments resolved**: Proceed to Step 7
+    d. **If all enrichments resolved**: Continue to decision registration below
 
-4. **Update state file**: Mark "Step 6: Enrichment Review" complete `[x]`, set status = IN_PROGRESS, record accepted/rejected counts, add history entry
+4. **Register decisions**: If any enrichments were marked `>> RESOLVED [DECISION NEEDED]`:
+   - Read each `>> RESOLVED [DECISION NEEDED]: {decision-name}` marker
+   - Extract the enrichment ID (ENR-NNN) and decision name for each
+   - Create decision folders at `system-design/01-blueprint/decisions/{decision-name}/`
+   - Add each decision to the Decision Analysis section of the state file with status PENDING
+
+5. **Notify user about pending decisions** (if any):
+   ```
+   [N] enrichments require decision analysis:
+   - {decision-1} (from ENR-NNN)
+   - {decision-2} (from ENR-MMM)
+
+   These will be marked as pending gaps in the Blueprint.
+   Run the Decision Orchestrator for each when ready:
+
+     agents/01-blueprint/create/decision-orchestrator.md
+     Decision name: {decision-name}
+
+   Continuing to generate Blueprint...
+   ```
+
+6. **Update state file**: Mark "Step 6: Enrichment Review" complete `[x]`, set status = IN_PROGRESS, record accepted/rejected/decision-needed counts, add history entry
 
 ### Step 7: Enrichment Author
 
-1. **Check if any enrichments were accepted** — Read state file for accepted count. If zero accepted:
-   - No exploration summary needed — Step 8 Generator will run from concept only
-   - Update state file: Mark "Step 7: Enrichment Author" complete `[x]`, set `Explore Phase` = `complete`, add history entry "No enrichments accepted — Generator will use concept only"
+1. **Check if any enrichments were accepted** — Read enrichment discussion file for `>> RESOLVED [ACCEPTED]` markers. If zero accepted:
+   - No exploration summary needed — Step 8 Generator will run from concept + decisions only
+   - Update state file: Mark "Step 7: Enrichment Author" complete `[x]`, set `Explore Phase` = `complete`, add history entry "No enrichments accepted — Generator will use concept and decisions only"
    - Proceed to Step 8
 
 2. **Spawn Enrichment Author agent** using Task tool:
@@ -430,7 +476,11 @@ Only proceed to step 3 after the human signals they have responded.
 
 1. **Determine exploration summary path**: Check if `system-design/01-blueprint/versions/explore/03-exploration-summary.md` exists. If yes, include it as input. If no (exploration was skipped or no enrichments accepted), omit it.
 
-2. **Spawn Generator agent** using Task tool:
+2. **Determine decision status**: Read the Decision Analysis section of the workflow state file.
+   - For each decision with status COMPLETE: check that `decisions/{decision-name}/analysis.md` exists. Add to the resolved decisions list.
+   - For each decision with status other than COMPLETE: add to the pending decisions list with the enrichment title (read from the enrichment discussion file).
+
+3. **Spawn Generator agent** using Task tool:
    ```
    Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/generator.md
 
@@ -439,6 +489,14 @@ Only proceed to step 3 after the human signals they have responded.
    - Blueprint guide: {{GUIDES_PATH}}/01-blueprint-guide.md
    [If exploration summary exists:]
    - Exploration summary: system-design/01-blueprint/versions/explore/03-exploration-summary.md
+   [If resolved decisions exist:]
+   - Decision analyses (resolved — incorporate as settled decisions):
+     - system-design/01-blueprint/decisions/{decision-1}/analysis.md
+     [List all resolved decision analysis files]
+   [If pending decisions exist:]
+   - Pending decisions (mark as gaps in the relevant Blueprint sections):
+     - {decision-name}: "[enrichment title / decision question summary]"
+     [List all pending decisions with their descriptions]
 
    Output: system-design/01-blueprint/versions/round-0/00-draft-blueprint.md
 
@@ -449,11 +507,11 @@ Only proceed to step 3 after the human signals they have responded.
    - Components: system-design/05-components/versions/deferred-items.md
    ```
 
-3. **Wait for Generator to complete**
+4. **Wait for Generator to complete**
 
-4. **Verify output exists** at `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md`
+5. **Verify output exists** at `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md`
 
-5. **Update state file**: Mark "Step 8: Run Generator" complete `[x]`, add history entry
+6. **Update state file**: Mark "Step 8: Run Generator" complete `[x]`, add history entry
 
 ### Step 9: Format & Analyse Gaps
 
@@ -675,6 +733,8 @@ This gate is mandatory. Do not skip it.
     Exploration:
     - [N] dimensions explored
     - [M] enrichments accepted, [K] rejected
+    [If decisions registered:]
+    - [D] decisions registered ([R] resolved, [P] pending)
     [If exploration was skipped:]
     - Exploration skipped
 
@@ -683,6 +743,11 @@ This gate is mandatory. Do not skip it.
     Updated: system-design/01-blueprint/versions/round-0/03-updated-blueprint.md
     Promoted to: system-design/01-blueprint/blueprint.md
     Scope brief: system-design/01-blueprint/scope-brief.md
+
+    [If pending decisions exist:]
+    Pending decisions (run Decision Orchestrator when ready):
+    - {decision-1} (from ENR-NNN) — PENDING
+    - {decision-2} (from ENR-MMM) — FRAMEWORK_APPROVED
 
     [If gaps were resolved:]
     Gap resolution:
@@ -701,6 +766,11 @@ This gate is mandatory. Do not skip it.
 
     Next steps:
     1. Review blueprint.md — verify promoted content looks correct
+    [If pending decisions:]
+    2. Run Decision Orchestrator for pending decisions
+    3. When ready, run the Blueprint Review workflow
+       (Review reads from: system-design/01-blueprint/blueprint.md)
+    [If no pending decisions:]
     2. When ready, run the Blueprint Review workflow
        (Review reads from: system-design/01-blueprint/blueprint.md)
     ```
@@ -754,8 +824,9 @@ This gate is mandatory. Do not skip it.
 After this orchestrator completes:
 
 1. **Human reviews promoted Blueprint** — Opens `system-design/01-blueprint/blueprint.md`
-2. **Human optionally makes manual edits** — Can refine directly
-3. **Human runs Review workflow** — Invokes the Blueprint Review orchestrator
+2. **Human resolves pending decisions** — Runs Decision Orchestrator for each (if any)
+3. **Human optionally makes manual edits** — Can refine directly
+4. **Human runs Review workflow** — Invokes the Blueprint Review orchestrator
 
 **IMPORTANT**: The Review workflow reads from `system-design/01-blueprint/blueprint.md` for Round 1. This file is created by the promotion step (Step 12). It MUST exist before starting the Review workflow.
 

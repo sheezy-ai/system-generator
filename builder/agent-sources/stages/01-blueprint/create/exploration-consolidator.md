@@ -81,6 +81,7 @@ For each enrichment below, add your response after `>> HUMAN:`:
 - **accept** — Include this enrichment in the Blueprint
 - **reject** — Exclude this enrichment
 - **accept with modification: [your changes]** — Include with your adjustments
+- **decision needed: [decision-name]** — This is a meaty strategic choice that needs its own decision framework and analysis
 - Or write a question/comment — the Discussion Facilitator will help resolve it
 
 ---
