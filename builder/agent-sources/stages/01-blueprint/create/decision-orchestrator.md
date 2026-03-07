@@ -25,7 +25,7 @@ Given a decision name (registered in the workflow state by the main create orche
 ## Fixed Paths
 
 **State file**: `system-design/01-blueprint/versions/workflow-state.md`
-**Enrichment discussion**: `system-design/01-blueprint/versions/explore/02-enrichment-discussion.md`
+**Enrichment discussion**: `system-design/01-blueprint/versions/create/round-0/explore/02-enrichment-discussion.md`
 **Decision folder**: `system-design/01-blueprint/decisions/{decision-name}/`
 
 ---
@@ -83,7 +83,7 @@ agents/01-blueprint/create/
 
    Input:
    - Concept: system-design/01-blueprint/concept.md
-   - Enrichment discussion: system-design/01-blueprint/versions/explore/02-enrichment-discussion.md
+   - Enrichment discussion: system-design/01-blueprint/versions/create/round-0/explore/02-enrichment-discussion.md
    - Enrichment ID: ENR-[NNN]
 
    Output: system-design/01-blueprint/decisions/{decision-name}/framework.md
@@ -187,7 +187,7 @@ agents/01-blueprint/create/
 
 1. **Update workflow state**: Set decision status to COMPLETE
 
-2. **Check Blueprint status**: Does `system-design/01-blueprint/versions/round-0/00-draft-blueprint.md` exist?
+2. **Check Blueprint status**: Does `system-design/01-blueprint/versions/create/round-0/00-draft-blueprint.md` exist?
 
 3. **Notify user**:
    ```

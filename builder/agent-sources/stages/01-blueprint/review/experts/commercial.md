@@ -144,7 +144,7 @@ For each issue, use this structure:
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/round-N/01-commercial.md`
+**Output file**: `system-design/01-blueprint/versions/review/round-N/01-commercial.md`
 
 Write your complete output to this file. Include a header and summary:
 

@@ -28,21 +28,20 @@ Run this orchestrator at the start of a new project, with a concept document. Sa
 - Round 0: `system-design/01-blueprint/concept.md`
 - Round N (N≥1): Latest draft from round N-1
 
-**Explore phase outputs** (directory depends on round — see Path Resolution below):
-- Round 0: `system-design/01-blueprint/versions/explore/`
-- Round N (N≥1): `system-design/01-blueprint/versions/round-{N}/explore/`
+**Explore phase outputs**: `system-design/01-blueprint/versions/create/round-{N}/explore/`
 
 Files within the explore directory:
 - `00-dimensions.md`
 - `01-explorer-{dim-name}.md`
 - `02-enrichment-discussion.md`
+- `02a-filtered-enrichment-discussion.md`
 - `03-exploration-summary.md`
 
 **Decision outputs** (managed by Decision Orchestrator):
 - `system-design/01-blueprint/decisions/{decision-name}/framework.md`
 - `system-design/01-blueprint/decisions/{decision-name}/analysis.md`
 
-**Generate phase outputs** (in `versions/round-{N}/`):
+**Generate phase outputs** (in `versions/create/round-{N}/`):
 - `00-draft-blueprint.md`
 - `01-gap-resolutions.md`
 - `02-author-output.md`
@@ -62,6 +61,7 @@ agents/01-blueprint/create/
 ├── dimension-identifier.md            # Identifies strategic dimensions
 ├── dimension-explorer.md              # Explores one dimension deeply
 ├── exploration-consolidator.md        # Merges explorer outputs
+├── enrichment-scope-filter.md         # Filters enrichments by level/depth
 ├── enrichment-author.md               # Produces exploration summary
 ├── decision-orchestrator.md           # Handles one decision (framework + analysis) — separate workflow
 ├── decision-framework.md              # Defines decision criteria with human (used by decision orchestrator)
@@ -92,26 +92,27 @@ system-design/01-blueprint/
     ├── pending-issues.md              # Issues logged against this stage
     ├── out-of-scope.md                # Non-documentation content from concept
     ├── workflow-state.md              # Unified workflow state (shared with Review)
-    ├── explore/                       # Round 0 explore outputs
-    │   ├── 00-dimensions.md
-    │   ├── 01-explorer-*.md
-    │   ├── 02-enrichment-discussion.md
-    │   └── 03-exploration-summary.md
-    ├── round-0/                       # Round 0 generate outputs
-    │   ├── 00-draft-blueprint.md
-    │   ├── 01-gap-resolutions.md
-    │   ├── 02-author-output.md
-    │   └── 03-updated-blueprint.md
-    └── round-{N}/                     # Round N (N≥1) — explore + generate together
-        ├── explore/
-        │   ├── 00-dimensions.md
-        │   ├── 01-explorer-*.md
-        │   ├── 02-enrichment-discussion.md
-        │   └── 03-exploration-summary.md
-        ├── 00-draft-blueprint.md
-        ├── 01-gap-resolutions.md
-        ├── 02-author-output.md
-        └── 03-updated-blueprint.md
+    ├── create/                        # All creation round outputs
+    │   ├── round-0/
+    │   │   ├── explore/
+    │   │   │   ├── 00-dimensions.md
+    │   │   │   ├── 01-explorer-*.md
+    │   │   │   ├── 02-enrichment-discussion.md
+    │   │   │   ├── 02a-filtered-enrichment-discussion.md
+    │   │   │   └── 03-exploration-summary.md
+    │   │   ├── 00-draft-blueprint.md
+    │   │   ├── 01-gap-resolutions.md
+    │   │   ├── 02-author-output.md
+    │   │   └── 03-updated-blueprint.md
+    │   └── round-{N}/                 # Additional create rounds (if "another round")
+    │       ├── explore/
+    │       │   └── [same explore files]
+    │       └── [same generate files]
+    └── review/                        # All review round outputs
+        ├── round-1/
+        │   └── [review workflow files]
+        └── round-{N}/
+            └── ...
 ```
 
 ---
@@ -123,17 +124,19 @@ system-design/01-blueprint/
 ### On Start/Resume
 
 1. **Check if state file exists**:
-   - **If NO**: Fresh start — create state file, begin at Step 1
-   - **If YES**: Read it, resume from the first incomplete step
+   - **If NO**: Fresh start — create state file (with `Current Workflow: Create`), begin at Step 1
+   - **If YES**: Read it, check `Current Workflow`:
+     - **If `Review`**: Error — "Review workflow is active. Cannot re-run creation."
+     - **If `Create`**: Resume from the first incomplete step
 
 2. **Resume logic**:
    - Step 1 (Setup) is idempotent — always re-run on resume for validation
    - Step 2 (Dimension Identifier) — if marked complete, verify `{explore-dir}/00-dimensions.md` exists and skip
    - Step 3 resumes at WAITING_FOR_HUMAN — re-read dimensions file and present to human
-   - Steps 2–7 (Explore phase) — if all marked SKIPPED, jump to Step 8
-   - Step 6 resumes at WAITING_FOR_HUMAN — re-read enrichment discussion file and continue loop
-   - Step 8 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
-   - Step 9 resumes at WAITING_FOR_HUMAN — re-read draft and present gap summary to human
+   - Steps 2–8 (Explore phase) — if all marked SKIPPED, jump to Step 9
+   - Step 7 resumes at WAITING_FOR_HUMAN — re-read filtered enrichment discussion file and continue loop
+   - Step 9 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
+   - Step 10 resumes at WAITING_FOR_HUMAN — re-read draft and present gap summary to human
 
 3. **Update state file** at each step transition (instructions inline below)
 
@@ -145,6 +148,7 @@ system-design/01-blueprint/
 # Blueprint Workflow State
 
 **Blueprint**: 01-blueprint/blueprint.md
+**Current Workflow**: Create
 **Current Phase**: Explore | Generate | Extract
 **Current Round**: 0
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
@@ -159,16 +163,17 @@ system-design/01-blueprint/
 - [ ] Step 3: Dimension Review
 - [ ] Step 4: Dimension Explorers
 - [ ] Step 5: Exploration Consolidator
-- [ ] Step 6: Enrichment Review
-- [ ] Step 7: Enrichment Author
+- [ ] Step 6: Enrichment Scope Filter
+- [ ] Step 7: Enrichment Review
+- [ ] Step 8: Enrichment Author
 
 ### Phase 2: Generate
-- [ ] Step 8: Run Generator
-- [ ] Step 9: Gap Resolution
+- [ ] Step 9: Run Generator
+- [ ] Step 10: Gap Resolution
 
 ### Phase 3: Extract
-- [ ] Step 10: Promote
-- [ ] Step 11: Scope Extract
+- [ ] Step 11: Promote
+- [ ] Step 12: Scope Extract
 
 ## Explore Details
 
@@ -216,14 +221,12 @@ Before executing any step, resolve these paths based on the current round number
 **Primary source** (`{primary-source}`):
 - Round 0: `system-design/01-blueprint/concept.md`
 - Round N (N≥1): Determine from round N-1 outputs:
-  - If `system-design/01-blueprint/versions/round-{N-1}/03-updated-blueprint.md` exists → use it
-  - Otherwise → use `system-design/01-blueprint/versions/round-{N-1}/00-draft-blueprint.md`
+  - If `system-design/01-blueprint/versions/create/round-{N-1}/03-updated-blueprint.md` exists → use it
+  - Otherwise → use `system-design/01-blueprint/versions/create/round-{N-1}/00-draft-blueprint.md`
 
-**Explore directory** (`{explore-dir}`):
-- Round 0: `system-design/01-blueprint/versions/explore/`
-- Round N (N≥1): `system-design/01-blueprint/versions/round-{N}/explore/`
+**Explore directory** (`{explore-dir}`): `system-design/01-blueprint/versions/create/round-{N}/explore/`
 
-**Round directory** (`{round-dir}`): `system-design/01-blueprint/versions/round-{N}/`
+**Round directory** (`{round-dir}`): `system-design/01-blueprint/versions/create/round-{N}/`
 
 All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to refer to these resolved paths. **Resolve them once at startup and again after any round increment.**
 
@@ -237,18 +240,19 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
 1. **Create directories** (if not exist):
 
-   **Round 0:**
+   **Round 0 (first run):**
    ```
    system-design/01-blueprint/
    ├── decisions/
    └── versions/
-       ├── explore/
-       └── round-0/
+       └── create/
+           └── round-0/
+               └── explore/
    ```
 
-   **Round N (N≥1):**
+   **Round N (N≥1, "another round"):**
    ```
-   system-design/01-blueprint/versions/
+   system-design/01-blueprint/versions/create/
    └── round-{N}/
        └── explore/
    ```
@@ -308,6 +312,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
    Input:
    - Concept: {primary-source}
+   - Blueprint guide: {{GUIDES_PATH}}/01-blueprint-guide.md
 
    Output: {explore-dir}/00-dimensions.md
    ```
@@ -317,8 +322,8 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 4. **Verify output exists** at `{explore-dir}/00-dimensions.md`
 
 5. **Read the dimensions file** — Count dimensions. If fewer than 2 dimensions identified:
-   - **Update state file**: Set `Explore Phase` = `skipped`, mark Steps 2–7 as `[x] SKIPPED`, add history entry "Fewer than 2 dimensions — skipping exploration"
-   - **Skip to Step 8**
+   - **Update state file**: Set `Explore Phase` = `skipped`, mark Steps 2–8 as `[x] SKIPPED`, add history entry "Fewer than 2 dimensions — skipping exploration"
+   - **Skip to Step 9**
 
 6. **Update state file**: Mark "Step 2: Dimension Identifier" complete `[x]`, record dimension list, add history entry
 
@@ -352,7 +357,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 **STOP: Wait for human response before proceeding.**
 
 3. **After human responds**:
-   - If human says "skip exploration" → Set `Explore Phase` = `skipped`, mark Steps 3–7 as `[x] SKIPPED`, skip to Step 8
+   - If human says "skip exploration" → Set `Explore Phase` = `skipped`, mark Steps 3–8 as `[x] SKIPPED`, skip to Step 9
    - Otherwise → Re-read dimensions file (human may have edited it), update dimension list in state file
 
 4. **Update state file**: Mark "Step 3: Dimension Review" complete `[x]`, set status = IN_PROGRESS, add history entry
@@ -399,21 +404,45 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
 3. **Verify output exists** at `{explore-dir}/02-enrichment-discussion.md`
 
-4. **Read output** — Count enrichments for the Step 6 handoff message
+4. **Read output** — Count enrichments for the Step 7 handoff message
 
 5. **Update state file**: Mark "Step 5: Exploration Consolidator" complete `[x]`, add history entry with enrichment count
 
-### Step 6: Enrichment Review (`WAITING_FOR_HUMAN`)
+### Step 6: Enrichment Scope Filter
 
-**On resume**: If status = WAITING_FOR_HUMAN for Step 6, re-read `{explore-dir}/02-enrichment-discussion.md` and continue the review loop from step 6(a) below.
+1. **Spawn Enrichment Scope Filter agent** using Task tool:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/enrichment-scope-filter.md
+
+   Input:
+   - Blueprint guide: {{GUIDES_PATH}}/01-blueprint-guide.md
+   - Enrichment discussion: {explore-dir}/02-enrichment-discussion.md
+
+   Output: {explore-dir}/02a-filtered-enrichment-discussion.md
+   ```
+
+2. **Wait for agent to complete**
+
+3. **Verify output exists** at `{explore-dir}/02a-filtered-enrichment-discussion.md`
+
+4. **Read filtering summary** from the output file — extract kept/deferred/filtered counts for the handoff message
+
+5. **Update state file**: Mark "Step 6: Enrichment Scope Filter" complete `[x]`, add history entry with filtering counts
+
+### Step 7: Enrichment Review (`WAITING_FOR_HUMAN`)
+
+**On resume**: If status = WAITING_FOR_HUMAN for Step 7, re-read `{explore-dir}/02a-filtered-enrichment-discussion.md` and continue the review loop from step 7(a) below.
 
 1. **Update state file**: Set status = WAITING_FOR_HUMAN
 
 2. **Notify user** enrichments are ready for review:
    ```
-   Exploration complete — [N] enrichment proposals ready for review.
+   Exploration complete — [N] enrichment proposals ready for review (after scope filtering).
 
-   Discussion file: {explore-dir}/02-enrichment-discussion.md
+   Discussion file: {explore-dir}/02a-filtered-enrichment-discussion.md
+
+   [If items were deferred or filtered, include:]
+   Scope filtering: [D] deferred to downstream, [F] filtered (depth exceeded)
 
    [N] enrichments from [M] dimensions, grouped by Blueprint section impact.
 
@@ -434,7 +463,7 @@ Do NOT process enrichments until the human has added actual response content aft
 
 Only proceed to step 3 after the human signals they have responded.
 
-3. **Enrichment review loop**:
+3. **Enrichment review loop** (operates on `{explore-dir}/02a-filtered-enrichment-discussion.md`):
 
     a. **Identify enrichments needing processing**: Read file, find enrichments where last entry is `>> HUMAN:` with content but no `>> RESOLVED`
 
@@ -453,7 +482,7 @@ Only proceed to step 3 after the human signals they have responded.
          Context documents:
          - Concept: {primary-source}
 
-         Issues file: {explore-dir}/02-enrichment-discussion.md
+         Issues file: {explore-dir}/02a-filtered-enrichment-discussion.md
          Issues: [ENR-001, ENR-002, ...]
          ```
        - Wait for agents to complete
@@ -484,14 +513,14 @@ Only proceed to step 3 after the human signals they have responded.
    Continuing to generate Blueprint...
    ```
 
-6. **Update state file**: Mark "Step 6: Enrichment Review" complete `[x]`, set status = IN_PROGRESS, record accepted/rejected/decision-needed counts, add history entry
+6. **Update state file**: Mark "Step 7: Enrichment Review" complete `[x]`, set status = IN_PROGRESS, record accepted/rejected/decision-needed counts, add history entry
 
-### Step 7: Enrichment Author
+### Step 8: Enrichment Author
 
-1. **Check if any enrichments were accepted** — Read `{explore-dir}/02-enrichment-discussion.md` for `>> RESOLVED [ACCEPTED]` markers. If zero accepted:
-   - No exploration summary needed — Step 8 Generator will run from primary source + decisions only
-   - Update state file: Mark "Step 7: Enrichment Author" complete `[x]`, set `Explore Phase` = `complete`, add history entry "No enrichments accepted — Generator will use primary source and decisions only"
-   - Proceed to Step 8
+1. **Check if any enrichments were accepted** — Read `{explore-dir}/02a-filtered-enrichment-discussion.md` for `>> RESOLVED [ACCEPTED]` markers. If zero accepted:
+   - No exploration summary needed — Step 9 Generator will run from primary source + decisions only
+   - Update state file: Mark "Step 8: Enrichment Author" complete `[x]`, set `Explore Phase` = `complete`, add history entry "No enrichments accepted — Generator will use primary source and decisions only"
+   - Proceed to Step 9
 
 2. **Spawn Enrichment Author agent** using Task tool:
    ```
@@ -499,7 +528,8 @@ Only proceed to step 3 after the human signals they have responded.
 
    Input:
    - Concept: {primary-source}
-   - Enrichment discussion: {explore-dir}/02-enrichment-discussion.md
+   - Blueprint guide: {{GUIDES_PATH}}/01-blueprint-guide.md
+   - Filtered enrichment discussion: {explore-dir}/02a-filtered-enrichment-discussion.md
 
    Output: {explore-dir}/03-exploration-summary.md
    ```
@@ -508,15 +538,15 @@ Only proceed to step 3 after the human signals they have responded.
 
 4. **Verify output exists** at `{explore-dir}/03-exploration-summary.md`
 
-5. **Update state file**: Mark "Step 7: Enrichment Author" complete `[x]`, set `Explore Phase` = `complete`, set phase = Generate, add history entry
+5. **Update state file**: Mark "Step 8: Enrichment Author" complete `[x]`, set `Explore Phase` = `complete`, set phase = Generate, add history entry
 
 ---
 
 ## Phase 2: Generate
 
-### Step 8: Run Generator
+### Step 9: Run Generator
 
-**On resume**: If Step 8 already marked complete, verify `{round-dir}/00-draft-blueprint.md` exists and skip to Step 9. Do NOT re-run the Generator (it appends to downstream deferred items files and would create duplicates).
+**On resume**: If Step 9 already marked complete, verify `{round-dir}/00-draft-blueprint.md` exists and skip to Step 10. Do NOT re-run the Generator (it appends to downstream deferred items files and would create duplicates).
 
 1. **Determine exploration summary path**: Check if `{explore-dir}/03-exploration-summary.md` exists. If yes, include it as input. If no (exploration was skipped or no enrichments accepted), omit it.
 
@@ -555,11 +585,11 @@ Only proceed to step 3 after the human signals they have responded.
 
 5. **Verify output exists** at `{round-dir}/00-draft-blueprint.md`
 
-6. **Update state file**: Mark "Step 8: Run Generator" complete `[x]`, add history entry
+6. **Update state file**: Mark "Step 9: Run Generator" complete `[x]`, add history entry
 
-### Step 9: Gap Resolution (`WAITING_FOR_HUMAN`)
+### Step 10: Gap Resolution (`WAITING_FOR_HUMAN`)
 
-**On resume**: If status = WAITING_FOR_HUMAN for Step 9, re-read draft and present gap summary to human.
+**On resume**: If status = WAITING_FOR_HUMAN for Step 10, re-read draft and present gap summary to human.
 
 1. **Read the draft** at `{round-dir}/00-draft-blueprint.md`
 
@@ -622,15 +652,15 @@ Only proceed to step 3 after the human signals they have responded.
      - Otherwise: use `{round-dir}/00-draft-blueprint.md`
    - Update state file:
      - Increment `Current Round`
-     - Reset Steps 1–9 to unchecked `[ ]`
+     - Reset Steps 1–10 to unchecked `[ ]`
      - Set phase = Explore, Explore Phase = active, Gaps Exist = unknown
      - Add history entry "Round {N} complete — starting round {N+1}"
    - **Re-resolve paths** using Path Resolution with the new round number
    - **Loop to Step 1**
 
    **If "promote"** or "promote as-is":
-   - Update state file: Mark "Step 9: Gap Resolution" complete `[x]`, add history entry "Promoting draft from round {N}"
-   - Proceed to Step 10
+   - Update state file: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry "Promoting draft from round {N}"
+   - Proceed to Step 11
 
    **If human edited the draft directly**:
    - After human confirms edits are done, ask: "Draft updated. Promote or another round?"
@@ -682,9 +712,9 @@ Only proceed to step 3 after the human signals they have responded.
 
 ## Phase 3: Extract
 
-Phase 3 runs only when the human chooses to promote at Step 9, exiting the explore→generate loop.
+Phase 3 runs only when the human chooses to promote at Step 10, exiting the explore→generate loop.
 
-### Step 10: Promote
+### Step 11: Promote
 
 1. **Determine final draft path** (from the current round):
     - If `{round-dir}/03-updated-blueprint.md` exists (Author ran): Use it
@@ -697,9 +727,9 @@ Phase 3 runs only when the human chooses to promote at Step 9, exiting the explo
 
 3. **Verify promotion** — Confirm `system-design/01-blueprint/blueprint.md` exists
 
-4. **Update state file**: Mark "Step 10: Promote" complete `[x]`, add history entry
+4. **Update state file**: Mark "Step 11: Promote" complete `[x]`, add history entry
 
-### Step 11: Scope Extract
+### Step 12: Scope Extract
 
 1. **Spawn Scope Extractor agent** using Task tool:
     ```
@@ -715,7 +745,7 @@ Phase 3 runs only when the human chooses to promote at Step 9, exiting the explo
 
 3. **Verify output exists** at `system-design/01-blueprint/scope-brief.md`
 
-4. **Update state file**: Mark "Step 11: Scope Extract" complete `[x]`, set status = COMPLETE, add history entry
+4. **Update state file**: Mark "Step 12: Scope Extract" complete `[x]`, set status = COMPLETE, add history entry
 
 5. **Check downstream deferred items** for items the Generator deferred
 
@@ -772,21 +802,21 @@ Phase 3 runs only when the human chooses to promote at Step 9, exiting the explo
 
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2: Setup then identifier
-- Steps 4 → 5: Explorers then consolidator
-- Steps 7 → 8: Enrichment author then generator
-- Steps 10 → 11: Promote then scope extract
+- Steps 4 → 5 → 6: Explorers then consolidator then scope filter
+- Steps 8 → 9: Enrichment author then generator
+- Steps 11 → 12: Promote then scope extract
 
 **Human checkpoints:**
 - **Step 3** — WAITING_FOR_HUMAN for dimension review
-- **Step 6** — WAITING_FOR_HUMAN for enrichment review until all enrichments resolved
-- **Step 9** — WAITING_FOR_HUMAN for gap resolution (promote vs another round)
+- **Step 7** — WAITING_FOR_HUMAN for enrichment review until all enrichments resolved
+- **Step 10** — WAITING_FOR_HUMAN for gap resolution (promote vs another round)
 
 **Skip paths:**
-- **Explore skip** — If fewer than 2 dimensions (Step 2) or human says "skip" (Step 3) → jump to Step 8
-- **Gap skip** — If no gaps in draft (Step 9) → still present promote/another-round choice
+- **Explore skip** — If fewer than 2 dimensions (Step 2) or human says "skip" (Step 3) → jump to Step 9
+- **Gap skip** — If no gaps in draft (Step 10) → still present promote/another-round choice
 
 **Loop path:**
-- **Another round** — If human says "another round" at Step 9 → increment round, reset Steps 1–9, loop to Step 1
+- **Another round** — If human says "another round" at Step 10 → increment round, reset Steps 1–10, loop to Step 1
 
 ---
 
@@ -799,6 +829,8 @@ Phase 3 runs only when the human chooses to promote at Step 9, exiting the explo
 | Dimensions file not created | Error: "Dimension Identifier completed but output not found" |
 | Explorer fails | Error: Report which dimension's explorer failed |
 | Consolidator fails | Error: Report failure details |
+| Enrichment Scope Filter fails | Error: Report failure details |
+| Filtered enrichment file not created | Error: "Enrichment Scope Filter completed but output not found" |
 | Enrichment Author fails | Error: Report failure details |
 | Generator fails | Error: Report failure details |
 | Draft not created | Error: "Generator completed but draft not found at expected path" |
@@ -807,8 +839,9 @@ Phase 3 runs only when the human chooses to promote at Step 9, exiting the explo
 | Scope Extractor fails | Error: Report failure details |
 | Promotion copy fails | Error: "Failed to copy final draft to blueprint.md" |
 | State file corrupted/unreadable | Warning: Report issue, re-create state from file existence checks |
-| Resume: draft missing but Step 8 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
+| Resume: draft missing but Step 9 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
 | Round N primary source missing | Error: "Round {N} requires draft from round {N-1} but no draft found" |
+| Current Workflow = Review | Error: "Review workflow is active. Cannot re-run creation." |
 
 ---
 
@@ -821,7 +854,7 @@ After this orchestrator completes:
 3. **Human optionally makes manual edits** — Can refine directly
 4. **Human runs Review workflow** — Invokes the Blueprint Review orchestrator
 
-**IMPORTANT**: The Review workflow reads from `system-design/01-blueprint/blueprint.md` for Round 1. This file is created by the promotion step (Step 10). It MUST exist before starting the Review workflow.
+**IMPORTANT**: The Review workflow reads from `system-design/01-blueprint/blueprint.md` for Round 1. This file is created by the promotion step (Step 11). It MUST exist before starting the Review workflow.
 
 The Review workflow will:
 - Run expert reviewers on the Blueprint

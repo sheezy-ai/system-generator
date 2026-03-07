@@ -227,6 +227,6 @@ For each issue, ask:
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/round-N/06-change-verification-report.md`
+**Output file**: `system-design/01-blueprint/versions/review/round-N/06-change-verification-report.md`
 
 Write your complete verification report to this file.

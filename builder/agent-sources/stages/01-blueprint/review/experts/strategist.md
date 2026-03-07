@@ -142,7 +142,7 @@ For each issue, use this structure:
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/round-N/01-strategist.md` (where N is the current round number)
+**Output file**: `system-design/01-blueprint/versions/review/round-N/01-strategist.md` (where N is the current round number)
 
 Write your complete output to this file. Include a header and summary:
 

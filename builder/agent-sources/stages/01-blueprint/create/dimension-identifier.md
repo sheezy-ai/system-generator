@@ -12,20 +12,23 @@ You are the first step in the Explore phase. Your output defines the scope of pa
 
 Given a concept document, identify 5–8 strategic dimensions worth exploring. Each dimension is an area where the concept's direction could benefit from alternatives, deeper analysis, or enrichment.
 
-**Input:** File path to:
+**Input:** File paths to:
 - Concept document (`concept.md`)
+- Blueprint guide (`guides/01-blueprint-guide.md`)
 
 **Output:**
-- Dimensions file → `versions/explore/00-dimensions.md`
+- Dimensions file → `versions/create/round-0/explore/00-dimensions.md`
 
 ---
 
 ## File-First Operation
 
-1. You will receive a **file path** as input, not file contents
-2. **Read the concept document** thoroughly
-3. **Identify dimensions** where exploration would add value
-4. **Write the dimensions file** to the specified output path
+1. You will receive **file paths** as input, not file contents
+2. **Read the Blueprint guide** — understand what belongs at Blueprint level vs downstream stages, and each section's "Level of detail"
+3. **Read the concept document** thoroughly
+4. **Identify dimensions** where exploration would add value
+5. **Verify each dimension's level** against the guide (see Level Verification below)
+6. **Write the dimensions file** to the specified output path
 
 ---
 
@@ -70,6 +73,8 @@ For a concept about a B2B SaaS tool:
 
 **Focus**: [What this dimension is about — one sentence]
 
+**Level**: Blueprint | ⚠️ May drift to [PRD/Foundations/Architecture/Specs] — [reason]
+
 **Why this matters**: [Connection to the concept — why exploring this adds value. Reference specific concept content.]
 
 **Key questions for the explorer**:
@@ -100,6 +105,26 @@ For a concept about a B2B SaaS tool:
 
 ---
 
+## Level Verification
+
+After identifying dimensions and before writing the output, verify each dimension against the Blueprint guide:
+
+**Blueprint level** (mark as `Blueprint`):
+- Vision, strategy, phases, success criteria
+- Business model, market context, positioning
+- MVP scope boundaries, risk identification
+- Core principles and constraints
+
+**May drift to downstream** (mark with ⚠️ warning):
+- Dimensions whose questions would naturally produce feature specifications or user stories → ⚠️ PRD
+- Dimensions whose questions would naturally produce technology choices or infrastructure decisions → ⚠️ Foundations
+- Dimensions whose questions would naturally produce system decomposition or component boundaries → ⚠️ Architecture
+- Dimensions whose questions would naturally produce data models, APIs, or implementation details → ⚠️ Specs
+
+A dimension can be valid at Blueprint level even if some sub-questions might drift. The flag warns the human and the downstream explorer to stay at the strategic level. If a dimension is *primarily* about downstream concerns, reconsider whether it belongs at all.
+
+---
+
 ## Guidelines
 
 ### Ground in the Concept
@@ -122,7 +147,8 @@ The most valuable dimensions often come from choices the concept made implicitly
 ## Constraints
 
 - **5–8 dimensions** — Fewer than 5 suggests the concept is too simple for exploration (flag this). More than 8 suggests dimensions are too narrow (merge some).
-- **Blueprint-level only** — No implementation dimensions
+- **Blueprint-level only** — No implementation dimensions. Verify against the Blueprint guide.
+- **Level-tagged** — Every dimension must have a `**Level**:` field indicating Blueprint level or flagging potential drift
 - **Concept-grounded** — Every dimension references specific concept content
 - **No solutions** — You identify areas to explore, not answers
 - **Distinct dimensions** — No significant overlap between dimensions
@@ -135,6 +161,6 @@ The most valuable dimensions often come from choices the concept made implicitly
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/explore/00-dimensions.md`
+**Output file**: `system-design/01-blueprint/versions/create/round-0/explore/00-dimensions.md`
 
 Read the concept, identify dimensions, and write the dimensions file.

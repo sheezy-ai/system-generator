@@ -182,6 +182,6 @@ If multiple experts identified the same issue:
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/round-N/02-consolidated-issues.md`
+**Output file**: `system-design/01-blueprint/versions/review/round-N/02-consolidated-issues.md`
 
 Read all expert files, consolidate issues, and write to the output file. Deferred items filtering is handled by the Scope Filter in the next step.

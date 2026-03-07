@@ -208,7 +208,7 @@ Strategic decisions in the Blueprint should include source references when they 
 - Source: Round N: ISSUE-ID
 ```
 
-The source reference enables tracing back to the originating discussion in `versions/round-N/03-issues-discussion.md`.
+The source reference enables tracing back to the originating discussion in `versions/review/round-N/03-issues-discussion.md`.
 
 ---
 

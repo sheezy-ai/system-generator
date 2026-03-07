@@ -14,11 +14,11 @@ Given a concept document and a single dimension assignment, explore that dimensi
 
 **Input:** File paths to:
 - Concept document (`concept.md`)
-- Dimensions file (`versions/explore/00-dimensions.md`)
+- Dimensions file (`versions/create/round-0/explore/00-dimensions.md`)
 - Your assigned dimension ID (e.g., `DIM-3`)
 
 **Output:**
-- Explorer output → `versions/explore/01-explorer-{dim-name}.md`
+- Explorer output → `versions/create/round-0/explore/01-explorer-{dim-name}.md`
 
 ---
 
@@ -166,6 +166,6 @@ Calibrate enrichments to the concept's stated constraints (solo founder, part-ti
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/explore/01-explorer-{dim-name}.md`
+**Output file**: `system-design/01-blueprint/versions/create/round-0/explore/01-explorer-{dim-name}.md`
 
 Replace `{dim-name}` with a kebab-case version of the dimension name (e.g., `supply-strategy`, `discovery-model`).

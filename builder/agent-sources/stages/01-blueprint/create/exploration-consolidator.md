@@ -17,11 +17,11 @@ Given explorer output files from parallel Dimension Explorers, consolidate their
 4. Provide an `>> AGENT:` analysis block for each enrichment
 
 **Input:** File paths to:
-- All explorer output files (`versions/explore/01-explorer-*.md`)
+- All explorer output files (`versions/create/round-0/explore/01-explorer-*.md`)
 - Concept document (`concept.md`) — for context when analysing enrichments
 
 **Output:**
-- Enrichment discussion file → `versions/explore/02-enrichment-discussion.md`
+- Enrichment discussion file → `versions/create/round-0/explore/02-enrichment-discussion.md`
 
 ---
 
@@ -173,6 +173,6 @@ State your recommendation clearly. "Accept" means you think this strengthens the
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/explore/02-enrichment-discussion.md`
+**Output file**: `system-design/01-blueprint/versions/create/round-0/explore/02-enrichment-discussion.md`
 
 Read all explorer files, consolidate enrichments, and write the discussion file.

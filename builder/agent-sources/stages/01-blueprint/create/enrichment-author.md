@@ -16,22 +16,25 @@ Given the concept document and the enrichment discussion file (with all enrichme
 
 **Input:** File paths to:
 - Concept document (`concept.md`)
-- Enrichment discussion file with resolutions (`versions/explore/02-enrichment-discussion.md`)
+- Blueprint guide (`guides/01-blueprint-guide.md`)
+- Filtered enrichment discussion file with resolutions (`versions/create/round-0/explore/02a-filtered-enrichment-discussion.md`)
 
 **Output:**
-- Exploration summary → `versions/explore/03-exploration-summary.md`
+- Exploration summary → `versions/create/round-0/explore/03-exploration-summary.md`
 
 ---
 
 ## File-First Operation
 
 1. You will receive **file paths** as input, not file contents
-2. **Read the concept document** for context
-3. **Read the enrichment discussion file** to find resolved enrichments
-4. **Collect accepted enrichments** — Look for `>> RESOLVED [ACCEPTED]` markers
-5. **Collect rejected enrichments** — Look for `>> RESOLVED [REJECTED]` markers
-6. **Skip decision-needed enrichments** — Enrichments marked `>> RESOLVED [DECISION NEEDED]` are handled by the Decision Analysis step, not this agent
-7. **Write** the exploration summary
+2. **Read the Blueprint guide** — understand what belongs at Blueprint level and each section's "Level of detail"
+3. **Read the concept document** for context
+4. **Read the filtered enrichment discussion file** to find resolved enrichments
+5. **Collect accepted enrichments** — Look for `>> RESOLVED [ACCEPTED]` markers
+6. **Collect rejected enrichments** — Look for `>> RESOLVED [REJECTED]` markers
+7. **Skip decision-needed enrichments** — Enrichments marked `>> RESOLVED [DECISION NEEDED]` are handled by the Decision Analysis step, not this agent
+8. **Level-check accepted enrichments** — Verify each is at Blueprint level per the guide (see Secondary Level Check below)
+9. **Write** the exploration summary
 
 ---
 
@@ -61,6 +64,49 @@ For each enrichment marked `>> RESOLVED [DECISION NEEDED]`:
 
 ### Unresolved Enrichments
 If any enrichments lack `>> RESOLVED` markers, do NOT process them. Note them as unresolved in the summary.
+
+---
+
+## Secondary Level Check
+
+This is a safety net. The Enrichment Scope Filter should have caught most wrong-level items, and the human reviewed what remained. But if an enrichment is clearly at the wrong level despite passing both checks:
+
+1. **Check each accepted enrichment** against the Blueprint guide:
+   - Does the proposed content belong in the Blueprint per the guide's "What Should NOT Be in the Blueprint" table?
+   - Is the content at the guide's stated "Level of detail" for the target section?
+
+2. **If an enrichment is clearly at the wrong level:**
+   - Do NOT include it in the exploration summary
+   - Append it to the appropriate downstream deferred items file (using the paths and format below)
+   - Note it in the summary under a "Deferred During Authoring" section
+
+3. **Deferral destinations and paths:**
+   - PRD (feature details, user stories, UI/UX specifics): `system-design/02-prd/versions/deferred-items.md`
+   - Foundations (technology choices, architectural principles): `system-design/03-foundations/versions/deferred-items.md`
+   - Architecture (system decomposition, component boundaries): `system-design/04-architecture/versions/deferred-items.md`
+   - Specs (data models, APIs, implementation details): `system-design/05-components/versions/deferred-items.md`
+
+4. **Deferral append format:**
+   ```markdown
+   ---
+
+   ## From Blueprint Create - [Date]
+
+   **Source**: [filtered enrichment discussion file path]
+   **Deferred by**: Enrichment Author (secondary level check)
+
+   ### [ENR-NNN]: [Summary]
+
+   **Original Context**: [Which dimension raised this]
+
+   [Full enrichment proposed content]
+
+   **Why Deferred**: [Brief explanation of why this belongs downstream]
+
+   ---
+   ```
+
+**When uncertain, include the enrichment.** This check is for clear mismatches only — an enrichment about specific feature workflows that somehow survived filtering and human review. Do not second-guess borderline cases that the human explicitly accepted.
 
 ---
 
@@ -116,6 +162,19 @@ See `decisions/` folder for framework and analysis documents.
 
 ---
 
+## Deferred During Authoring
+
+Enrichments that passed scope filtering and human review but were clearly at the wrong level
+on final inspection. Deferred to downstream stages.
+
+| ID | Title | Deferred To | Reason |
+|----|-------|-------------|--------|
+| ENR-NNN | [Title] | [Stage] | [Brief reason] |
+
+(If none: "No enrichments deferred during authoring.")
+
+---
+
 ## Unresolved Enrichments
 
 [List any enrichments that were not resolved. These will not be incorporated.]
@@ -135,6 +194,8 @@ See `decisions/` folder for framework and analysis documents.
 - **Group by Blueprint section** — The Generator needs to find enrichments by section
 - **Record rejections** — Rejected enrichments should be documented briefly for traceability
 - **No additions** — Do not add enrichments that weren't in the discussion
+- **Level-check against the Blueprint guide** — Defer clearly wrong-level items rather than silently including them
+- **When uncertain on level, include** — This is a safety net, not a primary filter. Only defer obvious mismatches.
 
 ---
 
@@ -144,6 +205,6 @@ See `decisions/` folder for framework and analysis documents.
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/explore/03-exploration-summary.md`
+**Output file**: `system-design/01-blueprint/versions/create/round-0/explore/03-exploration-summary.md`
 
 Read the enrichment discussion, collect resolved enrichments, and write the exploration summary.
