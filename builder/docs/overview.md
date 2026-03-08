@@ -113,7 +113,9 @@ Concept/Upstream ──▶ Generator ──▶ Human augments ──▶ Review W
 - **Human** reviews and fills in answers to open questions
 - **Review Workflow** refines the document through expert review cycles
 
-**Blueprint exception:** Blueprint has a custom create workflow with an Explore phase (strategic dimension exploration, enrichment review) and iterative rounds. See `01-blueprint.md` for details.
+**Blueprint exception:** Blueprint has a custom create workflow with an Explore phase (strategic dimension exploration, enrichment review), iterative rounds, and a separate Decision Orchestrator. See `01-blueprint.md` for details.
+
+**PRD exception:** PRD has a custom create workflow with an Explore phase (capability area decomposition, parallel explorers, enrichment review), iterative rounds, and inline decision resolution. See `02-prd.md` for details.
 
 ### Review Workflow
 
@@ -220,7 +222,17 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   │       ├── consolidator.md
 │   │       ├── change-verifier.md
 │   │       └── experts/
-│   ├── 02-prd/...
+│   ├── 02-prd/
+│   │   ├── create/
+│   │   │   ├── orchestrator.md
+│   │   │   ├── capability-identifier.md
+│   │   │   ├── capability-explorer.md
+│   │   │   ├── exploration-consolidator.md
+│   │   │   ├── enrichment-scope-filter.md
+│   │   │   ├── enrichment-author.md
+│   │   │   ├── generator.md
+│   │   │   └── author.md
+│   │   └── review/...
 │   ├── ...                        # Other stages (03-05)
 │   ├── 06-tasks/                  # Task pipeline agents
 │   ├── 07-conventions/            # Conventions pipeline agents
@@ -268,6 +280,8 @@ Workflows use round numbers to track iterations:
 - `round-1`, `round-2`, ...: Review workflow cycles
 
 **Blueprint exception:** Blueprint's create workflow supports multiple rounds (`round-0`, `round-1`, ...) before promotion. Round 0 explores from `concept.md`, round 1+ explores from the previous round's draft. Review rounds continue from where create left off.
+
+**PRD exception:** PRD's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from `blueprint.md`, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
 
 All rounds for a stage share a `versions/` folder with a unified state file.
 

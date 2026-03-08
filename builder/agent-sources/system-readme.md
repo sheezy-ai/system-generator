@@ -39,6 +39,8 @@ Read the PRD creation orchestrator at:
 Create a PRD.
 ```
 
+The create workflow iterates through **Explore** (identifies capability areas from the Blueprint that need product-level decomposition, explores each in parallel, human reviews enrichments) and **Generate** (produces draft PRD from Blueprint + accepted enrichments, resolves gaps) rounds — round 1 works from the Blueprint, round 2+ works from the previous round's draft. The human exits the loop by choosing to promote. Unlike Blueprint, PRD does not use a separate Decision Orchestrator — product-level decisions are resolved inline during enrichment review or gap resolution.
+
 **Review:**
 ```
 Read the PRD review orchestrator at:
@@ -262,12 +264,7 @@ No manual promotion is needed for these stages.
 
 **Stage 01** (Blueprint) auto-promotes during both create and review. The review orchestrator also re-extracts `scope-brief.md` to keep it consistent with the reviewed Blueprint.
 
-**Stage 02** (PRD) requires manual promotion. Back up the original first:
-
-```
-cp {{PROJECT_PATH}}/system-design/02-prd/prd.md {{PROJECT_PATH}}/system-design/02-prd/versions/prd-original.md
-cp {{PROJECT_PATH}}/system-design/02-prd/versions/round-N/06-updated-prd.md {{PROJECT_PATH}}/system-design/02-prd/prd.md
-```
+**Stage 02** (PRD) auto-promotes during creation. The create orchestrator promotes the final draft to `prd.md` when the human chooses to promote at Gap Resolution. The review orchestrator handles promotion separately.
 
 ## Stage Progression
 

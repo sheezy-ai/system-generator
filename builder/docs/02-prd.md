@@ -73,6 +73,31 @@ The Consolidator groups issues by these PRD-specific themes:
 
 ---
 
+## Create Workflow
+
+PRD has a custom create workflow, unlike the generic Setup → Generate → Report pattern used by stages 03-05 (see `workflow-create.md`).
+
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
+
+The explore→generate cycle iterates for as many rounds as the human wants:
+- **Round 1** explores from `blueprint.md`
+- **Round 2+** explores from the previous round's draft
+- The human exits the loop by choosing to promote at Gap Resolution
+
+### Explore Phase (Steps 1-8)
+
+Identifies capability areas from the Blueprint that need product-level decomposition, spawns parallel explorers for each area, consolidates enrichment proposals, filters by scope, and facilitates human review. Unlike Blueprint, PRD does not route enrichments to a separate Decision Orchestrator — product-level decisions are resolved inline during enrichment review or gap resolution.
+
+### Generate Phase (Steps 9-10)
+
+Generates a draft PRD from the Blueprint + accepted enrichments + brief (if provided). The human then reviews gaps and chooses to promote, answer gaps, or do another round.
+
+### Promote Phase (Step 11)
+
+Copies the final draft to `prd.md`.
+
+---
+
 ## Scope Determination
 
 PRD scope comes from the Blueprint's **MVP Definition** section. The Generator extracts:
@@ -92,8 +117,14 @@ No separate phase number is needed in the trigger prompt.
 ```
 agents/02-prd/
 ├── create/
-│   ├── orchestrator.md
-│   └── generator.md
+│   ├── orchestrator.md                # Coordinates explore→generate loop
+│   ├── capability-identifier.md       # Identifies capability areas from Blueprint
+│   ├── capability-explorer.md         # Decomposes one capability area into requirements
+│   ├── exploration-consolidator.md    # Merges explorer outputs by PRD section
+│   ├── enrichment-scope-filter.md     # Filters enrichments by level/depth
+│   ├── enrichment-author.md           # Produces exploration summary
+│   ├── generator.md                   # Creates draft from Blueprint + enrichments
+│   └── author.md                      # Applies gap resolutions to draft
 └── review/
     ├── orchestrator.md
     ├── author.md
@@ -112,28 +143,44 @@ agents/02-prd/
 ## Output Structure
 
 ```
-system/02-prd/
-├── prd.md                           # Final PRD
+system-design/02-prd/
+├── prd.md                             # Promoted from create (then overwritten by Review)
+├── brief.md                           # Optional human-provided brief
 └── versions/
-    ├── deferred-items.md             # Content deferred from upstream stages
-    ├── pending-issues.md            # Issues flagged for upstream review
-    ├── workflow-state.md            # Current workflow state
-    ├── round-0/                     # Create workflow output
-    │   └── 00-draft-prd.md          # Generator output (human augments this)
-    └── round-N/                     # Review workflow output
-        ├── 01-[expert].md
-        ├── 02-consolidated-issues.md
-        ├── 03-issues-discussion.md   # Inline discussions happen here
-        ├── 04-author-output.md
-        ├── 05-updated-prd.md
-        ├── 06-alignment-report.md
-        └── 07-change-verification-report.md
+    ├── deferred-items.md              # Content deferred from upstream stages
+    ├── pending-issues.md              # Issues flagged for upstream review
+    ├── workflow-state.md              # Unified workflow state (shared with Review)
+    ├── create/                        # All creation round outputs
+    │   ├── round-1/
+    │   │   ├── explore/
+    │   │   │   ├── 00-capabilities.md
+    │   │   │   ├── 01-explorer-*.md
+    │   │   │   ├── 02-enrichment-discussion.md
+    │   │   │   ├── 02a-filtered-enrichment-discussion.md
+    │   │   │   └── 03-exploration-summary.md
+    │   │   ├── 00-draft-prd.md
+    │   │   ├── 01-gap-resolutions.md
+    │   │   ├── 02-author-output.md
+    │   │   └── 03-updated-prd.md
+    │   └── round-{N}/                 # Additional create rounds (if "another round")
+    │       ├── explore/
+    │       │   └── [same explore files]
+    │       └── [same generate files]
+    └── review/                        # All review round outputs
+        └── round-{N}/
+            ├── 01-[expert].md
+            ├── 02-consolidated-issues.md
+            ├── 03-issues-discussion.md
+            ├── 04-author-output.md
+            ├── 05-updated-prd.md
+            ├── 06-alignment-report.md
+            └── 07-change-verification-report.md
 ```
 
 **Downstream deferred items (for PRD content that's too detailed):**
-- `system/03-foundations/versions/deferred-items.md` - Technology choices
-- `system/04-architecture/versions/deferred-items.md` - System decomposition
-- `system/05-components/versions/deferred-items.md` - Data models, APIs
+- `system-design/03-foundations/versions/deferred-items.md` - Technology choices
+- `system-design/04-architecture/versions/deferred-items.md` - System decomposition
+- `system-design/05-components/versions/deferred-items.md` - Data models, APIs
 
 ---
 
@@ -144,10 +191,7 @@ system/02-prd/
 Read the PRD creation orchestrator at:
 agents/02-prd/create/orchestrator.md
 
-Then create a PRD from:
-- Blueprint: system/01-blueprint/blueprint.md
-
-Start the creation workflow.
+Create a PRD.
 ```
 
 **Review a PRD:**
@@ -155,11 +199,7 @@ Start the creation workflow.
 Read the PRD review orchestrator at:
 agents/02-prd/review/orchestrator.md
 
-Then run the PRD review workflow for:
-- PRD: system/02-prd/prd.md
-- Blueprint: system/01-blueprint/blueprint.md
-
-Start or resume the review.
+Review the PRD.
 ```
 
 ---

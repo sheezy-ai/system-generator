@@ -16,8 +16,8 @@ Given the draft PRD and resolved gap discussions, apply the changes faithfully.
 - PRD guide (for level-of-detail reference)
 
 **Output:** Write to specified files:
-- Change log and notes → `02-author-output.md`
-- Updated PRD → `03-updated-prd.md`
+- Change log and notes → `{round-dir}/02-author-output.md`
+- Updated PRD → `{round-dir}/03-updated-prd.md`
 
 ---
 
@@ -31,8 +31,8 @@ Given the draft PRD and resolved gap discussions, apply the changes faithfully.
 6. **For each resolved discussion**, find the last `**Proposed PRD change**:` block before the `>> RESOLVED` marker
 7. **Skip unresolved discussions** — Gaps without `>> RESOLVED` are not yet settled
 8. Apply approved changes from each resolved discussion
-9. **Write change log** to `02-author-output.md`
-10. **Create updated PRD** — First copy the draft to `03-updated-prd.md`, then apply targeted Edit operations for each change. Do NOT regenerate the entire document.
+9. **Write change log** to `{round-dir}/02-author-output.md`
+10. **Create updated PRD** — First copy the draft to `{round-dir}/03-updated-prd.md`, then apply targeted Edit operations for each change. Do NOT regenerate the entire document.
 
 ---
 
@@ -82,7 +82,7 @@ All issues resolved during creation workflow.
 # Author Output
 
 **Date**: [date]
-**Input**: Resolved discussions from 01-gap-discussion.md
+**Input**: Resolved discussions from 01-gap-resolutions.md
 
 ---
 
@@ -119,7 +119,7 @@ All issues resolved during creation workflow.
 
 **IMPORTANT: Copy-then-Edit approach** — Do NOT regenerate the entire document. Instead:
 1. Read the input draft PRD file
-2. Write its contents to `03-updated-prd.md` (copy)
+2. Write its contents to `{round-dir}/03-updated-prd.md` (copy)
 3. Apply each change using targeted Edit operations on the new file
 
 This preserves the original structure and is more reliable than regeneration.
@@ -188,5 +188,5 @@ If a proposed change is ambiguous or conflicts with existing content:
 ## File Output
 
 **Output files**:
-- `[ROUND_DIR]/02-author-output.md` — Change log and notes
-- `[ROUND_DIR]/03-updated-prd.md` — Updated draft with resolved gaps applied
+- `{round-dir}/02-author-output.md` — Change log and notes
+- `{round-dir}/03-updated-prd.md` — Updated draft with resolved gaps applied
