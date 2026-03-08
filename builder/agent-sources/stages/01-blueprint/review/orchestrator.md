@@ -103,7 +103,7 @@ Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 versions/
 ├── workflow-state.md          # Tracks current workflow/round/step for resume (shared)
 ├── create/                    # Creation workflow outputs
-│   └── round-0/
+│   └── round-{N}/
 │       ├── explore/
 │       └── [generate files]
 └── review/                    # Review workflow outputs

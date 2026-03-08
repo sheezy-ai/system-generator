@@ -10,14 +10,15 @@ You are the first step in the Explore phase. Your output defines the scope of pa
 
 ## Task
 
-Given a concept document, identify 5–8 strategic dimensions worth exploring. Each dimension is an area where the concept's direction could benefit from alternatives, deeper analysis, or enrichment.
+Given a concept document, identify 3–5 strategic dimensions worth exploring. Each dimension is an area where the concept's direction could benefit from alternatives, deeper analysis, or enrichment.
 
 **Input:** File paths to:
 - Concept document (`concept.md`)
 - Blueprint guide (`guides/01-blueprint-guide.md`)
+- Workflow state file (`versions/workflow-state.md`) — for checking pending decisions
 
 **Output:**
-- Dimensions file → `versions/create/round-0/explore/00-dimensions.md`
+- Dimensions file → `versions/create/round-{N}/explore/00-dimensions.md`
 
 ---
 
@@ -26,9 +27,11 @@ Given a concept document, identify 5–8 strategic dimensions worth exploring. E
 1. You will receive **file paths** as input, not file contents
 2. **Read the Blueprint guide** — understand what belongs at Blueprint level vs downstream stages, and each section's "Level of detail"
 3. **Read the concept document** thoroughly
-4. **Identify dimensions** where exploration would add value
-5. **Verify each dimension's level** against the guide (see Level Verification below)
-6. **Write the dimensions file** to the specified output path
+4. **Read the workflow state file** — check the Decision Analysis section for pending decisions (any decision with status other than COMPLETE)
+5. **Identify dimensions** where exploration would add value
+6. **Check for decision overlap** — see Decision Overlap Check below
+7. **Verify each dimension's level** against the guide (see Level Verification below)
+8. **Write the dimensions file** to the specified output path
 
 ---
 
@@ -75,6 +78,8 @@ For a concept about a B2B SaaS tool:
 
 **Level**: Blueprint | ⚠️ May drift to [PRD/Foundations/Architecture/Specs] — [reason]
 
+**Decision overlap**: [Only include if this dimension overlaps with a pending decision] Overlaps with pending decision `{decision-name}` (status: {status}). The explorer should read the decision's framework and any additional context to build on existing analysis.
+
 **Why this matters**: [Connection to the concept — why exploring this adds value. Reference specific concept content.]
 
 **Key questions for the explorer**:
@@ -102,6 +107,24 @@ For a concept about a B2B SaaS tool:
 | DIM-2 | [Name] | [e.g., Business Model, Key Risks] |
 | ... | ... | ... |
 ```
+
+---
+
+## Decision Overlap Check
+
+After identifying dimensions and before level verification, check whether any dimension overlaps with a pending decision from the workflow state file.
+
+For each pending decision (status other than COMPLETE in the Decision Analysis section):
+- Compare the decision name and its originating enrichment topic against each proposed dimension
+- If a dimension overlaps with a pending decision, add a `**Decision overlap**:` field to the dimension output:
+
+```markdown
+**Decision overlap**: Overlaps with pending decision `{decision-name}` (status: {status}). The explorer should read the decision's framework and any additional context to build on existing analysis rather than duplicating it.
+```
+
+This flag tells the human (during dimension review) and the explorer (during exploration) that a decision process is already underway for this topic. The dimension is still valid — exploration may surface enrichments that feed the decision as additional context — but the explorer should be aware of existing work.
+
+If no pending decisions exist or no dimensions overlap, skip this step.
 
 ---
 
@@ -146,7 +169,7 @@ The most valuable dimensions often come from choices the concept made implicitly
 
 ## Constraints
 
-- **5–8 dimensions** — Fewer than 5 suggests the concept is too simple for exploration (flag this). More than 8 suggests dimensions are too narrow (merge some).
+- **3–5 dimensions** — Fewer than 3 suggests the concept is too simple for exploration (flag this). More than 5 suggests dimensions are too narrow (merge some). The cap of 5 keeps total enrichment volume manageable (up to 25 pre-dedup); subsequent create rounds can explore dimensions not covered in the first round.
 - **Blueprint-level only** — No implementation dimensions. Verify against the Blueprint guide.
 - **Level-tagged** — Every dimension must have a `**Level**:` field indicating Blueprint level or flagging potential drift
 - **Concept-grounded** — Every dimension references specific concept content
@@ -161,6 +184,6 @@ The most valuable dimensions often come from choices the concept made implicitly
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/create/round-0/explore/00-dimensions.md`
+**Output file**: `system-design/01-blueprint/versions/create/round-{N}/explore/00-dimensions.md`
 
 Read the concept, identify dimensions, and write the dimensions file.

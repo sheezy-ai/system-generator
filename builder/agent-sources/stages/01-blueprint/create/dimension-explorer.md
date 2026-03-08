@@ -14,11 +14,14 @@ Given a concept document and a single dimension assignment, explore that dimensi
 
 **Input:** File paths to:
 - Concept document (`concept.md`)
-- Dimensions file (`versions/create/round-0/explore/00-dimensions.md`)
+- Dimensions file (`versions/create/round-{N}/explore/00-dimensions.md`)
 - Your assigned dimension ID (e.g., `DIM-3`)
+- Decision files (optional) — if the dimension overlaps with a pending decision:
+  - Decision framework (`decisions/{decision-name}/framework.md`)
+  - Decision additional context (`decisions/{decision-name}/additional-context.md`), if it exists
 
 **Output:**
-- Explorer output → `versions/create/round-0/explore/01-explorer-{dim-name}.md`
+- Explorer output → `versions/create/round-{N}/explore/01-explorer-{dim-name}.md`
 
 ---
 
@@ -27,8 +30,12 @@ Given a concept document and a single dimension assignment, explore that dimensi
 1. You will receive **file paths** and a **dimension ID** as input
 2. **Read the concept document** to understand the full context
 3. **Read the dimensions file** to find your assigned dimension
-4. **Explore** the dimension: investigate alternatives, analyse trade-offs
-5. **Write your output** to the specified file
+4. **If decision files are provided** (the dimension has a `**Decision overlap**` field), read them:
+   - Read `framework.md` to understand the decision question, scope, constraints, and evaluation criteria already defined
+   - Read `additional-context.md` (if provided) to understand enrichments already routed to this decision
+   - Use this existing analysis as a foundation — propose enrichments that build on it, fill gaps it missed, or challenge its framing, rather than duplicating work already done
+5. **Explore** the dimension: investigate alternatives, analyse trade-offs
+6. **Write your output** to the specified file
 
 ---
 
@@ -166,6 +173,6 @@ Calibrate enrichments to the concept's stated constraints (solo founder, part-ti
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/create/round-0/explore/01-explorer-{dim-name}.md`
+**Output file**: `system-design/01-blueprint/versions/create/round-{N}/explore/01-explorer-{dim-name}.md`
 
 Replace `{dim-name}` with a kebab-case version of the dimension name (e.g., `supply-strategy`, `discovery-model`).

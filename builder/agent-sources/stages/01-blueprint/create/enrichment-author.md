@@ -17,10 +17,10 @@ Given the concept document and the enrichment discussion file (with all enrichme
 **Input:** File paths to:
 - Concept document (`concept.md`)
 - Blueprint guide (`guides/01-blueprint-guide.md`)
-- Filtered enrichment discussion file with resolutions (`versions/create/round-0/explore/02a-filtered-enrichment-discussion.md`)
+- Filtered enrichment discussion file with resolutions (`versions/create/round-{N}/explore/02a-filtered-enrichment-discussion.md`)
 
 **Output:**
-- Exploration summary → `versions/create/round-0/explore/03-exploration-summary.md`
+- Exploration summary → `versions/create/round-{N}/explore/03-exploration-summary.md`
 
 ---
 
@@ -33,6 +33,7 @@ Given the concept document and the enrichment discussion file (with all enrichme
 5. **Collect accepted enrichments** — Look for `>> RESOLVED [ACCEPTED]` markers
 6. **Collect rejected enrichments** — Look for `>> RESOLVED [REJECTED]` markers
 7. **Skip decision-needed enrichments** — Enrichments marked `>> RESOLVED [DECISION NEEDED]` are handled by the Decision Analysis step, not this agent
+7a. **Skip decision-context enrichments** — Enrichments marked `>> RESOLVED [DECISION CONTEXT]` have been routed as context for an existing pending decision
 8. **Level-check accepted enrichments** — Verify each is at Blueprint level per the guide (see Secondary Level Check below)
 9. **Write** the exploration summary
 
@@ -61,6 +62,11 @@ For each enrichment marked `>> RESOLVED [REJECTED]`:
 For each enrichment marked `>> RESOLVED [DECISION NEEDED]`:
 1. **Skip entirely** — These are handled by the Decision Analysis step (separate `decisions/` folder with framework and analysis documents)
 2. Record in the summary that the enrichment was routed to Decision Analysis
+
+### Decision Context Enrichments
+For each enrichment marked `>> RESOLVED [DECISION CONTEXT]: {decision-name}`:
+1. **Skip entirely** — These have been routed as additional context for an existing pending decision (stored in `decisions/{decision-name}/additional-context.md`)
+2. Record in the summary that the enrichment was routed as context for the named decision
 
 ### Unresolved Enrichments
 If any enrichments lack `>> RESOLVED` markers, do NOT process them. Note them as unresolved in the summary.
@@ -162,6 +168,18 @@ See `decisions/` folder for framework and analysis documents.
 
 ---
 
+## Decision Context Enrichments
+
+These enrichments were routed as additional context for existing pending decisions.
+See `decisions/{decision-name}/additional-context.md` for the routed content.
+
+| ID | Title | Decision Name |
+|----|-------|---------------|
+| ENR-NNN | [Title] | [decision-name] |
+| ... | ... | ... |
+
+---
+
 ## Deferred During Authoring
 
 Enrichments that passed scope filtering and human review but were clearly at the wrong level
@@ -205,6 +223,6 @@ on final inspection. Deferred to downstream stages.
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/create/round-0/explore/03-exploration-summary.md`
+**Output file**: `system-design/01-blueprint/versions/create/round-{N}/explore/03-exploration-summary.md`
 
 Read the enrichment discussion, collect resolved enrichments, and write the exploration summary.

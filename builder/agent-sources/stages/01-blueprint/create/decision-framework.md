@@ -19,6 +19,7 @@ Given an enrichment that requires deeper analysis, produce a self-contained `fra
 - Concept document (`concept.md`)
 - Enrichment discussion file (`02-enrichment-discussion.md`)
 - Enrichment ID (e.g., `ENR-003`) — which enrichment triggered this decision
+- Additional context file (optional) (`additional-context.md`) — enrichments from later rounds routed as context for this decision
 - Output path for the framework file
 
 **Additional input (revise mode only):**
@@ -43,8 +44,13 @@ First invocation. Read the inputs and produce `framework.md` v1.
    - Any related enrichments noted by the Consolidator
    - Which dimensions contributed to this enrichment
 4. **If explorer files are referenced**, read them for deeper background
-5. **Draft the framework document** following the output format below
-6. **Write** to the specified output path
+5. **If additional context file is provided**, read it and incorporate:
+   - Each entry represents an enrichment from a later exploration round that was routed to this decision as additional context
+   - These enrichments add new considerations, criteria, or perspectives that the original triggering enrichment did not cover
+   - Pull relevant content into the Background section alongside the original enrichment context
+   - If any additional context entries suggest new evaluation criteria, include them in the Evaluation Criteria section
+6. **Draft the framework document** following the output format below
+7. **Write** to the specified output path
 
 ### Revise Mode
 
@@ -115,7 +121,7 @@ evaluate each option against these criteria.
 ## Guidelines
 
 ### Make the Framework Self-Contained
-The Decision Analyst reads `framework.md` + `concept.md` only. All relevant context from the enrichment discussion and explorers must be pulled into the Background section. Do not assume the analyst has read the enrichment files.
+The Decision Analyst reads `framework.md` + `concept.md` + `additional-context.md` (if it exists). All relevant context from the enrichment discussion, explorers, and additional context entries must be pulled into the Background section. Do not assume the analyst has read the enrichment files. If additional context exists, note in the Background section which enrichments contributed additional considerations, so the analyst understands the decision's full scope.
 
 ### Ground Criteria in the Concept
 Evaluation criteria should reflect the concept's stated constraints and priorities. A solo founder with no funding has different criteria than a well-funded startup. Reference concept content explicitly.

@@ -25,8 +25,20 @@ Given a decision name (registered in the workflow state by the main create orche
 ## Fixed Paths
 
 **State file**: `system-design/01-blueprint/versions/workflow-state.md`
-**Enrichment discussion**: `system-design/01-blueprint/versions/create/round-0/explore/02-enrichment-discussion.md`
+**Enrichment discussion**: Derived from workflow state — see Path Resolution below
+**Additional context** (optional): `system-design/01-blueprint/decisions/{decision-name}/additional-context.md`
 **Decision folder**: `system-design/01-blueprint/decisions/{decision-name}/`
+
+### Path Resolution
+
+The enrichment discussion file path is derived from the decision's registration data in the workflow state:
+
+1. Read the Decision Analysis section of the state file
+2. Find this decision's entry: `{decision-name} (ENR-NNN, round-{N}): STATUS`
+3. Extract the round number `{N}`
+4. Resolve the enrichment discussion path: `system-design/01-blueprint/versions/create/round-{N}/explore/02-enrichment-discussion.md`
+
+If the state file entry does not include a round number, error: "Decision entry for '{decision-name}' missing round number. Expected format: `{decision-name} (ENR-NNN, round-{N}): STATUS`"
 
 ---
 
@@ -71,11 +83,29 @@ agents/01-blueprint/create/
 
 1. **Create decision folder** at `system-design/01-blueprint/decisions/{decision-name}/` if it doesn't exist
 
-2. **If resuming** (framework.md already exists): Skip to step 5 (present for review)
+2. **If resuming** (framework.md already exists):
+   - Check if `additional-context.md` exists in the decision folder
+   - If it exists AND was modified after framework.md was last written, re-spawn the Decision Framework agent in revise mode to incorporate the new context:
+     ```
+     Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/decision-framework.md
 
-3. **Identify the enrichment ID**: Read the enrichment discussion file, find which ENR-NNN has `>> RESOLVED [DECISION NEEDED]: {decision-name}`. Extract the enrichment ID.
+     Mode: revise
 
-4. **Spawn Decision Framework agent** using Task tool:
+     Input:
+     - Framework: system-design/01-blueprint/decisions/{decision-name}/framework.md
+     - Additional context: system-design/01-blueprint/decisions/{decision-name}/additional-context.md
+     - Human feedback: New additional context has been routed to this decision since the framework was last written. Review additional-context.md and incorporate any relevant points into the Background and Evaluation Criteria sections.
+     ```
+     Wait for agent to complete.
+   - Skip to step 8 (present for review)
+
+3. **Resolve enrichment file path**: Using Path Resolution (above), determine the correct enrichment discussion file from the decision's round number in the state file.
+
+4. **Identify the enrichment ID**: Read the resolved enrichment discussion file, find which ENR-NNN has `>> RESOLVED [DECISION NEEDED]: {decision-name}`. Extract the enrichment ID.
+
+5. **Check for additional context**: Check if `system-design/01-blueprint/decisions/{decision-name}/additional-context.md` exists. Note the path if it does.
+
+6. **Spawn Decision Framework agent** using Task tool:
    ```
    Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/decision-framework.md
 
@@ -83,15 +113,17 @@ agents/01-blueprint/create/
 
    Input:
    - Concept: system-design/01-blueprint/concept.md
-   - Enrichment discussion: system-design/01-blueprint/versions/create/round-0/explore/02-enrichment-discussion.md
+   - Enrichment discussion: {resolved-enrichment-path}
    - Enrichment ID: ENR-[NNN]
+   [If additional-context.md exists:]
+   - Additional context: system-design/01-blueprint/decisions/{decision-name}/additional-context.md
 
    Output: system-design/01-blueprint/decisions/{decision-name}/framework.md
    ```
 
-5. **Update workflow state**: Set decision status to FRAMEWORK_IN_PROGRESS, main status to WAITING_FOR_HUMAN
+7. **Update workflow state**: Set decision status to FRAMEWORK_IN_PROGRESS, main status to WAITING_FOR_HUMAN
 
-6. **Notify user** framework is ready for review:
+8. **Notify user** framework is ready for review:
    ```
    Decision framework ready for review: {decision-name}
 
@@ -107,7 +139,7 @@ agents/01-blueprint/create/
 
 **STOP: Wait for human response before proceeding.**
 
-7. **After human responds**:
+9. **After human responds**:
    - If approved → Update decision status to FRAMEWORK_APPROVED. Proceed to Step 2.
    - If feedback → Spawn Decision Framework agent in revise mode:
      ```
@@ -117,6 +149,8 @@ agents/01-blueprint/create/
 
      Input:
      - Framework: system-design/01-blueprint/decisions/{decision-name}/framework.md
+     [If additional-context.md exists:]
+     - Additional context: system-design/01-blueprint/decisions/{decision-name}/additional-context.md
      - Human feedback: [feedback text]
      ```
      Wait for agent to complete. Present revised framework to human. Repeat until approved.
@@ -134,6 +168,8 @@ agents/01-blueprint/create/
    Input:
    - Framework: system-design/01-blueprint/decisions/{decision-name}/framework.md
    - Concept: system-design/01-blueprint/concept.md
+   [If additional-context.md exists:]
+   - Additional context: system-design/01-blueprint/decisions/{decision-name}/additional-context.md
 
    Output: system-design/01-blueprint/decisions/{decision-name}/analysis.md
    ```
@@ -167,6 +203,8 @@ agents/01-blueprint/create/
      Input:
      - Analysis: system-design/01-blueprint/decisions/{decision-name}/analysis.md
      - Framework: system-design/01-blueprint/decisions/{decision-name}/framework.md
+     [If additional-context.md exists:]
+     - Additional context: system-design/01-blueprint/decisions/{decision-name}/additional-context.md
      - Human feedback: Approved. Fill in the Decision section with: [chosen option and rationale]
      ```
      Proceed to Step 3.
@@ -179,6 +217,8 @@ agents/01-blueprint/create/
      Input:
      - Analysis: system-design/01-blueprint/decisions/{decision-name}/analysis.md
      - Framework: system-design/01-blueprint/decisions/{decision-name}/framework.md
+     [If additional-context.md exists:]
+     - Additional context: system-design/01-blueprint/decisions/{decision-name}/additional-context.md
      - Human feedback: [feedback text]
      ```
      Wait for agent to complete. Present revised analysis to human. Repeat until approved.
@@ -187,7 +227,7 @@ agents/01-blueprint/create/
 
 1. **Update workflow state**: Set decision status to COMPLETE
 
-2. **Check Blueprint status**: Does `system-design/01-blueprint/versions/create/round-0/00-draft-blueprint.md` exist?
+2. **Check Blueprint status**: Read `Current Round` from the state file. Check if `system-design/01-blueprint/versions/create/round-{current-round}/00-draft-blueprint.md` exists (also check previous rounds if current round has no draft).
 
 3. **Notify user**:
    ```

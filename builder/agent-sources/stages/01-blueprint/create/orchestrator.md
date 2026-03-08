@@ -8,7 +8,7 @@ Initialize the Blueprint stage by setting up structure, exploring strategic dime
 
 **Flow:** Setup → [Explore → Generate → Gap Resolution]* → Extract (promote + scope brief)
 
-The explore→generate cycle can repeat for as many rounds as the human wants. Round 0 explores from the concept document. Round 1+ explores from the previous round's draft, finding dimensions and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to promote at Gap Resolution.
+The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the concept document. Round 2+ explores from the previous round's draft, finding dimensions and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to promote at Gap Resolution.
 
 Strategic decisions identified during enrichment review are handled by the separate Decision Orchestrator, not this workflow. The Blueprint proceeds with pending decisions marked as gaps.
 
@@ -25,8 +25,8 @@ Run this orchestrator at the start of a new project, with a concept document. Sa
 **State file**: `system-design/01-blueprint/versions/workflow-state.md`
 
 **Primary source** (determined by current round — see Path Resolution below):
-- Round 0: `system-design/01-blueprint/concept.md`
-- Round N (N≥1): Latest draft from round N-1
+- Round 1: `system-design/01-blueprint/concept.md`
+- Round N (N≥2): Latest draft from round N-1
 
 **Explore phase outputs**: `system-design/01-blueprint/versions/create/round-{N}/explore/`
 
@@ -40,6 +40,7 @@ Files within the explore directory:
 **Decision outputs** (managed by Decision Orchestrator):
 - `system-design/01-blueprint/decisions/{decision-name}/framework.md`
 - `system-design/01-blueprint/decisions/{decision-name}/analysis.md`
+- `system-design/01-blueprint/decisions/{decision-name}/additional-context.md` (optional — created if enrichments routed as context)
 
 **Generate phase outputs** (in `versions/create/round-{N}/`):
 - `00-draft-blueprint.md`
@@ -86,14 +87,15 @@ system-design/01-blueprint/
 ├── decisions/                         # Decision analysis (one folder per decision)
 │   └── {decision-name}/
 │       ├── framework.md               # Evaluation criteria (human-approved)
-│       └── analysis.md                # Options evaluated, final decision
+│       ├── analysis.md                # Options evaluated, final decision
+│       └── additional-context.md      # Enrichments routed as context (optional)
 └── versions/
     ├── deferred-items.md              # Items deferred from concept
     ├── pending-issues.md              # Issues logged against this stage
     ├── out-of-scope.md                # Non-documentation content from concept
     ├── workflow-state.md              # Unified workflow state (shared with Review)
     ├── create/                        # All creation round outputs
-    │   ├── round-0/
+    │   ├── round-1/
     │   │   ├── explore/
     │   │   │   ├── 00-dimensions.md
     │   │   │   ├── 01-explorer-*.md
@@ -150,7 +152,7 @@ system-design/01-blueprint/
 **Blueprint**: 01-blueprint/blueprint.md
 **Current Workflow**: Create
 **Current Phase**: Explore | Generate | Extract
-**Current Round**: 0
+**Current Round**: 1
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
 **Gaps Exist**: unknown | true | false
 **Explore Phase**: active | skipped | complete
@@ -181,6 +183,7 @@ Dimensions: [DIM-1, DIM-2, ...] or [none]
 Enrichments Accepted: [N]
 Enrichments Rejected: [N]
 Enrichments Decision Needed: [N]
+Enrichments Decision Context: [N]
 
 ## Decision Analysis
 
@@ -188,7 +191,7 @@ Decisions are handled by the Decision Orchestrator (separate workflow).
 Status is tracked here so the Generator knows which decisions are resolved.
 
 Decisions:
-  - {decision-name} (ENR-NNN): PENDING | FRAMEWORK_IN_PROGRESS | FRAMEWORK_APPROVED | ANALYSIS_IN_PROGRESS | COMPLETE
+  - {decision-name} (ENR-NNN, round-{N}): PENDING | FRAMEWORK_IN_PROGRESS | FRAMEWORK_APPROVED | ANALYSIS_IN_PROGRESS | COMPLETE
 
 ## History
 - YYYY-MM-DD HH:MM: Creation workflow started
@@ -219,8 +222,8 @@ Decisions:
 Before executing any step, resolve these paths based on the current round number (read `Current Round` from the state file):
 
 **Primary source** (`{primary-source}`):
-- Round 0: `system-design/01-blueprint/concept.md`
-- Round N (N≥1): Determine from round N-1 outputs:
+- Round 1: `system-design/01-blueprint/concept.md`
+- Round N (N≥2): Determine from round N-1 outputs:
   - If `system-design/01-blueprint/versions/create/round-{N-1}/03-updated-blueprint.md` exists → use it
   - Otherwise → use `system-design/01-blueprint/versions/create/round-{N-1}/00-draft-blueprint.md`
 
@@ -240,17 +243,17 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
 1. **Create directories** (if not exist):
 
-   **Round 0 (first run):**
+   **Round 1 (first run):**
    ```
    system-design/01-blueprint/
    ├── decisions/
    └── versions/
        └── create/
-           └── round-0/
+           └── round-1/
                └── explore/
    ```
 
-   **Round N (N≥1, "another round"):**
+   **Round N (N≥2, "another round"):**
    ```
    system-design/01-blueprint/versions/create/
    └── round-{N}/
@@ -313,6 +316,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    Input:
    - Concept: {primary-source}
    - Blueprint guide: {{GUIDES_PATH}}/01-blueprint-guide.md
+   - Workflow state: system-design/01-blueprint/versions/workflow-state.md
 
    Output: {explore-dir}/00-dimensions.md
    ```
@@ -366,7 +370,11 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
 1. **Read the dimensions file** to get the final list of accepted dimensions
 
-2. **Spawn Dimension Explorer agents** using Task tool (one per dimension, in parallel):
+2. **Check for decision overlaps**: For each dimension, check if it has a `**Decision overlap**:` field. If so, extract the decision name and check which decision files exist:
+   - `system-design/01-blueprint/decisions/{decision-name}/framework.md`
+   - `system-design/01-blueprint/decisions/{decision-name}/additional-context.md`
+
+3. **Spawn Dimension Explorer agents** using Task tool (one per dimension, in parallel):
    ```
    Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/dimension-explorer.md
 
@@ -374,17 +382,21 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    - Concept: {primary-source}
    - Dimensions file: {explore-dir}/00-dimensions.md
    - Assigned dimension: DIM-[N]
+   [If dimension has decision overlap and files exist:]
+   - Decision framework: system-design/01-blueprint/decisions/{decision-name}/framework.md
+   [If additional-context.md exists:]
+   - Decision additional context: system-design/01-blueprint/decisions/{decision-name}/additional-context.md
 
    Output: {explore-dir}/01-explorer-{dim-name}.md
    ```
 
    Replace `{dim-name}` with a kebab-case version of the dimension name.
 
-3. **Wait for all explorers to complete**
+4. **Wait for all explorers to complete**
 
-4. **Verify outputs exist** — Check each expected `01-explorer-*.md` file exists in `{explore-dir}/`
+5. **Verify outputs exist** — Check each expected `01-explorer-*.md` file exists in `{explore-dir}/`
 
-5. **Update state file**: Mark "Step 4: Dimension Explorers" complete `[x]`, add history entry with explorer count
+6. **Update state file**: Mark "Step 4: Dimension Explorers" complete `[x]`, add history entry with explorer count
 
 ### Step 5: Exploration Consolidator
 
@@ -447,12 +459,17 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    [N] enrichments from [M] dimensions, grouped by Blueprint section impact.
 
    Each enrichment has analysis, trade-offs, and a recommendation.
-   Please review each and respond using >> HUMAN: markers:
-   - Accept: "accept"
-   - Reject: "reject"
-   - Accept with changes: "accept with modification: [your changes]"
-   - Decision needed: "decision needed: [decision-name]" — for meaty strategic choices that need their own analysis
-   - Question/discuss: Write your question
+   Please review each and respond after the >> HUMAN: markers.
+
+   Respond naturally — say what you think. Examples:
+   - Accept: "Happy with this", "Accept", "Agree", "Yes"
+   - Reject: "Disagree — [reason]", "Not needed", "Reject"
+   - Accept with changes: State what to change — e.g., "Good, but make it a should-do rather than must-do"
+   - Route to existing decision: "Add to [decision-name] framework" — routes as context for that pending decision
+   - New decision needed: "Decision needed: [name]" — creates a new decision framework
+   - Question/discuss: Ask your question or raise a concern
+
+   I'll interpret your intent and confirm before marking anything resolved.
 
    When done, let me know and I'll process your responses.
    ```
@@ -467,12 +484,47 @@ Only proceed to step 3 after the human signals they have responded.
 
     a. **Identify enrichments needing processing**: Read file, find enrichments where last entry is `>> HUMAN:` with content but no `>> RESOLVED`
 
-    b. **For each enrichment with a human response**:
-       - If response indicates acceptance (`accept`, `agreed`, `yes`) → Add `>> RESOLVED [ACCEPTED]` after the human response
-       - If response indicates rejection (`reject`, `no`, `not needed`) → Add `>> RESOLVED [REJECTED]` after the human response
-       - If response starts with `accept with modification:` → Add `>> RESOLVED [ACCEPTED]` after the human response (the modification is preserved in the human's text)
-       - If response starts with `decision needed:` → Add `>> RESOLVED [DECISION NEEDED]: {decision-name}` after the human response (extract decision name from the human's text)
-       - If response is a question or discussion point → Leave unresolved, spawn Discussion Facilitator
+    b. **Interpret and confirm** — For each enrichment with a human response, follow this two-phase process:
+
+       **Phase 1 — Interpret intent**: Read the human's natural language response and classify into one of:
+
+       - **ACCEPT**: Clear agreement with the enrichment as proposed. Indicators: "happy with", "accept", "agree", "yes", positive sentiment without substantive changes.
+       - **REJECT**: Clear disagreement or statement that the enrichment should not be included. Indicators: "disagree", "reject", "not needed", "no", substantive disagreement with the enrichment's premise.
+       - **ACCEPT WITH MODIFICATION**: Agreement with changes to scope, framing, priority, or content. Indicators: positive sentiment combined with "but change/make/adjust", partial agreement ("agree with X but not Y"), instructions that alter the proposed content while keeping the enrichment.
+       - **DECISION CONTEXT**: Enrichment should feed into an existing pending decision rather than the Blueprint directly. Indicators: "add to [decision-name]", "part of the [decision-name] framework", "should feed into [decision]", reference to a pending decision by name or topic. Cross-reference with the Decision Analysis section of the state file to identify which decision.
+       - **DECISION NEEDED**: A new strategic decision should be created. Indicators: "decision needed", "needs its own framework", "this is a strategic choice that needs analysis". This creates a NEW decision, not a reference to an existing one.
+       - **QUESTION/DISCUSSION**: Question, concern without clear accept/reject, or request for exploration before deciding. Indicators: questions, hedging without clear direction, requests for more information.
+
+       **Compound responses** — A response may contain multiple signals. Apply this priority:
+       - Accept + informational question (question does not condition the acceptance) → ACCEPT. Example: "Happy with this — will the framework be updated?" = ACCEPT.
+       - Accept + conditioning question (acceptance depends on the answer) → treat as ambiguous, present both interpretations in confirmation. Example: "Happy with this, but this seems to be an expansion that hasn't been explored yet?" = could be ACCEPT or DECISION CONTEXT.
+       - Agreement + disagreement on different aspects → ACCEPT WITH MODIFICATION.
+       - Route to decision + accept → DECISION CONTEXT (enrichment feeds the decision, does not also go into the Blueprint).
+
+       **Overlap check** — Before confirming, read the Decision Analysis section of the state file. For each enrichment being classified as ACCEPT or ACCEPT WITH MODIFICATION, check whether its topic overlaps with a registered pending decision (match by topic/content, not just name). If it does, flag it in the confirmation. Only flag genuine topical overlaps — not every enrichment needs this check.
+
+       **Phase 2 — Confirm**: Present ALL interpretations to the human at once:
+       ```
+       Here's how I interpret your responses:
+
+       ENR-001: **Accept with modification** — keep enrichment but adjust framing per your note
+       ENR-002: **Reject** — you disagree with the premise
+       ENR-003: **Accept with modification** — change from must-do to should-do
+       ENR-007: **Accept** (Note: this overlaps with the pending `source-strategy` decision — route as decision context instead?)
+       [... all enrichments with responses ...]
+
+       Is that correct? (Clarify any I got wrong and I'll re-interpret.)
+       ```
+
+       **STOP: Wait for human to confirm or correct before proceeding.**
+
+       After confirmation, apply the confirmed classifications:
+       - ACCEPT → Add `>> RESOLVED [ACCEPTED]` after the human response
+       - REJECT → Add `>> RESOLVED [REJECTED]` after the human response
+       - ACCEPT WITH MODIFICATION → Add `>> RESOLVED [ACCEPTED]` after the human response (the modification is preserved in the human's text)
+       - DECISION CONTEXT → Add `>> RESOLVED [DECISION CONTEXT]: {decision-name}` after the human response
+       - DECISION NEEDED → Add `>> RESOLVED [DECISION NEEDED]: {decision-name}` after the human response
+       - QUESTION/DISCUSSION → Leave unresolved for discussion facilitator
 
     c. **If any enrichments need discussion** (question/pushback from human):
        - **Spawn Discussion Facilitator agents** (batched by group):
@@ -490,16 +542,45 @@ Only proceed to step 3 after the human signals they have responded.
        - Wait for human response
        - Return to step (a)
 
-    d. **If all enrichments resolved**: Continue to decision registration below
+    d. **If all enrichments resolved**: Continue to decision context routing below
 
-4. **Register decisions**: If any enrichments were marked `>> RESOLVED [DECISION NEEDED]`:
+    e. **Route decision context enrichments**: For each enrichment marked `>> RESOLVED [DECISION CONTEXT]: {decision-name}`:
+       - Read the enrichment entry (proposal, trade-offs, agent analysis, human response)
+       - If `system-design/01-blueprint/decisions/{decision-name}/additional-context.md` does not exist, create it:
+         ```markdown
+         # Additional Context: {decision-name}
+
+         Enrichments routed to this decision as additional context.
+         Read alongside `framework.md` and the original triggering enrichment.
+
+         ---
+         ```
+       - Append the enrichment context:
+         ```markdown
+         ## {ENR-NNN}: {enrichment-title}
+
+         **Source**: {explore-dir}/02a-filtered-enrichment-discussion.md
+         **Round**: {current-round}
+
+         **Proposal**: [copy from enrichment]
+
+         **Human response**: [copy from >> HUMAN: block]
+
+         ---
+         ```
+
+4. **Register new decisions**: If any enrichments were marked `>> RESOLVED [DECISION NEEDED]`:
    - Read each `>> RESOLVED [DECISION NEEDED]: {decision-name}` marker
    - Extract the enrichment ID (ENR-NNN) and decision name for each
    - Create decision folders at `system-design/01-blueprint/decisions/{decision-name}/`
-   - Add each decision to the Decision Analysis section of the state file with status PENDING
+   - Add each decision to the Decision Analysis section of the state file with status PENDING and round number:
+     ```
+     - {decision-name} (ENR-NNN, round-{N}): PENDING
+     ```
 
-5. **Notify user about pending decisions** (if any):
+5. **Notify user about pending decisions** (if any new decisions or decision context routed):
    ```
+   [If new decisions:]
    [N] enrichments require decision analysis:
    - {decision-1} (from ENR-NNN)
    - {decision-2} (from ENR-MMM)
@@ -510,10 +591,16 @@ Only proceed to step 3 after the human signals they have responded.
      agents/01-blueprint/create/decision-orchestrator.md
      Decision name: {decision-name}
 
+   [If decision context routed:]
+   [N] enrichments routed as additional context for existing decisions:
+   - ENR-NNN → {decision-name}
+
+   This context will be available when the Decision Orchestrator runs.
+
    Continuing to generate Blueprint...
    ```
 
-6. **Update state file**: Mark "Step 7: Enrichment Review" complete `[x]`, set status = IN_PROGRESS, record accepted/rejected/decision-needed counts, add history entry
+6. **Update state file**: Mark "Step 7: Enrichment Review" complete `[x]`, set status = IN_PROGRESS, record accepted/rejected/decision-needed/decision-context counts, add history entry
 
 ### Step 8: Enrichment Author
 
@@ -754,7 +841,7 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
     Blueprint creation complete (after {total_rounds} round(s)).
 
     Final round ({N}):
-    - [N] dimensions explored, [M] enrichments accepted, [K] rejected
+    - [N] dimensions explored, [M] enrichments accepted, [K] rejected, [C] routed as decision context
     [If decisions registered across any round:]
     - [D] decisions ([R] resolved, [P] pending)
     [If exploration was skipped in final round:]

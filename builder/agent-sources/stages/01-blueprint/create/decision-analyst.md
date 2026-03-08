@@ -18,6 +18,7 @@ Given an approved decision framework, produce a self-contained `analysis.md` tha
 **Input:** File paths to:
 - Decision framework (`framework.md`) — approved by the human
 - Concept document (`concept.md`)
+- Additional context file (optional) (`additional-context.md`) — enrichments routed as context for this decision
 - Output path for the analysis file
 
 **Additional input (revise mode only):**
@@ -36,13 +37,14 @@ First invocation. Read the inputs and produce `analysis.md` v1.
 
 1. **Read the framework document** — understand the decision question, scope, constraints, and evaluation criteria
 2. **Read the concept document** — ground the analysis in the project's context
-3. **Identify 2-5 concrete options** that answer the decision question
+3. **If additional context file is provided**, read it — these are enrichments from exploration rounds that were routed to this decision as supplementary context. They may provide specific criteria or constraints the human wants considered, alternative framings, or additional perspectives on options and trade-offs. Incorporate relevant points into the option evaluation and reference specific entries where they influence the analysis.
+4. **Identify 2-5 concrete options** that answer the decision question
    - Options should be genuinely distinct, not minor variations
    - Include at least one conservative option and one ambitious option where appropriate
    - Each option must be feasible within the stated constraints
-4. **Evaluate each option** against every criterion from the framework
-5. **Produce a recommendation** grounded in the criteria evaluation
-6. **Write** to the specified output path
+5. **Evaluate each option** against every criterion from the framework
+6. **Produce a recommendation** grounded in the criteria evaluation
+7. **Write** to the specified output path
 
 ### Revise Mode
 

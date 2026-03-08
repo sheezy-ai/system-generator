@@ -17,11 +17,11 @@ Given explorer output files from parallel Dimension Explorers, consolidate their
 4. Provide an `>> AGENT:` analysis block for each enrichment
 
 **Input:** File paths to:
-- All explorer output files (`versions/create/round-0/explore/01-explorer-*.md`)
+- All explorer output files (`versions/create/round-{N}/explore/01-explorer-*.md`)
 - Concept document (`concept.md`) — for context when analysing enrichments
 
 **Output:**
-- Enrichment discussion file → `versions/create/round-0/explore/02-enrichment-discussion.md`
+- Enrichment discussion file → `versions/create/round-{N}/explore/02-enrichment-discussion.md`
 
 ---
 
@@ -77,12 +77,17 @@ Each enrichment gets an `>> AGENT:` analysis block and a `>> HUMAN:` placeholder
 
 ## How to Respond
 
-For each enrichment below, add your response after `>> HUMAN:`:
-- **accept** — Include this enrichment in the Blueprint
-- **reject** — Exclude this enrichment
-- **accept with modification: [your changes]** — Include with your adjustments
-- **decision needed: [decision-name]** — This is a meaty strategic choice that needs its own decision framework and analysis
-- Or write a question/comment — the Discussion Facilitator will help resolve it
+For each enrichment below, add your response after `>> HUMAN:`.
+
+Respond naturally — say what you think. Examples:
+- **Accept**: "Happy with this", "Accept", "Agree", "Yes"
+- **Reject**: "Disagree — [reason]", "Not needed", "Reject"
+- **Accept with changes**: State what to change — e.g., "Good, but make it a should-do rather than must-do"
+- **Route to existing decision**: "Add to [decision-name] framework" — routes as context for that pending decision
+- **New decision needed**: "Decision needed: [name]" — creates a new decision framework
+- **Question/discuss**: Ask your question or raise a concern
+
+The orchestrator will interpret your intent and confirm before marking anything resolved.
 
 ---
 
@@ -173,6 +178,6 @@ State your recommendation clearly. "Accept" means you think this strengthens the
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/create/round-0/explore/02-enrichment-discussion.md`
+**Output file**: `system-design/01-blueprint/versions/create/round-{N}/explore/02-enrichment-discussion.md`
 
 Read all explorer files, consolidate enrichments, and write the discussion file.
