@@ -213,6 +213,12 @@ The test: if the document doesn't contain specific values (timeouts, field names
 ### Flag Uncertainty
 If you're uncertain, say so. "I lean toward X but this depends on [factor]."
 
+### Depth-Flagged Content
+When an issue concerns content that was flagged as potentially exceeding the document's abstraction level (over-specification, operational/procedural detail in a strategic document, etc.), apply this default:
+- **If you agree the content exceeds depth**: Recommend deferral to the appropriate downstream stage. The strategic insight should remain; the operational/procedural detail should be routed via deferred-items.
+- **If you are genuinely unsure** whether the content exceeds depth: Say so explicitly and delegate the depth call to the human. Present the case for keeping vs deferring and let them decide.
+- Do not default to "no change" for depth concerns — the default position is deferral unless you have a specific reason the content belongs at this level.
+
 ### Note Connections
 If issues are related (e.g., two issues both involve Architecture alignment), mention this so the human can consider them together.
 

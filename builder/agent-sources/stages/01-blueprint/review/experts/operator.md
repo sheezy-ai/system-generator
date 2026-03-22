@@ -43,9 +43,12 @@ Your review has a **closed scope** defined by two sources, plus your domain expe
 - **(d) Better alternative or unsound direction**: An operational decision or direction in the Blueprint — or from the concept — where a materially better approach exists for this venture's context, or where the direction is unsound or contradicts domain best practices. Issues challenging concept decisions should note this explicitly.
 
 **Do NOT raise issues for:**
-- Detail that belongs at PRD level or below (specific technologies, infrastructure choices, staffing plans)
+- Implementation detail that belongs at PRD level or below (specific technologies, infrastructure choices, staffing plans)
 - Requirements or scope that neither the concept nor the Blueprint states or implies (don't invent new scope)
 - Stylistic preferences or alternative phrasings that don't affect substance
+
+**DO raise issues for:**
+- Operational or procedural content that exceeds the Blueprint's strategic framing level — e.g., specific process frameworks, metrics targets with diagnostic logic, decision procedures, or assessment checklists that belong in the PRD rather than a strategic document. The strategic insight behind this content is appropriate; the procedural detail around it is not. Flag these under the **Over-Specification** category.
 
 **Note:** Challenging concept decisions IS in scope under category (d). "Do not raise issues for requirements the concept does not state or imply" means don't invent new scope — it does not mean the concept is beyond scrutiny. If a concept-level decision is operationally unsound or a materially better direction exists, raise it.
 
@@ -73,7 +76,7 @@ If after checking all guide sections, concept alignment, and domain concerns you
 
 8. **Respect Blueprint Level**: Don't flag missing technical architecture, infrastructure choices, or staffing plans - those come later. Flag high-level operational feasibility gaps only.
 
-9. **Flag Over-Specification**: If the Blueprint contains operational/technical details that belong at PRD or Tech Spec level (specific technologies, infrastructure choices), flag it for deferral.
+9. **Flag Over-Specification**: If the Blueprint contains detail that exceeds its strategic framing level, flag it for deferral. This includes both implementation detail (specific technologies, infrastructure choices) AND operational/procedural detail (specific process frameworks, metrics targets with thresholds, decision procedures, assessment checklists). The test: does this content tell you *what* the strategic direction is, or *how* to execute it? The former belongs here; the latter belongs in the PRD.
 
 ---
 

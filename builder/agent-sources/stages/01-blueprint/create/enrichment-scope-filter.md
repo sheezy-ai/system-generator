@@ -66,7 +66,7 @@ From Blueprint, defer to:
 
 ## Task
 
-Filter enrichment proposals from the consolidated enrichment discussion. Keep Blueprint-appropriate items. Defer downstream items. Filter items that exceed the Blueprint guide's stated depth for the section.
+Filter enrichment proposals from the consolidated enrichment discussion. Keep Blueprint-appropriate items. Defer wrong-stage items to downstream. Defer clear depth violations to downstream (preserving the strategic insight). Flag borderline depth cases for informed human review.
 
 **Input paths:**
 - Blueprint guide (`guides/01-blueprint-guide.md`)
@@ -102,27 +102,47 @@ Filter enrichment proposals from the consolidated enrichment discussion. Keep Bl
 - Enrichment describes system decomposition or component boundaries (→ Architecture)
 - Enrichment specifies data models, APIs, or implementation details (→ Specs)
 
-**FILTER (depth exceeded) if:**
-- Enrichment is at the correct abstraction level for Blueprint
-- BUT asks for detail beyond the guide's "Level of detail" for the relevant section
-- Examples: detailed pricing models when the guide says "identify the model and rationale"; exhaustive competitive analysis when the guide says "enough to demonstrate awareness"; specific metrics targets when the guide says "identify the metrics and why they matter"
+**DEFER-DEPTH (clear depth exceeded) if:**
+- Enrichment is at the correct abstraction level for Blueprint (right topic)
+- BUT clearly asks for detail beyond the guide's "Level of detail" for the relevant section
+- The strategic insight is separable from the operational/procedural detail
+- Examples: detailed pricing models when the guide says "identify the model and rationale"; specific metrics targets with diagnostic logic when the guide says "identify the metrics and why they matter"; process frameworks or decision procedures when the guide asks for strategic direction
+- **Action**: Extract the strategic insight (note it in the output for the human to see), defer the operational/procedural detail to the appropriate downstream stage via deferred-items. The strategic insight remains available for the human to incorporate if they choose.
 
-**If uncertain:** KEEP. The human can reject during Enrichment Review.
+**FLAG (borderline depth) if:**
+- Enrichment is at the correct abstraction level for Blueprint (right topic)
+- BUT may exceed the guide's depth boundary — you suspect it's too granular but aren't confident
+- Examples: exhaustive competitive analysis when the guide says "enough to demonstrate awareness"; operational detail that supports a strategic argument but could be separated from it
+- **Action**: KEEP the enrichment but add a depth flag: `**⚠ Depth flag**: This enrichment may exceed Blueprint depth for [section]. See guide [section reference] for the boundary.` The human sees this flag during Enrichment Review and can make an informed decision.
+
+**If uncertain on topic:** KEEP. The human can reject during Enrichment Review.
+**If uncertain on depth:** FLAG. Surface the concern to the human rather than silently passing it through.
 
 ---
 
 ## Depth Filtering
 
-The Blueprint guide defines depth boundaries per section via "Level of detail" descriptions. When an enrichment proposes content deeper than what the guide expects for that section, it should be filtered as **depth exceeded**.
+The Blueprint guide defines depth boundaries per section via "Level of detail" descriptions. When an enrichment proposes content deeper than what the guide expects for that section, it is handled in one of two ways depending on confidence:
 
-Depth-filtered items are documented in the output (not silently dropped) but are NOT kept for human review and are NOT deferred to downstream stages. They are noted as exceeding the guide's stated scope for the section.
+### Clear depth violations → DEFER-DEPTH
 
-**Common depth-exceeded patterns for Blueprint:**
+When you are confident the enrichment exceeds the guide's stated depth, defer it automatically. The operational/procedural detail is routed to the appropriate downstream deferred-items file. Note the strategic insight that the enrichment contains so it is not lost — the human can see what was deferred and why.
+
+**Common clear depth-exceeded patterns for Blueprint:**
+- Specific metrics targets with diagnostic logic or threshold values when the guide asks for "identify the metrics and why they matter"
+- Process frameworks, decision procedures, or assessment checklists when the guide asks for strategic direction
+- Detailed pricing tiers or financial projections when the guide asks for "model and rationale"
 - Detailed feature specifications when the guide asks for "clear scope boundaries"
-- Specific pricing tiers or financial projections when the guide asks for "model and rationale"
-- Full competitive analysis when the guide asks for "enough to demonstrate awareness"
-- Precise metric targets when the guide asks for "identify the metrics and why they matter"
-- Implementation-adjacent details that are Blueprint-level in topic but too granular
+
+### Borderline depth → FLAG
+
+When you suspect an enrichment exceeds depth but aren't confident, keep it with a visible depth flag. This surfaces the concern to the human during Enrichment Review so they can make an informed decision.
+
+**Common borderline patterns for Blueprint:**
+- Operational detail that supports a strategic argument but could be separated from it
+- Exhaustive competitive analysis when the guide says "enough to demonstrate awareness"
+- Implementation-adjacent details that are Blueprint-level in topic but may be too granular
+- Content where the strategic insight and procedural detail are tightly interleaved
 
 ---
 
@@ -138,21 +158,27 @@ Depth-filtered items are documented in the output (not silently dropped) but are
 ## Filtering Summary
 
 - **Total enrichments**: [N]
-- **Kept**: [N]
-- **Deferred to downstream**: [N]
-- **Filtered (depth exceeded)**: [N]
+- **Kept**: [N] ([M] with depth flags)
+- **Deferred to downstream (wrong stage)**: [N]
+- **Deferred to downstream (depth exceeded)**: [N]
 
-## Deferred Enrichments
+## Deferred Enrichments (Wrong Stage)
 
 | ID | Title | Deferred To | Reason |
 |----|-------|-------------|--------|
 | [ENR-NNN] | [Title] | [Stage] | [Reason] |
 
-## Filtered Enrichments (Depth Exceeded)
+## Deferred Enrichments (Depth Exceeded)
 
-| ID | Title | Section | Why Filtered |
-|----|-------|---------|--------------|
-| [ENR-NNN] | [Title] | [Section] | [Which guide boundary this exceeds] |
+| ID | Title | Deferred To | Strategic Insight Preserved | Why Deferred |
+|----|-------|-------------|----------------------------|--------------|
+| [ENR-NNN] | [Title] | [Stage] | [The strategic insight this enrichment contains] | [Which guide boundary the detail exceeds] |
+
+## Depth-Flagged Enrichments (Kept for Human Review)
+
+| ID | Title | Section | Why Flagged |
+|----|-------|---------|-------------|
+| [ENR-NNN] | [Title] | [Section] | [Why this may exceed depth — human to decide] |
 
 ---
 
@@ -176,7 +202,7 @@ Kept enrichments must preserve the original enrichment discussion format exactly
    a. Identify which Blueprint section it targets
    b. Check if the enrichment's content belongs at Blueprint level (use Stage Boundaries table)
    c. If Blueprint level: check if it exceeds the guide's stated depth for that section
-   d. Classify as KEEP, DEFER, or FILTER
+   d. Classify as KEEP, DEFER (wrong stage), DEFER-DEPTH (clear depth exceeded), or FLAG (borderline depth)
 4. Write filtered enrichment discussion file (kept enrichments in original format, with summary tables prepended)
 5. Append deferred items to appropriate downstream deferred items files using the append format
 
@@ -185,7 +211,8 @@ Kept enrichments must preserve the original enrichment discussion format exactly
 ## Constraints
 
 - **Preserve enrichment format** — Do not modify kept enrichments. Copy them exactly as they appear in the input.
-- **When uncertain, KEEP** — The human can reject during Enrichment Review. False negatives (filtering something that should be kept) are worse than false positives.
+- **When uncertain on topic, KEEP** — The human can reject during Enrichment Review.
+- **When uncertain on depth, FLAG** — Surface the depth concern to the human with context, rather than silently passing it through or silently dropping it.
 - **Document all decisions** — Every deferred and filtered item must have a reason.
 - **Maintain traceability** — Deferred items reference their ENR-NNN ID and source file.
 - **No additions** — Do not create enrichments that weren't in the input.
