@@ -12,10 +12,10 @@ Run `./init-project.sh` from the repo root to set up the folder structure.
 
 **Create:**
 ```
-Read the Blueprint creation orchestrator at:
+Execute the Blueprint creation workflow using the orchestrator at:
 {{AGENTS_PATH}}/01-blueprint/create/orchestrator.md
 
-Create a Blueprint from:
+Input:
 - Concept: {{PROJECT_PATH}}/system-design/01-blueprint/concept.md
 ```
 
@@ -23,7 +23,7 @@ The create workflow iterates through **Explore** (identifies strategic dimension
 
 **Decision Orchestrator** (run in a separate conversation, before promoting):
 ```
-Read the Decision Orchestrator at:
+Execute the Decision workflow using the orchestrator at:
 {{AGENTS_PATH}}/01-blueprint/create/decision-orchestrator.md
 
 Decision name: {decision-name}
@@ -33,88 +33,72 @@ The Decision Orchestrator handles a single strategic decision end-to-end: defini
 
 **Review:**
 ```
-Read the Blueprint review orchestrator at:
+Execute the Blueprint review workflow using the orchestrator at:
 {{AGENTS_PATH}}/01-blueprint/review/orchestrator.md
-
-Review the Blueprint.
 ```
 
 ### PRD
 
 **Create:**
 ```
-Read the PRD creation orchestrator at:
+Execute the PRD creation workflow using the orchestrator at:
 {{AGENTS_PATH}}/02-prd/create/orchestrator.md
-
-Create a PRD.
 ```
 
 The create workflow iterates through **Explore** (identifies capability areas from the Blueprint that need product-level decomposition, explores each in parallel, human reviews enrichments) and **Generate** (produces draft PRD from Blueprint + accepted enrichments, resolves gaps) rounds — round 1 works from the Blueprint, round 2+ works from the previous round's draft. The human exits the loop by choosing to promote. Unlike Blueprint, PRD does not use a separate Decision Orchestrator — product-level decisions are resolved inline during enrichment review or gap resolution.
 
 **Review:**
 ```
-Read the PRD review orchestrator at:
+Execute the PRD review workflow using the orchestrator at:
 {{AGENTS_PATH}}/02-prd/review/orchestrator.md
-
-Review the PRD.
 ```
 
 ### Foundations
 
 **Create:**
 ```
-Read the Foundations creation orchestrator at:
+Execute the Foundations creation workflow using the orchestrator at:
 {{AGENTS_PATH}}/03-foundations/create/orchestrator.md
-
-Create Foundations.
 ```
 
 Optional: place a brief at `{{PROJECT_PATH}}/system-design/03-foundations/brief.md` before running Create. The generator incorporates settled decisions from the brief directly, reducing gap markers.
 
 **Review:**
 ```
-Read the Foundations review orchestrator at:
+Execute the Foundations review workflow using the orchestrator at:
 {{AGENTS_PATH}}/03-foundations/review/orchestrator.md
-
-Review Foundations.
 ```
 
 ### Architecture Overview
 
 **Create:**
 ```
-Read the Architecture Overview creation orchestrator at:
+Execute the Architecture Overview creation workflow using the orchestrator at:
 {{AGENTS_PATH}}/04-architecture/create/orchestrator.md
-
-Create an Architecture Overview.
 ```
 
 Optional: place a brief at `{{PROJECT_PATH}}/system-design/04-architecture/brief.md` before running Create.
 
 **Review:**
 ```
-Read the Architecture Overview review orchestrator at:
+Execute the Architecture Overview review workflow using the orchestrator at:
 {{AGENTS_PATH}}/04-architecture/review/orchestrator.md
-
-Review the Architecture Overview.
 ```
 
 ### Component Spec
 
 **Initialize (once, before first component):**
 ```
-Read the Component Specs initialize orchestrator at:
+Execute the Component Specs initialization workflow using the orchestrator at:
 {{AGENTS_PATH}}/05-components/initialize/orchestrator.md
-
-Initialize Component Specs.
 ```
 
 **Create (per component):**
 ```
-Read the Component Spec create orchestrator at:
+Execute the Component Spec creation workflow using the orchestrator at:
 {{AGENTS_PATH}}/05-components/create/orchestrator.md
 
-Create component spec for: [component name]
+Component: [component name]
 ```
 
 Optional: place a per-component brief at `{{PROJECT_PATH}}/system-design/05-components/versions/[component-name]/brief.md` before running Create.
@@ -123,30 +107,28 @@ After the draft is generated, review and augment it, then run Review.
 
 **Review (per component):**
 ```
-Read the Component Spec review router at:
+Execute the Component Spec review workflow using the router at:
 {{AGENTS_PATH}}/05-components/review/orchestrator-router.md
 
-Review component: [component name]
+Component: [component name]
 ```
 
 ### Tasks
 
 **Create all tasks (fully automated):**
 ```
-Read the Tasks coordinator at:
+Execute the Tasks workflow using the coordinator at:
 {{AGENTS_PATH}}/06-tasks/coordinator.md
-
-Create tasks.
 ```
 
 The coordinator initializes workflow state, computes dependency tiers, spawns pipeline runners as parallel subagents, and presents the final summary. A single invocation processes all components end-to-end.
 
 **Manual alternative — run a single component:**
 ```
-Read the Tasks pipeline runner at:
+Execute the Tasks pipeline using:
 {{AGENTS_PATH}}/06-tasks/pipeline-runner.md
 
-Create tasks for [component-name].
+Component: [component-name]
 ```
 
 ### Conventions
@@ -154,20 +136,18 @@ Create tasks for [component-name].
 **Generate build conventions (stops for human approval):**
 
 ```
-Read the Conventions coordinator at:
+Execute the Conventions workflow using the coordinator at:
 {{AGENTS_PATH}}/07-conventions/coordinator.md
-
-Generate conventions.
 ```
 
 The coordinator generates build conventions in batches (up to 4 sections in parallel), runs cross-reference review, and presents the assembled document for human approval. Re-invoke after reviewing to mark as approved.
 
 **Manual alternative — run a single section:**
 ```
-Read the section pipeline runner at:
+Execute the Conventions section pipeline using:
 {{AGENTS_PATH}}/07-conventions/section-pipeline-runner.md
 
-Process section N (Section Name).
+Section: N (Section Name)
 ```
 
 ### Build
@@ -175,20 +155,18 @@ Process section N (Section Name).
 **Run the build pipeline (conventions must be approved first):**
 
 ```
-Read the Build coordinator at:
+Execute the Build workflow using the coordinator at:
 {{AGENTS_PATH}}/08-build/coordinator.md
-
-Build.
 ```
 
 The coordinator verifies conventions are approved, derives dependency tiers from the Architecture, and processes all components tier-by-tier — fully automated.
 
 **Manual alternative — run a single component:**
 ```
-Read the Build pipeline runner at:
+Execute the Build pipeline using:
 {{AGENTS_PATH}}/08-build/pipeline-runner.md
 
-Build [component-name].
+Component: [component-name]
 ```
 
 ### Verification
@@ -196,10 +174,8 @@ Build [component-name].
 **Run build verification (build must be complete first):**
 
 ```
-Read the Verification coordinator at:
+Execute the Verification workflow using the coordinator at:
 {{AGENTS_PATH}}/09-verification/coordinator.md
-
-Verify.
 ```
 
 The coordinator verifies build is complete, runs Phase 1 (mechanical — lint, types, imports) with an automated fix loop, then Phase 2 (unit tests) with a human checkpoint. Re-invoke after making changes to continue Phase 2.
@@ -209,10 +185,8 @@ The coordinator verifies build is complete, runs Phase 1 (mechanical — lint, t
 **Generate provisioning runbook and execute (verification must be complete first):**
 
 ```
-Read the Provisioning coordinator at:
+Execute the Provisioning workflow using the coordinator at:
 {{AGENTS_PATH}}/10-provisioning/coordinator.md
-
-Provision.
 ```
 
 The coordinator generates a provisioning runbook from infrastructure tasks and built IaC, presents it for human triage, then executes approved items in dependency-ordered batches. Re-invoke after completing manual items to continue.
@@ -222,10 +196,8 @@ The coordinator generates a provisioning runbook from infrastructure tasks and b
 **Package the deliverable (provisioning must be complete first):**
 
 ```
-Read the Packaging coordinator at:
+Execute the Packaging workflow using the coordinator at:
 {{AGENTS_PATH}}/11-packaging/coordinator.md
-
-Package.
 ```
 
 The coordinator generates developer-facing documentation, presents it for human review, then verifies package completeness.
@@ -235,10 +207,8 @@ The coordinator generates developer-facing documentation, presents it for human 
 **Generate maintenance and operations artefacts (packaging must be complete first):**
 
 ```
-Read the Operations Readiness coordinator at:
+Execute the Operations Readiness workflow using the coordinator at:
 {{AGENTS_PATH}}/12-operations-readiness/coordinator.md
-
-Extract operations readiness artefacts.
 ```
 
 The coordinator extracts 9 artefacts from the completed design docs and build output — component map, contracts, risk profile, traceability (for System-Maintainer) and SLOs, monitoring definitions, deployment topology, runbooks, security posture (for System-Operator). All 5 extractors run in parallel, followed by a cross-reference consistency check and human review. This is the system-builder's final stage.
@@ -250,10 +220,10 @@ Run **after all review rounds are complete** and before promoting the final vers
 This is an **interactive session** - you'll review the document, discuss with the human, apply agreed changes, and update workflow state. All in one conversation.
 
 ```
-Read the Technical Writer Session prompt at:
+Execute a Technical Writer Session using:
 {{AGENTS_PATH}}/specialist-agents/technical-writer.md
 
-Then start a Technical Writer Session with:
+Input:
 - Document: {{PROJECT_PATH}}/system-design/[stage]/[document].md
 - Workflow state: {{PROJECT_PATH}}/system-design/[stage]/versions/workflow-state.md
 - Output folder: {{PROJECT_PATH}}/system-design/[stage]/versions/round-[N]-technical-writer/
