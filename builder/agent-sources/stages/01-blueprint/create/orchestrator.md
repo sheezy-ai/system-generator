@@ -40,7 +40,8 @@ Files within the explore directory:
 **Decision outputs** (managed by Decision Orchestrator):
 - `system-design/01-blueprint/decisions/{decision-name}/framework.md`
 - `system-design/01-blueprint/decisions/{decision-name}/analysis.md`
-- `system-design/01-blueprint/decisions/{decision-name}/additional-context.md` (optional — created if enrichments routed as context)
+- `system-design/01-blueprint/decisions/{decision-name}/context.md` (originating context — written at registration)
+- `system-design/01-blueprint/decisions/{decision-name}/additional-context.md` (optional — enrichments routed as supplementary context)
 
 **Generate phase outputs** (in `versions/create/round-{N}/`):
 - `00-draft-blueprint.md`
@@ -86,9 +87,10 @@ system-design/01-blueprint/
 ├── scope-brief.md                     # Extracted scope for downstream stages
 ├── decisions/                         # Decision analysis (one folder per decision)
 │   └── {decision-name}/
+│       ├── context.md                 # Originating context (written at registration)
 │       ├── framework.md               # Evaluation criteria (human-approved)
 │       ├── analysis.md                # Options evaluated, final decision
-│       └── additional-context.md      # Enrichments routed as context (optional)
+│       └── additional-context.md      # Supplementary context routed later (optional)
 └── versions/
     ├── deferred-items.md              # Items deferred from concept
     ├── pending-issues.md              # Issues logged against this stage
@@ -191,7 +193,7 @@ Decisions are handled by the Decision Orchestrator (separate workflow).
 Status is tracked here so the Generator knows which decisions are resolved.
 
 Decisions:
-  - {decision-name} (ENR-NNN, round-{N}): PENDING | FRAMEWORK_IN_PROGRESS | FRAMEWORK_APPROVED | ANALYSIS_IN_PROGRESS | COMPLETE
+  - {decision-name} (round-{N}): PENDING | FRAMEWORK_IN_PROGRESS | FRAMEWORK_APPROVED | ANALYSIS_IN_PROGRESS | COMPLETE
 
 ## History
 - YYYY-MM-DD HH:MM: Creation workflow started
@@ -565,8 +567,8 @@ Only proceed to step 3 after the human signals they have responded.
          ```markdown
          # Additional Context: {decision-name}
 
-         Enrichments routed to this decision as additional context.
-         Read alongside `framework.md` and the original triggering enrichment.
+         Supplementary enrichments routed to this decision as additional context.
+         Read alongside `context.md` and `framework.md`.
 
          ---
          ```
@@ -588,22 +590,44 @@ Only proceed to step 3 after the human signals they have responded.
    - Read each `>> RESOLVED [DECISION NEEDED]: {decision-name}` marker
    - Extract the enrichment ID (ENR-NNN) and decision name for each
    - Create decision folders at `system-design/01-blueprint/decisions/{decision-name}/`
+   - **Write `context.md`** in the decision folder — extract the enrichment entry (proposal, trade-offs, agent analysis, human response) from the enrichment discussion file:
+     ```markdown
+     # Decision Context: {decision-name}
+
+     Context extracted from enrichment review at registration.
+
+     ---
+
+     ## Source
+
+     **Enrichment**: ENR-NNN
+     **Round**: {current-round}
+     **Source file**: {explore-dir}/02a-filtered-enrichment-discussion.md
+
+     ## Enrichment Content
+
+     [Copy the full enrichment entry: proposal, trade-offs, agent analysis, human response]
+
+     ---
+     ```
    - Add each decision to the Decision Analysis section of the state file with status PENDING and round number:
      ```
-     - {decision-name} (ENR-NNN, round-{N}): PENDING
+     - {decision-name} (round-{N}): PENDING
      ```
 
 5. **Notify user about pending decisions** (if any new decisions or decision context routed):
    ```
    [If new decisions:]
    [N] enrichments require decision analysis:
-   - {decision-1} (from ENR-NNN)
-   - {decision-2} (from ENR-MMM)
+   - {decision-1}
+   - {decision-2}
 
    These will be marked as pending gaps in the Blueprint.
-   Run the Decision Orchestrator for each when ready:
+   Run the Decision Orchestrator for each when ready (in a separate conversation):
 
+     Read the Decision Orchestrator at:
      agents/01-blueprint/create/decision-orchestrator.md
+
      Decision name: {decision-name}
 
    [If decision context routed:]
@@ -654,7 +678,7 @@ Only proceed to step 3 after the human signals they have responded.
 
 2. **Determine decision status**: Read the Decision Analysis section of the workflow state file.
    - For each decision with status COMPLETE: check that `decisions/{decision-name}/analysis.md` exists. Add to the resolved decisions list.
-   - For each decision with status other than COMPLETE: add to the pending decisions list with the enrichment title (read from the enrichment discussion file).
+   - For each decision with status other than COMPLETE: add to the pending decisions list with the decision question (read from `decisions/{decision-name}/context.md`).
 
 3. **Spawn Generator agent** using Task tool:
    ```
@@ -701,9 +725,38 @@ Only proceed to step 3 after the human signals they have responded.
    - If no Gap Summary, or all subsections empty (Must Answer, Should Answer, and Assumptions all show "None" or similar) → no gaps
    - Otherwise → gaps exist
 
-4. **Update state file**: Set `Gaps Exist` = `true` or `false`, set status = WAITING_FOR_HUMAN
+4. **Detect and register gap-sourced decisions**: Scan the Gap Summary for `[DECISION NEEDED]` entries. For each one found that is NOT already registered in the Decision Analysis section of the state file:
+   - Derive a decision name in kebab-case from the gap text (e.g., "Which specific niches..." → `niche-selection`)
+   - Create the decision folder at `system-design/01-blueprint/decisions/{decision-name}/`
+   - **Write `context.md`** in the decision folder — extract the gap marker text and its surrounding Blueprint section from the draft:
+     ```markdown
+     # Decision Context: {decision-name}
 
-5. **Notify user** the draft is ready for review:
+     Context extracted from Generator gap markers at registration.
+
+     ---
+
+     ## Source
+
+     **Gap marker**: [The full gap marker text from the draft]
+     **Blueprint section**: [Which section of the draft contains this gap]
+     **Round**: {current-round}
+     **Source file**: {round-dir}/00-draft-blueprint.md
+
+     ## Context
+
+     [Copy the relevant surrounding content from the Blueprint section where the gap appears — enough for the Decision Framework agent to understand the full context without reading the draft]
+
+     ---
+     ```
+   - Add to the Decision Analysis section of the state file:
+     ```
+     - {decision-name} (round-{N}): PENDING
+     ```
+
+5. **Update state file**: Set `Gaps Exist` = `true` or `false`, set status = WAITING_FOR_HUMAN
+
+6. **Notify user** the draft is ready for review:
 
    **If gaps exist:**
    ```
@@ -722,9 +775,15 @@ Only proceed to step 3 after the human signals they have responded.
    Assumptions to Validate:
    - [List each assumption]
 
+   [If decisions were registered in step 4:]
+   Decisions registered:
+   - {decision-name}: [gap marker text summary]
+   Run the Decision Orchestrator for each before promoting.
+
    You can:
    - Edit the draft directly — replace gap markers with your answers
    - Provide answers here — I'll create a resolutions file and have the Author apply them
+   - Run the Decision Orchestrator for pending decisions (in a separate conversation)
    - Say "another round" — run another explore→generate cycle using this draft as input
    - Say "promote" — promote the current draft and extract scope brief
 
@@ -746,7 +805,7 @@ Only proceed to step 3 after the human signals they have responded.
 
 **STOP: Wait for human response before proceeding.**
 
-6. **After human responds**:
+7. **After human responds**:
 
    **If "another round"**:
    - Determine the latest draft for this round:

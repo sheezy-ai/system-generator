@@ -25,20 +25,11 @@ Given a decision name (registered in the workflow state by the main create orche
 ## Fixed Paths
 
 **State file**: `system-design/01-blueprint/versions/workflow-state.md`
-**Enrichment discussion**: Derived from workflow state — see Path Resolution below
-**Additional context** (optional): `system-design/01-blueprint/decisions/{decision-name}/additional-context.md`
 **Decision folder**: `system-design/01-blueprint/decisions/{decision-name}/`
+**Context** (always present): `system-design/01-blueprint/decisions/{decision-name}/context.md`
+**Additional context** (optional): `system-design/01-blueprint/decisions/{decision-name}/additional-context.md`
 
-### Path Resolution
-
-The enrichment discussion file path is derived from the decision's registration data in the workflow state:
-
-1. Read the Decision Analysis section of the state file
-2. Find this decision's entry: `{decision-name} (ENR-NNN, round-{N}): STATUS`
-3. Extract the round number `{N}`
-4. Resolve the enrichment discussion path: `system-design/01-blueprint/versions/create/round-{N}/explore/02-enrichment-discussion.md`
-
-If the state file entry does not include a round number, error: "Decision entry for '{decision-name}' missing round number. Expected format: `{decision-name} (ENR-NNN, round-{N}): STATUS`"
+Context is written at registration time by the main create orchestrator. It contains the originating context for the decision — either an enrichment entry or a Generator gap marker with surrounding Blueprint content. The Decision Orchestrator reads it directly; no path resolution is needed.
 
 ---
 
@@ -99,13 +90,9 @@ agents/01-blueprint/create/
      Wait for agent to complete.
    - Skip to step 8 (present for review)
 
-3. **Resolve enrichment file path**: Using Path Resolution (above), determine the correct enrichment discussion file from the decision's round number in the state file.
+3. **Check for additional context**: Check if `system-design/01-blueprint/decisions/{decision-name}/additional-context.md` exists. Note the path if it does.
 
-4. **Identify the enrichment ID**: Read the resolved enrichment discussion file, find which ENR-NNN has `>> RESOLVED [DECISION NEEDED]: {decision-name}`. Extract the enrichment ID.
-
-5. **Check for additional context**: Check if `system-design/01-blueprint/decisions/{decision-name}/additional-context.md` exists. Note the path if it does.
-
-6. **Spawn Decision Framework agent** using Task tool:
+4. **Spawn Decision Framework agent** using Task tool:
    ```
    Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/decision-framework.md
 
@@ -113,17 +100,16 @@ agents/01-blueprint/create/
 
    Input:
    - Concept: system-design/01-blueprint/concept.md
-   - Enrichment discussion: {resolved-enrichment-path}
-   - Enrichment ID: ENR-[NNN]
+   - Decision context: system-design/01-blueprint/decisions/{decision-name}/context.md
    [If additional-context.md exists:]
    - Additional context: system-design/01-blueprint/decisions/{decision-name}/additional-context.md
 
    Output: system-design/01-blueprint/decisions/{decision-name}/framework.md
    ```
 
-7. **Update workflow state**: Set decision status to FRAMEWORK_IN_PROGRESS, main status to WAITING_FOR_HUMAN
+5. **Update workflow state**: Set decision status to FRAMEWORK_IN_PROGRESS, main status to WAITING_FOR_HUMAN
 
-8. **Notify user** framework is ready for review:
+6. **Notify user** framework is ready for review:
    ```
    Decision framework ready for review: {decision-name}
 
@@ -139,7 +125,7 @@ agents/01-blueprint/create/
 
 **STOP: Wait for human response before proceeding.**
 
-9. **After human responds**:
+7. **After human responds**:
    - If approved → Update decision status to FRAMEWORK_APPROVED. Proceed to Step 2.
    - If feedback → Spawn Decision Framework agent in revise mode:
      ```

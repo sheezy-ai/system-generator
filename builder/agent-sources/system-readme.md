@@ -19,7 +19,17 @@ Create a Blueprint from:
 - Concept: {{PROJECT_PATH}}/system-design/01-blueprint/concept.md
 ```
 
-The create workflow iterates through **Explore** (identifies strategic dimensions, explores each in parallel, human reviews enrichments) and **Generate** (produces draft Blueprint from concept + accepted enrichments, resolves gaps) rounds — round 0 works from the concept, round 1+ works from the previous round's draft. The human exits the loop by choosing to promote, which triggers **Extract** (promotes to `blueprint.md` and extracts `scope-brief.md` for downstream stages). Strategic decisions identified during enrichment review are handled by a separate Decision Orchestrator.
+The create workflow iterates through **Explore** (identifies strategic dimensions, explores each in parallel, human reviews enrichments) and **Generate** (produces draft Blueprint from concept + accepted enrichments, resolves gaps) rounds — round 0 works from the concept, round 1+ works from the previous round's draft. The human exits the loop by choosing to promote, which triggers **Extract** (promotes to `blueprint.md` and extracts `scope-brief.md` for downstream stages). Strategic decisions identified during enrichment review or flagged by the Generator are registered and handled by a separate Decision Orchestrator.
+
+**Decision Orchestrator** (run in a separate conversation, before promoting):
+```
+Read the Decision Orchestrator at:
+{{AGENTS_PATH}}/01-blueprint/create/decision-orchestrator.md
+
+Decision name: {decision-name}
+```
+
+The Decision Orchestrator handles a single strategic decision end-to-end: defining an evaluation framework with the human, then analysing options against that framework. Run once per pending decision. Decisions can originate from enrichment review (`>> RESOLVED [DECISION NEEDED]`) or from Generator gap markers (`[DECISION NEEDED]` in the draft). Both are registered in the workflow state by the create orchestrator.
 
 **Review:**
 ```
