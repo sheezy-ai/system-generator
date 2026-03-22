@@ -488,16 +488,17 @@ Only proceed to step 3 after the human signals they have responded.
 
        **Phase 1 — Interpret intent**: Read the human's natural language response and classify into one of:
 
-       - **ACCEPT**: Clear agreement with the enrichment as proposed. Indicators: "happy with", "accept", "agree", "yes", positive sentiment without substantive changes.
+       - **ACCEPT**: Clear agreement with the enrichment as proposed, with no questions, observations, or concerns. Indicators: "happy with", "accept", "agree", "yes", clean positive sentiment only.
        - **REJECT**: Clear disagreement or statement that the enrichment should not be included. Indicators: "disagree", "reject", "not needed", "no", substantive disagreement with the enrichment's premise.
        - **ACCEPT WITH MODIFICATION**: Agreement with changes to scope, framing, priority, or content. Indicators: positive sentiment combined with "but change/make/adjust", partial agreement ("agree with X but not Y"), instructions that alter the proposed content while keeping the enrichment.
+       - **ACCEPT WITH DISCUSSION**: Agreement with the enrichment, combined with a question, observation, or concern that warrants a response. The acceptance is not in doubt — the human agrees the enrichment should be included — but they have raised a point that should be engaged with before the enrichment is finalised. Indicators: positive sentiment combined with "?", an observation, or a concern.
        - **DECISION CONTEXT**: Enrichment should feed into an existing pending decision rather than the Blueprint directly. Indicators: "add to [decision-name]", "part of the [decision-name] framework", "should feed into [decision]", reference to a pending decision by name or topic. Cross-reference with the Decision Analysis section of the state file to identify which decision.
        - **DECISION NEEDED**: A new strategic decision should be created. Indicators: "decision needed", "needs its own framework", "this is a strategic choice that needs analysis". This creates a NEW decision, not a reference to an existing one.
        - **QUESTION/DISCUSSION**: Question, concern without clear accept/reject, or request for exploration before deciding. Indicators: questions, hedging without clear direction, requests for more information.
 
        **Compound responses** — A response may contain multiple signals. Apply this priority:
-       - Accept + informational question (question does not condition the acceptance) → ACCEPT. Example: "Happy with this — will the framework be updated?" = ACCEPT.
-       - Accept + conditioning question (acceptance depends on the answer) → treat as ambiguous, present both interpretations in confirmation. Example: "Happy with this, but this seems to be an expansion that hasn't been explored yet?" = could be ACCEPT or DECISION CONTEXT.
+       - Accept with no additional content → ACCEPT.
+       - Accept + any question, observation, or concern → ACCEPT WITH DISCUSSION. Do not judge whether the question is "informational" or "substantive" — if the human raised a point alongside acceptance, it warrants a response.
        - Agreement + disagreement on different aspects → ACCEPT WITH MODIFICATION.
        - Route to decision + accept → DECISION CONTEXT (enrichment feeds the decision, does not also go into the Blueprint).
 
@@ -522,11 +523,12 @@ Only proceed to step 3 after the human signals they have responded.
        - ACCEPT → Add `>> RESOLVED [ACCEPTED]` after the human response
        - REJECT → Add `>> RESOLVED [REJECTED]` after the human response
        - ACCEPT WITH MODIFICATION → Add `>> RESOLVED [ACCEPTED]` after the human response (the modification is preserved in the human's text)
+       - ACCEPT WITH DISCUSSION → Leave unresolved for discussion facilitator (acceptance is noted but the raised point needs a response first)
        - DECISION CONTEXT → Add `>> RESOLVED [DECISION CONTEXT]: {decision-name}` after the human response
        - DECISION NEEDED → Add `>> RESOLVED [DECISION NEEDED]: {decision-name}` after the human response
        - QUESTION/DISCUSSION → Leave unresolved for discussion facilitator
 
-    c. **If any enrichments need discussion** (question/pushback from human):
+    c. **If any enrichments need discussion** (ACCEPT WITH DISCUSSION or QUESTION/DISCUSSION):
        - **Spawn Discussion Facilitator agents** (batched by group):
          ```
          Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
@@ -540,7 +542,20 @@ Only proceed to step 3 after the human signals they have responded.
        - Wait for agents to complete
        - Present to human: "Please review the agent responses and reply to each enrichment."
        - Wait for human response
-       - Return to step (a)
+       - **After human responds**, read file and for each discussed enrichment:
+         - If last entry is `>> HUMAN:` after `>> AGENT:` AND response indicates closure → add `>> RESOLVED [ACCEPTED]` (for ACCEPT WITH DISCUSSION) or `>> RESOLVED` (for QUESTION/DISCUSSION, then re-classify)
+         - If last entry is `>> HUMAN:` with question, pushback, or request → leave open
+       - **If any enrichments still unresolved**: Return to step (a)
+
+    c2. **Resolution indicators** (human response after `>> AGENT:` that signals done):
+        - Agreement: "Yes", "Agreed", "That works", "Fine", "OK"
+        - Dismissal: "Not a concern", "Not relevant", "Ignore", "Skip"
+        - Acceptance: "Makes sense", "Fair enough", "Understood"
+
+    c3. **Continue discussion indicators** (do NOT mark resolved):
+        - Questions: "?", "What about", "How would", "Can you"
+        - Requests: "Please", "Can you", "I'd like", "Show me"
+        - Pushback: "I disagree", "That's not right", "But what about"
 
     d. **If all enrichments resolved**: Continue to decision context routing below
 
