@@ -783,6 +783,8 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 - Steps 8 → 9: Enrichment author then generator
 - Step 11: Promote
 
+**Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads (e.g., "Read the capabilities file," "Check for Gap Summary"). If a read is not in the step instructions, do not perform it — agents read their own inputs.
+
 **Human checkpoints:**
 - **Step 3** — WAITING_FOR_HUMAN for capability review
 - **Step 7** — WAITING_FOR_HUMAN for enrichment review until all enrichments resolved
