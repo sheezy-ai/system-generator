@@ -9,27 +9,28 @@
 ### On Start/Resume
 
 1. **Check if state file exists**:
-   - **If NO**: Create it, initialize Round 1 Step 1, use original PRD path
-   - **If YES**: Read it and check `Current Round`:
-     - **If Round 0 and Status COMPLETE**: Creation finished — initialize Round 1, preserve existing history, use original PRD path
-     - **If Round 0 and Status not COMPLETE**: Error — "Creation workflow still in progress"
-     - **If Round >= 1**: Resume from current round/step
+   - **If NO**: Create it, initialize Round 1 Step 1, set `Current Workflow: Review`, use original PRD path
+   - **If YES**: Read it and check `Current Workflow`:
+     - **If `Create` and Status COMPLETE**: Creation finished — set `Current Workflow: Review`, initialize Round 1, preserve existing history, use original PRD path
+     - **If `Create` and Status not COMPLETE**: Error — "Creation workflow still in progress"
+     - **If `Review`**: Resume from current round/step
 
 2. **Determine PRD source path**:
    - **Round 1**: Use `system-design/02-prd/prd.md` (parent folder)
-   - **Round 2+**: Use `system-design/02-prd/versions/round-{N-1}/05-updated-prd.md`
+   - **Round 2+**: Use `system-design/02-prd/versions/review/round-{N-1}/05-updated-prd.md`
 
-3. **Copy source to round folder**: Copy the source PRD to `system-design/02-prd/versions/round-[N]/00-prd.md`. All agents in this round work from this copy.
+3. **Copy source to round folder**: Copy the source PRD to `system-design/02-prd/versions/review/round-[N]/00-prd.md`. All agents in this round work from this copy.
 
 4. **Update state file** at each step transition
 
 ### State File Format
 
 ```markdown
-# PRD Review Workflow State
+# PRD Workflow State
 
-**PRD**: 02-prd/prd.md
 **Blueprint**: 01-blueprint/blueprint.md
+**PRD**: 02-prd/prd.md
+**Current Workflow**: Review
 **Current Round**: 1
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | BLOCKED_UPSTREAM_ISSUE | COMPLETE
 **On Response**: (When WAITING_FOR_HUMAN) Spawn discussion-facilitator agents for issues needing response. Do NOT answer in chat.
@@ -67,14 +68,14 @@ Update the state file:
 
 **Output directory**: `system-design/02-prd/versions`
 **State file**: `system-design/02-prd/versions/workflow-state.md`
-**Working files**: `system-design/02-prd/versions/round-[N]/`
+**Working files**: `system-design/02-prd/versions/review/round-[N]/`
 
 **Final outputs** (created by promoter at exit):
 - `system-design/02-prd/prd.md` — Clean current-scope PRD
 - `system-design/02-prd/decisions.md` — Product decision rationale and trade-offs
 - `system-design/02-prd/future.md` — Deferred features and future considerations
 
-Review uses `round-1`, `round-2`, etc. Creation workflow uses `round-0`. Both share this state file.
+Review outputs go under `versions/review/round-1/`, `versions/review/round-2/`, etc. Creation outputs go under `versions/create/`. Both workflows share the `versions/` folder with a unified state file (`Current Workflow` field distinguishes active workflow).
 
 ---
 
@@ -111,26 +112,29 @@ Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 
 ```
 versions/
-├── workflow-state.md          # Tracks current round/step for resume (shared)
-├── round-0/                   # Creation workflow output (if used)
-│   └── ...
-├── round-1/                   # First review round
-│   ├── 00-prd.md                  # Snapshot of input (copied at round start)
-│   ├── 01-product-manager.md
-│   ├── 01-commercial.md
-│   ├── 01-customer-advocate.md
-│   ├── 01-operator.md
-│   ├── 01-compliance-legal.md
-│   ├── 02-consolidated-issues.md   # Full detail
-│   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
-│   ├── 04-author-output.md
-│   ├── 05-updated-prd.md
-│   ├── 06-change-verification-report.md
-│   ├── 07-alignment-report.md
-│   ├── 08-verification-summary.md
-│   └── 09-pending-issue-sync.md      # If pending issues were synced
-└── round-2/
-    └── ...
+├── workflow-state.md          # Tracks current workflow/round/step for resume (shared)
+├── create/                    # Creation workflow outputs
+│   └── round-{N}/
+│       ├── explore/
+│       └── [generate files]
+└── review/                    # Review workflow outputs
+    ├── round-1/               # First review round
+    │   ├── 00-prd.md                  # Snapshot of input (copied at round start)
+    │   ├── 01-product-manager.md
+    │   ├── 01-commercial.md
+    │   ├── 01-customer-advocate.md
+    │   ├── 01-operator.md
+    │   ├── 01-compliance-legal.md
+    │   ├── 02-consolidated-issues.md   # Full detail
+    │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
+    │   ├── 04-author-output.md
+    │   ├── 05-updated-prd.md
+    │   ├── 06-change-verification-report.md
+    │   ├── 07-alignment-report.md
+    │   ├── 08-verification-summary.md
+    │   └── 09-pending-issue-sync.md      # If pending issues were synced
+    └── round-2/
+        └── ...
 ```
 
 ---
@@ -234,13 +238,13 @@ Output: [resolved file path]
 1. **Update state file**: Set Step 1, status = IN_PROGRESS
 
 2. **Create round directory and copy input**:
-   - Create `system-design/02-prd/versions/round-[N]/`
+   - Create `system-design/02-prd/versions/review/round-[N]/`
    - Copy source PRD (determined in On Start/Resume) to `round-[N]/00-prd.md`
    - If source doesn't exist, **error and stop**
 
 3. **Spawn expert agents in parallel** using Task tool
    - Pass to each agent:
-     - PRD file path: `system-design/02-prd/versions/round-[N]/00-prd.md`
+     - PRD file path: `system-design/02-prd/versions/review/round-[N]/00-prd.md`
      - Blueprint file path (for alignment checking)
      - Maturity guide path: `guides/02-prd-maturity.md`
      - Output file path (agent writes to it)
@@ -248,7 +252,7 @@ Output: [resolved file path]
    - Agents identify **issues only** (no solutions)
    - Agents include clarifying questions where needed
    - Agents check Blueprint alignment
-   - Agents write directly to `system-design/02-prd/versions/round-[N]/01-[expert-name].md`
+   - Agents write directly to `system-design/02-prd/versions/review/round-[N]/01-[expert-name].md`
 
 4. **Wait for all agents to complete**
 
@@ -263,7 +267,7 @@ Output: [resolved file path]
 8. **Run Consolidator** (MUST spawn as subagent using Task tool - do NOT perform inline)
    - Pass: paths to all expert output files + output path
    - Agent reads expert files, merges issues, groups by theme
-   - Agent writes to `system-design/02-prd/versions/round-[N]/02-consolidated-issues.md`
+   - Agent writes to `system-design/02-prd/versions/review/round-[N]/02-consolidated-issues.md`
 
 9. **Update state file**: Mark Step 2 complete, add history entry
 
@@ -278,8 +282,8 @@ Output: [resolved file path]
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/scope-filter.md
 
     Stage guide: guides/02-prd-guide.md
-    Input: system-design/02-prd/versions/round-[N]/02-consolidated-issues.md
-    Output: system-design/02-prd/versions/round-[N]/03-issues-discussion.md
+    Input: system-design/02-prd/versions/review/round-[N]/02-consolidated-issues.md
+    Output: system-design/02-prd/versions/review/round-[N]/03-issues-discussion.md
     ```
     - Agent filters issues to appropriate level
     - Agent outputs summary format (ID, severity, summary, core question)
@@ -307,10 +311,10 @@ Output: [resolved file path]
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/issue-analyst.md
 
     Context documents:
-    - PRD: system-design/02-prd/versions/round-[N]/00-prd.md
+    - PRD: system-design/02-prd/versions/review/round-[N]/00-prd.md
     - Blueprint: system-design/01-blueprint/blueprint.md
 
-    Issues file: system-design/02-prd/versions/round-[N]/03-issues-discussion.md
+    Issues file: system-design/02-prd/versions/review/round-[N]/03-issues-discussion.md
     Issues: [ID1, ID2, ID3, ...]
     ```
 
@@ -328,7 +332,7 @@ Output: [resolved file path]
 20. **Update state file**: Set Step 4, status = WAITING_FOR_HUMAN
 
 21. **Notify user** issues are ready for discussion
-    - Point them to `system-design/02-prd/versions/round-[N]/03-issues-discussion.md`
+    - Point them to `system-design/02-prd/versions/review/round-[N]/03-issues-discussion.md`
     - Full detail available in `02-consolidated-issues.md` if needed
 
 **STOP: Wait for human response before proceeding.**
@@ -356,10 +360,10 @@ Only proceed to step 22 after the human signals they have responded (e.g., "done
        Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
 
        Context documents:
-       - PRD: system-design/02-prd/versions/round-[N]/00-prd.md
+       - PRD: system-design/02-prd/versions/review/round-[N]/00-prd.md
        - Blueprint: system-design/01-blueprint/blueprint.md
 
-       Issues file: system-design/02-prd/versions/round-[N]/03-issues-discussion.md
+       Issues file: system-design/02-prd/versions/review/round-[N]/03-issues-discussion.md
        Issues: [ID1, ID2, ID3, ...]
        ```
 
@@ -416,7 +420,7 @@ This gate is mandatory. Do not skip it.
     - Pass: paths to PRD (`round-[N]/00-prd.md`) + issues-summary file (with resolved discussions) + output paths
     - Agent reads each resolved discussion's proposed changes from `03-issues-discussion.md`
     - Agent applies the confirmed changes
-    - Agent writes to `system-design/02-prd/versions/round-[N]/04-author-output.md` (changelog) and `system-design/02-prd/versions/round-[N]/05-updated-prd.md`
+    - Agent writes to `system-design/02-prd/versions/review/round-[N]/04-author-output.md` (changelog) and `system-design/02-prd/versions/review/round-[N]/05-updated-prd.md`
 
 28. **Update state file**: Mark Step 5 complete, add history entry
 
@@ -434,13 +438,13 @@ This gate is mandatory. Do not skip it.
     - Pass: paths to issues-summary (with resolutions) + author output + updated PRD + output path
     - Agent verifies each resolution was applied correctly
     - Agent checks for level violations (implementation detail creep)
-    - Agent writes to `system-design/02-prd/versions/round-[N]/06-change-verification-report.md`
+    - Agent writes to `system-design/02-prd/versions/review/round-[N]/06-change-verification-report.md`
 
     **Alignment Verifier** (Step 7) (`{{AGENTS_PATH}}/universal-agents/alignment-verifier.md`):
     - Pass: Updated PRD path, Blueprint path, output path
     - Agent verifies PRD still aligns with Blueprint after changes
     - Agent identifies any pending issues (problems in Blueprint)
-    - Agent writes to `system-design/02-prd/versions/round-[N]/07-alignment-report.md`
+    - Agent writes to `system-design/02-prd/versions/review/round-[N]/07-alignment-report.md`
 
 32. **Wait for both agents to complete**
 
@@ -578,7 +582,7 @@ This gate is mandatory. Do not skip it.
          ```
          Follow the instructions in: {{AGENTS_PATH}}/universal-agents/pending-issue-resolver.md
 
-         Alignment report: system-design/02-prd/versions/round-[N]/07-alignment-report.md
+         Alignment report: system-design/02-prd/versions/review/round-[N]/07-alignment-report.md
 
          Upstream pending-issues:
          - Blueprint: system-design/01-blueprint/versions/pending-issues.md
@@ -590,7 +594,7 @@ This gate is mandatory. Do not skip it.
          - PI-002: APPLY | DEFER | REJECT
          ...
 
-         Output: system-design/02-prd/versions/round-[N]/09-pending-issue-sync.md
+         Output: system-design/02-prd/versions/review/round-[N]/09-pending-issue-sync.md
          ```
 
 46. **If HALT was acknowledged**:
@@ -611,7 +615,7 @@ This gate is mandatory. Do not skip it.
     ```
     Follow the instructions in: {{AGENTS_PATH}}/02-prd/review/promoter.md
 
-    Input: system-design/02-prd/versions/round-[N]/05-updated-prd.md
+    Input: system-design/02-prd/versions/review/round-[N]/05-updated-prd.md
     ```
     - Agent splits the reviewed PRD into three focused documents
     - Agent writes to `system-design/02-prd/prd.md`, `decisions.md`, and `future.md`
