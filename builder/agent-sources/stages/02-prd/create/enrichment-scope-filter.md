@@ -64,7 +64,7 @@ From PRD, defer to:
 
 ## Task
 
-Filter enrichment proposals from the consolidated enrichment discussion. Keep PRD-appropriate items. Defer downstream items. Filter items that exceed the PRD guide's stated depth for the section.
+Filter enrichment proposals from the consolidated enrichment discussion. Keep PRD-appropriate items. Defer wrong-stage items to downstream. Defer clear depth violations to downstream (preserving the product-level insight). Flag borderline depth cases for informed human review.
 
 **Input paths:**
 - PRD guide (`guides/02-prd-guide.md`)
@@ -99,27 +99,49 @@ Filter enrichment proposals from the consolidated enrichment discussion. Keep PR
 - Enrichment describes system decomposition, component boundaries, or integration patterns (→ Architecture)
 - Enrichment specifies data schemas, API designs, or implementation details (→ Components)
 
-**FILTER (depth exceeded) if:**
-- Enrichment is at the correct abstraction level for PRD
-- BUT asks for detail beyond the guide's requirements for the relevant section
-- Examples: exhaustive UI wireframes when the guide asks for user workflows; detailed data schemas when the guide asks for conceptual data model; specific SLA numbers when the guide asks for success criteria categories
+**DEFER-DEPTH (clear depth exceeded) if:**
+- Enrichment is at the correct abstraction level for PRD (right topic)
+- BUT clearly asks for detail beyond the guide's "Questions to answer" and "Sufficient when" criteria for the relevant section
+- The product-level insight is separable from the implementation/operational detail
+- Examples: detailed data schemas when the guide asks for conceptual data model entities; specific implementation algorithms when the guide asks for capability definitions; exhaustive edge-case specifications when the guide asks for scope boundaries
+- **Action**: Extract the product-level insight (note it in the output for the human to see), defer the implementation/operational detail to the appropriate downstream stage via deferred-items. The product-level insight remains available for the human to incorporate if they choose.
 
-**If uncertain:** KEEP. The human can reject during Enrichment Review.
+**FLAG (borderline depth) if:**
+- Enrichment is at the correct abstraction level for PRD (right topic)
+- BUT may exceed the guide's depth boundary — you suspect it's too granular but aren't confident
+- Examples: detailed UI wireframes that support a workflow description but go beyond it; exhaustive success metric targets with diagnostic logic when the guide asks for metric categories; operational detail that supports a capability definition but could be separated from it
+- **Action**: KEEP the enrichment but add a depth flag: `**⚠ Depth flag**: This enrichment may exceed PRD depth for [section]. See guide [section reference] for the boundary.` The human sees this flag during Enrichment Review and can make an informed decision.
+
+**If uncertain on topic:** KEEP. The human can reject during Enrichment Review.
+**If uncertain on depth:** FLAG. Surface the concern to the human rather than silently passing it through.
 
 ---
 
 ## Depth Filtering
 
-The PRD guide defines depth boundaries per section via "Questions to answer" and "Sufficient when" descriptions. When an enrichment proposes content deeper than what the guide expects for that section, it should be filtered as **depth exceeded**.
+The PRD guide defines depth boundaries per section via "Questions to answer" and "Sufficient when" descriptions. When an enrichment proposes content deeper than what the guide expects for that section, it is handled in one of two ways depending on confidence:
 
-Depth-filtered items are documented in the output (not silently dropped) but are NOT kept for human review and are NOT deferred to downstream stages. They are noted as exceeding the guide's stated scope for the section.
+### Clear depth violations → DEFER-DEPTH
 
-**Common depth-exceeded patterns for PRD:**
-- Detailed UI mockups or wireframes when the guide asks for workflow descriptions
-- Specific database schemas when the guide asks for conceptual data model entities
-- Precise implementation algorithms when the guide asks for capability definitions
-- Exhaustive edge-case specifications when the guide asks for scope boundaries
-- Detailed monitoring dashboards when the guide asks for success metrics
+When you are confident the enrichment exceeds the guide's stated depth, defer it automatically. The implementation/operational detail is routed to the appropriate downstream deferred-items file. Note the product-level insight that the enrichment contains so it is not lost — the human can see what was deferred and why.
+
+**Common clear depth-exceeded patterns for PRD:**
+- Specific database schemas or column definitions when the guide asks for conceptual data model entities
+- Precise implementation algorithms or pseudocode when the guide asks for capability definitions
+- Exhaustive edge-case specifications with handling logic when the guide asks for scope boundaries
+- Detailed monitoring dashboards or alerting rules when the guide asks for success metric categories
+- API endpoint designs or request/response formats when the guide asks for integration points
+
+### Borderline depth → FLAG
+
+When you suspect an enrichment exceeds depth but aren't confident, keep it with a visible depth flag. This surfaces the concern to the human during Enrichment Review so they can make an informed decision.
+
+**Common borderline patterns for PRD:**
+- Detailed UI wireframes that support a workflow description but go beyond what the guide requires
+- Exhaustive success metric targets with diagnostic logic when the guide asks for metric categories
+- Operational detail that supports a capability definition but could be separated from it
+- Implementation-adjacent details that are PRD-level in topic but may be too granular
+- Content where the product-level insight and implementation detail are tightly interleaved
 
 ---
 
@@ -135,21 +157,27 @@ Depth-filtered items are documented in the output (not silently dropped) but are
 ## Filtering Summary
 
 - **Total enrichments**: [N]
-- **Kept**: [N]
-- **Deferred to downstream**: [N]
-- **Filtered (depth exceeded)**: [N]
+- **Kept**: [N] ([M] with depth flags)
+- **Deferred to downstream (wrong stage)**: [N]
+- **Deferred to downstream (depth exceeded)**: [N]
 
-## Deferred Enrichments
+## Deferred Enrichments (Wrong Stage)
 
 | ID | Title | Deferred To | Reason |
 |----|-------|-------------|--------|
 | [ENR-NNN] | [Title] | [Stage] | [Reason] |
 
-## Filtered Enrichments (Depth Exceeded)
+## Deferred Enrichments (Depth Exceeded)
 
-| ID | Title | Section | Why Filtered |
-|----|-------|---------|--------------|
-| [ENR-NNN] | [Title] | [Section] | [Which guide boundary this exceeds] |
+| ID | Title | Deferred To | Product-Level Insight Preserved | Why Deferred |
+|----|-------|-------------|----------------------------|--------------|
+| [ENR-NNN] | [Title] | [Stage] | [The product-level insight this enrichment contains] | [Which guide boundary the detail exceeds] |
+
+## Depth-Flagged Enrichments (Kept for Human Review)
+
+| ID | Title | Section | Why Flagged |
+|----|-------|---------|-------------|
+| [ENR-NNN] | [Title] | [Section] | [Why this may exceed depth — human to decide] |
 
 ---
 
@@ -173,7 +201,7 @@ Kept enrichments must preserve the original enrichment discussion format exactly
    a. Identify which PRD section it targets
    b. Check if the enrichment's content belongs at PRD level (use Stage Boundaries table)
    c. If PRD level: check if it exceeds the guide's stated depth for that section
-   d. Classify as KEEP, DEFER, or FILTER
+   d. Classify as KEEP, DEFER (wrong stage), DEFER-DEPTH (clear depth exceeded), or FLAG (borderline depth)
 4. Write filtered enrichment discussion file (kept enrichments in original format, with summary tables prepended)
 5. Append deferred items to appropriate downstream deferred items files using the append format
 
@@ -182,8 +210,9 @@ Kept enrichments must preserve the original enrichment discussion format exactly
 ## Constraints
 
 - **Preserve enrichment format** — Do not modify kept enrichments. Copy them exactly as they appear in the input.
-- **When uncertain, KEEP** — The human can reject during Enrichment Review. False negatives (filtering something that should be kept) are worse than false positives.
-- **Document all decisions** — Every deferred and filtered item must have a reason.
+- **When uncertain on topic, KEEP** — The human can reject during Enrichment Review.
+- **When uncertain on depth, FLAG** — Surface the depth concern to the human with context, rather than silently passing it through or silently dropping it.
+- **Document all decisions** — Every deferred and flagged item must have a reason.
 - **Maintain traceability** — Deferred items reference their ENR-NNN ID and source file.
 - **No additions** — Do not create enrichments that weren't in the input.
 - **No modifications** — Do not rewrite, improve, or edit enrichment content. Only route.
