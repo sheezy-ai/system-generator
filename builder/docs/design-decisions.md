@@ -77,7 +77,7 @@ Design decisions for the system-builder framework. For how the system works, see
 
 **Decision:** Dedicated Scope Filter after Consolidator, before human review. Filters wrong-level content.
 
-**Rationale:** Single responsibility per agent. Human only sees appropriate-level content. Conservative filtering - when uncertain, keep.
+**Rationale:** Single responsibility per agent. Human only sees appropriate-level content. Conservative filtering — when uncertain on topic, keep. When uncertain on depth, flag (see DEC-075).
 
 ---
 
@@ -375,3 +375,13 @@ Design decisions for the system-builder framework. For how the system works, see
 **Decision:** Component Spec review (stage 05) splits its orchestrator into three separate phases managed by a router: pre-discussion (steps 1-5), discussion (single iteration per invocation), and post-discussion (steps 6-12 with action dispatch). Stages 01-04 use a single orchestrator with an inline discussion loop. The discussion phase is architecturally identical in both patterns — the split is not driven by discussion complexity.
 
 **Rationale:** Component specs are the most detailed documents in the system, with the largest expert panels (7 experts across build and ops phases) and the most back-and-forth per review round. In a single orchestrator, the discussion loop accumulates context across iterations as facilitator responses and human replies are read, processed, and carried forward. This context growth caused reliability issues. Splitting into three phases gives each invocation a fresh context window: pre-discussion reads expert output and produces the issues file, discussion reads only the current state of the issues file for one iteration, post-discussion reads the resolved issues and applies changes. The router manages per-component lifecycle (which component, build vs ops, which round) and action dispatch for post-discussion (RUN, APPLY_DECISIONS, PROMOTE) without accumulating discussion context. Stages 01-04 get away with the inline loop because their documents are smaller and produce fewer issues per round.
+
+---
+
+### DEC-075: Three-Tier Depth Filtering
+
+**Decision:** The Enrichment Scope Filter uses three tiers for depth handling: (1) **auto-defer** clear depth violations to downstream deferred-items (preserving the strategic insight), (2) **flag** borderline cases for informed human review, (3) **keep** content clearly at the right depth. The Operator review expert is widened to flag operational/procedural over-specification (not just implementation detail). Issue Analyst and Discussion Facilitator default to recommending deferral for depth-flagged content, delegating to human only when genuinely unsure.
+
+**Rationale:** Blueprint review round 2 discovered substantial operational/procedural detail (specific process frameworks, metrics targets with diagnostic logic, decision procedures) that survived the entire creation pipeline and wasn't caught until expert review. Root cause analysis identified five filtering points, all permissive by design: the Enrichment Scope Filter's binary keep/drop with a keep bias, the Enrichment Author's deference to human acceptance, the Generator's assumption that enrichments are pre-vetted, the Operator expert's blind spot for operational (vs implementation) detail, and the Change Verifier's focus on current-round changes only. The fix adds information rather than gates: clear violations are auto-deferred (routing content, not dropping it), borderline cases surface the depth concern to the human explicitly, and downstream agents bias toward deferral for flagged content. This keeps false positives near zero while making it much harder for depth violations to silently accumulate.
+
+**Supersedes:** DEC-026's "when uncertain, keep" — now: when uncertain on topic, keep; when uncertain on depth, flag.

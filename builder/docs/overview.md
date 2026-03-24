@@ -113,7 +113,7 @@ Concept/Upstream ──▶ Generator ──▶ Human augments ──▶ Review W
 - **Human** reviews and fills in answers to open questions
 - **Review Workflow** refines the document through expert review cycles
 
-**Blueprint exception:** Blueprint has a custom create workflow with an Explore phase (strategic dimension exploration, enrichment review), iterative rounds, and a separate Decision Orchestrator. See `01-blueprint.md` for details.
+**Blueprint exception:** Blueprint has a custom create workflow with an Explore phase (strategic dimension exploration, enrichment review with three-tier depth filtering), iterative rounds, and a separate Decision Orchestrator. See `01-blueprint.md` for details.
 
 **PRD exception:** PRD has a custom create workflow with an Explore phase (capability area decomposition, parallel explorers, enrichment review), iterative rounds, and inline decision resolution. See `02-prd.md` for details.
 
@@ -148,8 +148,9 @@ Agents are either **universal** (apply to all stages) or **stage-specific** (tai
 
 **Universal agents in standard workflows:**
 - **Scope Filter** - Filters content to the appropriate abstraction level
-- **Alignment Verifier** - Verifies document aligns with its source documents
+- **Issue Analyst** - Analyses issues with options and recommendations before human review
 - **Discussion Facilitator** - Facilitates iterative discussions to resolve issues (batched, with context)
+- **Alignment Verifier** - Verifies document aligns with its source documents
 - **Human Guidelines** - Guidance for human reviewers (reference, not an agent)
 
 **Universal agents triggered manually (optional):**
@@ -279,7 +280,7 @@ Workflows use round numbers to track iterations:
 - `round-0`: Create workflow (initial document creation)
 - `round-1`, `round-2`, ...: Review workflow cycles
 
-**Blueprint exception:** Blueprint's create workflow supports multiple rounds (`round-0`, `round-1`, ...) before promotion. Round 0 explores from `concept.md`, round 1+ explores from the previous round's draft. Review rounds continue from where create left off.
+**Blueprint exception:** Blueprint's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from `concept.md`, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
 
 **PRD exception:** PRD's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from `blueprint.md`, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
 

@@ -52,7 +52,7 @@ Blueprint uses four domain experts for the Review workflow:
 | **Strategist** | STRAT | Vision, positioning, strategic coherence, phasing, "why now" |
 | **Commercial** | COMM | Business model, revenue, unit economics, pricing, sustainability |
 | **Customer Advocate** | CUST | User needs, value proposition, user experience, adoption barriers |
-| **Operator** | OPS | Feasibility, dependencies, risks, operational complexity |
+| **Operator** | OPS | Feasibility, dependencies, risks, operational complexity, over-specification (operational/procedural detail) |
 
 ---
 
@@ -78,19 +78,19 @@ Blueprint has a custom create workflow, unlike the generic Setup → Generate �
 **Flow:** Setup → [Explore → Generate → Gap Resolution]* → Extract (promote + scope brief)
 
 The explore→generate cycle iterates for as many rounds as the human wants:
-- **Round 0** explores from `concept.md`
-- **Round 1+** explores from the previous round's draft
+- **Round 1** explores from `concept.md`
+- **Round 2+** explores from the previous round's draft
 - The human exits the loop by choosing to promote at Gap Resolution
 
-### Explore Phase (Steps 1-7)
+### Explore Phase (Steps 1-8)
 
-Identifies strategic dimensions of the concept, spawns parallel explorers for each dimension, consolidates enrichment proposals, and facilitates human review. Enrichments marked as simple are accepted into the Blueprint; meaty strategic choices are routed to the Decision Orchestrator.
+Identifies strategic dimensions of the concept, spawns parallel explorers for each dimension, consolidates enrichment proposals, filters by scope and depth, and facilitates human review. Enrichments marked as simple are accepted into the Blueprint; meaty strategic choices are routed to the Decision Orchestrator. The Enrichment Scope Filter applies three-tier depth handling: clear depth violations are auto-deferred to downstream, borderline cases are flagged for informed human review, and appropriate content passes through.
 
-### Generate Phase (Steps 8-9)
+### Generate Phase (Steps 9-10)
 
 Generates a draft Blueprint from the primary source + accepted enrichments + any resolved decisions. Pending decisions are marked as gap markers. The human then reviews gaps and chooses to promote, answer gaps, or do another round.
 
-### Extract Phase (Steps 10-11)
+### Extract Phase (Steps 11-12)
 
 Promotes the final draft to `blueprint.md` and extracts `scope-brief.md` for downstream stages.
 
@@ -112,6 +112,7 @@ agents/01-blueprint/
 │   ├── dimension-identifier.md      # Identifies strategic dimensions
 │   ├── dimension-explorer.md        # Explores one dimension deeply
 │   ├── exploration-consolidator.md  # Merges explorer outputs
+│   ├── enrichment-scope-filter.md   # Filters enrichments by level/depth (three-tier)
 │   ├── enrichment-author.md         # Produces exploration summary
 │   ├── decision-orchestrator.md     # Handles one decision (separate workflow)
 │   ├── decision-framework.md        # Defines decision criteria with human
@@ -142,33 +143,38 @@ system-design/01-blueprint/
 ├── scope-brief.md                     # Extracted scope for downstream stages
 ├── decisions/                         # Decision analysis (one folder per decision)
 │   └── {decision-name}/
+│       ├── context.md                 # Originating context (written at registration)
 │       ├── framework.md               # Evaluation criteria (human-approved)
-│       └── analysis.md                # Options evaluated, final decision
+│       ├── analysis.md                # Options evaluated, final decision
+│       └── additional-context.md      # Supplementary context routed later (optional)
 └── versions/
     ├── deferred-items.md              # Items deferred from concept
     ├── pending-issues.md              # Issues logged against this stage
     ├── out-of-scope.md                # Non-documentation content from concept
     ├── workflow-state.md              # Unified workflow state (shared with Review)
-    ├── explore/                       # Round 0 explore outputs
-    │   ├── 00-dimensions.md
-    │   ├── 01-explorer-*.md
-    │   ├── 02-enrichment-discussion.md
-    │   └── 03-exploration-summary.md
-    ├── round-0/                       # Round 0 generate outputs
-    │   ├── 00-draft-blueprint.md
-    │   └── ...
-    ├── round-{N}/                     # Round N (N≥1) — explore + generate together
-    │   ├── explore/
+    ├── create/                        # All creation round outputs
+    │   ├── round-1/                   # Round 1 (from concept)
+    │   │   ├── explore/
+    │   │   │   ├── 00-dimensions.md
+    │   │   │   ├── 01-explorer-*.md
+    │   │   │   ├── 02-enrichment-discussion.md
+    │   │   │   ├── 02a-filtered-enrichment-discussion.md
+    │   │   │   └── 03-exploration-summary.md
+    │   │   ├── 00-draft-blueprint.md
     │   │   └── ...
-    │   ├── 00-draft-blueprint.md
-    │   └── ...
-    └── round-{R}/                     # Review workflow rounds (after promotion)
-        ├── 01-[expert].md
-        ├── 02-consolidated-issues.md
-        ├── 03-issues-discussion.md
-        ├── 04-author-output.md
-        ├── 05-updated-blueprint.md
-        └── 06-alignment-report.md
+    │   └── round-{N}/                 # Round N (N≥2) — from previous draft
+    │       ├── explore/
+    │       │   └── ...
+    │       └── ...
+    └── review/                        # All review round outputs
+        └── round-{N}/
+            ├── 00-blueprint.md            # Snapshot of input
+            ├── 01-[expert].md
+            ├── 02-consolidated-issues.md
+            ├── 03-issues-discussion.md
+            ├── 04-author-output.md
+            ├── 05-updated-blueprint.md
+            └── 06-change-verification-report.md
 ```
 
 **Downstream deferred items (for Blueprint content that's too detailed):**
@@ -222,4 +228,8 @@ Blueprint is the most strategic level. Common level violations:
 | "Email extraction bootstraps supply" | "Using Claude 3.5 with structured output" |
 | "Phase 1 validates core hypothesis" | "Phase 1 has 6 stages with exit criteria" |
 | "Consumer-first design principle" | "Homepage has search bar and category grid" |
+| "Pre-validation is a design research phase" | "Seven specific learning objectives with assessment framework" |
+| "Completeness and accuracy are different problems" | "90%+ completeness target, below 70% unacceptable, diagnostic logic" |
+
+Note: The last two examples illustrate **operational/procedural** over-specification — content that is Blueprint-level in topic but exceeds the guide's stated depth. The strategic insight belongs in the Blueprint; the procedural detail (specific process frameworks, metrics targets with thresholds, decision procedures) belongs in the PRD. The Enrichment Scope Filter auto-defers clear depth violations and flags borderline cases for human review.
 

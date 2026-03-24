@@ -38,6 +38,12 @@ For a high-level overview, see `overview.md`.
     │                        │                                                │
     │                        ▼                                                │
     │               ┌─────────────────┐                                       │
+    │               │ Issue Analyst   │                                       │
+    │               │ (pre-analysis)  │                                       │
+    │               └────────┬────────┘                                       │
+    │                        │                                                │
+    │                        ▼                                                │
+    │               ┌─────────────────┐                                       │
     │               │  Human Review   │◄───────────── Stop point 1            │
     │               │ (mark issues)   │                                       │
     │               └────────┬────────┘                                       │
@@ -144,7 +150,7 @@ Each expert reviews the document within their domain and identifies issues.
 - **Theoretical**: Could be a problem under certain conditions
 
 **Constraints:**
-- Maximum 7 issues per expert
+- Maximum 12 issues per expert (see DEC-010)
 - No solutions—issues and questions only
 - Each expert has a code prefix (e.g., STRAT, COMM, CUST, OPS)
 
@@ -212,7 +218,32 @@ The Scope Filter filters content to ensure only stage-appropriate issues proceed
 - **Defer**: Issues that belong in a downstream stage
 - **When uncertain**: Keep (human can mark N/A)
 
-**Output location:** `system/[stage]/versions/round-N/03-issues-for-review.md`
+**Output location:** `system/[stage]/versions/round-N/03-issues-discussion.md`
+
+---
+
+### Step 3b: Issue Analysis
+
+**Agent:** Issue Analyst (universal)
+
+The Issue Analyst pre-analyzes each issue with options, trade-offs, and a recommendation before the human sees it. This gives the human everything they need to make a decision without follow-up questions.
+
+**Process:**
+1. Read the document being reviewed and any upstream documents
+2. Read the filtered issues file
+3. For each assigned issue: assess validity, analyze options, provide recommendation
+4. Edit the issues file inline, adding `>> AGENT:` analysis blocks
+
+**Analysis structure:**
+- **Full analysis** (default): Options with pros/cons/risks, clear recommendation
+- **Challenge** (if issue is invalid): Explain why, recommend closing
+- **Question** (if human context needed): Ask specific question that would unlock the analysis
+
+**Depth-flagged content:** When an issue concerns content flagged as potentially exceeding the document's abstraction level, the analyst defaults to recommending deferral to the appropriate downstream stage unless genuinely unsure, in which case they delegate the depth call to the human.
+
+**Batching:** Issues are grouped by document section (~5-7 per batch) and analyst agents run in parallel, one per batch.
+
+**Output:** Inline edits to `system/[stage]/versions/round-N/03-issues-discussion.md`
 
 ---
 
@@ -361,6 +392,8 @@ The Alignment Verifier ensures the updated document still aligns with its source
 
 **Output location:** `system/[stage]/versions/round-N/06-alignment-report.md`
 
+**Note:** Blueprint skips this step — its source (concept document) is informal, so alignment verification is not applicable (see DEC-035). Blueprint goes directly from Author (Step 5) to Change Verification (Step 7), and uses `06-change-verification-report.md` for the verifier output.
+
 ---
 
 ### Step 7: Verify Changes
@@ -399,6 +432,8 @@ The Change Verifier confirms changes were applied correctly and at appropriate l
 | Phase goals | Stage definitions with exit criteria |
 | User segment descriptions | Personas with detailed attributes |
 | Principle statements | Implementation rules |
+| "Pre-validation is a design research phase" | "Seven specific learning objectives with assessment framework" |
+| "Completeness and accuracy are different problems" | "90%+ target, below 70% unacceptable, diagnostic logic" |
 
 **Routing based on results:**
 | Result | Action |
@@ -430,16 +465,19 @@ After final round, manually copy the updated document to the stage's main locati
 
 ```
 system/[stage]/versions/round-N/
+├── 00-[document].md            # Snapshot of input (copied at round start)
 ├── 01-[expert-1].md            # Expert outputs
 ├── 01-[expert-2].md
 ├── ...
 ├── 02-consolidated-issues.md   # Consolidator output (full detail)
-├── 03-issues-discussion.md     # Scope Filter output + inline discussions
+├── 03-issues-discussion.md     # Scope Filter output + Issue Analyst analysis + inline discussions
 ├── 04-author-output.md         # Author change log
 ├── 05-updated-[document].md    # Updated document
 ├── 06-alignment-report.md      # Alignment Verifier output
 └── 07-change-verification-report.md  # Change Verifier output
 ```
+
+**Blueprint exception:** Blueprint skips Alignment Verification (Step 6), so uses `06-change-verification-report.md` instead. Output is under `versions/review/round-N/` rather than `versions/round-N/`.
 
 ---
 
@@ -462,6 +500,7 @@ State file: `system/[stage]/versions/workflow-state.md`
 - [x] Step 1: Expert Review
 - [x] Step 2: Consolidation
 - [x] Step 3: Scope Filter
+- [ ] Step 3b: Issue Analysis
 - [ ] Step 4: Discussion
 - [ ] Step 5: Apply Changes
 - [ ] Step 6: Alignment Verification
@@ -480,7 +519,7 @@ State updates at each step transition. Workflow can be resumed from any step.
 
 | Steps | Behaviour |
 |-------|-----------|
-| 1 → 2 → 3 | Automatic (no human stops) |
+| 1 → 2 → 3 → 3b | Automatic (no human stops) |
 | Step 4 | **Stop**: Human participates in discussions until all resolved |
 | After 6 (if HALT) | **Stop**: Upstream blocker found, human confirms |
 | After 7 | **Stop**: Human decides next round or exit |

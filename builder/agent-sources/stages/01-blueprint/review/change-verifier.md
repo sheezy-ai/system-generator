@@ -155,6 +155,8 @@ When verifying, check that changes stay at Blueprint level:
 | Principle statements | Implementation rules |
 | Risk categories | Mitigation implementation details |
 | "We will extract events from emails" | "We will use LLM with specific prompt structure" |
+| "Pre-validation is a design research phase" | "Seven specific learning objectives with assessment framework" |
+| "Completeness and accuracy are different problems" | "90%+ target, below 70% unacceptable, diagnostic logic" |
 
 ---
 

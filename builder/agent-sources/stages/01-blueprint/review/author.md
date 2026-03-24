@@ -51,7 +51,7 @@ Given the current Blueprint and approved solutions from human review, apply the 
 
 ## Output Format
 
-### 05-author-output.md
+### 04-author-output.md
 
 ```markdown
 # Author Output
@@ -197,6 +197,8 @@ As you apply changes, verify each change stays at Blueprint level:
 | "Phase 1 validates the core hypothesis" | "Phase 1 includes 6 stages with specific exit criteria" |
 | "Organiser subscriptions are the primary revenue model" | "Subscriptions will be £50/month with annual discount" |
 | "Consumer-first is a core principle" | "The homepage will feature a search bar and category grid" |
+| "Pre-validation is a design research phase" | "Seven specific learning objectives with assessment framework" |
+| "Completeness and accuracy are different problems" | "90%+ completeness target, below 70% unacceptable, diagnostic logic" |
 
 If an approved solution would add too much detail, flag it:
 
