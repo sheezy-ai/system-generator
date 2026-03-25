@@ -187,6 +187,7 @@ Enrichments Rejected: [N]
 - You CREATE structure files (deferred-items.md, pending-issues.md, gap-resolutions.md)
 - You COPY the final draft to `prd.md` (promotion)
 - You DO NOT write draft content, exploration content, or author output — agents do that
+- You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
 - Spawn agents in FOREGROUND (not background) — agents need interactive approval for file writes
 
 ### Path Resolution
@@ -467,6 +468,8 @@ Only proceed to step 3 after the human signals they have responded.
     b. **Interpret and confirm** — For each enrichment with a human response, follow this two-phase process:
 
        **Phase 1 — Interpret intent**: Read the human's natural language response and classify into one of:
+
+       **Prerequisite — Verify explicit positive signal**: Before classifying any response as an ACCEPT variant (ACCEPT, ACCEPT WITH MODIFICATION, ACCEPT WITH DISCUSSION), verify that the response contains an explicit positive signal — words like "happy", "agree", "accept", "yes", "good", "reasonable", or clear positive sentiment. Substantive engagement with an enrichment (questions, challenges, alternative proposals) is not an implicit positive signal. If no explicit positive signal is present, the response is QUESTION/DISCUSSION or REJECT — it cannot be any form of acceptance.
 
        - **ACCEPT**: Clear agreement with the enrichment as proposed, with no questions, observations, or concerns. Indicators: "happy with", "accept", "agree", "yes", clean positive sentiment only.
        - **REJECT**: Clear disagreement or statement that the enrichment should not be included. Indicators: "disagree", "reject", "not needed", "no", substantive disagreement with the enrichment's premise.
