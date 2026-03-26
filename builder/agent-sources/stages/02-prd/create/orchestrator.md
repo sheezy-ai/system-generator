@@ -37,6 +37,7 @@ Files within the explore directory:
 
 **Generate phase outputs** (in `versions/create/round-{N}/`):
 - `00-draft-prd.md`
+- `00-enrichment-applicator-output.md` (round 2+ only)
 - `01-gap-resolutions.md`
 - `02-author-output.md`
 - `03-updated-prd.md`
@@ -57,7 +58,8 @@ agents/02-prd/create/
 ├── exploration-consolidator.md        # Merges explorer outputs
 ├── enrichment-scope-filter.md         # Filters enrichments by level/depth
 ├── enrichment-author.md               # Produces exploration summary
-├── generator.md                       # Creates draft from Blueprint + enrichments
+├── generator.md                       # Creates draft from Blueprint + enrichments (round 1)
+├── enrichment-applicator.md          # Applies enrichments to existing draft (round 2+)
 └── author.md                          # Applies gap resolutions to draft
 
 agents/universal-agents/
@@ -85,6 +87,7 @@ system-design/02-prd/
     │   │   │   ├── 02a-filtered-enrichment-discussion.md
     │   │   │   └── 03-exploration-summary.md
     │   │   ├── 00-draft-prd.md
+    │   │   ├── 00-enrichment-applicator-output.md  # Round 2+ only
     │   │   ├── 01-gap-resolutions.md
     │   │   ├── 02-author-output.md
     │   │   └── 03-updated-prd.md
@@ -153,7 +156,7 @@ system-design/02-prd/
 - [ ] Step 8: Enrichment Author
 
 ### Phase 2: Generate
-- [ ] Step 9: Run Generator
+- [ ] Step 9: Generate or Apply Enrichments
 - [ ] Step 10: Gap Resolution
 
 ### Phase 3: Promote
@@ -565,9 +568,15 @@ Only proceed to step 3 after the human signals they have responded.
 
 ## Phase 2: Generate
 
-### Step 9: Run Generator
+### Step 9: Generate or Apply Enrichments
 
-**On resume**: If Step 9 already marked complete, verify `{round-dir}/00-draft-prd.md` exists and skip to Step 10. Do NOT re-run the Generator (it appends to downstream deferred items files and would create duplicates).
+**On resume**: If Step 9 already marked complete, verify `{round-dir}/00-draft-prd.md` exists and skip to Step 10. For round 1: do NOT re-run the Generator (it appends to downstream deferred items files and would create duplicates).
+
+**Round 1** and **Round 2+** use different approaches:
+- **Round 1**: No prior draft exists — the Generator creates the PRD from scratch using the Blueprint
+- **Round 2+**: A prior draft exists — the Enrichment Applicator applies accepted enrichments as targeted edits to the previous round's draft
+
+#### Round 1: Run Generator
 
 1. **Determine exploration summary path**: Check if `{explore-dir}/03-exploration-summary.md` exists. If yes, include it as input. If no (exploration was skipped or no enrichments accepted), omit it.
 
@@ -595,7 +604,38 @@ Only proceed to step 3 after the human signals they have responded.
 
 4. **Verify output exists** at `{round-dir}/00-draft-prd.md`
 
-5. **Update state file**: Mark "Step 9: Run Generator" complete `[x]`, add history entry
+5. **Update state file**: Mark "Step 9: Generate or Apply Enrichments" complete `[x]`, add history entry
+
+#### Round 2+: Apply Enrichments
+
+1. **Copy previous round's draft** to `{round-dir}/00-draft-prd.md` using Bash cp:
+   ```
+   cp [previous round's latest draft per Path Resolution] {round-dir}/00-draft-prd.md
+   ```
+
+2. **Determine exploration summary path**: Check if `{explore-dir}/03-exploration-summary.md` exists.
+   - **If NO** (exploration was skipped or no enrichments accepted): Draft is already copied with no changes needed. Skip to step 5.
+   - **If YES**: Continue to step 3.
+
+3. **Spawn Enrichment Applicator agent** using Task tool:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/02-prd/create/enrichment-applicator.md
+
+   Input:
+   - Draft PRD: {round-dir}/00-draft-prd.md
+   - Exploration summary: {explore-dir}/03-exploration-summary.md
+   - PRD guide: {{GUIDES_PATH}}/02-prd-guide.md
+
+   Output:
+   - Updated PRD: {round-dir}/00-draft-prd.md (edit in place)
+   - Change log: {round-dir}/00-enrichment-applicator-output.md
+   ```
+
+4. **Wait for Enrichment Applicator to complete**
+
+5. **Verify output exists** at `{round-dir}/00-draft-prd.md`
+
+6. **Update state file**: Mark "Step 9: Generate or Apply Enrichments" complete `[x]`, add history entry
 
 ### Step 10: Gap Resolution (`WAITING_FOR_HUMAN`)
 
