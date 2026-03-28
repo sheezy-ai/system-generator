@@ -391,6 +391,10 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - **Selections, not configuration**: No specific timeout values, retention periods, instance counts, coverage targets, or exact header values. These belong in Architecture or Component Specs. The guide's test: if you're specifying a number, duration, or size, it's probably configuration.
 - **Cross-cutting test**: Before including a convention, ask: would a developer of a *different* component need this? If not, defer it downstream.
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The generation decisions are yours to make — read, analyse, and write the output files.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

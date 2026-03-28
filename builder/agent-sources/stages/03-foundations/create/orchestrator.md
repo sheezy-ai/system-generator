@@ -141,6 +141,7 @@ system-design/03-foundations/
 - You CREATE structure files (deferred-items.md, pending-issues.md)
 - You COPY the final draft to `foundations.md` (promotion)
 - You DO NOT write draft Foundations content, gap discussion content, or author output — agents do that
+- You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
 
 ### Step 1: Validate Prerequisites
 
@@ -527,6 +528,8 @@ This gate is mandatory. Do not skip it.
 - Steps 1 → 2 → 3 → 3b → 3c (spawn assessor): Proceed automatically through assessor generation
 - Steps 3c (after human response) → 4 → 5: Proceed automatically through to gap analysis
 - Step 7 → 8: Execute after all gaps resolved
+
+**Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads. If a read is not in the step instructions, do not perform it — agents read their own inputs.
 
 **Human checkpoints:**
 - **Step 3c** — WAITING FOR HUMAN for assessment directional preferences
