@@ -229,6 +229,12 @@ Same as Create verifier, plus:
 - **Regression severity** - Regressions are always CRITICAL
 - **Preserve history** - When resolving pending-issues, preserve original content
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The verification decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

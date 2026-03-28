@@ -152,6 +152,12 @@ For each issue, use this structure:
 - **Do not propose solutions** - only identify and describe issues
 - **Pre-output self-check**: Before finalising, re-read the Scope of Review. Drop any issue that doesn't fit categories (a)–(d). Verify each severity is calibrated to the project's maturity level.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The review decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

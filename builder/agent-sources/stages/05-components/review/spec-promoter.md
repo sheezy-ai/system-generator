@@ -325,6 +325,12 @@ This ensures consistent 3-doc structure regardless of content volume.
 
 ---
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The promotion decisions are yours to make — read, analyse, and write the output files.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

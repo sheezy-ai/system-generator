@@ -123,6 +123,12 @@ For each issue, use this structure:
 - **Do not flag implementation details** - those belong in PRD/Tech Specs, not Blueprint
 - **Pre-output self-check**: Before writing output, verify every issue maps to category (a), (b), (c), or (d). If an issue doesn't fit any category, drop it
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The review decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

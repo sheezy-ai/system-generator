@@ -256,6 +256,12 @@ This enables tracing any decision back to its originating discussion in `version
 
 ---
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The authoring decisions are yours to make — read, analyse, and write the output files.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

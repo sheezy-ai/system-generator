@@ -185,6 +185,12 @@ If multiple experts identified the same issue:
 - **Order by severity within theme** - HIGH issues first
 - **Keep all issues** - Issue routing is handled by the Issue Router in the next step
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The consolidation decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

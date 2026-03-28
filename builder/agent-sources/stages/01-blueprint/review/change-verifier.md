@@ -168,6 +168,12 @@ When verifying, check that changes stay at Blueprint level:
 - **Be specific** — If something is NOT_RESOLVED, explain exactly what's missing
 - **Check level rigorously** — Blueprint scope creep is a primary failure mode
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The verification decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

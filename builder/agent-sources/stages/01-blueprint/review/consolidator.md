@@ -176,6 +176,12 @@ If multiple experts identified the same issue:
 - **Note original expert source** - Which expert(s) raised each issue
 - **Order by severity within theme** - HIGH issues first
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The consolidation decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

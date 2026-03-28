@@ -211,6 +211,12 @@ If multiple experts identified the same issue:
 - **Order by severity within theme** - HIGH issues first
 - **Keep all issues** - Do not filter; Scope Filter handles filtering in the next step
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The consolidation decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---
