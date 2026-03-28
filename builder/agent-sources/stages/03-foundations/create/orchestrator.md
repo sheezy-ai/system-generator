@@ -148,13 +148,14 @@ system-design/03-foundations/
 **What You Read:**
 - Workflow state file (to determine current step and status)
 - Agent output files (to verify completion and extract counts for handoff messages)
+- PRD in Step 3 (deferred items validation) — this is structural validation (topic addressed yes/no), not content generation
 
 **What You Do NOT Read:**
 - Agent prompt files — agents read their own instructions
-- Input documents being passed to agents (PRD, Foundations, guide, etc.)
-- Any file where you're passing the path to an agent
+- Input documents being passed to agents (PRD for generation, Foundations guide, brief, etc.)
+- Any file where you're passing the path to an agent for content processing
 
-Rule: If a file path appears in your agent invocation, don't read it yourself.
+Rule: If a file path appears in your agent invocation, don't read it yourself. Exception: deferred items validation requires checking whether upstream documents address specific topics.
 
 **Agent Invocation Pattern**
 
