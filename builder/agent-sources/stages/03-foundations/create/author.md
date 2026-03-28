@@ -45,6 +45,8 @@ Given the draft Foundations and resolved gap discussions, apply the changes fait
 5. **Preserve formatting** — Match the existing Foundations style and tone
 6. **Document changes** — Produce clear change log for traceability
 7. **Flag ambiguity** — If a proposed change is unclear, flag it rather than guess
+8. **Check level** — Verify each proposed change stays at Foundations level (selections, not configuration)
+9. **Capture design rationale** — Preserve the "why" from gap discussions alongside the "what" in the document
 
 ---
 
@@ -158,6 +160,89 @@ If a proposed change is ambiguous or conflicts with existing content:
 
 ---
 
+## Level Check While Applying
+
+As you apply changes, verify each change stays at Foundations level. The guide (`guides/03-foundations-guide.md`) defines the boundary: **selections, not configuration**.
+
+| Appropriate (Foundations) | Too Detailed (Flag/Defer) |
+|--------------------------|--------------------------|
+| "We use PostgreSQL" | Connection pool sizes, timeout values |
+| "Structured JSON logging to stdout/stderr" | Log retention period of 90 days |
+| "Exponential backoff for transient failures" | Maximum 3 retries with 1s/2s/4s intervals |
+| "We use offset-based pagination" | page_size=20, max=100, response shape details |
+| "Security headers required on all responses" | HSTS max-age=31536000, CSP default-src 'self' |
+| "Soft delete for auditable entities" | `deleted_at`, `deleted_by`, `deletion_reason` field names |
+
+**The test from the guide:** If you're specifying a number, duration, size, or specific field/parameter name, it's probably configuration, not a foundational decision.
+
+If a proposed change would add configuration-level detail, flag it:
+
+```markdown
+### Change N: GAP-00X — [Brief title]
+- **Action**: FLAGGED
+- **Location**: §[N] [Section Name]
+- **Issue**: Proposed change includes configuration detail ([specific detail]) that belongs in Architecture or Component Specs, not Foundations
+- **Recommendation**: Apply the selection/approach only; defer parameter specifics downstream
+- **Needs**: Human confirmation on level
+```
+
+---
+
+## Design Rationale Documentation
+
+When applying gap resolutions, capture the reasoning — not just the decision. The gap discussion contains the "why" (options considered, trade-offs, human's reasoning). Preserve this in the Foundations document so review experts can assess whether the reasoning was sound.
+
+### Inline Rationale (for localised decisions)
+
+Add HTML comments near the relevant section for small, localised decisions:
+
+```markdown
+## Authentication & Authorization
+
+<!-- Rationale: GAP-010 - NextAuth.js with Google OAuth chosen for single-founder simplicity.
+     Alternatives rejected: Firebase Auth (adds dependency), simple email/password (DIY security risk),
+     Cloud IAP (no local dev support). -->
+
+**Admin authentication**: NextAuth.js (Auth.js) with Google OAuth provider.
+```
+
+### Design Decisions Section (for significant decisions)
+
+For decisions affecting multiple parts of the Foundations or where the trade-off analysis was substantial, add to a "Design Decisions" section at the end of the document (before Open Questions):
+
+```markdown
+## Design Decisions
+
+### DD-001: [Decision Title] (GAP-NNN)
+
+**Decision**: [What was decided]
+
+**Rationale**: [Why — drawn from gap discussion]
+
+**Alternatives considered**:
+- [Option A] — rejected because [reason]
+- [Option B] — rejected because [reason]
+
+**Source**: Creation: GAP-NNN
+```
+
+### When to use which
+
+- **Inline**: Minor conventions, straightforward selections, assumptions validated without debate
+- **Section**: Technology selections with trade-off analysis, decisions where the human overrode the agent recommendation, decisions with significant alternatives considered
+
+---
+
+## Maturity Calibration
+
+Check the PRD for the project's target maturity level (MVP/Prod/Enterprise). When applying gap resolutions:
+
+- **Don't over-spec for MVP**: If a proposed change introduces enterprise-grade complexity for an MVP project, flag it
+- **Don't under-spec for Enterprise**: If a proposed change is too simplistic for an enterprise project, flag it
+- **Match the PRD's stated constraints**: The PRD's operational constraints (solo founder, simplicity preference, etc.) should inform whether a proposed change is appropriate
+
+---
+
 ## Constraints
 
 - **Only process RESOLVED discussions** — Skip any discussion without `>> RESOLVED` marker
@@ -166,6 +251,8 @@ If a proposed change is ambiguous or conflicts with existing content:
 - **Do not extend scope** — A resolution for one gap should not cascade changes to unrelated sections
 - **Flag, don't guess** — If a Proposed Change is ambiguous or conflicts, flag it
 - **Preserve unchanged sections** — Do not modify parts of Foundations not related to resolved discussions
+- **Stay at Foundations level** — If you find yourself writing specific values, field names, or configuration, stop and flag
+- **Capture rationale** — Preserve the "why" from gap discussions, not just the "what"
 
 ---
 
@@ -178,6 +265,9 @@ If a proposed change is ambiguous or conflicts with existing content:
 - [ ] Flagged items clearly explain what clarification is needed
 - [ ] Updated Foundations maintains internal consistency
 - [ ] Unresolved discussions noted in change log as skipped
+- [ ] All changes stay at selections/patterns level (no configuration detail added)
+- [ ] Design rationale documented for significant decisions
+- [ ] Maturity level appropriate for the project's stated constraints
 
 ---
 
