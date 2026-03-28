@@ -6,7 +6,7 @@
 
 Initialize the Foundations stage by setting up structure, generating a draft Foundations document from the PRD, resolving any gaps through structured discussion, and promoting the final draft to `foundations.md` for the Review workflow.
 
-**Flow:** Orchestrator (this) → Generator → Gap Discussion (if gaps) → Author (if gaps) → Promote → Review workflow
+**Flow:** Orchestrator (this) → Assessor → Generator → Gap Discussion (if gaps) → Author (if gaps) → Promote → Review workflow
 
 ---
 
@@ -21,6 +21,7 @@ Run this orchestrator at the start of the Foundations stage, after the PRD is co
 **PRD**: `system-design/02-prd/prd.md`
 **State file**: `system-design/03-foundations/versions/workflow-state.md`
 **Output directory**: `system-design/03-foundations/versions/round-0`
+**Assessment output**: `system-design/03-foundations/versions/round-0/00-assessment.md`
 **Draft output**: `system-design/03-foundations/versions/round-0/00-draft-foundations.md`
 **Gap discussion**: `system-design/03-foundations/versions/round-0/01-gap-discussion.md`
 **Author output**: `system-design/03-foundations/versions/round-0/02-author-output.md`
@@ -39,7 +40,8 @@ Run this orchestrator at the start of the Foundations stage, after the PRD is co
 ```
 agents/03-foundations/create/
 ├── orchestrator.md                    # This file
-├── generator.md                       # Creates draft from PRD
+├── assessor.md                        # Lightweight assessment before generation
+├── generator.md                       # Creates draft from PRD + assessment
 └── author.md                          # Applies resolved gap discussions
 
 agents/universal-agents/
@@ -67,6 +69,7 @@ system-design/03-foundations/
     ├── pending-issues.md          # Issues logged against this stage
     ├── workflow-state.md              # Unified workflow state (shared with Review)
     └── round-0/
+        ├── 00-assessment.md                   # Assessor output
         ├── 00-draft-foundations.md             # Generator output
         ├── 01-gap-discussion.md               # Gap formatter output (if gaps exist)
         ├── 02-author-output.md                # Author changelog (if gaps exist)
@@ -87,7 +90,8 @@ system-design/03-foundations/
 
 2. **Resume logic**:
    - Steps 1-3b (Validate & Setup) are idempotent — always re-run on resume for validation
-   - Step 4 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
+   - Step 3c (Assessor) — if status = WAITING_FOR_HUMAN, re-present assessment; if marked complete, verify assessment file exists and skip
+   - Step 4 (Generator) is non-idempotent — if marked complete, verify draft exists and skip. Generator uses assessment output as additional input.
    - Steps 5-7 conditional on `Gaps Exist` flag — if `false`, skip to Step 8
    - Step 6 can resume at WAITING_FOR_HUMAN — re-read discussion file and continue loop
    - Step 8 (Promote) — if marked complete, workflow is done
@@ -108,6 +112,7 @@ system-design/03-foundations/
 
 ### Round 0 (Creation)
 - [ ] Step 1-3b: Validate & Setup
+- [ ] Step 3c: Run Assessor
 - [ ] Step 4: Run Generator
 - [ ] Step 5: Format & Analyse Gaps
 - [ ] Step 6: Discussion Loop
@@ -132,7 +137,7 @@ system-design/03-foundations/
 
 **Orchestrator Boundaries**
 - You READ input files to validate they exist
-- You SPAWN agents (Generator, Gap Formatter, Discussion Facilitator, Author) to do work
+- You SPAWN agents (Assessor, Generator, Gap Formatter, Discussion Facilitator, Author) to do work
 - You CREATE structure files (deferred-items.md, pending-issues.md)
 - You COPY the final draft to `foundations.md` (promotion)
 - You DO NOT write draft Foundations content, gap discussion content, or author output — agents do that
@@ -208,6 +213,51 @@ system-design/03-foundations/
 
 4. **Update state file**: Mark "Step 1-3b: Validate & Setup" complete `[x]`, add history entry
 
+### Step 3c: Run Assessor
+
+**On resume**: If Step 3c already marked complete, verify `00-assessment.md` exists and skip to Step 4. If status = WAITING_FOR_HUMAN for Step 3c, re-read `00-assessment.md` and present to human (skip to step 4 below).
+
+1. **Spawn Assessor agent** using Task tool:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/03-foundations/create/assessor.md
+
+   Input:
+   - PRD: system-design/02-prd/prd.md
+   - Foundations guide: {{GUIDES_PATH}}/03-foundations-guide.md
+   - Deferred items: system-design/03-foundations/versions/deferred-items.md
+   - Brief: system-design/03-foundations/brief.md (if exists)
+
+   Output: system-design/03-foundations/versions/round-0/00-assessment.md
+   ```
+
+2. **Wait for Assessor to complete**
+
+3. **Verify output exists** at `system-design/03-foundations/versions/round-0/00-assessment.md`
+
+4. **Update state file**: Set status = WAITING_FOR_HUMAN, add history entry "Assessment ready for review"
+
+5. **Present assessment to human**:
+   ```
+   Technology assessment complete.
+
+   Assessment: system-design/03-foundations/versions/round-0/00-assessment.md
+
+   The assessment covers each Foundations technology category with viable options
+   assessed against PRD constraints. Coupled decisions are flagged.
+
+   Please review and share your directional preferences — a sentence or two per
+   open category is sufficient. Items settled by the brief or strongly constrained
+   by the PRD are noted and don't need input unless you disagree.
+
+   When done, let me know and I'll proceed with generation.
+   ```
+
+**STOP: Wait for human response before proceeding.**
+
+6. **After human responds**:
+   - The human's directional preferences inform the Generator's proposals
+   - **Update state file**: Mark "Step 3c: Run Assessor" complete `[x]`, set status = IN_PROGRESS, add history entry "Human provided directional preferences"
+
 ### Step 4: Run Generator
 
 **On resume**: If Step 4 already marked complete, verify `00-draft-foundations.md` exists and skip to Step 5. Do NOT re-run the Generator (it appends to downstream deferred items files and would create duplicates).
@@ -221,6 +271,7 @@ system-design/03-foundations/
    - Foundations guide: {{GUIDES_PATH}}/03-foundations-guide.md
    - Deferred items: system-design/03-foundations/versions/deferred-items.md
    - Brief: system-design/03-foundations/brief.md (if exists)
+   - Assessment: system-design/03-foundations/versions/round-0/00-assessment.md
 
    Output: system-design/03-foundations/versions/round-0/00-draft-foundations.md
 
@@ -463,10 +514,12 @@ This gate is mandatory. Do not skip it.
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 1 → 2 → 3 → 3b → 4 → 5: Proceed automatically through to gap analysis
+- Steps 1 → 2 → 3 → 3b → 3c (spawn assessor): Proceed automatically through assessor generation
+- Steps 3c (after human response) → 4 → 5: Proceed automatically through to gap analysis
 - Step 7 → 8: Execute after all gaps resolved
 
 **Human checkpoints:**
+- **Step 3c** — WAITING FOR HUMAN for assessment directional preferences
 - **Step 6** — WAITING FOR HUMAN for gap discussion until all gaps resolved
 - **Step 5 → 8 skip** — If no gaps, proceed automatically from Step 5 check to Step 8
 
@@ -477,6 +530,8 @@ This gate is mandatory. Do not skip it.
 | Condition | Action |
 |-----------|--------|
 | PRD not found | Error: "Cannot initialize Foundations - PRD not found at system-design/02-prd/prd.md" |
+| Assessor fails | Error: Report failure details |
+| Assessment not created | Error: "Assessor completed but assessment not found at expected path" |
 | Generator fails | Error: Report failure details |
 | Draft not created | Error: "Generator completed but draft not found at expected path" |
 | Gap Formatter fails | Error: Report failure details |

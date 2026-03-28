@@ -20,6 +20,7 @@ Given a PRD, create a draft Foundations document that:
 - Foundations guide (`guides/03-foundations-guide.md`)
 - Validated deferred items (optional, from Step 0)
 - Brief document (optional) — settled decisions, prior work, or prescriptive direction
+- Assessment document (optional) — technology assessment with human directional preferences
 
 **Output:**
 - Draft Foundations with gap markers
@@ -41,9 +42,13 @@ Given a PRD, create a draft Foundations document that:
    - Integration needs
 4. **Read validated deferred items** (if provided) to incorporate upstream gaps/issues marked as STILL_RELEVANT or PARTIALLY_ADDRESSED
 5. **Read brief document** (if provided) to incorporate settled decisions and prescriptive direction
-6. **Defer non-Foundations content** to appropriate files
-7. Generate draft Foundations
-8. **Write all output files** (draft Foundations + deferred items files if needed)
+6. **Read assessment document** (if provided) to incorporate:
+   - Technology option assessments against PRD constraints
+   - Coupled decision analysis
+   - Human directional preferences for each category
+7. **Defer non-Foundations content** to appropriate files
+8. Generate draft Foundations
+9. **Write all output files** (draft Foundations + deferred items files if needed)
 
 ---
 
@@ -77,7 +82,25 @@ If a brief document is provided:
 6. The brief does NOT replace the guide structure — all guide sections must still be present.
    Sections not covered by the brief are generated from the PRD as normal with gap markers.
 
-### Step 0c: Identify and Defer Non-Foundations Content
+### Step 0c: Incorporate Assessment (if provided)
+
+If an assessment document is provided:
+
+1. Read the assessment document completely
+2. The assessment contains:
+   - PRD constraint analysis for each Foundations category
+   - Viable options with trade-offs assessed against PRD constraints
+   - Coupled decision flags
+   - Human directional preferences (responses to the assessment)
+3. For each category where the human stated a preference:
+   - Treat the preference as a settled direction — use prescriptive tone ("We use X") with rationale drawn from the assessment's constraint analysis
+   - Do NOT mark as a gap or assumption unless the human explicitly expressed uncertainty
+4. For categories where the human did not respond or said "no preference":
+   - Use the assessment's constraint analysis to inform your suggestion, but mark as an assumption if the PRD doesn't strongly constrain it
+5. The assessment does NOT replace the guide structure — all guide sections must still be present
+6. If the assessment conflicts with the brief, the brief takes precedence (brief represents settled decisions; assessment represents directional preferences)
+
+### Step 0d: Identify and Defer Non-Foundations Content
 
 Before generating the Foundations, scan the PRD for content that doesn't belong at Foundations level:
 
@@ -109,6 +132,8 @@ Look for PRD content that implies foundational decisions:
 | Scale numbers | Database choice, caching strategy |
 
 **Don't invent requirements** - only extract what the PRD implies or states.
+
+**If assessment provided**: The assessment has already performed this extraction. Use it as a reference to ensure completeness, but verify any constraints against the PRD directly.
 
 ### Step 2: Generate Foundations Sections
 
@@ -340,6 +365,7 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - [ ] All gaps are clearly marked with appropriate marker
 - [ ] Gap Summary at top lists all issues
 - [ ] Brief content incorporated where in scope (no brief decisions re-marked as gaps)
+- [ ] Assessment directional preferences incorporated (human preferences treated as settled, not gap-marked)
 - [ ] No Architecture-level detail (system decomposition, retention periods, scaling thresholds) in Foundations
 - [ ] No Component-level detail (specific APIs, schemas, provider-specific configuration) in Foundations
 - [ ] No configuration values (specific timeouts, instance counts, coverage targets, exact header values)
@@ -359,6 +385,7 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - **Prescriptive tone**: Use "We use X" not "Consider X" for decided items
 - **Brief rationale**: One sentence on why for each decision
 - **Brief-aware**: If a brief provides a decision, use it — don't re-derive from PRD or mark as gap
+- **Assessment-aware**: If an assessment provides human directional preferences, use them as settled direction — don't contradict or re-derive
 - **Foundations level only**: If content is about a specific component, it doesn't belong here
 - **Selections, not configuration**: No specific timeout values, retention periods, instance counts, coverage targets, or exact header values. These belong in Architecture or Component Specs. The guide's test: if you're specifying a number, duration, or size, it's probably configuration.
 - **Cross-cutting test**: Before including a convention, ask: would a developer of a *different* component need this? If not, defer it downstream.

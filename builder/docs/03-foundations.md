@@ -116,6 +116,7 @@ system/03-foundations/
     ├── pending-issues.md        # Issues flagged for upstream review
     ├── workflow-state.md        # Current workflow state
     ├── round-0/                 # Create workflow output
+    │   ├── 00-assessment.md         # Assessor output (technology assessment)
     │   └── 00-draft-foundations.md  # Generator output (human augments this)
     └── round-N/                 # Review workflow output (round 1, 2, etc.)
         ├── 01-infrastructure-architect.md
