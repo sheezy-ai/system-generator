@@ -181,6 +181,10 @@ on final inspection. Deferred to downstream stages.
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The authoring decisions are yours to make — read, collect, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

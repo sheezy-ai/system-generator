@@ -29,8 +29,9 @@ Given the PRD, Foundations, and a single concern assignment, explore that concer
 2. **Read the PRD** to understand the full context of capabilities and scope
 3. **Read the Foundations** to understand technology choices and conventions already decided
 4. **Read the concerns file** to find your assigned concern
-5. **Explore** the concern: investigate alternatives, analyse trade-offs
-6. **Write your output** to the specified file
+5. **Read deferred items** (if provided) — check for upstream gaps relevant to your concern that need Architecture-level resolution
+6. **Explore** the concern: investigate alternatives, analyse trade-offs
+7. **Write your output** to the specified file
 
 ---
 

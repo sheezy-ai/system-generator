@@ -120,6 +120,23 @@ For each accepted enrichment:
 
 ---
 
+## Level Check While Applying
+
+As you apply enrichments, verify each stays at Architecture level. The guide (`guides/04-architecture-guide.md`) defines the boundary: **structure, not implementation**.
+
+| Appropriate (Architecture) | Too Detailed (Flag) |
+|----------------------------|---------------------|
+| "Admin Service: manages sources, curates events" | 15-item capability list with specific workflows |
+| "Async event processing for reliability" | Specific backoff values (1s, 2s, 4s, max 30s) |
+| "Quality gate with auto-publish threshold" | Matching algorithm threshold (Levenshtein > 0.85) |
+| "Data Processing Job: batch pipeline" | Cloud Run Job timeout of 90 minutes |
+
+**The test from the guide:** If content describes a specific component's internal behaviour (capability lists, algorithms, thresholds, SQL, field names), it belongs in Component Specs.
+
+If an enrichment would add implementation-level detail, flag it in the change log rather than applying it blindly.
+
+---
+
 ## Constraints
 
 - **Apply only what's in Proposed Architecture content** — Do not add improvements or changes not in the enrichment
@@ -142,6 +159,10 @@ For each accepted enrichment:
 - [ ] Rejected/superseded enrichments noted in change log as skipped
 
 ---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The application decisions are yours to make — read, apply, and write the output files.
 
 <!-- INJECT: tool-restrictions -->
 

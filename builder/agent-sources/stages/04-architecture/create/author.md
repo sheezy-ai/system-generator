@@ -45,6 +45,8 @@ Given the draft Architecture and resolved gap discussions, apply the changes fai
 5. **Preserve formatting** — Match the existing Architecture style and tone
 6. **Document changes** — Produce clear change log for traceability
 7. **Flag ambiguity** — If a proposed change is unclear, flag it rather than guess
+8. **Check level** — Verify each proposed change stays at Architecture level (structure, not implementation)
+9. **Capture design rationale** — Preserve the "why" from gap discussions alongside the "what" in the document
 
 ---
 
@@ -158,6 +160,90 @@ If a proposed change is ambiguous or conflicts with existing content:
 
 ---
 
+## Level Check While Applying
+
+As you apply changes, verify each stays at Architecture level. The guide (`guides/04-architecture-guide.md`) defines the boundary: **structure, not implementation**.
+
+| Appropriate (Architecture) | Too Detailed (Flag/Defer) |
+|----------------------------|--------------------------|
+| "Admin Service: manages sources, curates events" | 15-item capability list with specific workflows |
+| "Async event processing for reliability" | Specific backoff values (1s, 2s, 4s, max 30s) |
+| "Quality gate with auto-publish threshold" | Matching algorithm threshold (Levenshtein > 0.85) |
+| "Data Processing Job: batch pipeline" | Cloud Run Job timeout of 90 minutes |
+| "Retry policies per Foundations §6" | Restated retry table from Foundations |
+| Component with one-sentence responsibility | Capability list or feature enumeration |
+
+**The test from the guide:** If content describes a specific component's internal behaviour (capability lists, algorithms, thresholds, SQL, field names, entry point commands), it belongs in Component Specs, not Architecture.
+
+If a proposed change would add implementation-level detail, flag it:
+
+```markdown
+### Change N: GAP-00X — [Brief title]
+- **Action**: FLAGGED
+- **Location**: §[N] [Section Name]
+- **Issue**: Proposed change includes implementation detail ([specific detail]) that belongs in Component Specs, not Architecture
+- **Recommendation**: Apply the structural decision only; defer implementation specifics to Component Specs
+- **Needs**: Human confirmation on level
+```
+
+---
+
+## Design Rationale Documentation
+
+When applying gap resolutions, capture the reasoning — not just the decision. The gap discussion contains the "why" (options considered, trade-offs, human's reasoning). Preserve this so review experts can assess whether the reasoning was sound.
+
+### Inline Rationale (for localised decisions)
+
+Add HTML comments near the relevant section:
+
+```markdown
+## 2. Component Decomposition
+
+<!-- Rationale: GAP-003 - Separated extraction pipeline into ingestion and processing components
+     to isolate email download failures from extraction failures. Alternatives: single component
+     (simpler but coupled failure modes), three components (over-decomposed for MVP). -->
+
+### Ingestion Service
+**Responsibility**: Downloads emails and stores raw content for processing
+```
+
+### Design Decisions Section (for significant decisions)
+
+For decomposition choices, data flow patterns, or integration decisions with substantial trade-off analysis:
+
+```markdown
+## Design Decisions
+
+### DD-001: [Decision Title] (GAP-NNN)
+
+**Decision**: [What was decided]
+
+**Rationale**: [Why — drawn from gap discussion]
+
+**Alternatives considered**:
+- [Option A] — rejected because [reason]
+- [Option B] — rejected because [reason]
+
+**Source**: Creation: GAP-NNN
+```
+
+### When to use which
+
+- **Inline**: Minor structural clarifications, assumption validations, straightforward patterns
+- **Section**: Component decomposition decisions, data flow direction choices, integration pattern selections with trade-off analysis
+
+---
+
+## Maturity Calibration
+
+Check the PRD for the project's target maturity level. When applying gap resolutions:
+
+- **Don't over-spec for MVP**: If a proposed change introduces enterprise-grade decomposition for an MVP project (e.g., microservices when a monolith suffices), flag it
+- **Don't under-spec for Enterprise**: If a proposed change is too simplistic for an enterprise project, flag it
+- **Match the PRD's stated constraints**: Solo founder, simplicity preference, etc. should inform whether a proposed structural change is appropriate
+
+---
+
 ## Constraints
 
 - **Only process RESOLVED discussions** — Skip any discussion without `>> RESOLVED` marker
@@ -166,6 +252,8 @@ If a proposed change is ambiguous or conflicts with existing content:
 - **Do not extend scope** — A resolution for one gap should not cascade changes to unrelated sections
 - **Flag, don't guess** — If a Proposed Change is ambiguous or conflicts, flag it
 - **Preserve unchanged sections** — Do not modify parts of Architecture not related to resolved discussions
+- **Stay at Architecture level** — If you find yourself writing capability lists, algorithms, field names, or configuration, stop and flag
+- **Capture rationale** — Preserve the "why" from gap discussions, not just the "what"
 
 ---
 
@@ -178,8 +266,15 @@ If a proposed change is ambiguous or conflicts with existing content:
 - [ ] Flagged items clearly explain what clarification is needed
 - [ ] Updated Architecture maintains internal consistency
 - [ ] Unresolved discussions noted in change log as skipped
+- [ ] All changes stay at structure/patterns level (no implementation detail added)
+- [ ] Design rationale documented for significant decisions
+- [ ] Maturity level appropriate for the project's stated constraints
 
 ---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The authoring decisions are yours to make — read, apply, and write the output files.
 
 <!-- INJECT: tool-restrictions -->
 

@@ -345,6 +345,10 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - **Spec list is key output**: This drives the next stage
 - **Defer, don't drop**: If PRD or Foundations contains Component-level detail, defer it — never silently discard
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The generation decisions are yours to make — read, analyse, and write the output files.
+
 <!-- INJECT: tool-restrictions -->
 
 ---
