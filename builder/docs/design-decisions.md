@@ -4,13 +4,20 @@ Design decisions for the system-builder framework. For how the system works, see
 
 ---
 
-### DEC-001: Simplified Create Workflow
+### DEC-001: Simplified Create Workflow (Superseded)
 
-**Decision:** Create workflow is simplified to: Setup → Generator → Human augments. No experts, consolidator, or author in Create. Review workflow handles all expert review.
+**Original decision:** Create workflow is simplified to: Setup → Generator → Human augments. No experts, consolidator, or author in Create. Review workflow handles all expert review.
 
-**Rationale:** "Gaps are just issues" - review experts can identify both missing decisions (gaps) and problems with existing decisions (issues). Separate Create experts duplicated Review expert domains. Simpler flow: Create produces a draft, human augments it, Review refines it.
+**Original rationale:** "Gaps are just issues" - review experts can identify both missing decisions (gaps) and problems with existing decisions (issues). Separate Create experts duplicated Review expert domains. Simpler flow: Create produces a draft, human augments it, Review refines it.
 
-**Supersedes:** Previous Create workflow with parallel experts, consolidator, scope filter, and author.
+**Superseded by stage-specific create workflows:**
+- **Blueprint**: Explore phase (dimension identification → parallel explorers → enrichment review) + Decision Orchestrator + iterative rounds
+- **PRD**: Explore phase (capability identification → parallel explorers → enrichment review) + Enrichment Applicator for round 2+
+- **Foundations**: Assess step (technology assessment with inline human preferences) + structured gap analysis pipeline
+- **Architecture**: Full explore phase + Enrichment Applicator + independent coverage verification + structured gap analysis pipeline
+- **Components**: Independent coverage verification + structured gap analysis pipeline
+
+**Rationale for supersession:** The original simplified flow produced too many gaps requiring blind proposals. Pre-generation exploration and assessment surface trade-offs and collect human direction before generation, producing better first drafts. Independent coverage verification catches silent omissions. The original principle ("gaps are just issues") remains true for the Review workflow.
 
 ---
 

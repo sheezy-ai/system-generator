@@ -211,6 +211,36 @@ Start or resume the review.
 
 ---
 
+## Custom Create Workflow
+
+Blueprint uses a custom create workflow with an exploration loop, iterative rounds, and a separate Decision Orchestrator.
+
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Extract (promote + scope brief)
+
+**Explore phase:**
+1. **Dimension Identifier** — reads concept and identifies 3-5 strategic dimensions worth exploring
+2. **Human reviews** dimension list (can add, remove, modify, or skip exploration)
+3. **Dimension Explorers** — one per dimension, run in parallel, each proposes 2-5 enrichments with trade-offs
+4. **Exploration Consolidator** — merges explorer outputs, groups by Blueprint section, deduplicates
+5. **Enrichment Scope Filter** — three-tier depth filtering (keep / defer-depth / flag)
+6. **Human reviews** enrichments (accept, reject, modify, route to decision, discuss)
+7. **Enrichment Author** — produces exploration summary for the Generator
+
+**Decision Orchestrator** (separate workflow): For enrichments that require strategic decisions, a separate Decision Orchestrator handles framework definition and analysis. Decisions are registered as pending gaps in the Blueprint until resolved.
+
+**Generate phase:** Generator produces draft using concept + exploration summary + resolved decisions. Gaps presented to human for resolution (provide answers, edit directly, or run another round).
+
+**Multi-round:** Human can say "another round" at gap resolution to run another explore→generate cycle. Round 2+ explores from the previous round's draft.
+
+**Extract phase:** Promoter copies final draft to `blueprint.md` and Scope Extractor produces `scope-brief.md` for downstream stages.
+
+**Human checkpoints:**
+- Dimension review (Step 3)
+- Enrichment review (Step 7)
+- Gap resolution / promote decision (Step 10)
+
+---
+
 ## Blueprint-Specific Considerations
 
 ### No Alignment Verification

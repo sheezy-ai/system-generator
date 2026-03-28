@@ -367,12 +367,16 @@ agents/06-tasks/
 ├── coordinator.md              # Workflow coordination (initialization, tiers, cross-component check, finalization)
 ├── pipeline-runner.md          # Per-component pipeline (extract + generate → check → promote)
 ├── spec-item-extractor.md      # Pre-computes implementable items from source documents
+├── spec-item-reviewer.md       # Reviews extractor output for completeness and accuracy
+├── spec-item-corrector.md      # Applies reviewer findings to produce corrected spec items
 ├── task-generator.md           # Component task generation
 ├── infrastructure-generator.md # Infrastructure task generation
+├── reference-verifier.md       # Verifies cross-component references before quality checking
 ├── coverage-checker.md         # Coverage validation against extracted spec items
 ├── coherence-checker.md        # Coherence validation (provisioning, data flow, cross-component, prerequisites)
 ├── checker-consolidator.md     # Merges coverage + coherence reports
-└── cross-component-checker.md  # Cross-component consistency validation (after all tiers)
+├── cross-component-checker.md  # Cross-component consistency validation (after all tiers)
+└── cross-component-fixer.md    # Applies fixes to copies of affected task files
 ```
 
 **Output locations:**

@@ -102,6 +102,43 @@ Issues: [ID1, ID2, ID3, ...]
 
 ---
 
+### Gap Formatter
+
+**Purpose:** Extracts gap markers and Gap Summary items from a draft document and formats them into the issues-discussion format for structured human-agent discussion.
+
+**Used in:** Create workflow (Foundations, Architecture, Components — stages with gap analysis pipelines)
+
+**Trigger:** Automatic — runs after Generator completes, before Gap Analyst
+
+**How it works:**
+- Reads draft document with gap markers (`[QUESTION]`, `[DECISION NEEDED]`, `[ASSUMPTION]`, etc.)
+- Parses Gap Summary section to determine severity (Must Answer → HIGH, Should Answer → MEDIUM, Assumptions → LOW)
+- Scans for orphaned inline markers not in the Gap Summary
+- Produces a structured discussion file with `>> HUMAN:` placeholders
+
+**Prompt:** `agents/universal-agents/gap-formatter.md`
+
+---
+
+### Gap Analyst
+
+**Purpose:** Proactive analysis of gaps before human review. Proposes solutions with options, trade-offs, and recommendations so the human has a head start on each decision.
+
+**Used in:** Create workflow (Foundations, Architecture, Components — stages with gap analysis pipelines)
+
+**Trigger:** Automatic — runs after Gap Formatter, before presenting gaps to human
+
+**How it works:**
+- Reads draft document and upstream documents for context
+- For each assigned gap, analyses options with pros/cons/risks/costs
+- Writes inline `>> AGENT:` blocks in the gap discussion file
+- Includes `**Proposed [Document] change**:` blocks for fast-path acceptance
+- Unlike Issue Analyst (which assesses review issues that may or may not be valid), every gap IS a genuine unknown that needs an answer
+
+**Prompt:** `agents/universal-agents/gap-analyst.md`
+
+---
+
 ## Specialist Agents
 
 These agents are not part of standard workflows. Invoke them manually when needed.
@@ -149,5 +186,6 @@ These agents are universal because their logic is stage-agnostic:
 - **Issue Analyst** - Same analytical approach, provides options/recommendations for any domain
 - **Pending Issue Resolver** - Same sync mechanics, resolves upstream issues regardless of stage
 - **Gap Formatter** - Same gap extraction mechanics across all stages
+- **Gap Analyst** - Same analytical approach as Issue Analyst, adapted for gaps (every gap needs an answer, unlike issues which may be invalid)
 
 Stage-specific agents (experts, consolidators) require domain knowledge. Universal agents provide consistent cross-cutting functionality.
