@@ -392,3 +392,47 @@ Design decisions for the system-builder framework. For how the system works, see
 **Rationale:** Blueprint review round 2 discovered substantial operational/procedural detail (specific process frameworks, metrics targets with diagnostic logic, decision procedures) that survived the entire creation pipeline and wasn't caught until expert review. Root cause analysis identified five filtering points, all permissive by design: the Enrichment Scope Filter's binary keep/drop with a keep bias, the Enrichment Author's deference to human acceptance, the Generator's assumption that enrichments are pre-vetted, the Operator expert's blind spot for operational (vs implementation) detail, and the Change Verifier's focus on current-round changes only. The fix adds information rather than gates: clear violations are auto-deferred (routing content, not dropping it), borderline cases surface the depth concern to the human explicitly, and downstream agents bias toward deferral for flagged content. This keeps false positives near zero while making it much harder for depth violations to silently accumulate.
 
 **Supersedes:** DEC-026's "when uncertain, keep" — now: when uncertain on topic, keep; when uncertain on depth, flag.
+
+---
+
+### DEC-076: Foundations Assessor Step
+
+**Decision:** Foundations creation includes a lightweight assessment step between setup and generation. The Assessor reads the PRD and Foundations guide, evaluates 2-3 options per technology category against PRD constraints, identifies coupled decisions, and presents a structured assessment with `>> HUMAN:` placeholders for inline directional preferences. The Generator then uses the human's preferences as settled direction.
+
+**Rationale:** The original Foundations workflow generated blind proposals for all technology decisions, producing 42 gaps requiring multi-round discussion (9 of which needed back-and-forth). Pre-generation assessment with human direction reduces gaps by settling most decisions before the Generator runs. Inline `>> HUMAN:` responses persist in the assessment file, surviving workflow resume — unlike conversation-context preferences that would be lost. Foundations is a selection problem (pick technologies) not a design problem (explore structure), so a lightweight assessor is sufficient — no full exploration loop needed.
+
+**Supersedes:** DEC-001 for Foundations stage.
+
+---
+
+### DEC-077: Architecture Exploration Loop
+
+**Decision:** Architecture creation uses the full explore→generate pattern from Blueprint/PRD: concern identification → parallel concern explorers → consolidation → scope filtering → human enrichment review → enrichment author → generator. Supports multi-round iteration and an Enrichment Applicator for round 2+ (targeted edits, not regeneration).
+
+**Rationale:** Architecture involves design problems (system decomposition, component boundaries, data flow patterns, integration approaches) where multiple viable alternatives exist. Unlike Foundations (technology selection from a menu), Architecture decisions have significant trade-off space that benefits from structured exploration before committing to a draft. The Foundations assessor pattern was considered but rejected as insufficient for the design complexity. The Blueprint/PRD exploration loop was adapted with Architecture-specific concerns (structural alternatives, not strategic dimensions or capability decomposition).
+
+**Supersedes:** DEC-001 for Architecture stage.
+
+---
+
+### DEC-078: Independent Coverage Verification for Derived Stages
+
+**Decision:** Architecture and Components creation includes an independent requirements extraction + coverage checking step after generation. A Requirements Extractor reads the upstream document (PRD for Architecture, Architecture for Components) and produces a requirements checklist. A Coverage Checker then verifies the draft addresses every checklist item. Gaps found are injected as `[TODO: Coverage gap — ...]` markers for the Gap Formatter to pick up.
+
+**Rationale:** Adapted from the Tasks pipeline's spec-item-extractor + coverage-checker pattern (DEC-054). Architecture and Components are derived stages — they must implement specific requirements from upstream documents. The Generator's Coverage Self-Review is self-verification by the same agent that may have missed items. Independent extraction by a separate agent catches silent omissions. Not applied to Blueprint (expands informal input), PRD (exploration loop handles decomposition), or Foundations (fixed guide structure with small explicit deferred items list).
+
+---
+
+### DEC-079: Review-Grade Create Authors
+
+**Decision:** All five create Authors (Blueprint, PRD, Foundations, Architecture, Components) include four features from the review Authors: (1) level check with stage-appropriate examples table, (2) design rationale documentation (inline HTML comments for minor decisions, Design Decisions section for significant ones), (3) maturity calibration, (4) expanded quality checks. Each Author's level check is adapted to its stage's abstraction direction.
+
+**Rationale:** The review Authors had these features because they apply expert-reviewed solutions where quality matters. Create Authors apply gap analyst proposals and human discussion outcomes — equally important decisions where the same quality concerns apply. Without level checking, create Authors applied proposals containing configuration-level detail or implementation specifics that didn't belong at that stage. Without rationale documentation, the "why" behind gap resolutions was lost — only preserved in the gap discussion file, not in the document itself. The review workflow's expert panel would then lack rationale context when reviewing the created document.
+
+---
+
+### DEC-080: Execution Mode on All Agents
+
+**Decision:** Every non-orchestrator agent includes an "Execution Mode" section stating: "Complete all steps autonomously without pausing for confirmation. The [description] decisions are yours to make — read, analyse, and write the output [file/files]."
+
+**Rationale:** Without this instruction, agents spawned as subagents by orchestrators may pause mid-task to ask "Should I proceed?" or "Would you like me to continue?" This wastes a human interaction turn and breaks flow in automated pipelines. The orchestrator expects agents to complete their work and return, not pause for confirmation. This is particularly important in the Tasks pipeline (fully automated) and in the gap analysis pipeline (3 sequential agent spawns between Generator and human checkpoint).
