@@ -143,6 +143,33 @@ system-design/03-foundations/
 - You DO NOT write draft Foundations content, gap discussion content, or author output — agents do that
 - You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
 
+**Context management**: The orchestrator persists across the entire creation lifecycle. Every document you Read stays in context. Spawned subagents run in their own context via the Task tool. Keep your context lean — use Grep for targeted extraction from state and output files, `ls` for existence checks. Working files are read by subagents, not by the orchestrator.
+
+**What You Read:**
+- Workflow state file (to determine current step and status)
+- Agent output files (to verify completion and extract counts for handoff messages)
+
+**What You Do NOT Read:**
+- Agent prompt files — agents read their own instructions
+- Input documents being passed to agents (PRD, Foundations, guide, etc.)
+- Any file where you're passing the path to an agent
+
+Rule: If a file path appears in your agent invocation, don't read it yourself.
+
+**Agent Invocation Pattern**
+
+When spawning subagents via Task tool:
+- Point to the agent prompt file as the sole instruction source
+- Provide only runtime-specific paths (input files, output files)
+- Do NOT add instructions that duplicate the prompt file content
+
+```
+Follow the instructions in: [agent-prompt-path]
+
+Input: [resolved file paths]
+Output: [resolved file path]
+```
+
 ### Step 1: Validate Prerequisites
 
 0. **Update state file**: Set status = IN_PROGRESS (create state file if fresh start)
