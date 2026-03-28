@@ -64,6 +64,8 @@ agents/04-architecture/create/
 ├── enrichment-author.md               # Produces exploration summary
 ├── generator.md                       # Creates draft from PRD + Foundations + enrichments (round 1)
 ├── enrichment-applicator.md           # Applies enrichments to existing draft (round 2+)
+├── requirements-extractor.md          # Extracts PRD requirements checklist (independent of Generator)
+├── coverage-checker.md                # Verifies draft covers all checklist items
 └── author.md                          # Applies resolved gap discussions
 
 agents/universal-agents/
@@ -100,6 +102,8 @@ system-design/04-architecture/
         │   │   └── 03-exploration-summary.md
         │   ├── 00-draft-architecture.md
         │   ├── 00-enrichment-applicator-output.md  # Round 2+ only
+        │   ├── 00-requirements-checklist.md        # Requirements Extractor output
+        │   ├── 00-coverage-report.md               # Coverage Checker output
         │   ├── 01-gap-discussion.md
         │   ├── 02-author-output.md
         │   └── 03-updated-architecture.md
@@ -163,6 +167,7 @@ system-design/04-architecture/
 
 ### Phase 2: Generate
 - [ ] Step 9: Generate or Apply Enrichments
+- [ ] Step 9b: Coverage Verification
 - [ ] Step 10: Gap Resolution
 
 ### Phase 3: Promote
@@ -654,6 +659,50 @@ Only proceed to step 3 after the human signals they have responded.
 5. **Verify output exists** at `{round-dir}/00-draft-architecture.md`
 
 6. **Update state file**: Mark "Step 9: Generate or Apply Enrichments" complete `[x]`, add history entry
+
+### Step 9b: Coverage Verification
+
+**Purpose**: Independently verify the draft addresses every PRD requirement. The Requirements Extractor reads the PRD directly (not the draft) to produce a checklist, then the Coverage Checker verifies the draft against it.
+
+**On resume**: If Step 9b already marked complete, skip to Step 10.
+
+**Round 1**: The Requirements Extractor can run in parallel with the Generator (Step 9) since it reads the PRD, not the draft. If running sequentially, spawn it after the Generator completes.
+
+1. **Spawn Requirements Extractor** (if checklist doesn't already exist):
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/04-architecture/create/requirements-extractor.md
+
+   Input:
+   - PRD: system-design/02-prd/prd.md
+   - Foundations: system-design/03-foundations/foundations.md
+   - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
+
+   Output: {round-dir}/00-requirements-checklist.md
+   ```
+
+2. **Wait for extractor to complete** (and for Generator/Applicator if running in parallel)
+
+3. **Verify checklist exists** at `{round-dir}/00-requirements-checklist.md`
+
+4. **Spawn Coverage Checker**:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/04-architecture/create/coverage-checker.md
+
+   Input:
+   - Requirements checklist: {round-dir}/00-requirements-checklist.md
+   - Draft Architecture: {round-dir}/00-draft-architecture.md
+   - PRD: system-design/02-prd/prd.md
+
+   Output: {round-dir}/00-coverage-report.md
+   ```
+
+5. **Wait for checker to complete**
+
+6. **Read coverage report summary** — extract GAPS_FOUND or PASS status
+
+7. **If GAPS_FOUND**: The gaps will be picked up by the Gap Formatter in Step 10 — they appear as silent omissions that the Generator missed. Add any GAP items as `[TODO: Coverage gap — ...]` markers to the draft Architecture using targeted Edit operations, so the Gap Formatter can extract them alongside the Generator's own gap markers.
+
+8. **Update state file**: Mark "Step 9b: Coverage Verification" complete `[x]`, add history entry with coverage counts
 
 ### Step 10: Gap Resolution
 

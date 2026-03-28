@@ -50,6 +50,8 @@ agents/05-components/initialize/
 agents/05-components/create/
 ├── orchestrator.md                    # This file (per-component)
 ├── generator.md                       # Creates draft from Architecture + Foundations
+├── requirements-extractor.md          # Extracts Architecture requirements checklist
+├── coverage-checker.md                # Verifies draft covers all checklist items
 └── author.md                          # Applies resolved gap discussions
 
 agents/universal-agents/
@@ -78,6 +80,8 @@ system-design/05-components/
         ├── workflow-state.md          # Per-component state
         └── round-0/
             ├── 00-draft-spec.md                  # Generator output
+            ├── 00-requirements-checklist.md      # Requirements Extractor output
+            ├── 00-coverage-report.md             # Coverage Checker output
             ├── 01-gap-discussion.md              # Gap formatter output (if gaps exist)
             ├── 02-author-output.md               # Author changelog (if gaps exist)
             └── 03-updated-spec.md                # Author output (if gaps exist)
@@ -118,6 +122,7 @@ system-design/05-components/
 ### Round 0 (Creation)
 - [ ] Step 1-2b: Validate & Setup
 - [ ] Step 3: Run Generator
+- [ ] Step 3b: Coverage Verification
 - [ ] Step 4: Format & Analyse Gaps
 - [ ] Step 5: Discussion Loop
 - [ ] Step 6: Apply Decisions
@@ -250,6 +255,51 @@ Output: [resolved file path]
 4. **Verify output exists** at `system-design/05-components/versions/[component-name]/round-0/00-draft-spec.md`
 
 5. **Update per-component state file**: Mark "Step 3: Run Generator" complete `[x]`, add history entry
+
+### Step 3b: Coverage Verification
+
+**Purpose**: Independently verify the draft addresses every requirement the Architecture assigns to this component. The Requirements Extractor reads the Architecture directly (not the draft) to produce a checklist, then the Coverage Checker verifies the draft against it.
+
+**On resume**: If Step 3b already marked complete, skip to Step 4.
+
+1. **Spawn Requirements Extractor**:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/05-components/create/requirements-extractor.md
+
+   Input:
+   - Component: [component-name]
+   - Architecture: system-design/04-architecture/architecture.md
+   - Foundations: system-design/03-foundations/foundations.md
+   - Component guide: {{GUIDES_PATH}}/05-components-guide.md
+   - Deferred items: system-design/05-components/versions/[component-name]/deferred-items.md
+   - Cross-cutting spec: system-design/05-components/specs/cross-cutting.md
+
+   Output: system-design/05-components/versions/[component-name]/round-0/00-requirements-checklist.md
+   ```
+
+2. **Wait for extractor to complete**
+
+3. **Verify checklist exists**
+
+4. **Spawn Coverage Checker**:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/05-components/create/coverage-checker.md
+
+   Input:
+   - Requirements checklist: system-design/05-components/versions/[component-name]/round-0/00-requirements-checklist.md
+   - Draft Spec: system-design/05-components/versions/[component-name]/round-0/00-draft-spec.md
+   - Architecture: system-design/04-architecture/architecture.md
+
+   Output: system-design/05-components/versions/[component-name]/round-0/00-coverage-report.md
+   ```
+
+5. **Wait for checker to complete**
+
+6. **Read coverage report summary** — extract GAPS_FOUND or PASS status
+
+7. **If GAPS_FOUND**: Add any GAP items as `[TODO: Coverage gap — ...]` markers to the draft spec using targeted Edit operations, so the Gap Formatter can extract them alongside the Generator's own gap markers.
+
+8. **Update per-component state file**: Mark "Step 3b: Coverage Verification" complete `[x]`, add history entry with coverage counts
 
 ### Step 4: Format & Analyse Gaps
 
