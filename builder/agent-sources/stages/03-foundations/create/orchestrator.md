@@ -234,9 +234,11 @@ system-design/03-foundations/
 
 3. **Verify output exists** at `system-design/03-foundations/versions/round-0/00-assessment.md`
 
-4. **Update state file**: Set status = WAITING_FOR_HUMAN, add history entry "Assessment ready for review"
+4. **Read assessment** — count categories and note which have open choices vs settled/constrained
 
-5. **Present assessment to human**:
+5. **Update state file**: Set status = WAITING_FOR_HUMAN, add history entry "Assessment ready for review"
+
+6. **Present assessment to human**:
    ```
    Technology assessment complete.
 
@@ -245,17 +247,24 @@ system-design/03-foundations/
    The assessment covers each Foundations technology category with viable options
    assessed against PRD constraints. Coupled decisions are flagged.
 
-   Please review and share your directional preferences — a sentence or two per
-   open category is sufficient. Items settled by the brief or strongly constrained
-   by the PRD are noted and don't need input unless you disagree.
+   [N] categories assessed:
+   - [M] with open choices needing your direction
+   - [K] settled by brief or PRD-constrained (review if you disagree)
+
+   Please add your directional preferences inline after the >> HUMAN: markers
+   in the assessment file. A sentence or two per category is sufficient.
 
    When done, let me know and I'll proceed with generation.
    ```
 
 **STOP: Wait for human response before proceeding.**
 
-6. **After human responds**:
-   - The human's directional preferences inform the Generator's proposals
+Do NOT proceed until the human has added actual response content after `>> HUMAN:` markers. An empty `>> HUMAN:` marker is a placeholder, not a response.
+
+Only proceed after the human signals they have responded (e.g., "done", "ready", or resumes the conversation after editing the file).
+
+7. **After human responds**:
+   - The human's directional preferences are persisted in the assessment file — the Generator reads them directly
    - **Update state file**: Mark "Step 3c: Run Assessor" complete `[x]`, set status = IN_PROGRESS, add history entry "Human provided directional preferences"
 
 ### Step 4: Run Generator
@@ -319,6 +328,7 @@ system-design/03-foundations/
    Context documents:
    - Draft Foundations: system-design/03-foundations/versions/round-0/00-draft-foundations.md
    - PRD: system-design/02-prd/prd.md
+   - Assessment: system-design/03-foundations/versions/round-0/00-assessment.md
    - Brief: system-design/03-foundations/brief.md (if exists)
 
    Gap discussion file: system-design/03-foundations/versions/round-0/01-gap-discussion.md

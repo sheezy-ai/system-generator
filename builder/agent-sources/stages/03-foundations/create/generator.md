@@ -91,14 +91,15 @@ If an assessment document is provided:
    - PRD constraint analysis for each Foundations category
    - Viable options with trade-offs assessed against PRD constraints
    - Coupled decision flags
-   - Human directional preferences (responses to the assessment)
-3. For each category where the human stated a preference:
-   - Treat the preference as a settled direction — use prescriptive tone ("We use X") with rationale drawn from the assessment's constraint analysis
-   - Do NOT mark as a gap or assumption unless the human explicitly expressed uncertainty
-4. For categories where the human did not respond or said "no preference":
-   - Use the assessment's constraint analysis to inform your suggestion, but mark as an assumption if the PRD doesn't strongly constrain it
+   - Human directional preferences as inline `>> HUMAN:` responses after each category
+3. For each category, find the `>> HUMAN:` response:
+   - **If the human stated a clear preference** (e.g., "Python + FastAPI", "GCP"): treat as a settled direction — use prescriptive tone ("We use X") with rationale drawn from the assessment's constraint analysis. Do NOT mark as a gap or assumption.
+   - **If the human expressed a leaning with flexibility** (e.g., "Leaning towards X but open"): use the leaning as the primary proposal but mark as an assumption to validate
+   - **If the human said "no preference"** or left the `>> HUMAN:` marker empty: use the assessment's constraint analysis to inform your suggestion, but mark as an assumption
+   - **If the human disagreed with the assessment's leaning**: use the human's direction, not the assessment's
+4. If a deferred item is addressed by a human preference in the assessment, treat it as settled — do not re-mark as a gap
 5. The assessment does NOT replace the guide structure — all guide sections must still be present
-6. If the assessment conflicts with the brief, the brief takes precedence (brief represents settled decisions; assessment represents directional preferences)
+6. **Precedence**: Brief > human assessment response > assessment leaning > PRD constraint inference
 
 ### Step 0d: Identify and Defer Non-Foundations Content
 
