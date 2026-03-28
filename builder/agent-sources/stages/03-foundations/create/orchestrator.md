@@ -426,6 +426,7 @@ Only proceed to step 10 after the human signals they have responded (e.g., "done
        Context documents:
        - Draft Foundations: system-design/03-foundations/versions/round-0/00-draft-foundations.md
        - PRD: system-design/02-prd/prd.md
+       - Assessment: system-design/03-foundations/versions/round-0/00-assessment.md
 
        Issues file: system-design/03-foundations/versions/round-0/01-gap-discussion.md
        Issues: [GAP-001, GAP-002, ...]
