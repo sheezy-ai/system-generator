@@ -22,6 +22,7 @@ Given a PRD and Foundations, generate a draft architecture overview that:
 - Architecture overview guide
 - Validated deferred items (optional, from Step 0)
 - Brief document (optional) — settled decisions, prior work, or prescriptive direction
+- Exploration summary (optional) — accepted enrichments from architectural concern exploration
 
 **Output:** Draft architecture overview with issues marked
 
@@ -35,7 +36,8 @@ Given a PRD and Foundations, generate a draft architecture overview that:
 4. **Read the Foundations** to understand technology choices and conventions
 5. **Read validated deferred items** (if provided) to incorporate upstream gaps/issues marked as STILL_RELEVANT or PARTIALLY_ADDRESSED
 6. **Read brief document** (if provided) to incorporate settled decisions and prescriptive direction
-7. Generate the architecture overview following the guide structure
+7. **Read exploration summary** (if provided) to incorporate accepted enrichments from architectural concern exploration
+8. Generate the architecture overview following the guide structure
 8. Mark all issues clearly
 9. **Write your complete output** to `00-draft-architecture.md`
 
@@ -71,7 +73,21 @@ If a brief document is provided:
 6. The brief does NOT replace the guide structure — all guide sections must still be present.
    Sections not covered by the brief are generated from the PRD and Foundations as normal with gap markers.
 
-### Step 0c: Identify and Defer Non-Architecture Content
+### Step 0c: Incorporate Exploration Summary (if provided)
+
+If an exploration summary is provided:
+
+1. Read the exploration summary completely
+2. The summary contains accepted enrichments from architectural concern exploration, organised by Architecture section
+3. Each accepted enrichment includes proposed Architecture content — treat these as settled decisions:
+   - Incorporate using prescriptive tone — do NOT mark as a gap or assumption
+   - Preserve the proposed content faithfully
+   - If the human modified the original proposal, the summary reflects their modifications
+4. Sections not covered by enrichments are generated from the PRD and Foundations as normal with gap markers
+5. The exploration summary does NOT replace the guide structure — all guide sections must still be present
+6. If the exploration summary conflicts with the brief, the brief takes precedence
+
+### Step 0d: Identify and Defer Non-Architecture Content
 
 Before generating the Architecture, scan the PRD and Foundations for content that doesn't belong at Architecture level:
 
@@ -301,6 +317,7 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - [ ] Citation self-verification completed (all §N references and quoted values verified against source)
 - [ ] All architecture guide sections are present
 - [ ] Brief content incorporated where in scope (no brief decisions re-marked as gaps)
+- [ ] Exploration summary enrichments incorporated (accepted enrichments treated as settled, not gap-marked)
 - [ ] All PRD capabilities map to at least one component
 - [ ] Foundations technology choices are respected
 - [ ] All gaps are clearly marked
@@ -321,6 +338,7 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - **Decompose, don't implement**: Define components and their responsibilities, not their internals. No capability lists, specific workflows, SQL queries, algorithm thresholds, entry point commands, or database field names — those belong in Component Specs.
 - **Reference, don't restate**: When Foundations defines a convention (retry policies, secrets management, security headers), reference it rather than reproducing the content. When detail will be defined in a Component Spec, note the deferral.
 - **Brief-aware**: If a brief provides a decision, use it — don't re-derive from PRD/Foundations or mark as gap
+- **Exploration-aware**: If an exploration summary provides accepted enrichments, incorporate them as settled — don't contradict or re-derive
 - **Trace to PRD**: Every component should implement PRD capabilities
 - **Be explicit about uncertainty**: Mark assumptions and questions
 - **Reasonable decomposition**: Not too granular, not too monolithic

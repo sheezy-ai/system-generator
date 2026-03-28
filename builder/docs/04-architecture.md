@@ -101,9 +101,20 @@ system/04-architecture/
     ├── deferred-items.md             # Content deferred from upstream stages
     ├── pending-issues.md            # Issues flagged for upstream review
     ├── workflow-state.md
-    ├── round-0/                     # Create workflow output
-    │   └── 00-draft-architecture.md # Generator output (human augments this)
-    └── round-N/                     # Review workflow output
+    ├── create/
+    │   └── round-{N}/               # Create workflow output (round 1, 2, etc.)
+    │       ├── explore/
+    │       │   ├── 00-concerns.md
+    │       │   ├── 01-explorer-*.md
+    │       │   ├── 02-enrichment-discussion.md
+    │       │   ├── 02a-filtered-enrichment-discussion.md
+    │       │   └── 03-exploration-summary.md
+    │       ├── 00-draft-architecture.md
+    │       ├── 01-gap-discussion.md
+    │       ├── 02-author-output.md
+    │       └── 03-updated-architecture.md
+    └── review/
+        └── round-N/                 # Review workflow output
         ├── 01-system-architect.md
         ├── 01-data-architect.md
         ├── 01-integration-architect.md
