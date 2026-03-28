@@ -214,6 +214,7 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   │   │   ├── dimension-identifier.md
 │   │   │   ├── dimension-explorer.md
 │   │   │   ├── exploration-consolidator.md
+│   │   │   ├── enrichment-scope-filter.md
 │   │   │   ├── enrichment-author.md
 │   │   │   ├── decision-orchestrator.md
 │   │   │   ├── decision-framework.md
@@ -235,6 +236,7 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   │   │   ├── exploration-consolidator.md
 │   │   │   ├── enrichment-scope-filter.md
 │   │   │   ├── enrichment-author.md
+│   │   │   ├── enrichment-applicator.md
 │   │   │   ├── generator.md
 │   │   │   └── author.md
 │   │   └── review/...
@@ -255,6 +257,8 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   │   │   ├── enrichment-author.md
 │   │   │   ├── generator.md
 │   │   │   ├── enrichment-applicator.md
+│   │   │   ├── requirements-extractor.md
+│   │   │   ├── coverage-checker.md
 │   │   │   └── author.md
 │   │   └── review/...
 │   ├── 05-components/              # Component Specs
@@ -271,7 +275,8 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   │   ├── scope-filter.md
 │   │   ├── issue-analyst.md
 │   │   ├── pending-issue-resolver.md
-│   │   └── gap-formatter.md
+│   │   ├── gap-formatter.md
+│   │   └── gap-analyst.md
 │   └── specialist-agents/
 │       └── technical-writer.md
 ├── agent-sources/                 # Source templates for agents

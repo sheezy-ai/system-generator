@@ -50,8 +50,8 @@ For a high-level overview, see `overview.md`.
 - **PRD has a custom create workflow** with an Explore phase (capability area decomposition, parallel explorers, enrichment review), iterative rounds (round 1 from Blueprint, round 2+ from previous draft), and inline decision resolution (no separate Decision Orchestrator). See `02-prd.md` for details.
 - **Foundations has a custom create workflow** with an Assess step (technology assessment against PRD constraints, human directional preferences) before generation, plus a structured gap discussion loop after generation. See `03-foundations.md` for details.
 - **Architecture has a custom create workflow** with a full Explore phase (architectural concern identification, parallel concern explorers, enrichment review), iterative rounds (round 1 from PRD + Foundations, round 2+ from previous draft), and gap resolution. See `04-architecture.md` for details.
-- The generic flow above applies to stage 05 (Component Specs).
-- Component Specs has an additional Initialize step (stage-level setup before per-component creation)
+- **Component Specs** follows the generic flow with two additions: an Initialize step (stage-level setup before per-component creation) and an independent coverage verification step (requirements extractor + coverage checker) after generation to catch silent omissions against Architecture requirements. See `05-components.md` for details.
+- **Architecture and Components** both have independent coverage verification — a separate agent extracts requirements from the upstream document, then a checker verifies the draft addresses every item. This catches gaps the Generator's self-review misses.
 
 ---
 

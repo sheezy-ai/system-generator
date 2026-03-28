@@ -204,7 +204,10 @@ agents/05-components/
 │   └── deferred-items-processor.md  # Splits deferred items by component
 ├── create/
 │   ├── orchestrator.md             # Per-component workflow
-│   └── generator.md
+│   ├── generator.md
+│   ├── requirements-extractor.md   # Extracts Architecture requirements checklist
+│   ├── coverage-checker.md         # Verifies draft covers all checklist items
+│   └── author.md                   # Applies resolved gap discussions
 ├── cross-cutting/
 │   ├── orchestrator.md             # Populate cross-cutting contracts
 │   ├── contract-extractor.md       # Extract contracts from one component spec

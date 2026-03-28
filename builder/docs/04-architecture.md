@@ -80,6 +80,8 @@ agents/04-architecture/
 │   ├── enrichment-author.md           # Produces exploration summary
 │   ├── generator.md                   # Creates draft from PRD + Foundations + enrichments (round 1)
 │   ├── enrichment-applicator.md       # Applies enrichments to existing draft (round 2+)
+│   ├── requirements-extractor.md      # Extracts PRD requirements checklist
+│   ├── coverage-checker.md            # Verifies draft covers all checklist items
 │   └── author.md                      # Applies resolved gap discussions
 └── review/
     ├── orchestrator.md

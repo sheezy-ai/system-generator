@@ -123,10 +123,12 @@ agents/02-prd/
 │   ├── exploration-consolidator.md    # Merges explorer outputs by PRD section
 │   ├── enrichment-scope-filter.md     # Filters enrichments by level/depth
 │   ├── enrichment-author.md           # Produces exploration summary
-│   ├── generator.md                   # Creates draft from Blueprint + enrichments
+│   ├── generator.md                   # Creates draft from Blueprint + enrichments (round 1)
+│   ├── enrichment-applicator.md       # Applies enrichments to existing draft (round 2+)
 │   └── author.md                      # Applies gap resolutions to draft
 └── review/
     ├── orchestrator.md
+    ├── promoter.md                    # Splits PRD into spec/decisions/future at exit
     ├── author.md
     ├── consolidator.md
     ├── change-verifier.md
