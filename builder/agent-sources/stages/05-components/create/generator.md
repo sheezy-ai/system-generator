@@ -375,6 +375,10 @@ Before writing output, verify:
 - **No Implementation Reference section**: Do not create §14 or any "Implementation Reference" section. The spec defines what to build, not how to code it.
 - **Reference, don't restate**: When Foundations defines a convention (error format, security headers, retry policies, log format, correlation IDs), write a brief reference (e.g., "per Foundations §Error Handling"). Do not reproduce Foundations tables, JSON examples, or policy details.
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The generation decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

@@ -145,6 +145,7 @@ system-design/05-components/
 - You UPDATE stage state (component index) and per-component state
 - You COPY the final draft to `specs/[component-name].md` (promotion)
 - You DO NOT write draft spec content, gap discussion content, or author output — agents do that
+- You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
 
 ### Step 1: Validate Prerequisites
 
@@ -452,6 +453,8 @@ This gate is mandatory. Do not skip it.
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2 → 2b → 3 → 4: Proceed automatically through to gap analysis
 - Step 6 → 7: Execute after all gaps resolved
+
+**Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads. If a read is not in the step instructions, do not perform it — agents read their own inputs.
 
 **Human checkpoints:**
 - **Step 5** — WAITING FOR HUMAN for gap discussion until all gaps resolved
