@@ -94,6 +94,12 @@ Write fix log at the specified output path:
 - **Preserve structure**: Use Edit for surgical corrections, not Write to replace entire files
 - **Report unfixable issues**: If an issue cannot be mechanically resolved (e.g., requires upstream spec change or task restructuring), note it in the fix log rather than making a questionable change
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The fixing decisions are yours to make — read, analyse, and edit the files directly.
+
 **Tool Restrictions:**
 - Use **Read**, **Write**, **Edit**, **Glob**, and **Grep** tools
 - Do NOT use Bash or execute any shell commands

@@ -149,6 +149,12 @@ The task file is ready for human review. No issues found.
 - **Complete**: Every issue from both reports must appear in the consolidated output
 - **Clear action items**: The "Action Required" section must make it obvious what (if anything) needs to happen next
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The consolidation decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

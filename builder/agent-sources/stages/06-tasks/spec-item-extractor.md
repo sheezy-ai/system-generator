@@ -209,6 +209,12 @@ For infrastructure spec: Read the full file.
 - **Implementable items only**: Extract items a developer would implement. Skip design rationale, decision records, and informational context.
 - **Current scope only**: Skip items explicitly marked as deferred or future scope. Extract current-scope work that accommodates deferred items, not the deferred features themselves.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The extraction decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Glob**, and **Grep** tools
 - Do NOT use Bash, Edit, or execute any shell commands

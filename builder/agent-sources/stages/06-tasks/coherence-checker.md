@@ -335,6 +335,12 @@ Note: LOW issues are reported but do not block PASS status. They are advisory fi
 - **Read thoroughly**: Check Notes sections, not just Acceptance Criteria — cross-component dependencies are often documented in Notes
 - **Infrastructure vs Component awareness**: Apply all five checks regardless of task type, but calibrate severity to the context — a missing conditional path in an infrastructure setup script (which runs repeatedly) is more severe than in a one-time component implementation task
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The checking decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

@@ -333,6 +333,12 @@ The extractor defines what "complete" means. This agent validates tasks against 
 - **Multiple dependencies**: A task may depend on multiple others (comma-separated)
 - **None is valid**: `Depends On: None` is valid and needs no validation
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The checking decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

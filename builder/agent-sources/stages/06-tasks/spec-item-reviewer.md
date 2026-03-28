@@ -179,6 +179,12 @@ Items that should be split, merged, or made consistent.
 - **Explicit items only**: Only flag missing items the source spec is explicit about. Do not flag inferred or implied items.
 - **Actionable findings**: Every finding must include enough detail for the corrector to apply it mechanically — descriptions, spec line numbers, and section assignments for additions; item numbers for removals; full sub-item lists for splits.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The review decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Glob**, and **Grep** tools
 - Do NOT use Bash, Edit, or execute any shell commands

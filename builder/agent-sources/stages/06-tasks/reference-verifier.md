@@ -138,6 +138,12 @@ Write the report at the specified output path:
 - **All occurrences**: When correcting a reference, find and fix every occurrence in the draft — Depends On, acceptance criteria, Notes, and the Cross-Component Dependencies table.
 - **No content generation**: Do not add new tasks, rewrite descriptions, or restructure the file. Only correct references.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The verification decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Use **Read**, **Edit**, **Write**, **Glob**, and **Grep** tools
 - Do NOT use Bash or execute any shell commands

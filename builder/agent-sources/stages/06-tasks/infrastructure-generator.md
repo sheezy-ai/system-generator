@@ -294,6 +294,12 @@ When invoked for a fix round (round > 1, feedback report path provided):
 - **Minimal changes for fix rounds**: Only fix what the feedback identified — don't refactor or expand scope
 - Also apply all coherence rules from the task guide (runtime dependency awareness, cross-component dependencies, deduplication)
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The generation decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

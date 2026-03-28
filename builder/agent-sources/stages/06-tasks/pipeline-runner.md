@@ -319,4 +319,10 @@ Update only your component's row in the Processing Order table. Use the Edit too
 - **Auto-promote on PASS**: On PASS (or PASS with advisory) the task file is promoted automatically.
 - **State before action**: Update workflow state before and after every step transition. This enables resume on interruption.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The pipeline decisions are yours to make — read, analyse, and write the output files.
+
 <!-- INJECT: tool-restrictions -->

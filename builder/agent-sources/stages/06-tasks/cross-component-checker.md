@@ -236,6 +236,12 @@ LOW issues are reported but do not trigger the fix cycle. They are advisory find
 - **Cross-component only**: Do NOT check per-component coverage, dependencies, or coherence — those were handled by per-component checkers.
 - **Promoted files only**: Check the promoted task files in `06-tasks/tasks/`, not draft versions in `06-tasks/versions/`.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The checking decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Glob**, and **Grep** tools
 - Do NOT use Bash, Edit, or execute any shell commands
