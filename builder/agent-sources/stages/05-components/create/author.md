@@ -45,6 +45,8 @@ Given the draft Component Spec and resolved gap discussions, apply the changes f
 5. **Preserve formatting** — Match the existing Spec style and tone
 6. **Document changes** — Produce clear change log for traceability
 7. **Flag ambiguity** — If a proposed change is unclear, flag it rather than guess
+8. **Check level** — Verify each proposed change stays at Component Spec level (no upward drift to Architecture, no code blocks)
+9. **Capture design rationale** — Preserve the "why" from gap discussions alongside the "what" in the document
 
 ---
 
@@ -158,6 +160,95 @@ If a proposed change is ambiguous or conflicts with existing content:
 
 ---
 
+## Level Check While Applying
+
+Component Specs are implementation-level documents, so downward drift is less of a concern. But watch for **upward drift** and **code blocks**:
+
+| Appropriate (Component Spec) | Wrong Level (Flag) |
+|------------------------------|-------------------|
+| API endpoint with request/response schema | Component boundary changes (Architecture) |
+| Entity schema with fields and constraints | Cross-cutting convention changes (Foundations) |
+| Behaviour scenarios with step-by-step flows | System-wide integration pattern changes (Architecture) |
+| Component-specific error codes and recovery | Retry policy that overrides Foundations without rationale |
+
+| Appropriate (Component Spec) | Wrong Format (Flag) |
+|------------------------------|---------------------|
+| Interface table (field, type, constraints) | Python dataclass or function signature |
+| Behaviour as prose scenarios | Pseudo-code or algorithm implementation |
+| Entity schema as markdown table | SQL CREATE TABLE statement |
+
+**Upward drift test:** If the proposed change would affect other components or change a system-wide pattern, it belongs in Architecture or Foundations, not this spec.
+
+**Code block test:** The Generator is instructed not to produce code blocks. If a gap proposal contains Python, SQL, or other implementation code, flag it and apply the intent as tables/prose instead.
+
+If a proposed change violates these, flag it:
+
+```markdown
+### Change N: GAP-00X — [Brief title]
+- **Action**: FLAGGED
+- **Location**: §[N] [Section Name]
+- **Issue**: [Upward drift / code block — describe the problem]
+- **Recommendation**: [How to fix — e.g., express as table instead of code, or defer to Architecture]
+- **Needs**: Human confirmation
+```
+
+---
+
+## Design Rationale Documentation
+
+When applying gap resolutions, capture the reasoning — not just the decision. The gap discussion contains the "why" (options considered, trade-offs, human's reasoning). Preserve this so review experts can assess whether the reasoning was sound.
+
+### Inline Rationale (for localised decisions)
+
+Add HTML comments near the relevant section:
+
+```markdown
+## 4. Data Model
+
+<!-- Rationale: GAP-005 - Chose JSONB for extraction output rather than normalized tables.
+     Extraction output structure varies by source; JSONB accommodates this without schema changes.
+     Alternative (normalized): rejected — premature given calibration-phase schema instability. -->
+
+### ExtractionOutput
+| Field | Type | Constraints | Notes |
+```
+
+### Design Decisions (for significant decisions)
+
+For data model choices, interface design decisions, or behaviour patterns with substantial trade-off analysis, add to a Design Decisions section:
+
+```markdown
+## Design Decisions
+
+### DD-001: [Decision Title] (GAP-NNN)
+
+**Decision**: [What was decided]
+
+**Rationale**: [Why — drawn from gap discussion]
+
+**Alternatives considered**:
+- [Option A] — rejected because [reason]
+
+**Source**: Creation: GAP-NNN
+```
+
+### When to use which
+
+- **Inline**: Minor field choices, straightforward schema decisions, assumption validations
+- **Section**: Data model structure decisions, interface design choices, behaviour pattern selections with trade-offs
+
+---
+
+## Maturity Calibration
+
+Check the PRD (via Architecture) for the project's target maturity level. When applying gap resolutions:
+
+- **Don't over-spec for MVP**: If a proposed change introduces production-grade complexity for an MVP component (e.g., elaborate caching when traffic is 10-20 users), flag it
+- **Don't under-spec for Enterprise**: If a proposed change is too simplistic for an enterprise component, flag it
+- **Match upstream constraints**: The Foundations and Architecture maturity decisions should already be calibrated — flag proposals that contradict them
+
+---
+
 ## Constraints
 
 - **Only process RESOLVED discussions** — Skip any discussion without `>> RESOLVED` marker
@@ -166,6 +257,9 @@ If a proposed change is ambiguous or conflicts with existing content:
 - **Do not extend scope** — A resolution for one gap should not cascade changes to unrelated sections
 - **Flag, don't guess** — If a Proposed Change is ambiguous or conflicts, flag it
 - **Preserve unchanged sections** — Do not modify parts of Spec not related to resolved discussions
+- **Stay at Component Spec level** — Flag upward drift (Architecture/Foundations-level changes) and code blocks
+- **Capture rationale** — Preserve the "why" from gap discussions, not just the "what"
+- **No code blocks** — Express interfaces as tables, behaviour as prose. Flag and convert if a proposal contains code.
 
 ---
 
@@ -178,6 +272,10 @@ If a proposed change is ambiguous or conflicts with existing content:
 - [ ] Flagged items clearly explain what clarification is needed
 - [ ] Updated Spec maintains internal consistency
 - [ ] Unresolved discussions noted in change log as skipped
+- [ ] No upward drift (no Architecture/Foundations-level changes applied)
+- [ ] No code blocks in the output (interfaces as tables, behaviour as prose)
+- [ ] Design rationale documented for significant decisions
+- [ ] Maturity level appropriate for the project's stated constraints
 
 ---
 
