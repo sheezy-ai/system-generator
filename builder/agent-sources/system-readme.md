@@ -61,7 +61,7 @@ Execute the Foundations creation workflow using the orchestrator at:
 {{AGENTS_PATH}}/03-foundations/create/orchestrator.md
 ```
 
-Optional: place a brief at `{{PROJECT_PATH}}/system-design/03-foundations/brief.md` before running Create. The generator incorporates settled decisions from the brief directly, reducing gap markers.
+The create workflow runs **Assess** (evaluates technology options per category against PRD constraints, human provides directional preferences inline) then **Generate** (produces draft Foundations informed by assessment), followed by a structured gap analysis pipeline (Gap Formatter → Gap Analyst → human discussion → Author). Optional: place a brief at `{{PROJECT_PATH}}/system-design/03-foundations/brief.md` before running Create — the generator incorporates settled decisions from the brief directly, reducing gap markers.
 
 **Review:**
 ```
@@ -77,7 +77,7 @@ Execute the Architecture Overview creation workflow using the orchestrator at:
 {{AGENTS_PATH}}/04-architecture/create/orchestrator.md
 ```
 
-Optional: place a brief at `{{PROJECT_PATH}}/system-design/04-architecture/brief.md` before running Create.
+The create workflow iterates through **Explore** (identifies architectural concerns from PRD + Foundations, explores each in parallel, human reviews enrichments) and **Generate** (produces draft Architecture from PRD + Foundations + accepted enrichments, with independent coverage verification against PRD requirements, then structured gap analysis) rounds — round 1 works from the PRD + Foundations, round 2+ applies enrichments to the previous round's draft via the Enrichment Applicator. The human exits the loop by choosing to promote. Optional: place a brief at `{{PROJECT_PATH}}/system-design/04-architecture/brief.md` before running Create.
 
 **Review:**
 ```
@@ -103,7 +103,7 @@ Component: [component name]
 
 Optional: place a per-component brief at `{{PROJECT_PATH}}/system-design/05-components/versions/[component-name]/brief.md` before running Create.
 
-After the draft is generated, review and augment it, then run Review.
+The create workflow generates a draft spec, runs independent coverage verification against Architecture requirements, then runs a structured gap analysis pipeline. After the draft is generated, review and augment it, then run Review.
 
 **Review (per component):**
 ```
