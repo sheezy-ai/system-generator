@@ -305,6 +305,12 @@ Example changelog entry:
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The authoring decisions are yours to make — read, analyse, and write the output files.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

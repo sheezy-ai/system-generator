@@ -193,6 +193,12 @@ If multiple experts identified the same issue:
 - **Order by severity within theme** - HIGH issues first
 - **Keep all issues** - Deferred items filtering is handled by the Scope Filter in the next step
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The consolidation decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

@@ -130,6 +130,12 @@ For each issue, use this structure:
 - **Provide rough estimates where possible** - helps prioritisation
 - **Pre-output self-check**: Before writing your output, review each issue against the Scope of Review criteria. For each issue, confirm it falls into category (a), (b), (c), or (d). Remove any that do not.
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The review decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

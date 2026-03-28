@@ -126,6 +126,12 @@ Based on verification results:
 - **Don't propose alternative solutions** — Just verify if approved solutions were applied
 - **Be specific** — If something is NOT_RESOLVED, explain exactly what's missing
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The verification decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---
