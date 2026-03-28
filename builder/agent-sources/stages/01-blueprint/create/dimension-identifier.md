@@ -178,6 +178,12 @@ The most valuable dimensions often come from choices the concept made implicitly
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The dimension identification decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

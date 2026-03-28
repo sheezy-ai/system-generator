@@ -181,6 +181,12 @@ If a proposed change is ambiguous or conflicts with existing content:
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The authoring decisions are yours to make — read, analyse, and write the output files.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

@@ -310,6 +310,12 @@ Do NOT skip this step. It takes a few extra Grep calls but prevents the most com
 - **Structure first**: Follow the Blueprint guide structure even if sections are mostly issues
 - **Stay strategic**: Everything should be about what and why, not how
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The generation decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

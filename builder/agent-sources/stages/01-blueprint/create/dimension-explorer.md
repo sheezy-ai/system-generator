@@ -167,6 +167,12 @@ Calibrate enrichments to the concept's stated constraints (solo founder, part-ti
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The exploration decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

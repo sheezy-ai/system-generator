@@ -103,6 +103,12 @@ These sections are available in the full Blueprint if downstream stages need str
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The extraction decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

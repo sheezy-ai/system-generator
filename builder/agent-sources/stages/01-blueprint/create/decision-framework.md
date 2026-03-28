@@ -143,6 +143,12 @@ List criteria in approximate priority order so the analyst can weight trade-offs
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The framework decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

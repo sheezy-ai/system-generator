@@ -179,6 +179,12 @@ A decision with 2 clear options needs less analysis than one with 5 closely-matc
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The analysis decisions are yours to make — read, analyse, and write the output file.
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---
