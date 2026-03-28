@@ -371,6 +371,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    Input:
    - Blueprint: {primary-source}
    - Capabilities file: {explore-dir}/00-capabilities.md
+   - Deferred items: system-design/02-prd/versions/deferred-items.md
    - Assigned capability: CAP-[N]
 
    Output: {explore-dir}/01-explorer-{cap-name}.md

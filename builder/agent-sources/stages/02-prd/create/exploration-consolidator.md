@@ -168,6 +168,10 @@ State your recommendation clearly. "Accept" means you think this strengthens the
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The consolidation decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

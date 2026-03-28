@@ -168,6 +168,10 @@ Aim for capability areas that span different parts of the PRD. Don't cluster all
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The capability identification decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---
