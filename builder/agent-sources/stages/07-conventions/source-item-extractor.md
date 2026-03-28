@@ -140,6 +140,12 @@ Write the source items file to the path provided at invocation.
 - **De-duplicate across sources**: The same decision stated in Foundations and a component spec is one item, not two. Keep the most specific version.
 - **Specific descriptions**: Each item must be specific enough that a reviewer can check whether the conventions section covers it. "Error handling conventions" is too vague. "Retry policy: exponential backoff, max 3 retries" is specific enough.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The extraction decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Glob**, and **Grep** tools
 - Do NOT use Bash, Edit, or execute any shell commands

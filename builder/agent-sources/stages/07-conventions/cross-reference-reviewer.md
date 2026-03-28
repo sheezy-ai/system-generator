@@ -147,6 +147,12 @@ No issues found. Convention sections are internally consistent.
 - **Concrete fixes**: Every issue must specify which section file to update and exactly what to change.
 - **Cross-section only**: Do NOT check source fidelity or completeness — those were handled by per-section reviewers.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The review decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Glob**, and **Grep** tools
 - Do NOT use Bash, Edit, or execute any shell commands

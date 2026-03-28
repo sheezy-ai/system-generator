@@ -190,6 +190,12 @@ Items that should be split, merged, or made consistent.
 - **Convention-level only**: Do not flag specification-level detail as missing. Conventions capture patterns and rules, not exhaustive value enumerations from source specs.
 - **Actionable findings**: Every finding must include enough detail for the corrector to apply it mechanically — descriptions, source locations, and justifications for additions; item numbers for removals; full sub-item lists for splits.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The review decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Glob**, and **Grep** tools
 - Do NOT use Bash, Edit, or execute any shell commands

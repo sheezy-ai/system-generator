@@ -40,15 +40,31 @@ Parse the section number from the invocation. Read the conventions guide to find
 3. Read the Section Content Guide to understand expected scope
 4. Read the designated source sections using the Reading Source Sections technique
 5. Generate the section (or apply fixes for round 2+)
-6. Run Citation Self-Verification
-7. Run the Shared Quality Checks from the guide
-8. Write output
+6. Run Coverage Self-Review
+7. Run Citation Self-Verification
+8. Run the Shared Quality Checks from the guide
+9. Write output
+
+---
+
+## Coverage Self-Review
+
+**Run this step after drafting content, before citation self-verification.** This catches items where the generator failed to address a guide requirement for this section — either with content or an explicit `[DEFAULT]` tag.
+
+1. **Re-read the Section Content Guide** for this section — focus on the expected scope and items listed
+2. **For each expected item**, verify the section addresses it with either:
+   - Substantive content derived from a source document, OR
+   - A `[DEFAULT]` tagged convention with rationale
+3. **Check designated source coverage** — re-scan the source sections read in step 4. For each explicit decision, convention, or configuration value in the sources that falls within this section's topic, verify it appears in the section.
+4. **Add missing items** — For any unaddressed guide requirement or source item, add it before proceeding. This is cheaper than waiting for the reviewer to flag it as a GAP.
+
+Do NOT skip this step. A section that covers all guide requirements and source items on the first round avoids unnecessary fix rounds.
 
 ---
 
 ## Citation Self-Verification
 
-**Run this step after writing the section content, before writing the output file.** This catches wrong section numbers and misquoted source text — the two most common generator errors.
+**Run this step after coverage self-review, before writing the output file.** This catches wrong section numbers and misquoted source text — the two most common generator errors.
 
 For every citation in the section (every `§N` reference, every quoted value attributed to a source, every "per Foundations/Architecture" claim):
 
@@ -80,6 +96,12 @@ When invoked for a fix round (review report path provided):
 
 - **Focused reads**: Read only the sources designated for this section (per the guide's Section Source Mapping). Do not read other documents.
 - **Guide-driven**: Follow the Scope Principles, Handling Ambiguity, and Output Format from the conventions guide.
+
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The generation decisions are yours to make — read, analyse, and write the output file.
 
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Edit**, **Glob**, and **Grep** tools

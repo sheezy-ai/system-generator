@@ -196,6 +196,12 @@ Update only your section's row in the Processing Order table. Use the Edit tool 
 - **File-first**: Pass file paths to worker agents, not file contents. Agents read files themselves.
 - **State before action**: Update workflow state before and after every step transition. This enables resume on interruption.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The pipeline decisions are yours to make — read, analyse, and write the output files.
+
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Edit**, **Glob**, **Grep**, and **Task** tools
 - Do NOT use Bash or execute any shell commands

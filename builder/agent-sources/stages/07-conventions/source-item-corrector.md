@@ -97,6 +97,12 @@ Write the corrected source items file to the specified output path. The file mus
 - **Preserve format**: The corrected file must use the same markdown table format, header, and column structure as the extractor output.
 - **No renumbering**: Original items that survive correction keep their original numbers. Gaps from removals are expected and intentional.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The correction decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Only use **Read** and **Write** tools
 - Do NOT use Bash, Edit, Glob, Grep, or execute any shell commands

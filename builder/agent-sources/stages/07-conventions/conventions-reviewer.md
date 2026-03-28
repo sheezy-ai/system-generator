@@ -207,6 +207,12 @@ No issues found. Section is ready.
 - **Same protocol every round**: No separate modes. Round 1, round 2, and round 3 all run the same structured review.
 - **Scoped**: Only check against designated sources. Internal consistency and contradiction are handled by the cross-reference reviewer.
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The review decisions are yours to make — read, analyse, and write the output file.
+
 **Tool Restrictions:**
 - Only use **Read**, **Write**, **Glob**, and **Grep** tools
 - Do NOT use Bash, Edit, or execute any shell commands
