@@ -115,7 +115,11 @@ Concept/Upstream ──▶ Generator ──▶ Human augments ──▶ Review W
 
 **Blueprint exception:** Blueprint has a custom create workflow with an Explore phase (strategic dimension exploration, enrichment review with three-tier depth filtering), iterative rounds, and a separate Decision Orchestrator. See `01-blueprint.md` for details.
 
-**PRD exception:** PRD has a custom create workflow with an Explore phase (capability area decomposition, parallel explorers, enrichment review), iterative rounds, and inline decision resolution. See `02-prd.md` for details.
+**PRD exception:** PRD has a custom create workflow with an Explore phase (capability area decomposition, parallel explorers, enrichment review), iterative rounds, and inline decision resolution (no separate Decision Orchestrator). See `02-prd.md` for details.
+
+**Foundations exception:** Foundations has a custom create workflow with an Assess step (lightweight technology assessment against PRD constraints, human directional preferences) before generation. The assessment informs the Generator's proposals, reducing gaps. See `03-foundations.md` for details.
+
+**Architecture exception:** Architecture has a custom create workflow with a full Explore phase (architectural concern identification, parallel concern explorers, enrichment review), iterative rounds (round 1 from PRD + Foundations, round 2+ from previous draft), and gap resolution. See `04-architecture.md` for details.
 
 ### Review Workflow
 
@@ -234,7 +238,25 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   │   │   ├── generator.md
 │   │   │   └── author.md
 │   │   └── review/...
-│   ├── ...                        # Other stages (03-05)
+│   ├── 03-foundations/
+│   │   ├── create/
+│   │   │   ├── orchestrator.md
+│   │   │   ├── assessor.md
+│   │   │   ├── generator.md
+│   │   │   └── author.md
+│   │   └── review/...
+│   ├── 04-architecture/
+│   │   ├── create/
+│   │   │   ├── orchestrator.md
+│   │   │   ├── concern-identifier.md
+│   │   │   ├── concern-explorer.md
+│   │   │   ├── exploration-consolidator.md
+│   │   │   ├── enrichment-scope-filter.md
+│   │   │   ├── enrichment-author.md
+│   │   │   ├── generator.md
+│   │   │   └── author.md
+│   │   └── review/...
+│   ├── 05-components/              # Component Specs
 │   ├── 06-tasks/                  # Task pipeline agents
 │   ├── 07-conventions/            # Conventions pipeline agents
 │   ├── 08-build/                  # Build pipeline agents
@@ -277,12 +299,16 @@ Scripts `init-project.sh` and `build-prompts.sh` live at the system-generator ro
 ## Round Numbering
 
 Workflows use round numbers to track iterations:
-- `round-0`: Create workflow (initial document creation)
-- `round-1`, `round-2`, ...: Review workflow cycles
+- `round-0`: Create workflow (initial document creation) — for stages using the generic flow
+- `round-1`, `round-2`, ...: Review workflow cycles (or create rounds for stages with exploration loops)
 
 **Blueprint exception:** Blueprint's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from `concept.md`, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
 
 **PRD exception:** PRD's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from `blueprint.md`, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
+
+**Foundations exception:** Foundations uses `round-0` for creation (single round with assessment step, no multi-round exploration loop). Review rounds start from `round-1`.
+
+**Architecture exception:** Architecture's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from PRD + Foundations, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
 
 All rounds for a stage share a `versions/` folder with a unified state file.
 

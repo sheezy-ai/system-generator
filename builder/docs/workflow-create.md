@@ -48,7 +48,9 @@ For a high-level overview, see `overview.md`.
 - The Create workflow produces a draft; the Review workflow refines it
 - **Blueprint has a custom create workflow** with an Explore phase (strategic dimension exploration, enrichment review with three-tier depth filtering), iterative rounds (round 1 from concept, round 2+ from previous draft), and a separate Decision Orchestrator. See `01-blueprint.md` for details.
 - **PRD has a custom create workflow** with an Explore phase (capability area decomposition, parallel explorers, enrichment review), iterative rounds (round 1 from Blueprint, round 2+ from previous draft), and inline decision resolution (no separate Decision Orchestrator). See `02-prd.md` for details.
-- The generic flow above applies to stages 03-05.
+- **Foundations has a custom create workflow** with an Assess step (technology assessment against PRD constraints, human directional preferences) before generation, plus a structured gap discussion loop after generation. See `03-foundations.md` for details.
+- **Architecture has a custom create workflow** with a full Explore phase (architectural concern identification, parallel concern explorers, enrichment review), iterative rounds (round 1 from PRD + Foundations, round 2+ from previous draft), and gap resolution. See `04-architecture.md` for details.
+- The generic flow above applies to stage 05 (Component Specs).
 - Component Specs has an additional Initialize step (stage-level setup before per-component creation)
 
 ---

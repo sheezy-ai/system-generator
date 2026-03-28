@@ -88,7 +88,9 @@ The Consolidator groups issues by these Foundations-specific themes (aligned wit
 agents/03-foundations/
 ├── create/
 │   ├── orchestrator.md
-│   └── generator.md
+│   ├── assessor.md                  # Lightweight technology assessment before generation
+│   ├── generator.md
+│   └── author.md                    # Applies resolved gap discussions
 └── review/
     ├── orchestrator.md
     ├── promoter.md                  # Splits Foundations into spec/decisions/future at exit
@@ -164,6 +166,20 @@ Then run the review workflow for:
 
 Start or resume the review.
 ```
+
+---
+
+## Custom Create Workflow
+
+Foundations uses a custom create workflow with an Assess step and a structured gap discussion loop, rather than the generic Setup → Generate → Report flow.
+
+**Flow:** Setup → **Assess** → [Human checkpoint] → Generate → Gap Format → Gap Analyse → [Human checkpoint: gap discussion] → Author → Promote
+
+**Assess step:** The Assessor reads the PRD, Foundations guide, deferred items, and brief (if any). For each technology category, it evaluates viable options against PRD constraints, identifies coupled decisions, and presents a structured assessment to the human for directional preferences. The human's preferences then guide the Generator, producing better first-draft proposals and fewer gaps.
+
+**Gap discussion:** After generation, gaps are extracted, formatted, and analysed by Gap Analyst agents (with options, trade-offs, and recommendations). The human reviews proposals inline and discusses unresolved items with Discussion Facilitator agents. Once all gaps are resolved, the Author applies decisions to produce the final draft.
+
+This is a single-round workflow (no multi-round exploration loop). The assessment step serves the same purpose as the exploration phase in Blueprint/PRD — surfacing trade-offs and collecting human direction before generation — but in a lighter-weight form appropriate for technology selection decisions.
 
 ---
 

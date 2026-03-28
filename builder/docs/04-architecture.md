@@ -73,7 +73,13 @@ The Consolidator groups issues by these Architecture-specific themes:
 agents/04-architecture/
 ├── create/
 │   ├── orchestrator.md
-│   └── generator.md
+│   ├── concern-identifier.md          # Identifies architectural concerns to explore
+│   ├── concern-explorer.md            # Explores one concern deeply
+│   ├── exploration-consolidator.md    # Merges explorer outputs
+│   ├── enrichment-scope-filter.md     # Filters enrichments by level/depth
+│   ├── enrichment-author.md           # Produces exploration summary
+│   ├── generator.md                   # Creates draft from PRD + Foundations + enrichments
+│   └── author.md                      # Applies resolved gap discussions
 └── review/
     ├── orchestrator.md
     ├── promoter.md                  # Splits Architecture into spec/decisions/future at exit
@@ -163,6 +169,32 @@ Then run the review workflow for:
 
 Start or resume the review.
 ```
+
+---
+
+## Custom Create Workflow
+
+Architecture uses a custom create workflow with a full exploration loop, similar to Blueprint and PRD creation.
+
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
+
+**Explore phase:**
+1. **Concern Identifier** — reads PRD + Foundations and identifies 3-5 architectural concerns worth exploring (component decomposition alternatives, data flow patterns, integration approaches, pipeline orchestration)
+2. **Human reviews** concern list (can add, remove, modify, or skip exploration)
+3. **Concern Explorers** — one per concern, run in parallel, each proposes 2-5 enrichments with trade-offs
+4. **Exploration Consolidator** — merges explorer outputs, groups by Architecture section, deduplicates
+5. **Enrichment Scope Filter** — filters by Architecture level, defers Component Specs detail
+6. **Human reviews** enrichments (accept, reject, modify, discuss)
+7. **Enrichment Author** — produces exploration summary for the Generator
+
+**Generate phase:** Generator produces draft using PRD + Foundations + exploration summary. Gaps are presented for human resolution (provide answers, edit directly, or run another round).
+
+**Multi-round:** The human can say "another round" at gap resolution to run another explore→generate cycle. Round 2+ explores from the previous round's draft rather than from PRD + Foundations directly.
+
+**Human checkpoints:**
+- Concern review (Step 3)
+- Enrichment review (Step 7)
+- Gap resolution / promote decision (Step 10)
 
 ---
 
