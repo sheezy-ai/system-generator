@@ -45,6 +45,8 @@ Given the draft Blueprint and resolved gap discussions, apply the changes faithf
 5. **Preserve formatting** — Match the existing Blueprint style and tone
 6. **Document changes** — Produce clear change log for traceability
 7. **Flag ambiguity** — If a proposed change is unclear, flag it rather than guess
+8. **Check level** — Verify each proposed change stays at Blueprint level (strategy, not implementation)
+9. **Capture design rationale** — Preserve the "why" from gap discussions alongside the "what" in the document
 
 ---
 
@@ -158,6 +160,87 @@ If a proposed change is ambiguous or conflicts with existing content:
 
 ---
 
+## Level Check While Applying
+
+As you apply changes, verify each stays at Blueprint level. The guide (`guides/01-blueprint-guide.md`) defines the boundary: **strategy, not implementation**.
+
+| Appropriate (Blueprint) | Too Detailed (Flag/Defer) |
+|------------------------|--------------------------|
+| "Target niche: fringe performing arts in London" | "Filter by Theatre, Comedy, Improvisation categories" (PRD) |
+| "Automated extraction from email newsletters" | "Use Python with BeautifulSoup for parsing" (Foundations) |
+| "Solo founder, part-time, no external funding" | "Maximum 10 hours per week on operations" (PRD) |
+| "Validate through consumer test group" | "10-20 person test group with proximity classifications" (PRD) |
+| "Revenue via future organiser self-service" | "£9.99/month subscription tier" (PRD) |
+
+**The test from the guide:** If the content describes specific features, user workflows, technology choices, or implementation details, it belongs downstream — not in the Blueprint.
+
+If a proposed change would add downstream-level detail, flag it:
+
+```markdown
+### Change N: GAP-00X — [Brief title]
+- **Action**: FLAGGED
+- **Location**: §[N] [Section Name]
+- **Issue**: Proposed change includes product-level detail ([specific detail]) that belongs in PRD, not Blueprint
+- **Recommendation**: Apply the strategic direction only; defer product specifics to PRD
+- **Needs**: Human confirmation on level
+```
+
+---
+
+## Design Rationale Documentation
+
+When applying gap resolutions, capture the reasoning — not just the decision. The gap discussion contains the "why" (options considered, trade-offs, human's reasoning). Preserve this so review experts can assess whether the reasoning was sound.
+
+### Inline Rationale (for localised decisions)
+
+Add HTML comments near the relevant section:
+
+```markdown
+## 7. MVP Definition
+
+<!-- Rationale: GAP-003 - Chose single-niche approach for MVP rather than multi-niche.
+     Alternatives rejected: multi-niche (spreads thin for solo founder),
+     geographic-only (misses category depth signal). -->
+
+The MVP focuses on a single niche to validate depth before breadth...
+```
+
+### Strategic Decisions Section (for significant decisions)
+
+For strategic choices with substantial trade-off analysis:
+
+```markdown
+## Strategic Decisions
+
+### SD-001: [Decision Title] (GAP-NNN)
+
+**Decision**: [What was decided]
+
+**Rationale**: [Why — drawn from gap discussion]
+
+**Alternatives considered**:
+- [Option A] — rejected because [reason]
+
+**Source**: Creation: GAP-NNN
+```
+
+### When to use which
+
+- **Inline**: Minor scope clarifications, assumption validations, straightforward strategic choices
+- **Section**: Niche selection, go-to-market approach, MVP scope boundaries, business model decisions
+
+---
+
+## Maturity Calibration
+
+Check the concept for the project's target maturity context. When applying gap resolutions:
+
+- **Don't over-spec**: If a proposed change introduces enterprise-grade strategic complexity for a solo founder MVP, flag it
+- **Don't under-spec**: If a proposed change omits strategic considerations that the concept's maturity warrants, flag it
+- **Match stated constraints**: The concept's resource constraints (solo founder, part-time, no funding, etc.) should inform whether a proposed strategic direction is realistic
+
+---
+
 ## Constraints
 
 - **Only process RESOLVED discussions** — Skip any discussion without `>> RESOLVED` marker
@@ -166,6 +249,8 @@ If a proposed change is ambiguous or conflicts with existing content:
 - **Do not extend scope** — A resolution for one gap should not cascade changes to unrelated sections
 - **Flag, don't guess** — If a Proposed Change is ambiguous or conflicts, flag it
 - **Preserve unchanged sections** — Do not modify parts of Blueprint not related to resolved discussions
+- **Stay at Blueprint level** — If you find yourself writing features, technology choices, or implementation details, stop and flag
+- **Capture rationale** — Preserve the "why" from gap discussions, not just the "what"
 
 ---
 
@@ -178,6 +263,9 @@ If a proposed change is ambiguous or conflicts with existing content:
 - [ ] Flagged items clearly explain what clarification is needed
 - [ ] Updated Blueprint maintains internal consistency
 - [ ] Unresolved discussions noted in change log as skipped
+- [ ] All changes stay at strategic level (no product features or implementation detail added)
+- [ ] Design rationale documented for significant decisions
+- [ ] Maturity level appropriate for the project's stated constraints
 
 ---
 
