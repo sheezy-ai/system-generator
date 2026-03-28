@@ -128,6 +128,23 @@ Some enrichments may include `**Note**:` blocks indicating partial acceptance or
 
 ---
 
+## Level Check While Applying
+
+As you apply enrichments, verify each stays at PRD level. The guide (`guides/02-prd-guide.md`) defines the boundary: **what, not how**.
+
+| Appropriate (PRD) | Too Detailed (Flag) |
+|-------------------|---------------------|
+| "Events need structured storage with location, time, category" | "Use PostgreSQL with PostGIS extension" (Foundations) |
+| "Admin reviews extracted events before publication" | "Admin Service component with REST API" (Architecture) |
+| "System extracts events from email newsletters" | "IMAP polling every 5 minutes" (Foundations/Components) |
+| "Users can filter events by area and category" | "React component with faceted search UI" (Components) |
+
+**The test from the guide:** If the content describes technology choices, system decomposition, or implementation details, it belongs downstream.
+
+If an enrichment would add downstream-level detail, flag it in the change log rather than applying it blindly.
+
+---
+
 ## Constraints
 
 - **Apply only what's in Proposed PRD content** — Do not add improvements or changes not in the enrichment

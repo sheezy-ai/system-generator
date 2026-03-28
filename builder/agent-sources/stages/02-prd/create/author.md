@@ -45,6 +45,8 @@ Given the draft PRD and resolved gap discussions, apply the changes faithfully.
 5. **Preserve formatting** — Match the existing PRD style and tone
 6. **Document changes** — Produce clear change log for traceability
 7. **Flag ambiguity** — If a proposed change is unclear, flag it rather than guess
+8. **Check level** — Verify each proposed change stays at PRD level (what, not how)
+9. **Capture design rationale** — Preserve the "why" from gap discussions alongside the "what" in the document
 
 ---
 
@@ -158,6 +160,87 @@ If a proposed change is ambiguous or conflicts with existing content:
 
 ---
 
+## Level Check While Applying
+
+As you apply changes, verify each stays at PRD level. The guide (`guides/02-prd-guide.md`) defines the boundary: **what, not how**.
+
+| Appropriate (PRD) | Too Detailed (Flag/Defer) |
+|-------------------|--------------------------|
+| "Events need structured storage with location, time, category" | "Use PostgreSQL with PostGIS extension" (Foundations) |
+| "Admin reviews extracted events before publication" | "Admin Service component with REST API" (Architecture) |
+| "System extracts events from email newsletters" | "IMAP polling every 5 minutes with OAuth2" (Foundations/Components) |
+| "Users can filter events by area and category" | "React component with faceted search UI" (Components) |
+| "Quality threshold determines auto-approval" | "Levenshtein distance > 0.85 for matching" (Components) |
+
+**The test from the guide:** If the content describes technology choices, system decomposition, or implementation details, it belongs in Foundations, Architecture, or Component Specs — not the PRD.
+
+If a proposed change would add downstream-level detail, flag it:
+
+```markdown
+### Change N: GAP-00X — [Brief title]
+- **Action**: FLAGGED
+- **Location**: §[N] [Section Name]
+- **Issue**: Proposed change includes implementation detail ([specific detail]) that belongs in [Foundations/Architecture/Components], not PRD
+- **Recommendation**: Apply the product requirement only; defer implementation specifics downstream
+- **Needs**: Human confirmation on level
+```
+
+---
+
+## Design Rationale Documentation
+
+When applying gap resolutions, capture the reasoning — not just the decision. The gap discussion contains the "why" (options considered, trade-offs, human's reasoning). Preserve this so review experts can assess whether the reasoning was sound.
+
+### Inline Rationale (for localised decisions)
+
+Add HTML comments near the relevant section:
+
+```markdown
+## 3. Capabilities
+
+<!-- Rationale: GAP-005 - Chose to include duplicate detection in MVP scope.
+     Alternative (defer to Phase 2): rejected — duplicates from overlapping sources
+     would undermine consumer trust from launch. -->
+
+**Duplicate detection**: The system detects and merges duplicate events...
+```
+
+### Key Decisions Section (for significant decisions)
+
+For scope boundary decisions, capability trade-offs, or product decisions with substantial discussion:
+
+```markdown
+## Key Decisions
+
+### KD-001: [Decision Title] (GAP-NNN)
+
+**Decision**: [What was decided]
+
+**Rationale**: [Why — drawn from gap discussion]
+
+**Alternatives considered**:
+- [Option A] — rejected because [reason]
+
+**Source**: Creation: GAP-NNN
+```
+
+### When to use which
+
+- **Inline**: Minor scope clarifications, straightforward capability definitions
+- **Section**: Scope boundary decisions (in/out for MVP), capability prioritisation trade-offs, product decisions with significant alternatives
+
+---
+
+## Maturity Calibration
+
+Check the Blueprint for the project's target maturity level. When applying gap resolutions:
+
+- **Don't over-spec for MVP**: If a proposed change introduces Phase 2 complexity for an MVP PRD, flag it
+- **Don't under-spec for Enterprise**: If a proposed change omits compliance or scale requirements needed for an enterprise product, flag it
+- **Match the Blueprint's stated constraints**: Solo founder, phased delivery, etc. should inform whether a proposed scope expansion is appropriate
+
+---
+
 ## Constraints
 
 - **Only process RESOLVED discussions** — Skip any discussion without `>> RESOLVED` marker
@@ -166,6 +249,8 @@ If a proposed change is ambiguous or conflicts with existing content:
 - **Do not extend scope** — A resolution for one gap should not cascade changes to unrelated sections
 - **Flag, don't guess** — If a Proposed Change is ambiguous or conflicts, flag it
 - **Preserve unchanged sections** — Do not modify parts of PRD not related to resolved discussions
+- **Stay at PRD level** — If you find yourself writing technology choices, system decomposition, or implementation details, stop and flag
+- **Capture rationale** — Preserve the "why" from gap discussions, not just the "what"
 
 ---
 
@@ -178,6 +263,9 @@ If a proposed change is ambiguous or conflicts with existing content:
 - [ ] Flagged items clearly explain what clarification is needed
 - [ ] Updated PRD maintains internal consistency
 - [ ] Unresolved discussions noted in change log as skipped
+- [ ] All changes stay at product requirements level (no implementation detail added)
+- [ ] Design rationale documented for significant decisions
+- [ ] Maturity level appropriate for the project's stated constraints
 
 ---
 

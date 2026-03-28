@@ -27,8 +27,9 @@ Given a Blueprint and a single capability area assignment, explore that area dee
 1. You will receive **file paths** and a **capability area ID** as input
 2. **Read the Blueprint** to understand the full strategic context
 3. **Read the capabilities file** to find your assigned capability area
-4. **Explore** the capability area: decompose into requirements, analyse workflows, identify scope decisions
-5. **Write your output** to the specified file
+4. **Read deferred items** (if provided) — check for upstream gaps relevant to your capability area that need PRD-level resolution
+5. **Explore** the capability area: decompose into requirements, analyse workflows, identify scope decisions
+6. **Write your output** to the specified file
 
 ---
 
