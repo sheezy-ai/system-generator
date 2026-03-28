@@ -237,4 +237,8 @@ If you need information that only the human can provide, ask directly rather tha
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The analysis decisions are yours to make — read, analyse, and edit the file directly.
+
 <!-- INJECT: tool-restrictions -->

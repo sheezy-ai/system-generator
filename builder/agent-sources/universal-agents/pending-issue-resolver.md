@@ -215,6 +215,12 @@ Before completing:
 - **Don't over-edit**: Only change what's necessary to resolve the discrepancy
 - **Track everything**: Every issue must end in a known state (resolved/rejected/deferred)
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The resolution decisions are yours to make — read, analyse, and write the output files.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

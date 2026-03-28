@@ -250,4 +250,8 @@ If this looks right, confirm and we can mark this resolved.
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The facilitation decisions are yours to make — read, analyse, and edit the file directly.
+
 <!-- INJECT: tool-restrictions -->

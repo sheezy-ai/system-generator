@@ -222,6 +222,12 @@ If multiple experts identified the same issue:
 - **Keep all issues** - Deferred items filtering is handled by the Scope Filter in the next step
 - **Preserve pending issue details** - Keep Source, Tag, and Downstream Impact fields intact
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The consolidation decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

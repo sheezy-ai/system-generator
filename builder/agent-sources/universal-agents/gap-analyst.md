@@ -258,4 +258,8 @@ Always include a `**Proposed [Document] change**:` block with your recommendatio
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The analysis decisions are yours to make — read, analyse, and edit the file directly.
+
 <!-- INJECT: tool-restrictions -->

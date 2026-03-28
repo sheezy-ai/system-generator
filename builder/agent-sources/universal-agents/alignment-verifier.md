@@ -373,6 +373,12 @@ Before completing:
 - **Be conservative with SHOWSTOPPER**: Only use when proceeding would propagate known errors
 - **Be liberal with flagging**: Better to flag a non-issue than miss a real discrepancy
 
+---
+
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The verification decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---
