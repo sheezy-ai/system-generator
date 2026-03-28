@@ -78,7 +78,8 @@ agents/04-architecture/
 │   ├── exploration-consolidator.md    # Merges explorer outputs
 │   ├── enrichment-scope-filter.md     # Filters enrichments by level/depth
 │   ├── enrichment-author.md           # Produces exploration summary
-│   ├── generator.md                   # Creates draft from PRD + Foundations + enrichments
+│   ├── generator.md                   # Creates draft from PRD + Foundations + enrichments (round 1)
+│   ├── enrichment-applicator.md       # Applies enrichments to existing draft (round 2+)
 │   └── author.md                      # Applies resolved gap discussions
 └── review/
     ├── orchestrator.md

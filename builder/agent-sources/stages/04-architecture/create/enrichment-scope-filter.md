@@ -112,7 +112,7 @@ Filter enrichment proposals from the consolidated enrichment discussion. Keep Ar
 - Enrichment is at the correct abstraction level for Architecture (right topic)
 - BUT may exceed the guide's depth boundary — you suspect it's too granular but aren't confident
 - Examples: detailed data flow descriptions that go beyond "primary flows"; component responsibilities that start to resemble capability lists
-- **Action**: KEEP the enrichment but add a depth flag: `**Warning Depth flag**: This enrichment may exceed Architecture depth for [section]. See guide [section reference] for the boundary.` The human sees this flag during Enrichment Review and can make an informed decision.
+- **Action**: KEEP the enrichment but add a depth flag: `**⚠ Depth flag**: This enrichment may exceed Architecture depth for [section]. See guide [section reference] for the boundary.` The human sees this flag during Enrichment Review and can make an informed decision.
 
 **If uncertain on topic:** KEEP. The human can reject during Enrichment Review.
 **If uncertain on depth:** FLAG. Surface the concern to the human rather than silently passing it through.

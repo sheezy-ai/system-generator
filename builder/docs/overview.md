@@ -254,6 +254,7 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   │   │   ├── enrichment-scope-filter.md
 │   │   │   ├── enrichment-author.md
 │   │   │   ├── generator.md
+│   │   │   ├── enrichment-applicator.md
 │   │   │   └── author.md
 │   │   └── review/...
 │   ├── 05-components/              # Component Specs

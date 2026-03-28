@@ -170,6 +170,10 @@ The most valuable concerns often come from structural choices implied by the PRD
 
 ---
 
+## Execution Mode
+
+Complete all steps autonomously without pausing for confirmation. The concern identification decisions are yours to make — read, analyse, and write the output file.
+
 <!-- INJECT: tool-restrictions -->
 
 ---

@@ -62,10 +62,13 @@ agents/04-architecture/create/
 ├── exploration-consolidator.md        # Merges explorer outputs
 ├── enrichment-scope-filter.md         # Filters enrichments by level/depth
 ├── enrichment-author.md               # Produces exploration summary
-├── generator.md                       # Creates draft from PRD + Foundations + enrichments
+├── generator.md                       # Creates draft from PRD + Foundations + enrichments (round 1)
+├── enrichment-applicator.md           # Applies enrichments to existing draft (round 2+)
 └── author.md                          # Applies resolved gap discussions
 
 agents/universal-agents/
+├── gap-formatter.md                   # Extracts gaps into discussion format
+├── gap-analyst.md                     # Proposes solutions for each gap
 └── discussion-facilitator.md          # Facilitates enrichment and gap discussions
 
 agents/04-architecture/review/
@@ -96,6 +99,7 @@ system-design/04-architecture/
         │   │   ├── 02a-filtered-enrichment-discussion.md
         │   │   └── 03-exploration-summary.md
         │   ├── 00-draft-architecture.md
+        │   ├── 00-enrichment-applicator-output.md  # Round 2+ only
         │   ├── 01-gap-discussion.md
         │   ├── 02-author-output.md
         │   └── 03-updated-architecture.md
@@ -158,7 +162,7 @@ system-design/04-architecture/
 - [ ] Step 8: Enrichment Author
 
 ### Phase 2: Generate
-- [ ] Step 9: Run Generator
+- [ ] Step 9: Generate or Apply Enrichments
 - [ ] Step 10: Gap Resolution
 
 ### Phase 3: Promote
@@ -192,6 +196,7 @@ Enrichments Rejected: [N]
 - You CREATE structure files (deferred-items.md, pending-issues.md, gap-resolutions.md)
 - You COPY the final draft to `architecture.md` (promotion)
 - You DO NOT write draft content, exploration content, or author output — agents do that
+- You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
 - Spawn agents in FOREGROUND (not background) — agents need interactive approval for file writes
 
 ### Path Resolution
@@ -360,6 +365,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    - PRD: system-design/02-prd/prd.md
    - Foundations: system-design/03-foundations/foundations.md
    - Concerns file: {explore-dir}/00-concerns.md
+   - Deferred items: system-design/04-architecture/versions/deferred-items.md
    - Assigned concern: CON-[N]
 
    Output: {explore-dir}/01-explorer-{concern-name}.md
@@ -553,9 +559,15 @@ Only proceed to step 3 after the human signals they have responded.
 
 ## Phase 2: Generate
 
-### Step 9: Run Generator
+### Step 9: Generate or Apply Enrichments
 
-**On resume**: If Step 9 already marked complete, verify `{round-dir}/00-draft-architecture.md` exists and skip to Step 10. Do NOT re-run the Generator (it appends to downstream deferred items files and would create duplicates).
+**On resume**: If Step 9 already marked complete, verify `{round-dir}/00-draft-architecture.md` exists and skip to Step 10. For round 1: do NOT re-run the Generator (it appends to downstream deferred items files and would create duplicates).
+
+**Round 1** and **Round 2+** use different approaches:
+- **Round 1**: No prior draft exists — the Generator creates the Architecture from scratch
+- **Round 2+**: A prior draft exists — the Enrichment Applicator applies accepted enrichments as targeted edits to the previous round's draft
+
+#### Round 1: Run Generator
 
 1. **Determine exploration summary path**: Check if `{explore-dir}/03-exploration-summary.md` exists. If yes, include it as input. If no (exploration was skipped or no enrichments accepted), omit it.
 
@@ -582,66 +594,208 @@ Only proceed to step 3 after the human signals they have responded.
 
 4. **Verify output exists** at `{round-dir}/00-draft-architecture.md`
 
-5. **Update state file**: Mark "Step 9: Run Generator" complete `[x]`, add history entry
+5. **Update state file**: Mark "Step 9: Generate or Apply Enrichments" complete `[x]`, add history entry
 
-### Step 10: Gap Resolution (`WAITING_FOR_HUMAN`)
+#### Round 2+: Apply Enrichments
 
-**On resume**: If status = WAITING_FOR_HUMAN for Step 10, re-read draft and present gap summary to human.
+1. **Copy previous round's draft** to `{round-dir}/00-draft-architecture.md` using Bash cp:
+   ```
+   cp [previous round's latest draft per Path Resolution] {round-dir}/00-draft-architecture.md
+   ```
+
+2. **Determine exploration summary path**: Check if `{explore-dir}/03-exploration-summary.md` exists.
+   - **If NO** (exploration was skipped or no enrichments accepted): Draft is already copied with no changes needed. Skip to step 5.
+   - **If YES**: Continue to step 3.
+
+3. **Spawn Enrichment Applicator agent** using Task tool:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/04-architecture/create/enrichment-applicator.md
+
+   Input:
+   - Draft Architecture: {round-dir}/00-draft-architecture.md
+   - Exploration summary: {explore-dir}/03-exploration-summary.md
+   - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
+
+   Output:
+   - Updated Architecture: {round-dir}/00-draft-architecture.md (edit in place)
+   - Change log: {round-dir}/00-enrichment-applicator-output.md
+   ```
+
+4. **Wait for Enrichment Applicator to complete**
+
+5. **Verify output exists** at `{round-dir}/00-draft-architecture.md`
+
+6. **Update state file**: Mark "Step 9: Generate or Apply Enrichments" complete `[x]`, add history entry
+
+### Step 10: Gap Resolution
+
+**On resume**: If status = WAITING_FOR_HUMAN for Step 10, re-read `{round-dir}/01-gap-discussion.md` and continue the gap discussion loop. If no gap discussion file exists yet, re-read the draft and start from step 1.
 
 1. **Read the draft** at `{round-dir}/00-draft-architecture.md`
 
 2. **Check for Gap Summary section** — Look for `## Gap Summary` heading
 
-3. **Determine gap status**:
-   - If no Gap Summary, or all subsections empty → no gaps
-   - Otherwise → gaps exist
+3. **If no Gap Summary, or all subsections empty** (Must Answer, Should Answer, and Assumptions all show "None" or similar):
+   - **Update state file**: Set `Gaps Exist` = `false`, add history entry "No gaps found"
+   - **Notify user**:
+     ```
+     Draft Architecture generated (round {N}) — no gaps found.
 
-4. **Update state file**: Set `Gaps Exist` = `true` or `false`, set status = WAITING_FOR_HUMAN
+     Draft: {round-dir}/00-draft-architecture.md
 
-5. **Notify user** the draft is ready for review:
+     You can:
+     - Say "promote" — promote the draft
+     - Say "another round" — run another explore→generate cycle
 
-   **If gaps exist:**
+     When ready, let me know.
+     ```
+   - **STOP: Wait for human response.** Handle "promote" or "another round" per step 14 below.
+
+4. **Spawn Gap Formatter agent** using Task tool:
    ```
-   Draft Architecture generated (round {N}).
+   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/gap-formatter.md
 
-   Draft: {round-dir}/00-draft-architecture.md
+   Input:
+   - Draft: {round-dir}/00-draft-architecture.md
 
-   The draft has the following gaps:
-
-   Must Answer:
-   - [List each must-answer gap]
-
-   Should Answer:
-   - [List each should-answer gap]
-
-   Assumptions to Validate:
-   - [List each assumption]
-
-   You can:
-   - Edit the draft directly — replace gap markers with your answers
-   - Provide answers here — I'll create a resolutions file and have the Author apply them
-   - Say "another round" — run another explore→generate cycle using this draft as input
-   - Say "promote" — promote the current draft as-is
-
-   When ready, let me know how you'd like to proceed.
+   Output: {round-dir}/01-gap-discussion.md
    ```
 
-   **If no gaps:**
+5. **Wait for Gap Formatter to complete**
+
+6. **Verify output exists** at `{round-dir}/01-gap-discussion.md`
+
+7. **Read output** — count gaps by severity
+
+8. **Spawn Gap Analyst agents** using Task tool (batch by section, 2-3 batches):
    ```
-   Draft Architecture generated (round {N}) — no gaps found.
+   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/gap-analyst.md
 
-   Draft: {round-dir}/00-draft-architecture.md
+   Context documents:
+   - Draft Architecture: {round-dir}/00-draft-architecture.md
+   - PRD: system-design/02-prd/prd.md
+   - Foundations: system-design/03-foundations/foundations.md
+   - Brief: system-design/04-architecture/brief.md (if exists)
 
-   You can:
-   - Say "promote" — promote the draft
-   - Say "another round" — run another explore→generate cycle to deepen the Architecture
+   Gap discussion file: {round-dir}/01-gap-discussion.md
+   Gaps: [GAP-001, GAP-002, ...]
+   ```
 
-   When ready, let me know.
+   Batch by Architecture section:
+   - Batch 1: Sections 1-3 (System Context, Component Decomposition, Data Flows)
+   - Batch 2: Sections 4-6 (Integration Points, Key Technical Decisions, Component Spec List)
+   - Batch 3: Sections 7-9 (Cross-Cutting Concerns, Data Contracts, Open Questions)
+   - If fewer than 4 gaps total, use fewer batches
+
+9. **Wait for all Gap Analyst agents to complete**
+
+10. **Verify analyst responses were written** (MANDATORY):
+    - Count `>> AGENT:` markers in the gap discussion file
+    - Compare to total number of gaps
+    - If counts don't match: identify missing gaps and re-invoke Gap Analyst for those only
+
+11. **Update state file**: Set `Gaps Exist` = `true`, set status = WAITING_FOR_HUMAN, add history entry with gap counts
+
+12. **Notify user** gap analysis is ready for review:
+   ```
+   Gap analysis complete (round {N}).
+
+   Discussion file: {round-dir}/01-gap-discussion.md
+
+   - [N] HIGH (Must Answer) gaps
+   - [M] MEDIUM (Should Answer) gaps
+   - [K] LOW (Assumptions to Validate) gaps
+
+   Each gap has a proposed solution with options, trade-offs, and recommendation.
+   Please review each proposal and respond using >> HUMAN: markers:
+   - Accept: "Agreed", "Yes", "That works"
+   - Modify: State what you'd change
+   - Reject/Discuss: Explain your concern
+
+   When done, let me know and I'll process your responses.
    ```
 
 **STOP: Wait for human response before proceeding.**
 
-6. **After human responds**:
+Do NOT enter the discussion loop until the human has added actual response content after `>> HUMAN:` markers.
+
+13. **Discussion loop**:
+
+    a. **Identify gaps needing agent response**: Read file, find gaps where last entry is `>> HUMAN:` without subsequent `>> AGENT:`
+
+    b. **For gaps where human accepted** (clear agreement indicators): Add `>> RESOLVED`
+
+    c. **For gaps needing discussion**: Spawn Discussion Facilitator agents (batched by section):
+       ```
+       Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
+
+       Context documents:
+       - Draft Architecture: {round-dir}/00-draft-architecture.md
+       - PRD: system-design/02-prd/prd.md
+       - Foundations: system-design/03-foundations/foundations.md
+
+       Issues file: {round-dir}/01-gap-discussion.md
+       Issues: [GAP-001, GAP-002, ...]
+       ```
+
+    d. **Wait for all agents to complete**
+
+    e. **Verify agent responses were written** (MANDATORY)
+
+    f. **Present to human**: "Please review the agent responses and reply to each gap."
+
+    g. **Wait for human responses**
+
+    h. **After human responds**, read file and for each gap:
+       - If last entry is `>> HUMAN:` after `>> AGENT:` AND response indicates closure → add `>> RESOLVED`
+       - If last entry is `>> HUMAN:` with question, pushback, or request → leave open
+
+    i. **Resolution indicators** (human response after `>> AGENT:` that signals done):
+       - Agreement: "Yes", "Agreed", "That works", "Fine", "OK"
+       - Dismissal: "Not a concern", "Not relevant", "Ignore", "Skip"
+       - Acceptance: "Makes sense", "Fair enough", "Understood"
+
+    j. **Continue discussion indicators** (do NOT mark resolved):
+       - Questions: "?", "What about", "How would", "Can you"
+       - Requests: "Please", "Can you", "I'd like", "Show me"
+       - Pushback: "I disagree", "That's not right", "But what about"
+
+    k. **If any gaps unresolved**: Go to step (a)
+
+    l. **If all gaps resolved**:
+       - **Spawn Author agent** using Task tool:
+         ```
+         Follow the instructions in: {{AGENTS_PATH}}/04-architecture/create/author.md
+
+         Input:
+         - Draft Architecture: {round-dir}/00-draft-architecture.md
+         - Gap discussion: {round-dir}/01-gap-discussion.md
+         - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
+
+         Output:
+         - Change log: {round-dir}/02-author-output.md
+         - Updated Architecture: {round-dir}/03-updated-architecture.md
+         ```
+       - Wait for Author to complete
+       - Verify outputs exist
+
+14. **After gap resolution completes** (all gaps resolved and Author applied, or no gaps existed):
+
+   **Notify user**:
+   ```
+   [If gaps were resolved:]
+   All gaps resolved and applied.
+   [If no gaps:]
+   No gaps found.
+
+   You can:
+   - Say "promote" — promote the current draft
+   - Say "another round" — run another explore→generate cycle
+
+   When ready, let me know.
+   ```
+
+   **STOP: Wait for human response.**
 
    **If "another round"**:
    - Determine the latest draft for this round:
@@ -658,52 +812,6 @@ Only proceed to step 3 after the human signals they have responded.
    **If "promote"** or "promote as-is":
    - Update state file: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry "Promoting draft from round {N}"
    - Proceed to Step 11
-
-   **If human edited the draft directly**:
-   - After human confirms edits are done, ask: "Draft updated. Promote or another round?"
-   - Wait for response, handle "promote" or "another round" as above
-
-   **If human provides answers in conversation**:
-   - **Create gap resolutions file** at `{round-dir}/01-gap-discussion.md` recording the human's answers:
-     ```markdown
-     # Gap Resolutions
-
-     Answers provided by the human for gaps in the draft Architecture.
-
-     ---
-
-     ## GAP-001
-     **Gap**: [The gap marker text from the draft]
-     **Section**: [Which Architecture section contains this gap]
-     **Severity**: [Must Answer | Should Answer | Assumption]
-
-     >> HUMAN:
-     [The human's answer]
-
-     >> RESOLVED
-
-     ---
-
-     ## GAP-002
-     [Same structure for each answered gap]
-     ```
-   - **Spawn Author agent** using Task tool:
-     ```
-     Follow the instructions in: {{AGENTS_PATH}}/04-architecture/create/author.md
-
-     Input:
-     - Draft Architecture: {round-dir}/00-draft-architecture.md
-     - Gap discussion: {round-dir}/01-gap-discussion.md
-     - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
-
-     Output:
-     - Change log: {round-dir}/02-author-output.md
-     - Updated Architecture: {round-dir}/03-updated-architecture.md
-     ```
-   - Wait for Author to complete
-   - Verify outputs exist
-   - Ask: "Gaps resolved and applied. Promote or another round?"
-   - Wait for response, handle "promote" or "another round" as above
 
 ---
 
@@ -766,8 +874,11 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2: Setup then identifier
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
-- Steps 8 → 9: Enrichment author then generator
+- Steps 8 → 9: Enrichment author then generator/applicator
+- Step 10 gap analysis (steps 4-10 within Step 10): Gap formatter → Gap analyst → present to human
 - Step 11: Promote and report
+
+**Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads (e.g., "Read the concerns file," "Check for Gap Summary"). If a read is not in the step instructions, do not perform it — agents read their own inputs.
 
 **Human checkpoints:**
 - **Step 3** — WAITING_FOR_HUMAN for concern review
