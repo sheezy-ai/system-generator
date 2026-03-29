@@ -321,6 +321,7 @@ All rounds for a stage share a `versions/` folder with a unified state file.
 ## Further Reading
 
 - `workflow-create.md` - Create workflow mechanics and agent details
+- `workflow-create-patterns.md` - Three pre-generation intensity levels (Direct, Select, Explore)
 - `workflow-review.md` - Review workflow mechanics and agent details
 - `design-decisions.md` - Why the system is designed this way
 - `01-blueprint.md` - Blueprint stage documentation

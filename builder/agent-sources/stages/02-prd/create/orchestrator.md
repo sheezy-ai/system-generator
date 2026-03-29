@@ -6,6 +6,9 @@
 
 Initialize the PRD stage by setting up structure, exploring capability areas from the Blueprint that need product-level decomposition, generating a draft PRD enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, promote the final draft.
 
+**Create Pattern**: Explore (see docs/workflow-create-patterns.md)
+**Deviations**: Lightweight gap resolution (no Gap Formatter/Analyst pipeline); no coverage verification
+
 **Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
 
 The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the Blueprint. Round 2+ explores from the previous round's draft, finding capability areas and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to promote at Gap Resolution.

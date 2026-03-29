@@ -6,6 +6,9 @@
 
 Initialize the Architecture stage by setting up structure, exploring architectural concerns from the PRD and Foundations that need structured analysis, generating a draft Architecture Overview enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, promote the final draft.
 
+**Create Pattern**: Explore (see docs/workflow-create-patterns.md)
+**Deviations**: Full gap analysis pipeline in Step 10 (not lightweight); coverage verification added at Step 9b
+
 **Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
 
 The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the PRD and Foundations. Round 2+ explores from the previous round's draft, finding concerns and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to promote at Gap Resolution.

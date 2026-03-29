@@ -6,6 +6,9 @@
 
 Initialize the Foundations stage by setting up structure, generating a draft Foundations document from the PRD, resolving any gaps through structured discussion, and promoting the final draft to `foundations.md` for the Review workflow.
 
+**Create Pattern**: Select (see docs/workflow-create-patterns.md)
+**Deviations**: None — follows standard Select pattern
+
 **Flow:** Orchestrator (this) → Assessor → Generator → Gap Discussion (if gaps) → Author (if gaps) → Promote → Review workflow
 
 ---
