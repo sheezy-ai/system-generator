@@ -6,9 +6,6 @@
 
 Create a single component spec by generating a draft from the Architecture and Foundations, resolving any gaps through structured discussion, and promoting the final draft to `specs/[component-name].md` for the Review workflow.
 
-**Create Pattern**: Direct (see docs/workflow-create-patterns.md)
-**Deviations**: None — follows standard Direct pattern
-
 **Flow:** Orchestrator (this) → Generator → Gap Discussion (if gaps) → Author (if gaps) → Promote → Review workflow
 
 ---

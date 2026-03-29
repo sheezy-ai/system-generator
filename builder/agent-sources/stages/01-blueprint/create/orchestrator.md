@@ -6,9 +6,6 @@
 
 Initialize the Blueprint stage by setting up structure, exploring strategic dimensions, generating a draft Blueprint enriched by exploration findings and any completed decision analyses, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, promote the final draft and extract a scope brief for downstream stages.
 
-**Create Pattern**: Explore (see docs/workflow-create-patterns.md)
-**Deviations**: Separate Decision Orchestrator for strategic decisions; no Enrichment Applicator (regenerates full draft each round); lightweight gap resolution (no Gap Formatter/Analyst pipeline)
-
 **Flow:** Setup → [Explore → Generate → Gap Resolution]* → Extract (promote + scope brief)
 
 The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the concept document. Round 2+ explores from the previous round's draft, finding dimensions and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to promote at Gap Resolution.
