@@ -134,7 +134,8 @@ system-design/04-architecture/
    - Steps 2–8 (Explore phase) — if all marked SKIPPED, jump to Step 9
    - Step 7 resumes at WAITING_FOR_HUMAN — re-read filtered enrichment discussion file and continue loop
    - Step 9 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
-   - Step 10 resumes at WAITING_FOR_HUMAN — re-read draft and present gap summary to human
+   - Step 10 (Gap Resolution) — if marked complete, skip to Step 11
+   - Step 11 resumes at WAITING_FOR_HUMAN — present promote/another-round choice to human
 
 3. **Update state file** at each step transition (instructions inline below)
 
@@ -169,9 +170,10 @@ system-design/04-architecture/
 - [ ] Step 9: Generate or Apply Enrichments
 - [ ] Step 9b: Coverage Verification
 - [ ] Step 10: Gap Resolution
+- [ ] Step 11: Promote or Continue
 
 ### Phase 3: Promote
-- [ ] Step 11: Promote & Report
+- [ ] Step 12: Promote & Report
 
 ## Explore Details
 
@@ -706,27 +708,15 @@ Only proceed to step 3 after the human signals they have responded.
 
 ### Step 10: Gap Resolution
 
-**On resume**: If status = WAITING_FOR_HUMAN for Step 10, re-read `{round-dir}/01-gap-discussion.md` and continue the gap discussion loop. If no gap discussion file exists yet, re-read the draft and start from step 1.
+**On resume**: If Step 10 already marked complete, skip to Step 11. If status = WAITING_FOR_HUMAN within Step 10's discussion loop, re-read `{round-dir}/01-gap-discussion.md` and continue the discussion loop from step 10.13(a).
 
 1. **Read the draft** at `{round-dir}/00-draft-architecture.md`
 
 2. **Check for Gap Summary section** — Look for `## Gap Summary` heading
 
 3. **If no Gap Summary, or all subsections empty** (Must Answer, Should Answer, and Assumptions all show "None" or similar):
-   - **Update state file**: Set `Gaps Exist` = `false`, add history entry "No gaps found"
-   - **Notify user**:
-     ```
-     Draft Architecture generated (round {N}) — no gaps found.
-
-     Draft: {round-dir}/00-draft-architecture.md
-
-     You can:
-     - Say "promote" — promote the draft
-     - Say "another round" — run another explore→generate cycle
-
-     When ready, let me know.
-     ```
-   - **STOP: Wait for human response.** Handle "promote" or "another round" per step 14 below.
+   - **Update state file**: Set `Gaps Exist` = `false`, mark "Step 10: Gap Resolution" complete `[x]`, add history entry "No gaps found"
+   - Proceed to Step 11
 
 4. **Spawn Gap Formatter agent** using Task tool:
    ```
@@ -856,14 +846,24 @@ Do NOT enter the discussion loop until the human has added actual response conte
        - Wait for Author to complete
        - Verify outputs exist
 
-14. **After gap resolution completes** (all gaps resolved and Author applied, or no gaps existed):
+14. **Update state file**: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry
 
-   **Notify user**:
+### Step 11: Promote or Continue (`WAITING_FOR_HUMAN`)
+
+**On resume**: If status = WAITING_FOR_HUMAN for Step 11, present the promote/another-round choice to the human.
+
+1. **Update state file**: Set status = WAITING_FOR_HUMAN
+
+2. **Notify user**:
    ```
    [If gaps were resolved:]
-   All gaps resolved and applied.
+   All gaps resolved and applied (round {N}).
    [If no gaps:]
-   No gaps found.
+   Draft Architecture generated (round {N}) — no gaps found.
+
+   Draft: {round-dir}/00-draft-architecture.md
+   [If Author ran:]
+   Updated: {round-dir}/03-updated-architecture.md
 
    You can:
    - Say "promote" — promote the current draft
@@ -872,31 +872,34 @@ Do NOT enter the discussion loop until the human has added actual response conte
    When ready, let me know.
    ```
 
-   **STOP: Wait for human response.**
+**STOP: Wait for human response.**
+
+3. **After human responds**:
 
    **If "another round"**:
    - Determine the latest draft for this round:
      - If `{round-dir}/03-updated-architecture.md` exists (Author ran): use it
      - Otherwise: use `{round-dir}/00-draft-architecture.md`
    - Update state file:
+     - Mark "Step 11: Promote or Continue" complete `[x]`
      - Increment `Current Round`
-     - Reset Steps 1–10 to unchecked `[ ]`
+     - Reset Steps 1–11 to unchecked `[ ]`
      - Set phase = Explore, Explore Phase = active, Gaps Exist = unknown
      - Add history entry "Round {N} complete — starting round {N+1}"
    - **Re-resolve paths** using Path Resolution with the new round number
    - **Loop to Step 1**
 
    **If "promote"** or "promote as-is":
-   - Update state file: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry "Promoting draft from round {N}"
-   - Proceed to Step 11
+   - Update state file: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Promoting draft from round {N}"
+   - Proceed to Step 12
 
 ---
 
 ## Phase 3: Promote
 
-Phase 3 runs only when the human chooses to promote at Step 10, exiting the explore→generate loop.
+Phase 3 runs only when the human chooses to promote at Step 11, exiting the explore→generate loop.
 
-### Step 11: Promote & Report
+### Step 12: Promote & Report
 
 1. **Determine final draft path** (from the current round):
     - If `{round-dir}/03-updated-architecture.md` exists (Author ran): Use it
@@ -909,7 +912,7 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 
 3. **Verify promotion** — Confirm `system-design/04-architecture/architecture.md` exists
 
-4. **Update state file**: Mark "Step 11: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
+4. **Update state file**: Mark "Step 12: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
 
 5. **Check downstream deferred items** for items the Generator deferred
 
@@ -951,23 +954,24 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2: Setup then identifier
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
-- Steps 8 → 9: Enrichment author then generator/applicator
-- Step 10 gap analysis (steps 4-10 within Step 10): Gap formatter → Gap analyst → present to human
-- Step 11: Promote and report
+- Steps 8 → 9 → 9b: Enrichment author then generator/applicator then coverage verification
+- Step 10: Gap resolution (Gap formatter → Gap analyst → discussion loop → Author)
+- Step 12: Promote and report
 
 **Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads (e.g., "Read the concerns file," "Check for Gap Summary"). If a read is not in the step instructions, do not perform it — agents read their own inputs.
 
 **Human checkpoints:**
 - **Step 3** — WAITING_FOR_HUMAN for concern review
 - **Step 7** — WAITING_FOR_HUMAN for enrichment review until all enrichments resolved
-- **Step 10** — WAITING_FOR_HUMAN for gap resolution (promote vs another round)
+- **Step 10** — WAITING_FOR_HUMAN within gap discussion loop (sub-steps 12-13)
+- **Step 11** — WAITING_FOR_HUMAN for promote vs another round
 
 **Skip paths:**
 - **Explore skip** — If fewer than 2 concerns (Step 2) or human says "skip" (Step 3) → jump to Step 9
-- **Gap skip** — If no gaps in draft (Step 10) → still present promote/another-round choice
+- **Gap skip** — If no gaps in draft (Step 10) → Step 10 completes immediately, Step 11 still presents promote/another-round choice
 
 **Loop path:**
-- **Another round** — If human says "another round" at Step 10 → increment round, reset Steps 1–10, loop to Step 1
+- **Another round** — If human says "another round" at Step 11 → increment round, reset Steps 1–11, loop to Step 1
 
 ---
 
@@ -1004,7 +1008,7 @@ After this orchestrator completes:
 2. **Human optionally makes manual edits** — Can refine directly
 3. **Human runs Review workflow** — Invokes the Architecture Review orchestrator
 
-**IMPORTANT**: The Review workflow reads from `system-design/04-architecture/architecture.md` for Round 1. This file is created by the promotion step (Step 11). It MUST exist before starting the Review workflow.
+**IMPORTANT**: The Review workflow reads from `system-design/04-architecture/architecture.md` for Round 1. This file is created by the promotion step (Step 12). It MUST exist before starting the Review workflow.
 
 The Review workflow will:
 - Run expert reviewers on the Architecture
