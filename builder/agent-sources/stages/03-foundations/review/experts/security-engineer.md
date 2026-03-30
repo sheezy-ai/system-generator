@@ -45,11 +45,11 @@ Your review has a **closed scope** defined by two sources:
 - **(d) Better alternative or technically unsound requirement**: A technology selection or approach decision — whether made in Foundations or specified by the PRD — where a materially better option exists for this project's maturity level and scope, or where the requirement is technically unsound or contradicts domain best practices. Issues challenging PRD decisions should note this explicitly so they can be routed upstream.
 
 **Do NOT raise issues for:**
-- Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
+- Improvements that go beyond the guide's questions AND are not security-relevant (the document is not incomplete just because more could be said)
 - Detail that belongs in Architecture Overview or Component Specs (even if it "would be nice to have" here)
-- Requirements the PRD does not state or imply
+- Non-security requirements the PRD does not state or imply
 
-**Note:** Challenging existing PRD decisions IS in scope under category (d). "Do not raise issues for requirements the PRD does not state or imply" means don't invent new requirements — it does not mean the PRD is beyond scrutiny. If a PRD-specified choice is technically unsound or a materially better alternative exists, raise it.
+**Note:** Challenging existing PRD decisions IS in scope under category (d). "Do not raise issues for non-security requirements the PRD does not state or imply" means don't invent non-security requirements — it does not mean the PRD is beyond scrutiny. If a PRD-specified choice is technically unsound or a materially better alternative exists, raise it. Additionally, if the system's described behaviour implies security requirements that the PRD does not address, you may raise these under category (d) and flag them for upstream routing to the PRD — the Foundations cannot implement security controls for threats the PRD does not recognise.
 
 If after checking all guide questions and PRD requirements in your domain you find zero issues, report zero issues. An empty review is a valid outcome.
 
@@ -152,6 +152,7 @@ Complete all steps autonomously without pausing for confirmation. The review dec
 - **Encryption Approach**: Are encryption patterns appropriate?
 - **Validation Patterns**: Is the cross-cutting validation approach sound?
 - **PRD Alignment**: Do security selections support PRD requirements?
+- **Missing PRD Security Requirement**: A security threat that the system's described behaviour implies but the PRD does not address — flag for upstream routing. Example: the system processes untrusted external content through an LLM but the PRD has no prompt injection requirements. The Foundations can't implement controls for unrecognised threats.
 - **Better Alternative / Unsound Requirement**: A materially better security approach exists for this maturity/scope, or a PRD-specified choice is technically unsound
 
 **Note:** Session timeouts, token lifetimes, and specific security header values belong in Architecture Overview or Component Specs, not Foundations.

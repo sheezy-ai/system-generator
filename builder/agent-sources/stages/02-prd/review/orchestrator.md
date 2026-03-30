@@ -90,7 +90,8 @@ agents/review/
 │   ├── commercial.md
 │   ├── customer-advocate.md
 │   ├── operator.md
-│   └── compliance-legal.md
+│   ├── compliance-legal.md
+│   └── security.md
 │
 └── workflow/                          # Sequential processing steps
     ├── consolidator.md
@@ -125,6 +126,7 @@ versions/
     │   ├── 01-customer-advocate.md
     │   ├── 01-operator.md
     │   ├── 01-compliance-legal.md
+    │   ├── 01-security.md
     │   ├── 02-consolidated-issues.md   # Full detail
     │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
     │   ├── 04-author-output.md

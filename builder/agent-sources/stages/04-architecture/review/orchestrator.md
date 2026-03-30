@@ -73,7 +73,7 @@ Review uses `round-1`, `round-2`, etc. Creation workflow uses `round-0`. Both sh
 
 ## Review Structure
 
-Architecture Overview review uses a **single stage** with 5 experts focused on system-level concerns:
+Architecture Overview review uses a **single stage** with 6 experts focused on system-level concerns:
 
 | Expert | Focus |
 |--------|-------|
@@ -82,9 +82,10 @@ Architecture Overview review uses a **single stage** with 5 experts focused on s
 | **Integration Architect** | Component interactions, contracts, integration patterns |
 | **Technical Reviewer** | Feasibility, Foundations alignment, complexity |
 | **FinOps** | Cost implications, budget alignment, cost scaling |
+| **Security** | Trust boundaries, validation ownership, autonomous decision security |
 
 **Notes:**
-- All 5 experts run in parallel
+- All 6 experts run in parallel
 - Focus is on system decomposition, not implementation details
 - Multiple rounds until no HIGH issues remain
 
@@ -101,7 +102,8 @@ agents/review/
 │   ├── data-architect.md
 │   ├── integration-architect.md
 │   ├── technical-reviewer.md
-│   └── finops.md
+│   ├── finops.md
+│   └── security.md
 └── workflow/
     ├── consolidator.md
     ├── author.md
@@ -135,6 +137,7 @@ system-design/04-architecture/
     │   ├── 01-integration-architect.md
     │   ├── 01-technical-reviewer.md
     │   ├── 01-finops.md
+    │   ├── 01-security.md
     │   ├── 02-consolidated-issues.md   # Full detail
     │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
     │   ├── 04-author-output.md
