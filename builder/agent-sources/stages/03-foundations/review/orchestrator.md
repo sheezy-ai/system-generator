@@ -45,8 +45,9 @@
 - [ ] Step 5: Apply Changes
 - [ ] Step 6: Change Verification
 - [ ] Step 7: Alignment Verification
-- [ ] Step 8: Verification Review
-- [ ] Step 9: Execute & Route
+- [ ] Step 8: Internal Coherence
+- [ ] Step 9: Verification Review
+- [ ] Step 10: Execute & Route
 
 ## History
 - YYYY-MM-DD HH:MM: Round 1 started
@@ -107,6 +108,7 @@ agents/review/
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── alignment-verifier.md              # Verifies alignment with source documents
+├── internal-coherence-checker.md      # Verifies cross-section consistency within document
 ├── pending-issue-resolver.md          # Resolves pending issues logged to upstream docs
 ├── scope-filter.md                    # Filters issues and outputs summary format
 ├── issue-analyst.md                   # Pre-discussion analysis with options and recommendations
@@ -138,8 +140,9 @@ system-design/03-foundations/
     │   ├── 05-updated-foundations.md
     │   ├── 06-change-verification-report.md
     │   ├── 07-alignment-report.md
-    │   ├── 08-verification-summary.md
-    │   └── 09-pending-issue-sync.md      # If pending issues were synced
+    │   ├── 08-coherence-report.md
+    │   ├── 09-verification-summary.md
+    │   └── 10-pending-issue-sync.md      # If pending issues were synced
     └── round-2/
         └── ...
 ```
@@ -272,7 +275,7 @@ Output: [resolved file path]
 13. **Update state file**: Mark Step 3 complete
 
 14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
-    - **If zero kept issues**: The document is complete. Skip Steps 3b–9 and proceed directly to Step 10 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–10 and proceed directly to Step 11 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
     - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
@@ -407,13 +410,13 @@ This gate is mandatory. Do not skip it.
 
 29. **Automatically proceed to Step 6**
 
-### Steps 6-7: Verification (Parallel)
+### Steps 6-8: Verification (Parallel)
 
-**IMPORTANT**: Run Steps 6 and 7 in parallel — they have no dependencies on each other. Aggregate all results, then present to human at Step 8.
+**IMPORTANT**: Run Steps 6, 7, and 8 in parallel — they have no dependencies on each other. Aggregate all results, then present to human at Step 9.
 
-30. **Update state file**: Set Steps 6-7, status = IN_PROGRESS
+30. **Update state file**: Set Steps 6-8, status = IN_PROGRESS
 
-31. **Spawn both verification agents in parallel**:
+31. **Spawn all three verification agents in parallel**:
 
     **Change Verifier** (Step 6):
     - Pass: paths to issues-summary (with resolutions) + author output + updated Foundations + output path
@@ -426,21 +429,34 @@ This gate is mandatory. Do not skip it.
     - Agent identifies any pending issues (problems in PRD that need addressing)
     - Agent writes to `system-design/03-foundations/versions/round-[N]/07-alignment-report.md`
 
-32. **Wait for both agents to complete**
+    **Internal Coherence Checker** (Step 8) (`{{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md`):
+    - Pass: Updated Foundations path, stage guide path, output path
+    - Agent verifies cross-section consistency within the Foundations document
+    - Agent writes to `system-design/03-foundations/versions/round-[N]/08-coherence-report.md`
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
 
-33. **Update state file**: Mark Steps 6 and 7 complete
+    Document: system-design/03-foundations/versions/round-[N]/05-updated-foundations.md
+    Stage guide: guides/03-foundations-guide.md
+    Output: system-design/03-foundations/versions/round-[N]/08-coherence-report.md
+    ```
 
-34. **Automatically proceed to Step 8** (do NOT stop even if HALT recommended)
+32. **Wait for all three agents to complete**
 
-### Step 8: Verification Review
+33. **Update state file**: Mark Steps 6, 7, and 8 complete
 
-35. **Update state file**: Set Step 8, status = IN_PROGRESS
+34. **Automatically proceed to Step 9** (do NOT stop even if HALT recommended)
+
+### Step 9: Verification Review
+
+35. **Update state file**: Set Step 9, status = IN_PROGRESS
 
 36. **Read all verification reports** and aggregate findings:
     - `06-change-verification-report.md` - check for PARTIALLY_RESOLVED, NOT_RESOLVED, or LEVEL_VIOLATION
     - `07-alignment-report.md` - check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
+    - `08-coherence-report.md` - check for HIGH or MEDIUM coherence gaps
 
-37. **Write verification summary** to `08-verification-summary.md`:
+37. **Write verification summary** to `09-verification-summary.md`:
     ```markdown
     # Verification Summary
 
@@ -477,6 +493,19 @@ This gate is mandatory. Do not skip it.
     |----|--------|---------|--------|
     | PI-002 | [stage] | [summary] | [reason] |
 
+    ## Internal Coherence
+
+    **Status**: [COHERENT / GAPS_FOUND]
+    - HIGH: [N]
+    - MEDIUM: [N]
+    - LOW: [N]
+
+    ### Coherence Gaps Needing Decision (if any HIGH/MEDIUM)
+
+    | ID | Category | Severity | Source Section | Target Section | Summary |
+    |----|----------|----------|---------------|----------------|---------|
+    | COH-001 | MISSING_REFLECTION | HIGH | [source] | [target] | [summary] |
+
     ## Overall Status
 
     **[CLEAN / NEEDS_DECISIONS / NEEDS_REWORK]**
@@ -486,13 +515,14 @@ This gate is mandatory. Do not skip it.
     1. PARTIALLY_RESOLVED: [list items needing accept/rework decision]
     2. HALT blockers: [list items needing acknowledgment]
     3. Pending issue sync: [list items needing sync decision]
+    4. Coherence gaps: [list HIGH/MEDIUM items needing decision]
     ```
 
 38. **Determine next action based on Overall Status**:
 
     a. **If CLEAN** (no decisions needed, no failures):
-       - Update state file: Mark Step 8 complete
-       - Automatically proceed to Step 9
+       - Update state file: Mark Step 9 complete
+       - Automatically proceed to Step 10
 
     b. **If NEEDS_REWORK** (NOT_RESOLVED or LEVEL_VIOLATION items exist):
        - Present to human: "Changes not applied correctly. Returning to Author."
@@ -534,21 +564,29 @@ This gate is mandatory. Do not skip it.
     1. **Sync now** - Apply all to upstream documents
     2. **Defer all** - Leave for later
     3. **Select individually** - Choose per issue
+
+    ### Coherence Gaps (if HIGH/MEDIUM items)
+
+    | ID | Category | Source Section | Target Section | Summary |
+    |----|----------|---------------|----------------|---------|
+    | COH-001 | MISSING_REFLECTION | [source] | [target] | [summary] |
+
+    For each: **FIX** (return to Author to address) or **ACCEPT** (proceed as-is)?
     ```
 
 **STOP: Wait for human response before proceeding.**
 
 40. **Collect decisions from human response**
 
-41. **Update state file**: Mark Step 8 complete
+41. **Update state file**: Mark Step 9 complete
 
-42. **Automatically proceed to Step 9**
+42. **Automatically proceed to Step 10**
 
-### Step 9: Execute & Route
+### Step 10: Execute & Route
 
-43. **Update state file**: Set Step 9, status = IN_PROGRESS
+43. **Update state file**: Set Step 10, status = IN_PROGRESS
 
-44. **If REWORK was requested**: Return to Step 5 (Author) with specific feedback
+44. **If REWORK or FIX was requested**: Return to Step 5 (Author) with specific feedback
 
 45. **Handle pending issue sync based on decision**:
 
@@ -574,7 +612,7 @@ This gate is mandatory. Do not skip it.
          - PI-002: APPLY | DEFER | REJECT
          ...
 
-         Output: system-design/03-foundations/versions/round-[N]/09-pending-issue-sync.md
+         Output: system-design/03-foundations/versions/round-[N]/10-pending-issue-sync.md
          ```
 
 46. **If HALT was acknowledged**:
@@ -582,14 +620,14 @@ This gate is mandatory. Do not skip it.
     - Set status = BLOCKED_UPSTREAM_ISSUE
     - Workflow halts
 
-47. **Update state file**: Mark Step 9 complete
+47. **Update state file**: Mark Step 10 complete
 
 48. **Route to completion**:
     - Ask user: next round or exit?
     - If user chooses next round: Update state file to increment round, reset to Step 1
-    - If user chooses exit: Proceed to Step 10 (Promote)
+    - If user chooses exit: Proceed to Step 11 (Promote)
 
-### Step 10: Promote
+### Step 11: Promote
 
 49. **Spawn Foundations Promoter**:
     ```
@@ -617,15 +655,15 @@ This gate is mandatory. Do not skip it.
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 0 → 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 10 (Promote)
+- Steps 0 → 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 11 (Promote)
 - Steps 3 → 3b → 4: If kept issues exist, proceed automatically until Step 4 Discussion
-- Steps 5 → 6+7 (parallel) → 8: Execute without pausing between verification steps
-- Step 8 → 9: Execute after human decisions collected (if needed)
+- Steps 5 → 6+7+8 (parallel) → 9: Execute without pausing between verification steps
+- Step 9 → 10: Execute after human decisions collected (if needed)
 
 **Human checkpoints (orchestrator handles these directly):**
 - **Step 4** — WAITING_FOR_HUMAN for discussion until all issues resolved
-- **Step 8** (if NEEDS_DECISIONS) — Present consolidated verification results, collect all decisions at once
-- **After Step 9** — User decides: next round or exit
+- **Step 9** (if NEEDS_DECISIONS) — Present consolidated verification results, collect all decisions at once
+- **After Step 10** — User decides: next round or exit
 
 Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human checkpoints listed above.
 
@@ -635,11 +673,11 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 The review exits via one of two paths:
 
-1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–9 and proceeds directly to Step 10 (Promote).
+1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–10 and proceeds directly to Step 11 (Promote).
 
-2. **Human override**: After Step 9, the user can choose to exit even if issues were found in the current round. This is a fallback for cases where remaining issues are not worth another round.
+2. **Human override**: After Step 10, the user can choose to exit even if issues were found in the current round. This is a fallback for cases where remaining issues are not worth another round.
 
-**After final round**: Run the Foundations Promoter (Step 10) to split the reviewed Foundations into three documents: `foundations.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
+**After final round**: Run the Foundations Promoter (Step 11) to split the reviewed Foundations into three documents: `foundations.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
 
 ---
 

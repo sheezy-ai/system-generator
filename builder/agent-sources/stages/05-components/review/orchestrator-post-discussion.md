@@ -1,6 +1,6 @@
 # Component Spec Review: Post-Discussion Phase
 
-Handles Steps 6-12: Apply Changes, Verification, Execute & Route, and Promote.
+Handles Steps 6-13: Apply Changes, Verification, Execute & Route, and Promote.
 
 Runs straight through and returns structured data to router. Router handles human communication.
 
@@ -28,6 +28,7 @@ These are instructions for the router to follow directly. The router:
 - Change Verifier: `{{AGENTS_PATH}}/05-components/review/change-verifier.md`
 - Alignment Verifier: `{{AGENTS_PATH}}/universal-agents/alignment-verifier.md`
 - Contract Verifier: `{{AGENTS_PATH}}/05-components/review/contract-verifier.md`
+- Internal Coherence Checker: `{{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md`
 - Pending Issue Resolver: `{{AGENTS_PATH}}/universal-agents/pending-issue-resolver.md`
 - Spec Promoter: `{{AGENTS_PATH}}/05-components/review/spec-promoter.md`
 
@@ -39,13 +40,13 @@ Router dispatches with an Action parameter:
 
 | Action | Behavior |
 |--------|----------|
-| `RUN` | Execute Steps 6-10, return status |
-| `APPLY_DECISIONS` | Read decisions from state file, execute Step 11, return status |
-| `PROMOTE` | Execute Step 12, return completion |
+| `RUN` | Execute Steps 6-11, return status |
+| `APPLY_DECISIONS` | Read decisions from state file, execute Step 12, return status |
+| `PROMOTE` | Execute Step 13, return completion |
 
 ---
 
-## Action: RUN (Steps 6-10)
+## Action: RUN (Steps 6-11)
 
 ### Step 6: Apply Changes
 
@@ -70,13 +71,13 @@ Router dispatches with an Action parameter:
 
 4. **Proceed to Step 7**
 
-### Steps 7-9: Verification (Parallel)
+### Steps 7-10: Verification (Parallel)
 
-Run all three verification steps in parallel — they have no dependencies on each other.
+Run all four verification steps in parallel — they have no dependencies on each other.
 
-5. **Update state file**: Set Steps 7-9, status = IN_PROGRESS
+5. **Update state file**: Set Steps 7-10, status = IN_PROGRESS
 
-6. **Spawn all three verification agents in parallel**:
+6. **Spawn all four verification agents in parallel**:
 
     **Change Verifier** (Step 7):
     ```
@@ -115,20 +116,30 @@ Run all three verification steps in parallel — they have no dependencies on ea
     Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/08-contract-verification.md
     ```
 
-7. **Wait for all three agents to complete**
+    **Internal Coherence Checker** (Step 10):
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
 
-8. **Update state file**: Mark Steps 7, 8, and 9 complete
+    Document: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/05-updated-spec.md
+    Stage guide: guides/05-components-guide.md
+    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/09-coherence-report.md
+    ```
 
-9. **Proceed to Step 10**
+7. **Wait for all four agents to complete**
 
-### Step 10: Evaluate Verification Results
+8. **Update state file**: Mark Steps 7, 8, 9, and 10 complete
 
-10. **Update state file**: Set Step 10, status = IN_PROGRESS
+9. **Proceed to Step 11**
+
+### Step 11: Evaluate Verification Results
+
+10. **Update state file**: Set Step 11, status = IN_PROGRESS
 
 11. **Read all verification reports**:
     - `06-change-verification-report.md` — check for PARTIALLY_RESOLVED, NOT_RESOLVED, LEVEL_VIOLATION, or MISSING/WRONG lateral items
     - `07-alignment-report.md` — check for HALT recommendation, SYNC_UPSTREAM
     - `08-contract-verification.md` — check for failures or regressions
+    - `09-coherence-report.md` — check for HIGH or MEDIUM coherence gaps
 
 12. **Categorize overall status**:
 
@@ -140,22 +151,24 @@ Run all three verification steps in parallel — they have no dependencies on ea
     - PARTIALLY_RESOLVED items (accept or rework?)
     - HALT blockers (acknowledge or proceed?)
     - Pending issues to sync upstream (sync or defer?)
+    - HIGH/MEDIUM coherence gaps (fix or accept?)
 
     **VERIFICATION_CLEAN**: All of:
     - All changes RESOLVED
     - No HALT blockers
     - No pending issues requiring decision
     - No contract regressions
+    - No HIGH/MEDIUM coherence gaps (COHERENT or LOW only)
 
-13. **Write verification summary** to `09-verification-summary.md` (for record keeping)
+13. **Write verification summary** to `10-verification-summary.md` (for record keeping)
 
-14. **Update state file**: Mark Step 10 complete
+14. **Update state file**: Mark Step 11 complete
 
 15. **Return to router based on status** (see Return to Router section)
 
 ---
 
-## Action: APPLY_DECISIONS (Step 11)
+## Action: APPLY_DECISIONS (Step 12)
 
 Router re-dispatches after collecting human decisions.
 
@@ -166,15 +179,16 @@ Read `## Pending Decisions` section:
 ## Pending Decisions
 - SPEC-001: ACCEPT
 - SPEC-003: REWORK
+- COH-001: FIX
 - halt_action: PROCEED_ANYWAY
 - sync_action: SYNC_ALL
 ```
 
-### Step 11: Execute Decisions
+### Step 12: Execute Decisions
 
-16. **Update state file**: Set Step 11, status = IN_PROGRESS
+16. **Update state file**: Set Step 12, status = IN_PROGRESS
 
-17. **If any REWORK decisions**:
+17. **If any REWORK or FIX decisions**:
     - Return `{ status: "NEEDS_REWORK", items: [...] }`
     - Router will re-dispatch with Action: RUN (restarts from Step 6)
 
@@ -202,7 +216,7 @@ Read `## Pending Decisions` section:
          - PI-002: APPLY | DEFER | REJECT
          ...
 
-         Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/09-pending-issue-sync.md
+         Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/11-pending-issue-sync.md
          ```
 
 19. **If halt_action = ACKNOWLEDGE_AND_BLOCK**:
@@ -210,7 +224,7 @@ Read `## Pending Decisions` section:
     - Update state: Status = BLOCKED_UPSTREAM_ISSUE
     - Return `{ status: "BLOCKED", blocking_issue: {...} }`
 
-20. **Update state file**: Mark Step 11 complete
+20. **Update state file**: Mark Step 12 complete
 
 21. **Determine recommendation** (for routing decision):
     - Current part: build or ops
@@ -228,13 +242,13 @@ Read `## Pending Decisions` section:
 
 ---
 
-## Action: PROMOTE (Step 12)
+## Action: PROMOTE (Step 13)
 
 Router dispatches after human confirms EXIT.
 
-### Step 12: Promote Spec
+### Step 13: Promote Spec
 
-23. **Update state file**: Set Step 12, status = IN_PROGRESS
+23. **Update state file**: Set Step 13, status = IN_PROGRESS
 
 24. **Run Spec Promoter agent**:
     ```
@@ -253,7 +267,7 @@ Router dispatches after human confirms EXIT.
 
 25. **Verify outputs exist** at all three paths
 
-26. **Update state file**: Mark Step 12 complete, Status = COMPLETE
+26. **Update state file**: Mark Step 13 complete, Status = COMPLETE
 
 27. **Return to router**:
     ```
@@ -269,7 +283,7 @@ Router dispatches after human confirms EXIT.
 
 ## Return to Router
 
-### After RUN (Steps 6-10)
+### After RUN (Steps 6-11)
 
 **If NEEDS_REWORK:**
 ```
@@ -314,7 +328,7 @@ Router stores in state file, presents to human, collects decisions, re-dispatche
 ```
 Router presents routing options to human, collects decision.
 
-### After APPLY_DECISIONS (Step 11)
+### After APPLY_DECISIONS (Step 12)
 
 **If BLOCKED:**
 ```
@@ -336,7 +350,7 @@ Router updates state, informs human, stops.
 ```
 Router presents routing options to human.
 
-### After PROMOTE (Step 12)
+### After PROMOTE (Step 13)
 
 ```
 {

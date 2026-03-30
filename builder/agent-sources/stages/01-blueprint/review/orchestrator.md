@@ -43,7 +43,9 @@
 - [ ] Step 3b: Issue Analysis
 - [ ] Step 4: Discussion
 - [ ] Step 5: Apply Changes
-- [ ] Step 6: Verification
+- [ ] Step 6: Change Verification
+- [ ] Step 7: Internal Coherence
+- [ ] Step 8: Verification Review
 
 ## History
 - YYYY-MM-DD HH:MM: Round 1 started
@@ -92,7 +94,8 @@ Create agents (in {{AGENTS_PATH}}/01-blueprint/create/):
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── scope-filter.md                    # Filters issues and outputs summary format
 ├── issue-analyst.md                   # Pre-analyzes issues with options and trade-offs
-└── discussion-facilitator.md          # Facilitates discussions including solution proposals
+├── discussion-facilitator.md          # Facilitates discussions including solution proposals
+└── internal-coherence-checker.md      # Verifies cross-section consistency within document
 ```
 
 ---
@@ -117,7 +120,9 @@ versions/
     │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
     │   ├── 04-author-output.md
     │   ├── 05-updated-blueprint.md
-    │   └── 06-change-verification-report.md
+    │   ├── 06-change-verification-report.md
+    │   ├── 07-coherence-report.md
+    │   └── 08-verification-summary.md
     └── round-2/
         └── ...
 ```
@@ -250,7 +255,7 @@ Output: [resolved file path]
 13. **Update state file**: Mark Step 3 complete, add history entry
 
 14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
-    - **If zero kept issues**: The document is complete. Skip Steps 3b–6 and proceed directly to Step 7 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–8 and proceed directly to Step 9 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
     - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
@@ -382,35 +387,148 @@ This gate is mandatory. Do not skip it.
 
 29. **Automatically proceed to Step 6** (no human checkpoint needed here)
 
-### Step 6: Verify
+### Steps 6-7: Verification (Parallel)
 
-30. **Update state file**: Set Step 6, status = IN_PROGRESS
+**IMPORTANT**: Run Steps 6 and 7 in parallel — they have no dependencies on each other. Aggregate all results, then present to human at Step 8.
 
-31. **Run Verifier agent**
+30. **Update state file**: Set Steps 6-7, status = IN_PROGRESS
+
+31. **Spawn both verification agents in parallel**:
+
+    **Change Verifier** (Step 6):
     - Pass: paths to issues-summary (with resolutions) + author output + updated Blueprint + output path
     - Agent verifies each resolution was applied correctly
     - Agent checks for level violations (scope creep)
     - Agent writes to `system-design/01-blueprint/versions/review/round-[N]/06-change-verification-report.md`
 
-32. **Update state file**: Mark Step 6 complete, add history entry
+    **Internal Coherence Checker** (Step 7) (`{{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md`):
+    - Pass: Updated Blueprint path, stage guide path, output path
+    - Agent verifies cross-section consistency within the Blueprint
+    - Agent writes to `system-design/01-blueprint/versions/review/round-[N]/07-coherence-report.md`
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
 
-33. **Route based on results**:
-    - All RESOLVED → Update state: status = WAITING_FOR_HUMAN, ask user: next round or exit?
-    - Some NOT_RESOLVED → Return to Author (Step 5)
-    - Some LEVEL_VIOLATION → Return to Author to simplify (Step 5)
-    - PARTIALLY_RESOLVED → Update state: status = WAITING_FOR_HUMAN, ask user to decide
+    Document: system-design/01-blueprint/versions/review/round-[N]/05-updated-blueprint.md
+    Stage guide: guides/01-blueprint-guide.md
+    Output: system-design/01-blueprint/versions/review/round-[N]/07-coherence-report.md
+    ```
 
-34. **If user chooses next round**: Update state file to increment round, reset to Step 1
-35. **If user chooses exit**: Proceed to Step 7 (Promote)
+32. **Wait for both agents to complete**
 
-### Step 7: Promote
+33. **Update state file**: Mark Steps 6 and 7 complete
 
-36. **Copy reviewed Blueprint to canonical path**:
+34. **Automatically proceed to Step 8** (do NOT stop even if issues found)
+
+### Step 8: Verification Review
+
+35. **Update state file**: Set Step 8, status = IN_PROGRESS
+
+36. **Read all verification reports** and aggregate findings:
+    - `06-change-verification-report.md` - check for PARTIALLY_RESOLVED, NOT_RESOLVED, or LEVEL_VIOLATION
+    - `07-coherence-report.md` - check for HIGH or MEDIUM coherence gaps
+
+37. **Write verification summary** to `08-verification-summary.md`:
+    ```markdown
+    # Verification Summary
+
+    **Round**: [N]
+    **Date**: [date]
+
+    ## Change Verification
+
+    **Result**: [ALL_RESOLVED / NEEDS_ATTENTION]
+    - RESOLVED: [N]
+    - PARTIALLY_RESOLVED: [N]
+    - NOT_RESOLVED: [N]
+    - LEVEL_VIOLATION: [N]
+
+    ### Items Needing Decision (if any)
+
+    | ID | Status | Summary |
+    |----|--------|---------|
+    | BP-001 | PARTIALLY_RESOLVED | [summary] |
+
+    ## Internal Coherence
+
+    **Status**: [COHERENT / GAPS_FOUND]
+    - HIGH: [N]
+    - MEDIUM: [N]
+    - LOW: [N]
+
+    ### Coherence Gaps Needing Decision (if any HIGH/MEDIUM)
+
+    | ID | Category | Severity | Summary |
+    |----|----------|----------|---------|
+    | COH-001 | MISSING_REFLECTION | HIGH | [summary] |
+
+    ## Overall Status
+
+    **[CLEAN / NEEDS_DECISIONS / NEEDS_REWORK]**
+
+    ### Decisions Required (if any)
+
+    1. PARTIALLY_RESOLVED: [list items needing accept/rework decision]
+    2. Coherence gaps: [list HIGH/MEDIUM items needing decision]
+    ```
+
+38. **Determine next action based on Overall Status**:
+
+    a. **If CLEAN** (no decisions needed, no failures):
+       - Update state file: Mark Step 8 complete
+       - Update state: status = WAITING_FOR_HUMAN, ask user: next round or exit?
+
+    b. **If NEEDS_REWORK** (NOT_RESOLVED or LEVEL_VIOLATION items exist):
+       - Present to human: "Changes not applied correctly. Returning to Author."
+       - Return to Step 5 (Author)
+
+    c. **If NEEDS_DECISIONS** (PARTIALLY_RESOLVED items or HIGH/MEDIUM coherence gaps):
+       - Update state file: Set status = WAITING_FOR_HUMAN
+       - Present consolidated findings to human
+
+39. **If NEEDS_DECISIONS, present to human** (orchestrator does this directly):
+    ```
+    ## Verification Complete - Decisions Needed
+
+    [Include relevant sections based on what needs decisions]
+
+    ### Change Verification Issues (if PARTIALLY_RESOLVED items)
+
+    | ID | Summary | Status |
+    |----|---------|--------|
+    | BP-001 | [summary] | PARTIALLY_RESOLVED |
+
+    For each: **ACCEPT** (proceed as-is) or **REWORK** (return to Author)?
+
+    ### Coherence Gaps (if HIGH/MEDIUM items)
+
+    | ID | Category | Source Section | Target Section | Summary |
+    |----|----------|---------------|----------------|---------|
+    | COH-001 | MISSING_REFLECTION | [source] | [target] | [summary] |
+
+    For each: **FIX** (return to Author to address) or **ACCEPT** (proceed as-is)?
+    ```
+
+**STOP: Wait for human response before proceeding.**
+
+40. **Collect decisions from human response**
+
+41. **Update state file**: Mark Step 8 complete
+
+42. **Route based on decisions**:
+    - If REWORK or FIX requested: Return to Step 5 (Author) with specific feedback
+    - Otherwise: Update state: status = WAITING_FOR_HUMAN, ask user: next round or exit?
+
+43. **If user chooses next round**: Update state file to increment round, reset to Step 1
+44. **If user chooses exit**: Proceed to Step 9 (Promote)
+
+### Step 9: Promote
+
+45. **Copy reviewed Blueprint to canonical path**:
     - Copy `system-design/01-blueprint/versions/review/round-[N]/05-updated-blueprint.md` to `system-design/01-blueprint/blueprint.md`
 
-37. **Verify output file exists**: `system-design/01-blueprint/blueprint.md`
+46. **Verify output file exists**: `system-design/01-blueprint/blueprint.md`
 
-38. **Re-extract scope brief** — The reviewed Blueprint may have changed scoping sections. Re-run the Scope Extractor to keep the scope brief consistent:
+47. **Re-extract scope brief** — The reviewed Blueprint may have changed scoping sections. Re-run the Scope Extractor to keep the scope brief consistent:
     ```
     Follow the instructions in: {{AGENTS_PATH}}/01-blueprint/create/scope-extractor.md
 
@@ -420,20 +538,21 @@ This gate is mandatory. Do not skip it.
     Output: system-design/01-blueprint/scope-brief.md
     ```
 
-39. **Update state file**: status = COMPLETE
+48. **Update state file**: status = COMPLETE
 
 ---
 
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 7 (Promote)
+- Steps 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 9 (Promote)
 - Steps 3 → 3b → 4: If kept issues exist, proceed automatically until Step 4 Discussion
-- Steps 5 → 6: Once all issues are RESOLVED, execute these steps without pausing
+- Steps 5 → 6+7 (parallel) → 8: Execute without pausing between verification steps
 
 **Human checkpoints:**
 - **Step 4** — WAITING_FOR_HUMAN for discussion until all issues resolved
-- **After Step 6** — User decides: next round or exit
+- **Step 8** (if NEEDS_DECISIONS) — Present consolidated verification results, collect all decisions at once
+- **After Step 8** — User decides: next round or exit
 
 Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human checkpoints listed above.
 
@@ -443,11 +562,11 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 The review exits via one of two paths:
 
-1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–6 and proceeds directly to Step 7 (Promote).
+1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–8 and proceeds directly to Step 9 (Promote).
 
-2. **Human override**: After Step 6, the user can choose to exit even if issues were found in the current round. This is a fallback for cases where remaining issues are not worth another round.
+2. **Human override**: After Step 8, the user can choose to exit even if issues were found in the current round. This is a fallback for cases where remaining issues are not worth another round.
 
-**After final round**: Run the Promote step (Step 7) to copy the reviewed Blueprint to its canonical path at `system-design/01-blueprint/blueprint.md`.
+**After final round**: Run the Promote step (Step 9) to copy the reviewed Blueprint to its canonical path at `system-design/01-blueprint/blueprint.md`.
 
 ---
 
