@@ -45,9 +45,9 @@ Your review has a **closed scope** defined by two sources, plus your domain expe
 **Do NOT raise issues for:**
 - Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
 - Detail that belongs in Foundations, Architecture, or Component Specs (even if it "would be nice to have" here)
-- Requirements the Blueprint does not state or imply
+- Requirements the Blueprint does not state or imply, UNLESS they are user experience requirements implied by the system's described behaviour
 
-**Note:** Challenging existing Blueprint decisions IS in scope under category (d). "Do not raise issues for requirements the Blueprint does not state or imply" means don't invent new requirements — it does not mean the Blueprint is beyond scrutiny. If a Blueprint-specified choice is unsound or a materially better alternative exists, raise it.
+**Note:** Challenging existing Blueprint decisions IS in scope under category (d). "Do not raise issues for requirements the Blueprint does not state or imply" means don't invent new requirements — it does not mean the Blueprint is beyond scrutiny. If a Blueprint-specified choice is unsound or a materially better alternative exists, raise it. Additionally, if the system's described behaviour implies user experience requirements that the Blueprint does not address, you may raise these under category (d) — your domain expertise scope exists precisely for this purpose.
 
 If after checking all guide questions and Blueprint requirements in your domain you find zero issues, report zero issues. An empty review is a valid outcome.
 
