@@ -126,6 +126,7 @@ system-design/05-components/
 - [ ] Step 4: Format & Analyse Gaps
 - [ ] Step 5: Discussion Loop
 - [ ] Step 6: Apply Decisions
+- [ ] Step 6b: Creation Verification
 - [ ] Step 7: Promote & Report
 
 ## History
@@ -479,26 +480,86 @@ This gate is mandatory. Do not skip it.
 
 17. **Update per-component state file**: Mark "Step 6: Apply Decisions" complete `[x]`, add history entry
 
-### Step 7: Promote & Report
+### Step 6b: Creation Verification
 
-18. **Determine final draft path**:
+**Purpose**: Verify alignment with source documents and internal coherence before promotion. Catches misalignment and cross-section consistency gaps introduced during creation.
+
+18. **Determine draft path**:
     - If Steps 4-6 ran (gaps existed): Use `system-design/05-components/versions/[component-name]/round-0/03-updated-spec.md`
     - If Steps 4-6 were skipped (no gaps): Use `system-design/05-components/versions/[component-name]/round-0/00-draft-spec.md`
 
-19. **Copy final draft to specs** using Bash cp:
+19. **Spawn both verification agents in parallel**:
+
+    **Alignment Verifier**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/alignment-verifier.md
+
+    Input:
+    - Updated spec: [draft path from step 18]
+    - Architecture: system-design/04-architecture/architecture.md
+    - Foundations: system-design/03-foundations/foundations.md
+    - PRD: system-design/02-prd/prd.md
+
+    Output: system-design/05-components/versions/[component-name]/round-0/04-alignment-report.md
+    ```
+
+    **Internal Coherence Checker**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
+
+    Document: [draft path from step 18]
+    Stage guide: {{GUIDES_PATH}}/05-components-guide.md
+    Output: system-design/05-components/versions/[component-name]/round-0/05-coherence-report.md
+    ```
+
+20. **Wait for both agents to complete**
+
+21. **Read both reports** and aggregate findings:
+    - Alignment report: check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
+    - Coherence report: check for HIGH or MEDIUM gaps
+
+22. **If both CLEAN** (alignment PROCEED with no issues, coherence COHERENT or LOW only):
+    - Update per-component state file: Mark "Step 6b: Creation Verification" complete `[x]`, add history entry
+    - Proceed to Step 7
+
+23. **If issues found**: Present findings to human:
+    ```
+    Creation verification found issues:
+
+    [If alignment issues:]
+    ### Alignment Issues
+    [List discrepancies with classification and severity]
+
+    [If coherence gaps:]
+    ### Coherence Gaps
+    [List HIGH/MEDIUM gaps with source section, target section, and summary]
+
+    For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
+    ```
+    - If FIX: Spawn Author to address issues, then re-run verification
+    - If ACCEPT: Proceed to Step 7
+    - Update per-component state file: Mark "Step 6b: Creation Verification" complete `[x]`, add history entry
+
+### Step 7: Promote & Report
+
+24. **Determine final draft path**:
+    - If Steps 4-6 ran (gaps existed): Use `system-design/05-components/versions/[component-name]/round-0/03-updated-spec.md`
+    - If Steps 4-6 were skipped (no gaps): Use `system-design/05-components/versions/[component-name]/round-0/00-draft-spec.md`
+
+25. **Copy final draft to specs** using Bash cp:
     ```
     cp [final draft path] system-design/05-components/specs/[component-name].md
     ```
 
-20. **Verify promotion** — Confirm `system-design/05-components/specs/[component-name].md` exists
+26. **Verify promotion** — Confirm `system-design/05-components/specs/[component-name].md` exists
 
-21. **Update stage state** (`versions/workflow-state.md`):
+27. **Update stage state** (`versions/workflow-state.md`):
     - Component Specs table: Update component row status `NOT_STARTED` → `DRAFT_READY`, set Last Updated to today's date
     - Add history entry: "[date]: [component-name] creation workflow complete"
 
-22. **Update per-component state file**: Mark "Step 7: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
+28. **Update per-component state file**: Mark "Step 7: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
 
-23. **Present summary**:
+29. **Present summary**:
     ```
     Component [component-name] creation complete.
 

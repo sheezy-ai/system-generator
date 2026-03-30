@@ -174,6 +174,7 @@ system-design/01-blueprint/
 ### Phase 2: Generate
 - [ ] Step 9: Run Generator
 - [ ] Step 10: Gap Resolution
+- [ ] Step 10b: Creation Verification
 
 ### Phase 3: Extract
 - [ ] Step 11: Promote
@@ -900,6 +901,43 @@ Only proceed to step 3 after the human signals they have responded.
 
 ---
 
+### Step 10b: Creation Verification
+
+**Purpose**: Verify internal coherence of the draft before promotion. Catches cross-section consistency gaps introduced during creation.
+
+1. **Determine draft path**:
+    - If `{round-dir}/03-updated-blueprint.md` exists (Author ran): Use it
+    - Otherwise: Use `{round-dir}/00-draft-blueprint.md`
+
+2. **Spawn Internal Coherence Checker** using Task tool:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
+
+    Document: [draft path from step 1]
+    Stage guide: {{GUIDES_PATH}}/01-blueprint-guide.md
+    Output: {round-dir}/04-coherence-report.md
+    ```
+
+3. **Wait for agent to complete**
+
+4. **Read coherence report** and check for HIGH or MEDIUM gaps
+
+5. **If COHERENT or LOW only**: Update state file, mark "Step 10b: Creation Verification" complete `[x]`, add history entry. Proceed to promote.
+
+6. **If HIGH or MEDIUM gaps found**: Present findings to human:
+    ```
+    Creation verification found cross-section consistency gaps:
+
+    [List HIGH/MEDIUM gaps with source section, target section, and summary]
+
+    For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
+    ```
+    - If FIX: Spawn Author to address gaps, then re-run verification
+    - If ACCEPT: Proceed to promote
+    - Update state file: Mark "Step 10b: Creation Verification" complete `[x]`, add history entry
+
+---
+
 ## Phase 3: Extract
 
 Phase 3 runs only when the human chooses to promote at Step 10, exiting the explore→generate loop.
@@ -994,7 +1032,7 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 - Steps 1 → 2: Setup then identifier
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
 - Steps 8 → 9: Enrichment author then generator
-- Steps 11 → 12: Promote then scope extract
+- Steps 10b → 11 → 12: Verification then promote then scope extract (unless HIGH/MEDIUM gaps found)
 
 **Human checkpoints:**
 - **Step 3** — WAITING_FOR_HUMAN for dimension review

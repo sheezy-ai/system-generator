@@ -171,6 +171,7 @@ system-design/04-architecture/
 - [ ] Step 9b: Coverage Verification
 - [ ] Step 10: Gap Resolution
 - [ ] Step 11: Promote or Continue
+- [ ] Step 11b: Creation Verification
 
 ### Phase 3: Promote
 - [ ] Step 12: Promote & Report
@@ -891,7 +892,66 @@ Do NOT enter the discussion loop until the human has added actual response conte
 
    **If "promote"** or "promote as-is":
    - Update state file: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Promoting draft from round {N}"
-   - Proceed to Step 12
+   - Proceed to Step 11b
+
+### Step 11b: Creation Verification
+
+**Purpose**: Verify alignment with source documents and internal coherence before promotion. Catches misalignment and cross-section consistency gaps introduced during creation.
+
+1. **Determine draft path**:
+    - If `{round-dir}/03-updated-architecture.md` exists (Author ran): Use it
+    - Otherwise: Use `{round-dir}/00-draft-architecture.md`
+
+2. **Spawn both verification agents in parallel**:
+
+    **Alignment Verifier**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/alignment-verifier.md
+
+    Input:
+    - Updated Architecture: [draft path from step 1]
+    - Foundations: system-design/03-foundations/foundations.md
+    - PRD: system-design/02-prd/prd.md
+
+    Output: {round-dir}/04-alignment-report.md
+    ```
+
+    **Internal Coherence Checker**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
+
+    Document: [draft path from step 1]
+    Stage guide: {{GUIDES_PATH}}/04-architecture-guide.md
+    Output: {round-dir}/05-coherence-report.md
+    ```
+
+3. **Wait for both agents to complete**
+
+4. **Read both reports** and aggregate findings:
+    - Alignment report: check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
+    - Coherence report: check for HIGH or MEDIUM gaps
+
+5. **If both CLEAN** (alignment PROCEED with no issues, coherence COHERENT or LOW only):
+    - Update state file: Mark "Step 11b: Creation Verification" complete `[x]`, add history entry
+    - Proceed to Step 12
+
+6. **If issues found**: Present findings to human:
+    ```
+    Creation verification found issues:
+
+    [If alignment issues:]
+    ### Alignment Issues
+    [List discrepancies with classification and severity]
+
+    [If coherence gaps:]
+    ### Coherence Gaps
+    [List HIGH/MEDIUM gaps with source section, target section, and summary]
+
+    For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
+    ```
+    - If FIX: Spawn Author to address issues, then re-run verification
+    - If ACCEPT: Proceed to Step 12
+    - Update state file: Mark "Step 11b: Creation Verification" complete `[x]`, add history entry
 
 ---
 
@@ -956,7 +1016,7 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
 - Steps 8 → 9 → 9b: Enrichment author then generator/applicator then coverage verification
 - Step 10: Gap resolution (Gap formatter → Gap analyst → discussion loop → Author)
-- Step 12: Promote and report
+- Steps 11b → 12: Verification then promote (unless issues found)
 
 **Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads (e.g., "Read the concerns file," "Check for Gap Summary"). If a read is not in the step instructions, do not perform it — agents read their own inputs.
 

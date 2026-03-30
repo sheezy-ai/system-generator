@@ -117,6 +117,7 @@ system-design/03-foundations/
 - [ ] Step 5: Format & Analyse Gaps
 - [ ] Step 6: Discussion Loop
 - [ ] Step 7: Apply Decisions
+- [ ] Step 7b: Creation Verification
 - [ ] Step 8: Promote & Report
 
 ## History
@@ -502,24 +503,82 @@ This gate is mandatory. Do not skip it.
 
 17. **Update state file**: Mark "Step 7: Apply Decisions" complete `[x]`, add history entry
 
-### Step 8: Promote & Report
+### Step 7b: Creation Verification
 
-18. **Determine final draft path**:
+**Purpose**: Verify alignment with PRD and internal coherence before promotion. Catches misalignment and cross-section consistency gaps introduced during creation.
+
+18. **Determine draft path**:
     - If Steps 5-7 ran (gaps existed): Use `system-design/03-foundations/versions/round-0/03-updated-foundations.md`
     - If Steps 5-7 were skipped (no gaps): Use `system-design/03-foundations/versions/round-0/00-draft-foundations.md`
 
-19. **Copy final draft to `foundations.md`** using Bash cp:
+19. **Spawn both verification agents in parallel**:
+
+    **Alignment Verifier**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/alignment-verifier.md
+
+    Input:
+    - Updated Foundations: [draft path from step 18]
+    - PRD: system-design/02-prd/prd.md
+
+    Output: system-design/03-foundations/versions/round-0/04-alignment-report.md
+    ```
+
+    **Internal Coherence Checker**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
+
+    Document: [draft path from step 18]
+    Stage guide: {{GUIDES_PATH}}/03-foundations-guide.md
+    Output: system-design/03-foundations/versions/round-0/05-coherence-report.md
+    ```
+
+20. **Wait for both agents to complete**
+
+21. **Read both reports** and aggregate findings:
+    - Alignment report: check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
+    - Coherence report: check for HIGH or MEDIUM gaps
+
+22. **If both CLEAN** (alignment PROCEED with no issues, coherence COHERENT or LOW only):
+    - Update state file: Mark "Step 7b: Creation Verification" complete `[x]`, add history entry
+    - Proceed to Step 8
+
+23. **If issues found**: Present findings to human:
+    ```
+    Creation verification found issues:
+
+    [If alignment issues:]
+    ### Alignment Issues
+    [List discrepancies with classification and severity]
+
+    [If coherence gaps:]
+    ### Coherence Gaps
+    [List HIGH/MEDIUM gaps with source section, target section, and summary]
+
+    For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
+    ```
+    - If FIX: Spawn Author to address issues, then re-run verification
+    - If ACCEPT: Proceed to Step 8
+    - Update state file: Mark "Step 7b: Creation Verification" complete `[x]`, add history entry
+
+### Step 8: Promote & Report
+
+24. **Determine final draft path**:
+    - If Steps 5-7 ran (gaps existed): Use `system-design/03-foundations/versions/round-0/03-updated-foundations.md`
+    - If Steps 5-7 were skipped (no gaps): Use `system-design/03-foundations/versions/round-0/00-draft-foundations.md`
+
+25. **Copy final draft to `foundations.md`** using Bash cp:
     ```
     cp [final draft path] system-design/03-foundations/foundations.md
     ```
 
-20. **Verify promotion** — Confirm `system-design/03-foundations/foundations.md` exists
+26. **Verify promotion** — Confirm `system-design/03-foundations/foundations.md` exists
 
-21. **Update state file**: Mark "Step 8: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
+27. **Update state file**: Mark "Step 8: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
 
-22. **Check downstream deferred items** for items the Generator deferred
+28. **Check downstream deferred items** for items the Generator deferred
 
-23. **Present summary**:
+29. **Present summary**:
     ```
     Foundations creation complete.
 
