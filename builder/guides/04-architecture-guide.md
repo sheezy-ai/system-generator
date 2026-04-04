@@ -96,6 +96,7 @@ Example:
 **Sufficient when:**
 - Integration style (sync/async/event) between each communicating component pair is stated
 - External system integrations are identified with approach
+- Every component pair that communicates has an explicit entry — a generic reference to the component decomposition section is not sufficient
 - No specific protocols, message formats, or endpoint definitions
 
 ---
@@ -149,7 +150,7 @@ Example:
 **Why data ownership matters:** Component specs define authoritative schemas for the data they own. Dependent components reference these schemas rather than duplicating them. This means upstream components (data owners) must be specified before their dependents.
 
 **Sufficient when:**
-- Every component has a named spec with one-line scope
+- Every component from the Component Decomposition section has a named spec with one-line scope — the spec list must be a complete enumeration, not a subset with a reference back to §2
 - Data ownership is assigned for each component that stores data
 - Dependencies between specs are noted
 - No spec content or detailed scope breakdowns included
@@ -195,8 +196,8 @@ Example:
 **Downstream flow:** These architecture-level contracts feed into the 05-components cross-cutting specification (`specs/cross-cutting.md`), where they are populated with detailed schemas extracted from component specs and verified by the Contract Verifier during each component review round.
 
 **Sufficient when:**
-- Cross-component data structures are identified with producer and consumer
-- Contract direction is stated
+- Every cross-component data flow has an explicit contract entry — if the Component Decomposition and Data Flows sections describe a data exchange, it must appear as a named contract
+- Contract direction is stated (consumer defines, producer conforms)
 - No schema definitions or field-level detail
 
 ---

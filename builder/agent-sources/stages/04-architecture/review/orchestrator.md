@@ -47,8 +47,9 @@
 - [ ] Step 6: Change Verification
 - [ ] Step 7: Alignment Verification
 - [ ] Step 8: Internal Coherence
-- [ ] Step 9: Verification Review
-- [ ] Step 10: Execute & Route
+- [ ] Step 9: Enumeration Verification
+- [ ] Step 10: Verification Review
+- [ ] Step 11: Execute & Route
 
 ## History
 - YYYY-MM-DD HH:MM: Round 1 started
@@ -281,7 +282,7 @@ Output: [resolved file path]
 13. **Update state file**: Mark Step 3 complete
 
 14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
-    - **If zero kept issues**: The document is complete. Skip Steps 3b–10 and proceed directly to Step 11 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–11 and proceed directly to Step 12 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
     - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
@@ -420,11 +421,11 @@ This gate is mandatory. Do not skip it.
 
 ### Steps 6-8: Verification (Parallel)
 
-**IMPORTANT**: Run Steps 6, 7, and 8 in parallel — they have no dependencies on each other. Aggregate all results, then present to human at Step 9.
+**IMPORTANT**: Run Steps 6, 7, 8, and 9 in parallel — they have no dependencies on each other. Aggregate all results, then present to human at Step 10.
 
 30. **Update state file**: Set Steps 6-8, status = IN_PROGRESS
 
-31. **Spawn all three verification agents in parallel**:
+31. **Spawn all four verification agents in parallel**:
 
     **Change Verifier** (Step 6) (`workflow/change-verifier.md`):
     - Pass: paths to issues-summary (with resolutions) + author output + updated architecture + output path
@@ -449,20 +450,33 @@ This gate is mandatory. Do not skip it.
     Output: system-design/04-architecture/versions/round-[N]/08-coherence-report.md
     ```
 
-32. **Wait for all three agents to complete**
+    **Enumeration Verifier** (Step 9) (`{{AGENTS_PATH}}/universal-agents/enumeration-verifier.md`):
+    - Pass: Updated architecture path, stage guide path, output path
+    - Agent verifies enumeration sections contain explicit items for every source concept
+    - Write to `09-enumeration-report.md`
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/enumeration-verifier.md
 
-33. **Update state file**: Mark Steps 6, 7, and 8 complete
+    Document: system-design/04-architecture/versions/round-[N]/05-updated-architecture.md
+    Stage guide: guides/04-architecture-guide.md
+    Output: system-design/04-architecture/versions/round-[N]/09-enumeration-report.md
+    ```
 
-34. **Automatically proceed to Step 9** (do NOT stop even if HALT recommended)
+32. **Wait for all four agents to complete**
 
-### Step 9: Verification Review
+33. **Update state file**: Mark Steps 6, 7, 8, and 9 complete
 
-35. **Update state file**: Set Step 9, status = IN_PROGRESS
+34. **Automatically proceed to Step 10** (do NOT stop even if HALT recommended)
+
+### Step 10: Verification Review
+
+35. **Update state file**: Set Step 10, status = IN_PROGRESS
 
 36. **Read all verification reports** and aggregate findings:
     - `06-change-verification-report.md` - check for PARTIALLY_RESOLVED, NOT_RESOLVED, or LEVEL_VIOLATION
     - `07-alignment-report.md` - check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
     - `08-coherence-report.md` - check for HIGH or MEDIUM coherence gaps
+    - `09-enumeration-report.md` - check for GAPS_FOUND with HIGH or MEDIUM missing items
 
 37. **Write verification summary** to `09-verification-summary.md`:
     ```markdown
@@ -524,13 +538,14 @@ This gate is mandatory. Do not skip it.
     2. HALT blockers: [list items needing acknowledgment]
     3. Pending issue sync: [list items needing sync decision]
     4. Coherence gaps: [list HIGH/MEDIUM items needing decision]
+    5. Enumeration gaps: [list HIGH/MEDIUM missing items needing decision]
     ```
 
 38. **Determine next action based on Overall Status**:
 
     a. **If CLEAN** (no decisions needed, no failures):
-       - Update state file: Mark Step 9 complete
-       - Automatically proceed to Step 10
+       - Update state file: Mark Step 10 complete
+       - Automatically proceed to Step 11
 
     b. **If NEEDS_REWORK** (NOT_RESOLVED or LEVEL_VIOLATION items exist):
        - Present to human: "Changes not applied correctly. Returning to Author."
@@ -586,13 +601,13 @@ This gate is mandatory. Do not skip it.
 
 40. **Collect decisions from human response**
 
-41. **Update state file**: Mark Step 9 complete
+41. **Update state file**: Mark Step 10 complete
 
-42. **Automatically proceed to Step 10**
+42. **Automatically proceed to Step 11**
 
-### Step 10: Execute & Route
+### Step 11: Execute & Route
 
-43. **Update state file**: Set Step 10, status = IN_PROGRESS
+43. **Update state file**: Set Step 11, status = IN_PROGRESS
 
 44. **If REWORK or FIX was requested**: Return to Step 5 (Author) with specific feedback
 
@@ -629,14 +644,14 @@ This gate is mandatory. Do not skip it.
     - Set status = BLOCKED_UPSTREAM_ISSUE
     - Workflow halts
 
-47. **Update state file**: Mark Step 10 complete
+47. **Update state file**: Mark Step 11 complete
 
 48. **Route to completion**:
     - Ask user: next round or exit?
     - If user chooses next round: Update state file to increment round, reset to Step 1
-    - If user chooses exit: Proceed to Step 11 (Promote)
+    - If user chooses exit: Proceed to Step 12 (Promote)
 
-### Step 11: Promote
+### Step 12: Promote
 
 49. **Spawn Architecture Promoter**:
     ```
@@ -665,15 +680,15 @@ This gate is mandatory. Do not skip it.
 
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2 → 3: Proceed automatically through expert review, consolidation, and filtering
-- **Zero-issues gate** (after Step 3): If zero kept issues, skip directly to Step 11 (Promote)
+- **Zero-issues gate** (after Step 3): If zero kept issues, skip directly to Step 12 (Promote)
 - Steps 3b → 4: Proceed to issue analysis and discussion
-- Steps 5 → 6+7+8 (parallel) → 9: Execute without pausing between verification steps
-- Step 9 → 10: Execute after human decisions collected (if needed)
+- Steps 5 → 6+7+8+9 (parallel) → 10: Execute without pausing between verification steps
+- Step 10 → 11: Execute after human decisions collected (if needed)
 
 **Human checkpoints (orchestrator handles these directly):**
 - **Step 4** — WAITING_FOR_HUMAN for discussion until all issues resolved
-- **Step 9** (if NEEDS_DECISIONS) — Present consolidated verification results, collect all decisions at once
-- **After Step 10** — User decides: next round or exit
+- **Step 10** (if NEEDS_DECISIONS) — Present consolidated verification results, collect all decisions at once
+- **After Step 11** — User decides: next round or exit
 
 Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human checkpoints listed above.
 
@@ -683,9 +698,9 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 The review exits when a round produces **zero kept issues** after consolidation, re-raise detection, and scope/depth filtering. The zero-issues gate at Step 3 triggers this automatically, proceeding directly to promotion.
 
-The human override at Step 10 (next round or exit?) remains as a fallback for cases where the human decides the document is ready despite remaining issues.
+The human override at Step 11 (next round or exit?) remains as a fallback for cases where the human decides the document is ready despite remaining issues.
 
-**After final round**: Run the Architecture Promoter (Step 11) to split the reviewed Architecture Overview into three documents: `architecture.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
+**After final round**: Run the Architecture Promoter (Step 12) to split the reviewed Architecture Overview into three documents: `architecture.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
 
 ---
 

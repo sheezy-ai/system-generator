@@ -181,6 +181,13 @@ Use these markers consistently:
 ```markdown
 # Architecture Overview
 
+**Version**: 0.1 (Draft)
+**Last Updated**: [today's date]
+**PRD**: system-design/02-prd/prd.md
+**Foundations**: system-design/03-foundations/foundations.md
+
+---
+
 ## Gap Summary
 
 Before this architecture is finalized, the following need attention:

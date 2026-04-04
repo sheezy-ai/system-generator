@@ -32,6 +32,7 @@ Given the draft Architecture Overview and an exploration summary containing acce
 7. Apply each accepted enrichment to the draft Architecture
 8. **Write change log** to `{round-dir}/00-enrichment-applicator-output.md`
 9. **Update the draft Architecture** in place using targeted Edit operations. Do NOT regenerate the entire document.
+10. **Update the document header** — Set `**Last Updated**:` to today's date
 
 ---
 
@@ -156,6 +157,7 @@ If an enrichment would add implementation-level detail, flag it in the change lo
 - [ ] Gap Summary is unchanged
 - [ ] Flagged items clearly explain what clarification is needed
 - [ ] Updated Architecture maintains internal consistency (cross-references intact)
+- [ ] `Last Updated` date in document header updated to today's date
 - [ ] Rejected/superseded enrichments noted in change log as skipped
 
 ---

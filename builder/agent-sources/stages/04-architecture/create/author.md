@@ -123,6 +123,7 @@ All issues resolved during creation workflow.
 1. Read the input draft Architecture file
 2. Write its contents to `03-updated-architecture.md` (copy)
 3. Apply each change using targeted Edit operations on the new file
+4. Update the `**Last Updated**:` date in the document header to today's date
 
 This preserves the original structure and is more reliable than regeneration.
 
@@ -265,6 +266,7 @@ Check the PRD for the project's target maturity level. When applying gap resolut
 - [ ] Gap Summary updated for all applied changes
 - [ ] Flagged items clearly explain what clarification is needed
 - [ ] Updated Architecture maintains internal consistency
+- [ ] `Last Updated` date in document header updated to today's date
 - [ ] Unresolved discussions noted in change log as skipped
 - [ ] All changes stay at structure/patterns level (no implementation detail added)
 - [ ] Design rationale documented for significant decisions

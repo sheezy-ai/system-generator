@@ -792,13 +792,13 @@ Only proceed to step 3 after the human signals they have responded.
 
 ### Step 10b: Creation Verification
 
-**Purpose**: Verify alignment with Blueprint and internal coherence before promotion. Catches misalignment and cross-section consistency gaps introduced during creation.
+**Purpose**: Verify alignment with Blueprint, internal coherence, and enumeration completeness before promotion. Catches misalignment, cross-section consistency gaps, and missing checklist/inventory items introduced during creation.
 
 1. **Determine draft path**:
     - If `{round-dir}/03-updated-prd.md` exists (Author ran): Use it
     - Otherwise: Use `{round-dir}/00-draft-prd.md`
 
-2. **Spawn both verification agents in parallel**:
+2. **Spawn all three verification agents in parallel**:
 
     **Alignment Verifier**:
     ```
@@ -820,13 +820,23 @@ Only proceed to step 3 after the human signals they have responded.
     Output: {round-dir}/05-coherence-report.md
     ```
 
-3. **Wait for both agents to complete**
+    **Enumeration Verifier**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/enumeration-verifier.md
 
-4. **Read both reports** and aggregate findings:
+    Document: [draft path from step 1]
+    Stage guide: {{GUIDES_PATH}}/02-prd-guide.md
+    Output: {round-dir}/06-enumeration-report.md
+    ```
+
+3. **Wait for all three agents to complete**
+
+4. **Read all three reports** and aggregate findings:
     - Alignment report: check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
     - Coherence report: check for HIGH or MEDIUM gaps
+    - Enumeration report: check for GAPS_FOUND with HIGH or MEDIUM missing items
 
-5. **If both CLEAN** (alignment PROCEED with no issues, coherence COHERENT or LOW only):
+5. **If all CLEAN** (alignment PROCEED with no issues, coherence COHERENT or LOW only, enumeration COMPLETE or LOW only):
     - Update state file: Mark "Step 10b: Creation Verification" complete `[x]`, add history entry
     - Proceed to promote
 
@@ -841,6 +851,10 @@ Only proceed to step 3 after the human signals they have responded.
     [If coherence gaps:]
     ### Coherence Gaps
     [List HIGH/MEDIUM gaps with source section, target section, and summary]
+
+    [If enumeration gaps:]
+    ### Enumeration Gaps
+    [List HIGH/MEDIUM missing items with enumeration section, source item, and suggested entry]
 
     For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
     ```

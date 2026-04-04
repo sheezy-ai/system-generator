@@ -58,6 +58,8 @@ A coherence gap exists when a section defines a concept that has implications fo
 
 The distinction: a coherence gap is when a section *should* mention something and doesn't. It is not when a section *could* mention something but doesn't need to.
 
+**Note:** Mechanical enumeration completeness (e.g., whether a Definition of Done checklist has an item for every capability) is handled by the Enumeration Verifier agent, not by this agent. This agent focuses on cross-section narrative consistency and concept tracing.
+
 ---
 
 ## Verification Process

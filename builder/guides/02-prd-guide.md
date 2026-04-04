@@ -138,6 +138,8 @@ The source reference enables tracing back to the originating discussion in `vers
 
 **Level of detail:** Checklist of completion criteria. "Core user journeys functional", "Success metrics can be measured", "System handles expected load."
 
+**Sufficient when:** Every consumer-facing capability, admin capability, and operational requirement defined in the Capabilities section (§3) has a corresponding checklist item in the Definition of Done. A single checklist item may cover a tightly related group, but must not bundle unrelated capabilities behind a generic section reference. The test: someone reading only the DoD can identify every capability that must be built and verified, without needing to read §3 to discover unlisted items.
+
 ---
 
 ## What Should NOT Be in the PRD
