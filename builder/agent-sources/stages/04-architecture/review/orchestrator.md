@@ -541,7 +541,9 @@ This gate is mandatory. Do not skip it.
     5. Enumeration gaps: [list HIGH/MEDIUM missing items needing decision]
     ```
 
-38. **Determine next action based on Overall Status**:
+38. **Track rework pass count**: Count how many times Steps 5→6-9→10 have executed in this round. The first pass after Step 4 (Discussion) is pass 1. Each FIX decision that returns to Author increments the count. Record the count in the state file history.
+
+39. **Determine next action based on Overall Status**:
 
     a. **If CLEAN** (no decisions needed, no failures):
        - Update state file: Mark Step 10 complete
@@ -553,11 +555,16 @@ This gate is mandatory. Do not skip it.
 
     c. **If NEEDS_DECISIONS**:
        - Update state file: Set status = WAITING_FOR_HUMAN
-       - Present consolidated findings to human (see step 39)
+       - Present consolidated findings to human (see step 40)
 
-39. **If NEEDS_DECISIONS, present to human** (orchestrator does this directly):
+40. **If NEEDS_DECISIONS, present to human** (orchestrator does this directly):
     ```
     ## Verification Complete - Decisions Needed
+
+    [If rework pass 2+, include at top:]
+    > **Rework pass [N]**: This is verification after rework pass [N]. [N-1] previous rework(s) resolved [X] issues.
+    > Previous pass found [Y] coherence/enumeration gaps; [Z] were fixed, introducing [W] new gaps this pass.
+    > Diminishing returns are expected — each fix may surface progressively more peripheral cross-section implications.
 
     [Include relevant sections based on what needs decisions]
 
@@ -594,29 +601,47 @@ This gate is mandatory. Do not skip it.
     |----|----------|---------------|----------------|---------|
     | COH-001 | MISSING_REFLECTION | [source] | [target] | [summary] |
 
+    [If rework pass 2+:]
+    > HIGH gaps: **FIX** recommended — these indicate an implementer would miss a requirement.
+    > MEDIUM gaps: **ACCEPT** recommended — on rework pass [N], these are likely diminishing-returns cross-section implications. The information exists in the document; the gap is in explicit cross-referencing. FIX only if you judge the gap is build-affecting.
+
+    [If first pass:]
+    For each: **FIX** (return to Author to address) or **ACCEPT** (proceed as-is)?
+
+    ### Enumeration Gaps (if HIGH/MEDIUM items)
+
+    | ID | Category | Source Section | Target Section | Summary |
+    |----|----------|---------------|----------------|---------|
+    | ENUM-001 | MISSING_ITEM | [source] | [target] | [summary] |
+
+    [If rework pass 2+:]
+    > HIGH gaps: **FIX** recommended — these indicate an implementer would miss a requirement.
+    > MEDIUM gaps: **ACCEPT** recommended — on rework pass [N], these are likely diminishing-returns cross-section implications. The information exists in the document; the gap is in explicit cross-referencing. FIX only if you judge the gap is build-affecting.
+
+    [If first pass:]
     For each: **FIX** (return to Author to address) or **ACCEPT** (proceed as-is)?
     ```
 
 **STOP: Wait for human response before proceeding.**
 
-40. **Collect decisions from human response**
+41. **Collect decisions from human response**
 
-41. **Update state file**: Mark Step 10 complete
+42. **Update state file**: Mark Step 10 complete
 
-42. **Automatically proceed to Step 11**
+43. **Automatically proceed to Step 11**
 
 ### Step 11: Execute & Route
 
-43. **Update state file**: Set Step 11, status = IN_PROGRESS
+44. **Update state file**: Set Step 11, status = IN_PROGRESS
 
-44. **If REWORK or FIX was requested**: Return to Step 5 (Author) with specific feedback
+45. **If REWORK or FIX was requested**: Return to Step 5 (Author) with specific feedback
 
-45. **Handle pending issue sync based on decision**:
+46. **Handle pending issue sync based on decision**:
 
     a. **If "Defer all"**:
        - Skip sync entirely - no file to write, no agent to spawn
        - Issues remain documented in `07-alignment-report.md` for later pickup
-       - Proceed to step 46
+       - Proceed to step 47
 
     b. **If "Sync now" or "Select individually"**:
        - Run Pending Issue Resolver agent:
@@ -639,21 +664,21 @@ This gate is mandatory. Do not skip it.
          Output: system-design/04-architecture/versions/round-[N]/10-pending-issue-sync.md
          ```
 
-46. **If HALT was acknowledged**:
+47. **If HALT was acknowledged**:
     - Write blocking issue to upstream pending-issues.md (same format as above)
     - Set status = BLOCKED_UPSTREAM_ISSUE
     - Workflow halts
 
-47. **Update state file**: Mark Step 11 complete
+48. **Update state file**: Mark Step 11 complete
 
-48. **Route to completion**:
+49. **Route to completion**:
     - Ask user: next round or exit?
     - If user chooses next round: Update state file to increment round, reset to Step 1
     - If user chooses exit: Proceed to Step 12 (Promote)
 
 ### Step 12: Promote
 
-49. **Spawn Architecture Promoter**:
+50. **Spawn Architecture Promoter**:
     ```
     Follow the instructions in: {{AGENTS_PATH}}/04-architecture/review/promoter.md
 
@@ -667,12 +692,12 @@ This gate is mandatory. Do not skip it.
     - system-design/04-architecture/future.md
     ```
 
-50. **Verify all three output files exist**:
+51. **Verify all three output files exist**:
     - `system-design/04-architecture/architecture.md`
     - `system-design/04-architecture/decisions.md`
     - `system-design/04-architecture/future.md`
 
-51. **Update state file**: status = COMPLETE
+52. **Update state file**: status = COMPLETE
 
 ---
 

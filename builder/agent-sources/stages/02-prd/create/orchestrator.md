@@ -840,8 +840,13 @@ Only proceed to step 3 after the human signals they have responded.
     - Update state file: Mark "Step 10b: Creation Verification" complete `[x]`, add history entry
     - Proceed to promote
 
-6. **If issues found**: Present findings to human:
+6. **Track rework pass count**: Count how many times verification has been run in this round. The first verification is pass 1. Each FIX that returns to Author and re-runs verification increments the count.
+
+7. **If issues found**: Present findings to human:
     ```
+    [If rework pass 2+, include at top:]
+    > **Rework pass [N]**: This is verification after rework pass [N]. Diminishing returns are expected — each fix may surface progressively more peripheral cross-section implications.
+
     Creation verification found issues:
 
     [If alignment issues:]
@@ -856,6 +861,11 @@ Only proceed to step 3 after the human signals they have responded.
     ### Enumeration Gaps
     [List HIGH/MEDIUM missing items with enumeration section, source item, and suggested entry]
 
+    [If rework pass 2+:]
+    > HIGH gaps: **FIX** recommended.
+    > MEDIUM gaps: **ACCEPT** recommended — on rework pass [N], these are likely diminishing-returns implications. FIX only if build-affecting.
+
+    [If first pass:]
     For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
     ```
     - If FIX: Spawn Author to address issues, then re-run verification
