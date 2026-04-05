@@ -17,9 +17,9 @@
 
 2. **Determine Architecture Overview source path**:
    - **Round 1**: Use `system-design/04-architecture/architecture.md` (parent folder)
-   - **Round 2+**: Use `system-design/04-architecture/versions/round-{N-1}/05-updated-architecture.md`
+   - **Round 2+**: Use `system-design/04-architecture/versions/review/round-{N-1}/05-updated-architecture.md`
 
-3. **Copy source to round folder**: Copy the source Architecture Overview to `system-design/04-architecture/versions/round-[N]/00-architecture.md`. All agents in this round work from this copy.
+3. **Copy source to round folder**: Copy the source Architecture Overview to `system-design/04-architecture/versions/review/round-[N]/00-architecture.md`. All agents in this round work from this copy.
 
 4. **Update state file** at each step transition
 
@@ -62,14 +62,14 @@
 
 **Output directory**: `system-design/04-architecture/versions`
 **State file**: `system-design/04-architecture/versions/workflow-state.md`
-**Working files**: `system-design/04-architecture/versions/round-[N]/`
+**Working files**: `system-design/04-architecture/versions/review/round-[N]/`
 
 **Final outputs** (created by promoter at exit):
 - `system-design/04-architecture/architecture.md` — Clean current-scope Architecture Overview
 - `system-design/04-architecture/decisions.md` — Design rationale and trade-offs
 - `system-design/04-architecture/future.md` — Deferred items and future considerations
 
-Review uses `round-1`, `round-2`, etc. Creation workflow uses `round-0`. Both share this state file.
+Review outputs go under `versions/review/round-1/`, `versions/review/round-2/`, etc. Creation outputs go under `versions/create/`. Both workflows share the `versions/` folder with a unified state file.
 
 ---
 
@@ -131,27 +131,30 @@ system-design/04-architecture/
 ├── future.md                      # Deferred items (created by promoter at exit)
 └── versions/
     ├── workflow-state.md
-    ├── round-0/                       # Creation workflow output
+    ├── create/                        # Creation workflow output
+    │   ├── round-1/
     │   └── ...
-    ├── round-1/                       # First review round
-    │   ├── 00-architecture.md             # Snapshot of input (copied at round start)
-    │   ├── 01-system-architect.md
-    │   ├── 01-data-architect.md
-    │   ├── 01-integration-architect.md
-    │   ├── 01-technical-reviewer.md
-    │   ├── 01-finops.md
-    │   ├── 01-security.md
-    │   ├── 02-consolidated-issues.md   # Full detail
-    │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
-    │   ├── 04-author-output.md
-    │   ├── 05-updated-architecture.md
-    │   ├── 06-change-verification-report.md
-    │   ├── 07-alignment-report.md
-    │   ├── 08-coherence-report.md
-    │   ├── 09-verification-summary.md
-    │   └── 10-pending-issue-sync.md      # If pending issues were synced
-    └── round-2/
-        └── ...
+    ├── review/                        # Review workflow output
+    │   ├── round-1/                   # First review round
+    │   │   ├── 00-architecture.md             # Snapshot of input (copied at round start)
+    │   │   ├── 01-system-architect.md
+    │   │   ├── 01-data-architect.md
+    │   │   ├── 01-integration-architect.md
+    │   │   ├── 01-technical-reviewer.md
+    │   │   ├── 01-finops.md
+    │   │   ├── 01-security.md
+    │   │   ├── 02-consolidated-issues.md   # Full detail
+    │   │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
+    │   │   ├── 04-author-output.md
+    │   │   ├── 05-updated-architecture.md
+    │   │   ├── 06-change-verification-report.md
+    │   │   ├── 07-alignment-report.md
+    │   │   ├── 08-coherence-report.md
+    │   │   ├── 09-verification-summary.md
+    │   │   └── 10-pending-issue-sync.md      # If pending issues were synced
+    │   └── round-2/
+    │       └── ...
+    └── pending-issues.md
 ```
 
 ---
@@ -230,7 +233,7 @@ Output: [resolved file path]
 1. **Update state file**: Set Step 1, status = IN_PROGRESS
 
 2. **Create round directory and copy input**:
-   - Create `system-design/04-architecture/versions/round-[N]/`
+   - Create `system-design/04-architecture/versions/review/round-[N]/`
    - Copy source Architecture Overview (determined in On Start/Resume) to `round-[N]/00-architecture.md`
    - If source doesn't exist, **error and stop**
 
@@ -271,8 +274,8 @@ Output: [resolved file path]
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/scope-filter.md
 
     Stage guide: guides/04-architecture-guide.md
-    Input: system-design/04-architecture/versions/round-[N]/02-consolidated-issues.md
-    Output: system-design/04-architecture/versions/round-[N]/03-issues-discussion.md
+    Input: system-design/04-architecture/versions/review/round-[N]/02-consolidated-issues.md
+    Output: system-design/04-architecture/versions/review/round-[N]/03-issues-discussion.md
     ```
     - Agent reads guide to understand what level of detail belongs at architecture level
     - Agent filters issues: keeps architecture-level, defers implementation-level to Component Specs
@@ -301,11 +304,11 @@ Output: [resolved file path]
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/issue-analyst.md
 
     Context documents:
-    - Architecture: system-design/04-architecture/versions/round-[N]/00-architecture.md
+    - Architecture: system-design/04-architecture/versions/review/round-[N]/00-architecture.md
     - Foundations: system-design/03-foundations/foundations.md
     - PRD: system-design/02-prd/prd.md
 
-    Issues file: system-design/04-architecture/versions/round-[N]/03-issues-discussion.md
+    Issues file: system-design/04-architecture/versions/review/round-[N]/03-issues-discussion.md
     Issues: [ID1, ID2, ID3, ...]
     ```
 
@@ -323,7 +326,7 @@ Output: [resolved file path]
 20. **Update state file**: Set Step 4, status = WAITING_FOR_HUMAN
 
 21. **Notify user** issues are ready for discussion
-    - Point them to `system-design/04-architecture/versions/round-[N]/03-issues-discussion.md`
+    - Point them to `system-design/04-architecture/versions/review/round-[N]/03-issues-discussion.md`
     - Note that each issue includes analyst recommendations with options and trade-offs
     - Full detail available in `02-consolidated-issues.md` if needed
 
@@ -352,11 +355,11 @@ Only proceed to step 22 after the human signals they have responded (e.g., "done
        Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
 
        Context documents:
-       - Architecture: system-design/04-architecture/versions/round-[N]/00-architecture.md
+       - Architecture: system-design/04-architecture/versions/review/round-[N]/00-architecture.md
        - Foundations: system-design/03-foundations/foundations.md
        - PRD: system-design/02-prd/prd.md
 
-       Issues file: system-design/04-architecture/versions/round-[N]/03-issues-discussion.md
+       Issues file: system-design/04-architecture/versions/review/round-[N]/03-issues-discussion.md
        Issues: [ID1, ID2, ID3, ...]
        ```
 
@@ -445,9 +448,9 @@ This gate is mandatory. Do not skip it.
     ```
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
 
-    Document: system-design/04-architecture/versions/round-[N]/05-updated-architecture.md
+    Document: system-design/04-architecture/versions/review/round-[N]/05-updated-architecture.md
     Stage guide: guides/04-architecture-guide.md
-    Output: system-design/04-architecture/versions/round-[N]/08-coherence-report.md
+    Output: system-design/04-architecture/versions/review/round-[N]/08-coherence-report.md
     ```
 
     **Enumeration Verifier** (Step 9) (`{{AGENTS_PATH}}/universal-agents/enumeration-verifier.md`):
@@ -457,9 +460,9 @@ This gate is mandatory. Do not skip it.
     ```
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/enumeration-verifier.md
 
-    Document: system-design/04-architecture/versions/round-[N]/05-updated-architecture.md
+    Document: system-design/04-architecture/versions/review/round-[N]/05-updated-architecture.md
     Stage guide: guides/04-architecture-guide.md
-    Output: system-design/04-architecture/versions/round-[N]/09-enumeration-report.md
+    Output: system-design/04-architecture/versions/review/round-[N]/09-enumeration-report.md
     ```
 
 32. **Wait for all four agents to complete**
@@ -648,7 +651,7 @@ This gate is mandatory. Do not skip it.
          ```
          Follow the instructions in: {{AGENTS_PATH}}/universal-agents/pending-issue-resolver.md
 
-         Alignment report: system-design/04-architecture/versions/round-[N]/07-alignment-report.md
+         Alignment report: system-design/04-architecture/versions/review/round-[N]/07-alignment-report.md
 
          Upstream pending-issues:
          - Foundations: system-design/03-foundations/versions/pending-issues.md
@@ -661,7 +664,7 @@ This gate is mandatory. Do not skip it.
          - PI-002: APPLY | DEFER | REJECT
          ...
 
-         Output: system-design/04-architecture/versions/round-[N]/10-pending-issue-sync.md
+         Output: system-design/04-architecture/versions/review/round-[N]/10-pending-issue-sync.md
          ```
 
 47. **If HALT was acknowledged**:
@@ -683,7 +686,7 @@ This gate is mandatory. Do not skip it.
     Follow the instructions in: {{AGENTS_PATH}}/04-architecture/review/promoter.md
 
     Input:
-    - Reviewed Architecture Overview: system-design/04-architecture/versions/round-[N]/05-updated-architecture.md
+    - Reviewed Architecture Overview: system-design/04-architecture/versions/review/round-[N]/05-updated-architecture.md
     - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
 
     Output:
