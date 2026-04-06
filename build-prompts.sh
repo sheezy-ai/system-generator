@@ -288,6 +288,29 @@ build_create_workflow() {
     echo "  Built: $output_file"
 }
 
+# Process a single Expand workflow file
+build_expand_workflow() {
+    local stage="$1"
+    local workflow_file="$2"
+    local workflow_name=$(basename "$workflow_file" .md)
+
+    # Get output directory
+    local output_dir_name=$(get_output_dir "$stage")
+    local output_file="$AGENTS_DIR/$output_dir_name/expand/$workflow_name.md"
+
+    # Start with the core workflow file
+    local content
+    content=$(cat "$workflow_file")
+
+    # Inject common sections
+    content=$(inject_common_sections "$content")
+
+    # Write output
+    mkdir -p "$(dirname "$output_file")"
+    echo "$content" > "$output_file"
+    echo "  Built: $output_file"
+}
+
 # Process a single Review expert file
 build_review_expert() {
     local stage="$1"
@@ -622,6 +645,38 @@ for stage_dir in "$BUILDER_SOURCES/stages"/*; do
 done
 
 echo "Review build complete."
+echo ""
+
+# Build Expand prompts
+echo "Building Expand prompts..."
+echo ""
+
+# Clean stale expand output files
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
+    if [[ -d "$stage_dir/expand" ]]; then
+        stage=$(basename "$stage_dir")
+        output_dir_name=$(get_output_dir "$stage")
+        clean_output_dir "$AGENTS_DIR/$output_dir_name/expand" "$stage_dir/expand"
+    fi
+done
+
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
+    if [[ -d "$stage_dir/expand" ]]; then
+        stage=$(basename "$stage_dir")
+        echo "Stage: $stage"
+
+        # Build workflow files
+        for workflow_file in "$stage_dir/expand"/*.md; do
+            if [[ -f "$workflow_file" ]]; then
+                build_expand_workflow "$stage" "$workflow_file"
+            fi
+        done
+
+        echo ""
+    fi
+done
+
+echo "Expand build complete."
 echo ""
 
 # Build 06-tasks prompts
