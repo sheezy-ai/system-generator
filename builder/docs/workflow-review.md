@@ -154,7 +154,7 @@ Each expert reviews the document within their domain and identifies issues.
 - No solutions—issues and questions only
 - Each expert has a code prefix (e.g., STRAT, COMM, CUST, OPS)
 
-**Output location:** `system/[stage]/versions/round-N/01-[expert-name].md`
+**Output location:** `system/[stage]/versions/round-N-review/01-[expert-name].md`
 
 ---
 
@@ -196,7 +196,7 @@ The output includes a summary table at the top listing all questions that need a
 - Propose solutions
 - Modify issue descriptions
 
-**Output location:** `system/[stage]/versions/round-N/02-consolidated-issues.md`
+**Output location:** `system/[stage]/versions/round-N-review/02-consolidated-issues.md`
 
 ---
 
@@ -218,7 +218,7 @@ The Scope Filter filters content to ensure only stage-appropriate issues proceed
 - **Defer**: Issues that belong in a downstream stage
 - **When uncertain**: Keep (human can mark N/A)
 
-**Output location:** `system/[stage]/versions/round-N/03-issues-discussion.md`
+**Output location:** `system/[stage]/versions/round-N-review/03-issues-discussion.md`
 
 ---
 
@@ -243,7 +243,7 @@ The Issue Analyst pre-analyzes each issue with options, trade-offs, and a recomm
 
 **Batching:** Issues are grouped by document section (~5-7 per batch) and analyst agents run in parallel, one per batch.
 
-**Output:** Inline edits to `system/[stage]/versions/round-N/03-issues-discussion.md`
+**Output:** Inline edits to `system/[stage]/versions/round-N-review/03-issues-discussion.md`
 
 ---
 
@@ -252,7 +252,7 @@ The Issue Analyst pre-analyzes each issue with options, trade-offs, and a recomm
 **Stop point:** Workflow pauses here for human to mark each issue.
 
 **What human sees:**
-- File path to review: `system/[stage]/versions/round-N/03-issues-discussion.md`
+- File path to review: `system/[stage]/versions/round-N-review/03-issues-discussion.md`
 - Issues sorted by severity (HIGH → MEDIUM → LOW)
 - Each issue with ID, severity, summary, and core question
 
@@ -349,8 +349,8 @@ If a solution is unclear or conflicts with existing content, flag it instead of 
 While applying changes, verify each stays at appropriate level. If an approved solution would add too much detail, flag it for human confirmation.
 
 **Output locations:**
-- Change log: `system/[stage]/versions/round-N/04-author-output.md`
-- Updated document: `system/[stage]/versions/round-N/05-updated-[document].md`
+- Change log: `system/[stage]/versions/round-N-review/04-author-output.md`
+- Updated document: `system/[stage]/versions/round-N-review/05-updated-[document].md`
 
 ---
 
@@ -390,7 +390,7 @@ The Alignment Verifier ensures the updated document still aligns with its source
 | PROCEED | Continue to Step 7 (Change Verification) |
 | HALT | Stop workflow, log to upstream pending-issues.md, set BLOCKED_UPSTREAM_ISSUE |
 
-**Output location:** `system/[stage]/versions/round-N/06-alignment-report.md`
+**Output location:** `system/[stage]/versions/round-N-review/06-alignment-report.md`
 
 **Note:** Blueprint skips this step — its source (concept document) is informal, so alignment verification is not applicable (see DEC-035). Blueprint goes directly from Author (Step 5) to Change Verification (Step 7), and uses `06-change-verification-report.md` for the verifier output.
 
@@ -443,7 +443,7 @@ The Change Verifier confirms changes were applied correctly and at appropriate l
 | Some PARTIALLY_RESOLVED | Human decides: accept or rework |
 | Some LEVEL_VIOLATION | Return to Author to simplify |
 
-**Output location:** `system/[stage]/versions/round-N/07-change-verification-report.md`
+**Output location:** `system/[stage]/versions/round-N-review/07-change-verification-report.md`
 
 **Human decision:**
 After verification completes, human decides:
@@ -464,7 +464,7 @@ After final round, manually copy the updated document to the stage's main locati
 ## Output File Structure
 
 ```
-system/[stage]/versions/round-N/
+system/[stage]/versions/round-N-review/
 ├── 00-[document].md            # Snapshot of input (copied at round start)
 ├── 01-[expert-1].md            # Expert outputs
 ├── 01-[expert-2].md
@@ -477,7 +477,7 @@ system/[stage]/versions/round-N/
 └── 07-change-verification-report.md  # Change Verifier output
 ```
 
-**Blueprint exception:** Blueprint skips Alignment Verification (Step 6), so uses `06-change-verification-report.md` instead. Output is under `versions/review/round-N/` rather than `versions/round-N/`.
+**Blueprint exception:** Blueprint skips Alignment Verification (Step 6), so uses `06-change-verification-report.md` instead. Output is under `versions/round-N-review/`.
 
 ---
 
@@ -541,7 +541,7 @@ Each round:
 
 **Round input:**
 - Round 1: Original document
-- Round 2+: `system/[stage]/versions/round-{N-1}/05-updated-[document].md`
+- Round 2+: `system/[stage]/versions/round-{N-1}-review/05-updated-[document].md`
 
 ---
 

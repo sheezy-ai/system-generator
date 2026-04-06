@@ -272,7 +272,7 @@ system/05-components/
     │   ├── deferred-items.md        # Component-specific deferred items
     │   ├── workflow-state.md        # Per-component state (steps, rounds, parts)
     │   ├── pending-issues.md        # Cross-component issues targeting this component
-    │   ├── round-0/                 # Create workflow
+    │   ├── round-1-create/           # Create workflow
     │   │   └── 00-draft-spec.md     # Generator output (human augments this)
     │   └── round-N-[build|ops]/     # Review workflow (build or ops phase)
     │       ├── 00-spec.md           # Input spec snapshot

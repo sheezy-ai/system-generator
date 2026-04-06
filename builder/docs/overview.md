@@ -99,7 +99,7 @@ Stages 01–05 have guides (in `guides/`) that define what belongs at each level
 
 ## Workflows
 
-Each stage supports two workflows:
+Each stage supports up to three workflows:
 
 ### Create Workflow
 
@@ -139,6 +139,26 @@ Document ──▶ Experts ──▶ Consolidator ──▶ Scope Filter ──�
 
 Review cycles repeat until the document is satisfactory.
 
+### Expand Workflow
+
+Adds new capability areas or scope changes to an existing document. Used when downstream work discovers that an upstream document needs new content that wasn't in the original scope.
+
+```
+Trigger ──▶ Scope Analyst ──▶ Human reviews brief ──▶ Explorers ──▶ Proposal Filter ──▶ Human reviews proposals ──▶ Integration Author ──▶ Verification ──┐
+                                                                                                                                                          │
+                                                                                                                                               CLEAN? ──▶ Done
+```
+
+- **Scope Analyst** turns the trigger (pending issue, conversation, human description) into a structured Expansion Brief with capability areas
+- **Explorers** investigate each capability area and produce complete change sets (new content, modified content, cross-section implications)
+- **Proposal Filter** checks level-appropriateness and formats proposals for human review with full content preserved
+- **Integration Author** applies approved changes so the document reads as if the capability was always in scope
+- **Verification** reuses the review workflow's verification agents (alignment, coherence, enumeration, change verification)
+
+Expand never promotes — always follow with a Review round. Available for stages 01–04.
+
+See `workflow-expand.md` for details.
+
 ## Key Concepts
 
 ### Agents
@@ -171,7 +191,7 @@ Orchestrators coordinate multi-step workflows. They:
 - Handle human interaction points
 - Track progress in a state file
 
-Each stage has a Create orchestrator and a Review orchestrator.
+Each stage has a Create orchestrator and a Review orchestrator. Stages 01–04 also have an Expand orchestrator.
 
 ### Deferred Items
 
@@ -222,24 +242,22 @@ Humans provide decisions, answer questions, and approve changes. Guidance is in 
 │   │   │   ├── generator.md
 │   │   │   ├── author.md
 │   │   │   └── scope-extractor.md
-│   │   └── review/
-│   │       ├── orchestrator.md
-│   │       ├── author.md
-│   │       ├── consolidator.md
-│   │       ├── change-verifier.md
-│   │       └── experts/
-│   ├── 02-prd/
-│   │   ├── create/
+│   │   ├── review/
 │   │   │   ├── orchestrator.md
-│   │   │   ├── capability-identifier.md
-│   │   │   ├── capability-explorer.md
-│   │   │   ├── exploration-consolidator.md
-│   │   │   ├── enrichment-scope-filter.md
-│   │   │   ├── enrichment-author.md
-│   │   │   ├── enrichment-applicator.md
-│   │   │   ├── generator.md
-│   │   │   └── author.md
-│   │   └── review/...
+│   │   │   ├── author.md
+│   │   │   ├── consolidator.md
+│   │   │   ├── change-verifier.md
+│   │   │   └── experts/
+│   │   └── expand/
+│   │       ├── orchestrator.md
+│   │       ├── scope-analyst.md
+│   │       ├── expansion-explorer.md
+│   │       ├── proposal-filter.md
+│   │       └── integration-author.md
+│   ├── 02-prd/
+│   │   ├── create/...
+│   │   ├── review/...
+│   │   └── expand/...            # Same structure as Blueprint expand
 │   ├── 03-foundations/
 │   │   ├── create/
 │   │   │   ├── orchestrator.md
@@ -304,24 +322,32 @@ Scripts `init-project.sh` and `build-prompts.sh` live at the system-generator ro
 
 ## Round Numbering
 
-Workflows use round numbers to track iterations:
-- `round-0`: Create workflow (initial document creation) — for stages using the generic flow
-- `round-1`, `round-2`, ...: Review workflow cycles (or create rounds for stages with exploration loops)
+Rounds use a **unified sequential numbering** with a workflow type suffix:
 
-**Blueprint exception:** Blueprint's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from `concept.md`, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
+```
+versions/
+├── round-1-create/
+├── round-2-create/
+├── ...
+├── round-8-create/
+├── round-9-review/
+├── round-10-review/
+├── round-11-expand/
+├── round-12-review/
+└── workflow-state.md
+```
 
-**PRD exception:** PRD's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from `blueprint.md`, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
+The round number is globally sequential across all workflow types. The suffix (`-create`, `-review`, `-expand`) indicates which workflow produced the round. This provides a single chronological timeline of all work on a document.
 
-**Foundations exception:** Foundations uses `round-0` for creation (single round with assessment step, no multi-round exploration loop). Review rounds start from `round-1`.
+All rounds for a stage share a `versions/` folder with a unified state file. The state file's `Current Round` is the global round number, and `Current Workflow` indicates the active workflow type.
 
-**Architecture exception:** Architecture's create workflow supports multiple rounds (`round-1`, `round-2`, ...) before promotion. Round 1 explores from PRD + Foundations, round 2+ explores from the previous round's draft. Review rounds continue from where create left off.
-
-All rounds for a stage share a `versions/` folder with a unified state file.
+**Source path resolution**: When starting a new round, the orchestrator always uses the last completed round's full output document — never the promoted file. Promoted files may have been split (rationale → `decisions.md`, future → `future.md`), so using them as input would lose content.
 
 ## Further Reading
 
 - `workflow-create.md` - Create workflow mechanics and agent details
 - `workflow-create-patterns.md` - Three pre-generation intensity levels (Direct, Select, Explore)
 - `workflow-review.md` - Review workflow mechanics and agent details
+- `workflow-expand.md` - Expand workflow mechanics and agent details
 - `design-decisions.md` - Why the system is designed this way
 - `01-blueprint.md` - Blueprint stage documentation

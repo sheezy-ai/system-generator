@@ -152,31 +152,29 @@ system-design/02-prd/
     ├── deferred-items.md              # Content deferred from upstream stages
     ├── pending-issues.md              # Issues flagged for upstream review
     ├── workflow-state.md              # Unified workflow state (shared with Review)
-    ├── create/                        # All creation round outputs
-    │   ├── round-1/
-    │   │   ├── explore/
-    │   │   │   ├── 00-capabilities.md
-    │   │   │   ├── 01-explorer-*.md
-    │   │   │   ├── 02-enrichment-discussion.md
-    │   │   │   ├── 02a-filtered-enrichment-discussion.md
-    │   │   │   └── 03-exploration-summary.md
-    │   │   ├── 00-draft-prd.md
-    │   │   ├── 01-gap-resolutions.md
-    │   │   ├── 02-author-output.md
-    │   │   └── 03-updated-prd.md
-    │   └── round-{N}/                 # Additional create rounds (if "another round")
-    │       ├── explore/
-    │       │   └── [same explore files]
-    │       └── [same generate files]
-    └── review/                        # All review round outputs
-        └── round-{N}/
-            ├── 01-[expert].md
-            ├── 02-consolidated-issues.md
-            ├── 03-issues-discussion.md
-            ├── 04-author-output.md
-            ├── 05-updated-prd.md
-            ├── 06-alignment-report.md
-            └── 07-change-verification-report.md
+    ├── round-1-create/                # Round 1 (from blueprint)
+    │   ├── explore/
+    │   │   ├── 00-capabilities.md
+    │   │   ├── 01-explorer-*.md
+    │   │   ├── 02-enrichment-discussion.md
+    │   │   ├── 02a-filtered-enrichment-discussion.md
+    │   │   └── 03-exploration-summary.md
+    │   ├── 00-draft-prd.md
+    │   ├── 01-gap-resolutions.md
+    │   ├── 02-author-output.md
+    │   └── 03-updated-prd.md
+    ├── round-{N}-create/              # Additional create rounds (if "another round")
+    │   ├── explore/
+    │   │   └── [same explore files]
+    │   └── [same generate files]
+    └── round-{N}-review/              # Review round outputs
+        ├── 01-[expert].md
+        ├── 02-consolidated-issues.md
+        ├── 03-issues-discussion.md
+        ├── 04-author-output.md
+        ├── 05-updated-prd.md
+        ├── 06-alignment-report.md
+        └── 07-change-verification-report.md
 ```
 
 **Downstream deferred items (for PRD content that's too detailed):**

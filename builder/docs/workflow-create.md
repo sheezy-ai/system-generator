@@ -68,7 +68,7 @@ The orchestrator creates the required directory structure and initialises tracki
    ```
    system-design/[stage]/
    └── versions/
-       └── round-0/
+       └── round-1-create/
    ```
 2. Create `deferred-items.md` (if not exists) - holds items deferred from upstream
 3. Create `pending-issues.md` (if not exists) - holds issues logged against this stage
@@ -113,7 +113,7 @@ The Generator creates an initial draft from the concept/upstream document.
 
 **Output:**
 - Draft document with gaps marked
-- Location: `system-design/[stage]/versions/round-0/00-draft-[document].md`
+- Location: `system-design/[stage]/versions/round-1-create/00-draft-[document].md`
 
 ---
 
@@ -129,7 +129,7 @@ The orchestrator summarises the draft for the human.
    ```
    [Stage] initialization complete.
 
-   Draft: system-design/[stage]/versions/round-0/00-draft-[document].md
+   Draft: system-design/[stage]/versions/round-1-create/00-draft-[document].md
 
    Gap summary:
    - [N] QUESTION items
@@ -221,7 +221,7 @@ system-design/[stage]/
 ├── versions/
 │   ├── deferred-items.md           # Items deferred from upstream
 │   ├── pending-issues.md          # Issues logged against this stage
-│   └── round-0/
+│   └── round-1-create/
 │       └── 00-draft-[document].md # Generator output
 └── [document].md                  # Final (created by Review workflow)
 ```

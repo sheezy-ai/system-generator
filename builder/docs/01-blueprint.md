@@ -152,29 +152,27 @@ system-design/01-blueprint/
     ├── pending-issues.md              # Issues logged against this stage
     ├── out-of-scope.md                # Non-documentation content from concept
     ├── workflow-state.md              # Unified workflow state (shared with Review)
-    ├── create/                        # All creation round outputs
-    │   ├── round-1/                   # Round 1 (from concept)
-    │   │   ├── explore/
-    │   │   │   ├── 00-dimensions.md
-    │   │   │   ├── 01-explorer-*.md
-    │   │   │   ├── 02-enrichment-discussion.md
-    │   │   │   ├── 02a-filtered-enrichment-discussion.md
-    │   │   │   └── 03-exploration-summary.md
-    │   │   ├── 00-draft-blueprint.md
+    ├── round-1-create/                # Round 1 (from concept)
+    │   ├── explore/
+    │   │   ├── 00-dimensions.md
+    │   │   ├── 01-explorer-*.md
+    │   │   ├── 02-enrichment-discussion.md
+    │   │   ├── 02a-filtered-enrichment-discussion.md
+    │   │   └── 03-exploration-summary.md
+    │   ├── 00-draft-blueprint.md
+    │   └── ...
+    ├── round-{N}-create/              # Round N (N≥2) — from previous draft
+    │   ├── explore/
     │   │   └── ...
-    │   └── round-{N}/                 # Round N (N≥2) — from previous draft
-    │       ├── explore/
-    │       │   └── ...
-    │       └── ...
-    └── review/                        # All review round outputs
-        └── round-{N}/
-            ├── 00-blueprint.md            # Snapshot of input
-            ├── 01-[expert].md
-            ├── 02-consolidated-issues.md
-            ├── 03-issues-discussion.md
-            ├── 04-author-output.md
-            ├── 05-updated-blueprint.md
-            └── 06-change-verification-report.md
+    │   └── ...
+    └── round-{N}-review/              # Review round outputs
+        ├── 00-blueprint.md            # Snapshot of input
+        ├── 01-[expert].md
+        ├── 02-consolidated-issues.md
+        ├── 03-issues-discussion.md
+        ├── 04-author-output.md
+        ├── 05-updated-blueprint.md
+        └── 06-change-verification-report.md
 ```
 
 **Downstream deferred items (for Blueprint content that's too detailed):**
