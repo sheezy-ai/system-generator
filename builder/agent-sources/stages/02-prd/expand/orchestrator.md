@@ -24,10 +24,13 @@ The expand workflow produces an updated PRD that reads as if the expanded capabi
      - **If `Expand`**: Resume from current round/step
 
 2. **Determine PRD source path**:
-   - Use the latest updated PRD from the most recent completed round (any workflow type)
-   - The orchestrator reads the state file history to identify the last completed round number and type
-   - Source: `system-design/02-prd/versions/round-{N}-{type}/05-updated-prd.md`
-   - If the last completed workflow was a promotion (Review exit or Create exit), use `system-design/02-prd/prd.md`
+   - Read the state file history to identify the last completed round number and type
+   - **If no previous rounds exist** (first ever round): Use the upstream input document: `system-design/01-blueprint/blueprint.md`
+   - **If previous rounds exist**: Use the full updated document from the last completed round:
+     - Last round was create: `versions/round-{N}-create/03-updated-prd.md` (or `versions/round-{N}-create/00-draft-prd.md` if only draft exists)
+     - Last round was review: `versions/round-{N}-review/05-updated-prd.md`
+     - Last round was expand: `versions/round-{N}-expand/05-updated-prd.md`
+   - **Never use the promoted file** (`prd.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source PRD to `system-design/02-prd/versions/round-[N]-expand/00-prd.md`. All agents in this round work from this copy.
 

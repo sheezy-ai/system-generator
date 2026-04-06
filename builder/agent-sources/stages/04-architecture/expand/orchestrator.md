@@ -24,10 +24,13 @@ The expand workflow produces an updated Architecture Overview that reads as if t
      - **If `Expand`**: Resume from current round/step
 
 2. **Determine Architecture Overview source path**:
-   - Use the latest updated Architecture Overview from the most recent completed round (any workflow type)
-   - The orchestrator reads the state file history to identify the last completed round number and type
-   - Source: `system-design/04-architecture/versions/round-{N}-{type}/05-updated-architecture.md`
-   - If the last completed workflow was a promotion (Review exit or Create exit), use `system-design/04-architecture/architecture.md`
+   - Read the state file history to identify the last completed round number and type
+   - **If no previous rounds exist** (first ever round): Use the upstream input documents: `system-design/02-prd/prd.md` and `system-design/03-foundations/foundations.md`
+   - **If previous rounds exist**: Use the full updated document from the last completed round:
+     - Last round was create: `versions/round-{N}-create/03-updated-architecture.md` (or `versions/round-{N}-create/00-draft-architecture.md` if only draft exists)
+     - Last round was review: `versions/round-{N}-review/05-updated-architecture.md`
+     - Last round was expand: `versions/round-{N}-expand/05-updated-architecture.md`
+   - **Never use the promoted file** (`architecture.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Architecture Overview to `system-design/04-architecture/versions/round-[N]-expand/00-architecture.md`. All agents in this round work from this copy.
 

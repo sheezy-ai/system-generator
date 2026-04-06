@@ -9,15 +9,20 @@
 ### On Start/Resume
 
 1. **Check if state file exists**:
-   - **If NO**: Create it, initialize Round 1 Step 1, set `Current Workflow: Review`, use original Blueprint path
+   - **If NO**: Create it, initialize Round 1 Step 1, set `Current Workflow: Review`
    - **If YES**: Read it and check `Current Workflow`:
-     - **If `Create` and Status COMPLETE**: Creation finished — set `Current Workflow: Review`, initialize Round 1, preserve existing history, use original Blueprint path
+     - **If `Create` and Status COMPLETE**: Creation finished — set `Current Workflow: Review`, initialize Round 1, preserve existing history
      - **If `Create` and Status not COMPLETE**: Error — "Creation workflow still in progress"
      - **If `Review`**: Resume from current round/step
 
 2. **Determine Blueprint source path**:
-   - **Round 1**: Use `system-design/01-blueprint/blueprint.md` (parent folder)
-   - **Round 2+**: Use `system-design/01-blueprint/versions/round-{N-1}-review/05-updated-blueprint.md`
+   - Read the state file history to identify the last completed round number and type
+   - **If no previous rounds exist** (first ever round): Use the upstream input document: `system-design/01-blueprint/concept.md`
+   - **If previous rounds exist**: Use the full updated document from the last completed round:
+     - Last round was create: `versions/round-{N}-create/03-updated-blueprint.md` (or `versions/round-{N}-create/00-draft-blueprint.md` if only draft exists)
+     - Last round was review: `versions/round-{N}-review/05-updated-blueprint.md`
+     - Last round was expand: `versions/round-{N}-expand/05-updated-blueprint.md`
+   - **Never use the promoted file** (`blueprint.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Blueprint to `system-design/01-blueprint/versions/round-[N]-review/00-blueprint.md`. All agents in this round work from this copy.
 

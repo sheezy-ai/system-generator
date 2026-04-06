@@ -24,10 +24,13 @@ The expand workflow produces an updated Foundations that reads as if the expande
      - **If `Expand`**: Resume from current round/step
 
 2. **Determine Foundations source path**:
-   - Use the latest updated Foundations from the most recent completed round (any workflow type)
-   - The orchestrator reads the state file history to identify the last completed round number and type
-   - Source: `system-design/03-foundations/versions/round-{N}-{type}/05-updated-foundations.md`
-   - If the last completed workflow was a promotion (Review exit or Create exit), use `system-design/03-foundations/foundations.md`
+   - Read the state file history to identify the last completed round number and type
+   - **If no previous rounds exist** (first ever round): Use the upstream input document: `system-design/02-prd/prd.md`
+   - **If previous rounds exist**: Use the full updated document from the last completed round:
+     - Last round was create: `versions/round-{N}-create/03-updated-foundations.md` (or `versions/round-{N}-create/00-draft-foundations.md` if only draft exists)
+     - Last round was review: `versions/round-{N}-review/05-updated-foundations.md`
+     - Last round was expand: `versions/round-{N}-expand/05-updated-foundations.md`
+   - **Never use the promoted file** (`foundations.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Foundations to `system-design/03-foundations/versions/round-[N]-expand/00-foundations.md`. All agents in this round work from this copy.
 

@@ -24,10 +24,13 @@ The expand workflow produces an updated Blueprint that reads as if the expanded 
      - **If `Expand`**: Resume from current round/step
 
 2. **Determine Blueprint source path**:
-   - Use the latest updated Blueprint from the most recent completed round (any workflow type)
-   - The orchestrator reads the state file history to identify the last completed round number and type
-   - Source: `system-design/01-blueprint/versions/round-{N}-{type}/05-updated-blueprint.md`
-   - If the last completed workflow was a promotion (Review exit or Create exit), use `system-design/01-blueprint/blueprint.md`
+   - Read the state file history to identify the last completed round number and type
+   - **If no previous rounds exist** (first ever round): Use the upstream input document: `system-design/01-blueprint/concept.md`
+   - **If previous rounds exist**: Use the full updated document from the last completed round:
+     - Last round was create: `versions/round-{N}-create/03-updated-blueprint.md` (or `versions/round-{N}-create/00-draft-blueprint.md` if only draft exists)
+     - Last round was review: `versions/round-{N}-review/05-updated-blueprint.md`
+     - Last round was expand: `versions/round-{N}-expand/05-updated-blueprint.md`
+   - **Never use the promoted file** (`blueprint.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Blueprint to `system-design/01-blueprint/versions/round-[N]-expand/00-blueprint.md`. All agents in this round work from this copy.
 

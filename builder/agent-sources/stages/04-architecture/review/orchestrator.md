@@ -9,15 +9,20 @@
 ### On Start/Resume
 
 1. **Check if state file exists**:
-   - **If NO**: Create it, initialize Round 1 Step 1
-   - **If YES**: Read it and check `Current Round`:
-     - **If Round 0 and Status COMPLETE**: Creation finished — initialize Round 1, preserve existing history
-     - **If Round 0 and Status not COMPLETE**: Error — "Creation workflow still in progress"
-     - **If Round >= 1**: Resume from current round/step
+   - **If NO**: Create it, initialize Round 1 Step 1, set `Current Workflow: Review`
+   - **If YES**: Read it and check `Current Workflow`:
+     - **If `Create` and Status COMPLETE**: Creation finished — set `Current Workflow: Review`, initialize Round 1, preserve existing history
+     - **If `Create` and Status not COMPLETE**: Error — "Creation workflow still in progress"
+     - **If `Review`**: Resume from current round/step
 
 2. **Determine Architecture Overview source path**:
-   - **Round 1**: Use `system-design/04-architecture/architecture.md` (parent folder)
-   - **Round 2+**: Use `system-design/04-architecture/versions/round-{N-1}-review/05-updated-architecture.md`
+   - Read the state file history to identify the last completed round number and type
+   - **If no previous rounds exist** (first ever round): Use the upstream input documents: `system-design/02-prd/prd.md` and `system-design/03-foundations/foundations.md`
+   - **If previous rounds exist**: Use the full updated document from the last completed round:
+     - Last round was create: `versions/round-{N}-create/03-updated-architecture.md` (or `versions/round-{N}-create/00-draft-architecture.md` if only draft exists)
+     - Last round was review: `versions/round-{N}-review/05-updated-architecture.md`
+     - Last round was expand: `versions/round-{N}-expand/05-updated-architecture.md`
+   - **Never use the promoted file** (`architecture.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Architecture Overview to `system-design/04-architecture/versions/round-[N]-review/00-architecture.md`. All agents in this round work from this copy.
 
