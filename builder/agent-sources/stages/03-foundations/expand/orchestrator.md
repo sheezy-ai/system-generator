@@ -85,6 +85,7 @@ agents/expand/
 ├── orchestrator.md                    # This file
 ├── scope-analyst.md                   # Produces Expansion Brief from trigger input
 ├── expansion-explorer.md              # Investigates capability areas, produces change sets
+├── proposal-filter.md                 # Filters proposals by level, formats for human review
 └── integration-author.md              # Applies approved changes to existing document
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
@@ -230,8 +231,9 @@ Output: [resolved file path]
     Foundations: system-design/03-foundations/versions/round-[N]-expand/00-foundations.md
     Output: system-design/03-foundations/versions/round-[N]-expand/03-consolidated-proposals.md
     ```
+    **IMPORTANT**: The consolidated proposals file must contain raw proposal content only — no discussion markers (`>> HUMAN:`, `>> AGENT:`, `>> RESOLVED`). These are added by the Proposal Filter in Step 3.
 
-13. **If single capability area**: Copy the explorer output to `03-consolidated-proposals.md`
+13. **If single capability area**: Copy the explorer output to `03-consolidated-proposals.md` using `cp`. Do NOT add discussion markers, headers, or any formatting — copy the file as-is.
 
 14. **Update state file**: Mark Step 2 complete
 
@@ -239,13 +241,13 @@ Output: [resolved file path]
 
 ---
 
-### Step 3: Consolidation (Scope Filter)
+### Step 3: Proposal Filter
 
 16. **Update state file**: Set Step 3, status = IN_PROGRESS
 
-17. **Run Scope Filter** to verify all proposals are at the correct level:
+17. **Run Proposal Filter** to check level-appropriateness and format for human review:
     ```
-    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/scope-filter.md
+    Follow the instructions in: {{AGENTS_PATH}}/03-foundations/expand/proposal-filter.md
 
     Stage guide: {{GUIDES_PATH}}/03-foundations-guide.md
     Input: system-design/03-foundations/versions/round-[N]-expand/03-consolidated-proposals.md
