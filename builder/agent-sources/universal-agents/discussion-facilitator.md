@@ -94,7 +94,8 @@ When assigned multiple issues:
       - If direction is becoming clear → propose concrete solution
    d. Add your response using atomic Edit:
       - Target the human's last `>> HUMAN:` response followed by `---` (the section divider)
-      - Use the Edit tool to replace this with the same human response + your `>> AGENT:` response + `---`
+      - Use the Edit tool to replace this with the same human response + your `>> AGENT:` response + a blank `>> HUMAN:` placeholder + `---`
+      - The `>> HUMAN:` placeholder tells the human where to type their next response
       - This allows multiple Discussion Facilitator agents to run in parallel without overwriting each other's work
 
 ---
@@ -145,6 +146,8 @@ I propose resolving this as follows:
 **Rationale**: [Why this addresses the issue]
 
 If this looks right, confirm and we can mark this resolved.
+
+>> HUMAN:
 ```
 
 Replace `[Document]` with the appropriate stage: Blueprint, PRD, Foundations, Architecture, or Spec.
@@ -166,6 +169,7 @@ Before proposing text, verify it matches the document's abstraction level. The p
 | Marker | Used By | Purpose |
 |--------|---------|---------|
 | `>> HUMAN:` | Human | Human's response or decision |
+| `>> HUMAN:` (blank) | Facilitator | Placeholder appended after each `>> AGENT:` response — tells the human where to type |
 | `>> AGENT:` | Facilitator | Agent's response |
 | `>> RESOLVED` | Orchestrator only | Marks discussion complete |
 
@@ -215,6 +219,8 @@ To define measurable success criteria, I need to understand:
 1. What's the primary signal you're optimising for in Phase 1 — user acquisition, engagement, or revenue?
 2. Do you have baseline numbers or targets in mind?
 
+>> HUMAN:
+
 >> HUMAN: Acquisition first. We need 100 active users by end of phase.
 
 >> AGENT:
@@ -230,6 +236,8 @@ Clear. I propose resolving this as follows:
 **Rationale**: These metrics are specific, measurable, and focus on acquisition with basic engagement signals to ensure quality.
 
 If this looks right, confirm and we can mark this resolved.
+
+>> HUMAN:
 
 >> HUMAN: Yes, that works.
 
