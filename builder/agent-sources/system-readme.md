@@ -37,6 +37,16 @@ Execute the Blueprint review workflow using the orchestrator at:
 {{AGENTS_PATH}}/01-blueprint/review/orchestrator.md
 ```
 
+**Expand:**
+```
+Execute the Blueprint expand workflow using the orchestrator at:
+{{AGENTS_PATH}}/01-blueprint/expand/orchestrator.md
+
+Trigger: [description of what needs expanding, or path to a pending issue]
+```
+
+The expand workflow adds new capability areas or scope changes to an existing, promoted document. It runs **Scope** (analyst produces an Expansion Brief from the trigger, human reviews), **Explore** (one explorer per capability area investigates implications across all sections), **Integrate** (applies approved changes seamlessly), and **Verify** (coherence + enumeration checks — no alignment for Blueprint since it has no upstream). Expand never promotes — always follow with a Review round.
+
 ### PRD
 
 **Create:**
@@ -52,6 +62,16 @@ The create workflow iterates through **Explore** (identifies capability areas fr
 Execute the PRD review workflow using the orchestrator at:
 {{AGENTS_PATH}}/02-prd/review/orchestrator.md
 ```
+
+**Expand:**
+```
+Execute the PRD expand workflow using the orchestrator at:
+{{AGENTS_PATH}}/02-prd/expand/orchestrator.md
+
+Trigger: [description of what needs expanding, or path to a pending issue]
+```
+
+The expand workflow adds new capability areas or scope changes to the PRD. Same phases as Blueprint expand but includes alignment verification against Blueprint. Use when downstream stages (Foundations, Architecture) discover the PRD needs new capabilities that weren't in the original scope. Expand never promotes — always follow with a Review round.
 
 ### Foundations
 
@@ -69,6 +89,16 @@ Execute the Foundations review workflow using the orchestrator at:
 {{AGENTS_PATH}}/03-foundations/review/orchestrator.md
 ```
 
+**Expand:**
+```
+Execute the Foundations expand workflow using the orchestrator at:
+{{AGENTS_PATH}}/03-foundations/expand/orchestrator.md
+
+Trigger: [description of what needs expanding, or path to a pending issue]
+```
+
+The expand workflow adds new conventions or technology decisions to Foundations. Same phases as PRD expand with alignment verification against Blueprint. Use when downstream stages discover Foundations needs new conventions (e.g., a new external integration pattern, a new trust boundary requiring security conventions). Expand never promotes — always follow with a Review round.
+
 ### Architecture Overview
 
 **Create:**
@@ -84,6 +114,16 @@ The create workflow iterates through **Explore** (identifies architectural conce
 Execute the Architecture Overview review workflow using the orchestrator at:
 {{AGENTS_PATH}}/04-architecture/review/orchestrator.md
 ```
+
+**Expand:**
+```
+Execute the Architecture Overview expand workflow using the orchestrator at:
+{{AGENTS_PATH}}/04-architecture/expand/orchestrator.md
+
+Trigger: [description of what needs expanding, or path to a pending issue]
+```
+
+The expand workflow adds new architectural concerns to the Architecture Overview. Includes alignment verification against both PRD and Foundations. Use when scope changes require new components, data flows, or integration patterns that weren't in the original architecture. Expand never promotes — always follow with a Review round.
 
 ### Component Spec
 
@@ -246,6 +286,19 @@ No manual promotion is needed for these stages.
 
 **Stage 02** (PRD) auto-promotes during creation. The create orchestrator promotes the final draft to `prd.md` when the human chooses to promote at Gap Resolution. The review orchestrator handles promotion separately.
 
+## When to Use Expand vs Review
+
+**Review** answers: "Is what's here correct and complete?" Use when you want experts to examine the document for issues, inconsistencies, and gaps in existing content.
+
+**Expand** answers: "What's missing and what should we add?" Use when:
+- A downstream stage discovers the document needs new capability areas (e.g., architecture review reveals the PRD needs a new component)
+- A scope decision adds something that wasn't in the original document
+- You identify an area that's underdeveloped and needs structured exploration
+
+Expand never promotes — it always hands off to a Review round. The typical cycle after a scope change is: Expand → Review → Promote.
+
+Downstream stages use Review rounds (not Expand) to catch up after upstream expansions. The review experts will naturally surface misalignment with updated upstream documents.
+
 ## Stage Progression
 
 Work through stages in order:
@@ -271,8 +324,14 @@ Each stage folder (01–05) contains:
 - **decisions.md** — Design rationale and trade-offs (stages 03–05)
 - **future.md** — Deferred items and future considerations (stages 03–05)
 - **versions/** — Workflow history and artifacts
+  - **round-N-create/** — Creation workflow rounds
+  - **round-N-review/** — Review workflow rounds
+  - **round-N-expand/** — Expand workflow rounds
+  - **workflow-state.md** — Tracks current round, workflow type, and status
   - **deferred-items.md** — Content deferred from upstream stages
   - **pending-issues.md** — Issues for upstream stages
+
+Round numbers are globally sequential across all workflow types (e.g., rounds 1-8 create, round 9 review, round 10 expand, round 11 review).
 
 Stages 06–12 use different structures defined by their coordinators. Deferred items and pending issues apply to stages 01–05 only.
 
