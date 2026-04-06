@@ -227,7 +227,7 @@ Content deferred here from upstream stages for consideration when creating this 
 
 ### From Blueprint Create - 2025-12-10
 
-**Source**: system/01-blueprint/versions/round-0/02-consolidated-issues.md
+**Source**: system/01-blueprint/versions/round-1-create/02-consolidated-issues.md
 **Deferred by**: Scope Filter
 **Validation**: STILL_RELEVANT
 
@@ -243,7 +243,7 @@ The concept mentions "millions of events" but doesn't specify database approach.
 
 ### From Blueprint Create - 2025-12-10
 
-**Source**: system/01-blueprint/versions/round-0/02-consolidated-issues.md
+**Source**: system/01-blueprint/versions/round-1-create/02-consolidated-issues.md
 **Deferred by**: Scope Filter
 **Validation**: RESOLVED_UPSTREAM
 
@@ -281,7 +281,7 @@ PRD requires "secure authentication" but doesn't specify token handling. What's 
 
 ### From PRD Create - 2025-12-10
 
-**Source**: system/02-prd/versions/round-0/03-issues-discussion.md
+**Source**: system/02-prd/versions/round-1-create/03-issues-discussion.md
 **Deferred by**: Scope Filter
 **Validation**: PARTIALLY_ADDRESSED
 
