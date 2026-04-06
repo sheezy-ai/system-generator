@@ -20,7 +20,7 @@ Given the input documents, identify 3–5 architectural concerns worth exploring
 - Workflow state file (`system-design/04-architecture/versions/workflow-state.md`)
 
 **Output:**
-- Concerns file -> `versions/create/round-{N}/explore/00-concerns.md`
+- Concerns file -> `versions/round-{N}-create/explore/00-concerns.md`
 
 ---
 
@@ -180,6 +180,6 @@ Complete all steps autonomously without pausing for confirmation. The concern id
 
 ## File Output
 
-**Output file**: `system-design/04-architecture/versions/create/round-{N}/explore/00-concerns.md`
+**Output file**: `system-design/04-architecture/versions/round-{N}-create/explore/00-concerns.md`
 
 Read the PRD, Foundations, and Architecture guide, identify concerns, and write the concerns file.

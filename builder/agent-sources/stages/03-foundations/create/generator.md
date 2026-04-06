@@ -402,7 +402,7 @@ Complete all steps autonomously without pausing for confirmation. The generation
 ## File Output
 
 **Output files**:
-- `system-design/03-foundations/versions/round-0/00-draft-foundations.md` — Draft Foundations with issues marked
+- `system-design/03-foundations/versions/round-1-create/00-draft-foundations.md` — Draft Foundations with issues marked
 - Downstream deferred items as needed:
   - `system-design/04-architecture/versions/deferred-items.md` — System decomposition, component boundaries
   - `system-design/05-components/versions/deferred-items.md` — Data models, APIs, implementation details

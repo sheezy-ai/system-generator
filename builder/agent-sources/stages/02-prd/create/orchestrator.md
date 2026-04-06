@@ -26,7 +26,7 @@ Run this orchestrator at the start of the PRD stage, after the Blueprint is comp
 - Round 1: `system-design/01-blueprint/blueprint.md`
 - Round N (N≥2): Latest draft from round N-1
 
-**Explore phase outputs**: `system-design/02-prd/versions/create/round-{N}/explore/`
+**Explore phase outputs**: `system-design/02-prd/versions/round-{N}-create/explore/`
 
 Files within the explore directory:
 - `00-capabilities.md`
@@ -35,7 +35,7 @@ Files within the explore directory:
 - `02a-filtered-enrichment-discussion.md`
 - `03-exploration-summary.md`
 
-**Generate phase outputs** (in `versions/create/round-{N}/`):
+**Generate phase outputs** (in `versions/round-{N}-create/`):
 - `00-draft-prd.md`
 - `00-enrichment-applicator-output.md` (round 2+ only)
 - `01-gap-resolutions.md`
@@ -78,28 +78,26 @@ system-design/02-prd/
     ├── deferred-items.md           # Upstream deferred items for this stage
     ├── pending-issues.md           # Issues logged against this stage
     ├── workflow-state.md           # Unified workflow state (shared with Review)
-    ├── create/                     # All creation round outputs
-    │   ├── round-1/
-    │   │   ├── explore/
-    │   │   │   ├── 00-capabilities.md
-    │   │   │   ├── 01-explorer-*.md
-    │   │   │   ├── 02-enrichment-discussion.md
-    │   │   │   ├── 02a-filtered-enrichment-discussion.md
-    │   │   │   └── 03-exploration-summary.md
-    │   │   ├── 00-draft-prd.md
-    │   │   ├── 00-enrichment-applicator-output.md  # Round 2+ only
-    │   │   ├── 01-gap-resolutions.md
-    │   │   ├── 02-author-output.md
-    │   │   └── 03-updated-prd.md
-    │   └── round-{N}/                 # Additional create rounds (if "another round")
-    │       ├── explore/
-    │       │   └── [same explore files]
-    │       └── [same generate files]
-    └── review/                        # All review round outputs
-        ├── round-1/
-        │   └── [review workflow files]
-        └── round-{N}/
-            └── ...
+    ├── round-1-create/               # Creation round 1
+    │   ├── explore/
+    │   │   ├── 00-capabilities.md
+    │   │   ├── 01-explorer-*.md
+    │   │   ├── 02-enrichment-discussion.md
+    │   │   ├── 02a-filtered-enrichment-discussion.md
+    │   │   └── 03-exploration-summary.md
+    │   ├── 00-draft-prd.md
+    │   ├── 00-enrichment-applicator-output.md  # Round 2+ only
+    │   ├── 01-gap-resolutions.md
+    │   ├── 02-author-output.md
+    │   └── 03-updated-prd.md
+    ├── round-{N}-create/              # Additional create rounds (if "another round")
+    │   ├── explore/
+    │   │   └── [same explore files]
+    │   └── [same generate files]
+    ├── round-1-review/                # Review round 1
+    │   └── [review workflow files]
+    └── round-{N}-review/
+        └── ...
 ```
 
 ---
@@ -229,12 +227,12 @@ Before executing any step, resolve these paths based on the current round number
 **Primary source** (`{primary-source}`):
 - Round 1: `system-design/01-blueprint/blueprint.md`
 - Round N (N≥2): Determine from round N-1 outputs:
-  - If `system-design/02-prd/versions/create/round-{N-1}/03-updated-prd.md` exists → use it
-  - Otherwise → use `system-design/02-prd/versions/create/round-{N-1}/00-draft-prd.md`
+  - If `system-design/02-prd/versions/round-{N-1}-create/03-updated-prd.md` exists → use it
+  - Otherwise → use `system-design/02-prd/versions/round-{N-1}-create/00-draft-prd.md`
 
-**Explore directory** (`{explore-dir}`): `system-design/02-prd/versions/create/round-{N}/explore/`
+**Explore directory** (`{explore-dir}`): `system-design/02-prd/versions/round-{N}-create/explore/`
 
-**Round directory** (`{round-dir}`): `system-design/02-prd/versions/create/round-{N}/`
+**Round directory** (`{round-dir}`): `system-design/02-prd/versions/round-{N}-create/`
 
 All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to refer to these resolved paths. **Resolve them once at startup and again after any round increment.**
 
@@ -256,15 +254,14 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    ```
    system-design/02-prd/
    └── versions/
-       └── create/
-           └── round-1/
-               └── explore/
+       └── round-1-create/
+           └── explore/
    ```
 
    **Round N (N≥2, "another round"):**
    ```
-   system-design/02-prd/versions/create/
-   └── round-{N}/
+   system-design/02-prd/versions/
+   └── round-{N}-create/
        └── explore/
    ```
 

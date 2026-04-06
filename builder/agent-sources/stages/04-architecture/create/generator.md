@@ -363,7 +363,7 @@ Complete all steps autonomously without pausing for confirmation. The generation
 ## File Output
 
 **Output files**:
-- `system-design/04-architecture/versions/round-0/00-draft-architecture.md` — Draft Architecture with gaps marked
+- `system-design/04-architecture/versions/round-1-create/00-draft-architecture.md` — Draft Architecture with gaps marked
 - Downstream deferred items as needed:
   - `system-design/05-components/versions/deferred-items.md` — APIs, schemas, implementation details
 

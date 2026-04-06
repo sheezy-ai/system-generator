@@ -237,7 +237,7 @@ When updating the PRD's Key Decisions section, include a source reference to ena
 - Source: Round N: ISSUE-ID
 ```
 
-This enables tracing any decision back to its originating discussion in `versions/review/round-N/03-issues-discussion.md`.
+This enables tracing any decision back to its originating discussion in `versions/round-N-review/03-issues-discussion.md`.
 
 ---
 

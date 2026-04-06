@@ -14,14 +14,14 @@ Given a concept document and a single dimension assignment, explore that dimensi
 
 **Input:** File paths to:
 - Concept document (`concept.md`)
-- Dimensions file (`versions/create/round-{N}/explore/00-dimensions.md`)
+- Dimensions file (`versions/round-{N}-create/explore/00-dimensions.md`)
 - Your assigned dimension ID (e.g., `DIM-3`)
 - Decision files (optional) — if the dimension overlaps with a pending decision:
   - Decision framework (`decisions/{decision-name}/framework.md`)
   - Decision additional context (`decisions/{decision-name}/additional-context.md`), if it exists
 
 **Output:**
-- Explorer output → `versions/create/round-{N}/explore/01-explorer-{dim-name}.md`
+- Explorer output → `versions/round-{N}-create/explore/01-explorer-{dim-name}.md`
 
 ---
 
@@ -179,6 +179,6 @@ Complete all steps autonomously without pausing for confirmation. The exploratio
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/create/round-{N}/explore/01-explorer-{dim-name}.md`
+**Output file**: `system-design/01-blueprint/versions/round-{N}-create/explore/01-explorer-{dim-name}.md`
 
 Replace `{dim-name}` with a kebab-case version of the dimension name (e.g., `supply-strategy`, `discovery-model`).

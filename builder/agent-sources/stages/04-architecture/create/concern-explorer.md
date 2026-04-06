@@ -15,11 +15,11 @@ Given the PRD, Foundations, and a single concern assignment, explore that concer
 **Input:** File paths to:
 - PRD (`system-design/02-prd/prd.md`)
 - Foundations (`system-design/03-foundations/foundations.md`)
-- Concerns file (`versions/create/round-{N}/explore/00-concerns.md`)
+- Concerns file (`versions/round-{N}-create/explore/00-concerns.md`)
 - Your assigned concern ID (e.g., `CON-3`)
 
 **Output:**
-- Explorer output -> `versions/create/round-{N}/explore/01-explorer-{concern-name}.md`
+- Explorer output -> `versions/round-{N}-create/explore/01-explorer-{concern-name}.md`
 
 ---
 
@@ -178,6 +178,6 @@ Complete all steps autonomously without pausing for confirmation. The exploratio
 
 ## File Output
 
-**Output file**: `system-design/04-architecture/versions/create/round-{N}/explore/01-explorer-{concern-name}.md`
+**Output file**: `system-design/04-architecture/versions/round-{N}-create/explore/01-explorer-{concern-name}.md`
 
 Replace `{concern-name}` with a kebab-case version of the concern name (e.g., `pipeline-orchestration`, `data-ownership`).

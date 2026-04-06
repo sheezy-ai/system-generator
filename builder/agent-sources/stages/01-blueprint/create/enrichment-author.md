@@ -17,10 +17,10 @@ Given the concept document and the enrichment discussion file (with all enrichme
 **Input:** File paths to:
 - Concept document (`concept.md`)
 - Blueprint guide (`guides/01-blueprint-guide.md`)
-- Filtered enrichment discussion file with resolutions (`versions/create/round-{N}/explore/02a-filtered-enrichment-discussion.md`)
+- Filtered enrichment discussion file with resolutions (`versions/round-{N}-create/explore/02a-filtered-enrichment-discussion.md`)
 
 **Output:**
-- Exploration summary → `versions/create/round-{N}/explore/03-exploration-summary.md`
+- Exploration summary → `versions/round-{N}-create/explore/03-exploration-summary.md`
 
 ---
 
@@ -229,6 +229,6 @@ Complete all steps autonomously without pausing for confirmation. The authoring 
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/create/round-{N}/explore/03-exploration-summary.md`
+**Output file**: `system-design/01-blueprint/versions/round-{N}-create/explore/03-exploration-summary.md`
 
 Read the enrichment discussion, collect resolved enrichments, and write the exploration summary.

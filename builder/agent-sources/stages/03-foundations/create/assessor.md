@@ -202,4 +202,4 @@ Complete all steps autonomously without pausing for confirmation. The assessment
 ## File Output
 
 **Output file**:
-- `system-design/03-foundations/versions/round-0/00-assessment.md` — Structured assessment with options, trade-offs, coupled decision flags, and `>> HUMAN:` placeholders for inline responses
+- `system-design/03-foundations/versions/round-1-create/00-assessment.md` — Structured assessment with options, trade-offs, coupled decision flags, and `>> HUMAN:` placeholders for inline responses

@@ -153,7 +153,7 @@ Complete all steps autonomously without pausing for confirmation. The review dec
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/review/round-N/01-operator.md`
+**Output file**: `system-design/01-blueprint/versions/round-N-review/01-operator.md`
 
 Write your complete output to this file. Include a header and summary:
 

@@ -238,7 +238,7 @@ When updating the Blueprint's decision sections, include a source reference to e
 - Source: Round N: ISSUE-ID
 ```
 
-This enables tracing any decision back to its originating discussion in `versions/review/round-N/03-issues-discussion.md`.
+This enables tracing any decision back to its originating discussion in `versions/round-N-review/03-issues-discussion.md`.
 
 ---
 
@@ -270,5 +270,5 @@ Complete all steps autonomously without pausing for confirmation. The authoring 
 ## File Output
 
 **Output files**:
-- `system-design/01-blueprint/versions/review/round-N/04-author-output.md` — Change log and notes
-- `system-design/01-blueprint/versions/review/round-N/05-updated-blueprint.md` — The updated Blueprint
+- `system-design/01-blueprint/versions/round-N-review/04-author-output.md` — Change log and notes
+- `system-design/01-blueprint/versions/round-N-review/05-updated-blueprint.md` — The updated Blueprint

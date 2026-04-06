@@ -360,4 +360,4 @@ Complete all steps autonomously without pausing for confirmation. The promotion 
 - `system-design/02-prd/future.md` — Future planning (or stub)
 - `system-design/02-prd/decisions.md` — Decisions (or stub)
 
-These overwrite existing files at these locations. The review workflow maintains versioned backups in `versions/review/round-N/` directories.
+These overwrite existing files at these locations. The review workflow maintains versioned backups in `versions/round-N-review/` directories.

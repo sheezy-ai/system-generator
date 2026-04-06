@@ -17,9 +17,9 @@
 
 2. **Determine Foundations source path**:
    - **Round 1**: Use `system-design/03-foundations/foundations.md` (parent folder)
-   - **Round 2+**: Use `system-design/03-foundations/versions/round-{N-1}/05-updated-foundations.md`
+   - **Round 2+**: Use `system-design/03-foundations/versions/round-{N-1}-review/05-updated-foundations.md`
 
-3. **Copy source to round folder**: Copy the source Foundations to `system-design/03-foundations/versions/round-[N]/00-foundations.md`. All agents in this round work from this copy.
+3. **Copy source to round folder**: Copy the source Foundations to `system-design/03-foundations/versions/round-[N]-review/00-foundations.md`. All agents in this round work from this copy.
 
 4. **Update state file** at each step transition
 
@@ -60,14 +60,14 @@
 
 **Output directory**: `system-design/03-foundations/versions`
 **State file**: `system-design/03-foundations/versions/workflow-state.md`
-**Working files**: `system-design/03-foundations/versions/round-[N]/`
+**Working files**: `system-design/03-foundations/versions/round-[N]-review/`
 
 **Final outputs** (created by promoter at exit):
 - `system-design/03-foundations/foundations.md` — Clean current-scope Foundations
 - `system-design/03-foundations/decisions.md` — Design rationale and trade-offs
 - `system-design/03-foundations/future.md` — Deferred items and future considerations
 
-Review uses `round-1`, `round-2`, etc. Creation workflow uses `round-0`. Both share this state file.
+Review uses `round-1-review`, `round-2-review`, etc. Creation workflow uses `round-{N}-create`. Both share this state file.
 
 ---
 
@@ -126,9 +126,9 @@ system-design/03-foundations/
 ├── future.md                      # Deferred items (created by promoter at exit)
 └── versions/
     ├── workflow-state.md
-    ├── round-0/                       # Creation workflow output
+    ├── round-{N}-create/              # Creation workflow output
     │   └── ...
-    ├── round-1/                       # First review round
+    ├── round-1-review/                # First review round
     │   ├── 00-foundations.md              # Snapshot of input (copied at round start)
     │   ├── 01-platform-engineer.md
     │   ├── 01-infrastructure-architect.md
@@ -143,8 +143,9 @@ system-design/03-foundations/
     │   ├── 08-coherence-report.md
     │   ├── 09-verification-summary.md
     │   └── 10-pending-issue-sync.md      # If pending issues were synced
-    └── round-2/
-        └── ...
+    ├── round-2-review/
+    │   └── ...
+    └── ...
 ```
 
 ---
@@ -223,13 +224,13 @@ Output: [resolved file path]
 1. **Update state file**: Set Round N Step 1, status = IN_PROGRESS
 
 2. **Create round directory and copy input**:
-   - Create `system-design/03-foundations/versions/round-[N]/`
+   - Create `system-design/03-foundations/versions/round-[N]-review/`
    - Copy source Foundations (determined in On Start/Resume) to `round-[N]/00-foundations.md`
    - If source doesn't exist, **error and stop**
 
 3. **Spawn 4 expert agents in parallel** using Task tool
    - Pass to each agent:
-     - Foundations path: `system-design/03-foundations/versions/round-[N]/00-foundations.md`
+     - Foundations path: `system-design/03-foundations/versions/round-[N]-review/00-foundations.md`
      - PRD path (for requirements context)
      - Foundations guide path
      - Maturity guide path: `guides/03-foundations-maturity.md`
@@ -264,8 +265,8 @@ Output: [resolved file path]
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/scope-filter.md
 
     Stage guide: guides/03-foundations-guide.md
-    Input: system-design/03-foundations/versions/round-[N]/02-consolidated-issues.md
-    Output: system-design/03-foundations/versions/round-[N]/03-issues-discussion.md
+    Input: system-design/03-foundations/versions/round-[N]-review/02-consolidated-issues.md
+    Output: system-design/03-foundations/versions/round-[N]-review/03-issues-discussion.md
     ```
     - Agent reads guide to understand what level of detail belongs at Foundations level
     - Agent filters issues: keeps Foundations-level, defers Architecture/Spec-level to downstream
@@ -294,10 +295,10 @@ Output: [resolved file path]
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/issue-analyst.md
 
     Context documents:
-    - Foundations: system-design/03-foundations/versions/round-[N]/00-foundations.md
+    - Foundations: system-design/03-foundations/versions/round-[N]-review/00-foundations.md
     - PRD: system-design/02-prd/prd.md
 
-    Issues file: system-design/03-foundations/versions/round-[N]/03-issues-discussion.md
+    Issues file: system-design/03-foundations/versions/round-[N]-review/03-issues-discussion.md
     Issues: [ID1, ID2, ID3, ...]
     ```
 
@@ -315,7 +316,7 @@ Output: [resolved file path]
 20. **Update state file**: Set Step 4, status = WAITING_FOR_HUMAN
 
 21. **Notify user** issues are ready for discussion
-    - Point them to `system-design/03-foundations/versions/round-[N]/03-issues-discussion.md`
+    - Point them to `system-design/03-foundations/versions/round-[N]-review/03-issues-discussion.md`
     - Note that each issue includes analyst recommendations with options and trade-offs
     - Full detail available in `02-consolidated-issues.md` if needed
 
@@ -344,10 +345,10 @@ Only proceed to step 22 after the human signals they have responded (e.g., "done
        Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
 
        Context documents:
-       - Foundations: system-design/03-foundations/versions/round-[N]/00-foundations.md
+       - Foundations: system-design/03-foundations/versions/round-[N]-review/00-foundations.md
        - PRD: system-design/02-prd/prd.md
 
-       Issues file: system-design/03-foundations/versions/round-[N]/03-issues-discussion.md
+       Issues file: system-design/03-foundations/versions/round-[N]-review/03-issues-discussion.md
        Issues: [ID1, ID2, ID3, ...]
        ```
 
@@ -427,18 +428,18 @@ This gate is mandatory. Do not skip it.
     - Pass: Updated Foundations path, PRD path, output path
     - Agent verifies Foundations still aligns with PRD after changes
     - Agent identifies any pending issues (problems in PRD that need addressing)
-    - Agent writes to `system-design/03-foundations/versions/round-[N]/07-alignment-report.md`
+    - Agent writes to `system-design/03-foundations/versions/round-[N]-review/07-alignment-report.md`
 
     **Internal Coherence Checker** (Step 8) (`{{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md`):
     - Pass: Updated Foundations path, stage guide path, output path
     - Agent verifies cross-section consistency within the Foundations document
-    - Agent writes to `system-design/03-foundations/versions/round-[N]/08-coherence-report.md`
+    - Agent writes to `system-design/03-foundations/versions/round-[N]-review/08-coherence-report.md`
     ```
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
 
-    Document: system-design/03-foundations/versions/round-[N]/05-updated-foundations.md
+    Document: system-design/03-foundations/versions/round-[N]-review/05-updated-foundations.md
     Stage guide: guides/03-foundations-guide.md
-    Output: system-design/03-foundations/versions/round-[N]/08-coherence-report.md
+    Output: system-design/03-foundations/versions/round-[N]-review/08-coherence-report.md
     ```
 
 32. **Wait for all three agents to complete**
@@ -600,7 +601,7 @@ This gate is mandatory. Do not skip it.
          ```
          Follow the instructions in: {{AGENTS_PATH}}/universal-agents/pending-issue-resolver.md
 
-         Alignment report: system-design/03-foundations/versions/round-[N]/07-alignment-report.md
+         Alignment report: system-design/03-foundations/versions/round-[N]-review/07-alignment-report.md
 
          Upstream pending-issues:
          - PRD: system-design/02-prd/versions/pending-issues.md
@@ -612,7 +613,7 @@ This gate is mandatory. Do not skip it.
          - PI-002: APPLY | DEFER | REJECT
          ...
 
-         Output: system-design/03-foundations/versions/round-[N]/10-pending-issue-sync.md
+         Output: system-design/03-foundations/versions/round-[N]-review/10-pending-issue-sync.md
          ```
 
 46. **If HALT was acknowledged**:
@@ -634,7 +635,7 @@ This gate is mandatory. Do not skip it.
     Follow the instructions in: {{AGENTS_PATH}}/03-foundations/review/promoter.md
 
     Input:
-    - Reviewed Foundations: system-design/03-foundations/versions/round-[N]/05-updated-foundations.md
+    - Reviewed Foundations: system-design/03-foundations/versions/round-[N]-review/05-updated-foundations.md
     - Foundations guide: {{GUIDES_PATH}}/03-foundations-guide.md
 
     Output:

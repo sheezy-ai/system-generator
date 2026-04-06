@@ -28,7 +28,7 @@ Run this orchestrator at the start of a new project, with a concept document. Sa
 - Round 1: `system-design/01-blueprint/concept.md`
 - Round N (N≥2): Latest draft from round N-1
 
-**Explore phase outputs**: `system-design/01-blueprint/versions/create/round-{N}/explore/`
+**Explore phase outputs**: `system-design/01-blueprint/versions/round-{N}-create/explore/`
 
 Files within the explore directory:
 - `00-dimensions.md`
@@ -43,7 +43,7 @@ Files within the explore directory:
 - `system-design/01-blueprint/decisions/{decision-name}/context.md` (originating context — written at registration)
 - `system-design/01-blueprint/decisions/{decision-name}/additional-context.md` (optional — enrichments routed as supplementary context)
 
-**Generate phase outputs** (in `versions/create/round-{N}/`):
+**Generate phase outputs** (in `versions/round-{N}-create/`):
 - `00-draft-blueprint.md`
 - `01-gap-resolutions.md`
 - `02-author-output.md`
@@ -96,27 +96,25 @@ system-design/01-blueprint/
     ├── pending-issues.md              # Issues logged against this stage
     ├── out-of-scope.md                # Non-documentation content from concept
     ├── workflow-state.md              # Unified workflow state (shared with Review)
-    ├── create/                        # All creation round outputs
-    │   ├── round-1/
-    │   │   ├── explore/
-    │   │   │   ├── 00-dimensions.md
-    │   │   │   ├── 01-explorer-*.md
-    │   │   │   ├── 02-enrichment-discussion.md
-    │   │   │   ├── 02a-filtered-enrichment-discussion.md
-    │   │   │   └── 03-exploration-summary.md
-    │   │   ├── 00-draft-blueprint.md
-    │   │   ├── 01-gap-resolutions.md
-    │   │   ├── 02-author-output.md
-    │   │   └── 03-updated-blueprint.md
-    │   └── round-{N}/                 # Additional create rounds (if "another round")
-    │       ├── explore/
-    │       │   └── [same explore files]
-    │       └── [same generate files]
-    └── review/                        # All review round outputs
-        ├── round-1/
-        │   └── [review workflow files]
-        └── round-{N}/
-            └── ...
+    ├── round-1-create/                 # Creation round 1
+    │   ├── explore/
+    │   │   ├── 00-dimensions.md
+    │   │   ├── 01-explorer-*.md
+    │   │   ├── 02-enrichment-discussion.md
+    │   │   ├── 02a-filtered-enrichment-discussion.md
+    │   │   └── 03-exploration-summary.md
+    │   ├── 00-draft-blueprint.md
+    │   ├── 01-gap-resolutions.md
+    │   ├── 02-author-output.md
+    │   └── 03-updated-blueprint.md
+    ├── round-{N}-create/              # Additional create rounds (if "another round")
+    │   ├── explore/
+    │   │   └── [same explore files]
+    │   └── [same generate files]
+    ├── round-1-review/                # Review round 1
+    │   └── [review workflow files]
+    └── round-{N}-review/
+        └── ...
 ```
 
 ---
@@ -254,12 +252,12 @@ Before executing any step, resolve these paths based on the current round number
 **Primary source** (`{primary-source}`):
 - Round 1: `system-design/01-blueprint/concept.md`
 - Round N (N≥2): Determine from round N-1 outputs:
-  - If `system-design/01-blueprint/versions/create/round-{N-1}/03-updated-blueprint.md` exists → use it
-  - Otherwise → use `system-design/01-blueprint/versions/create/round-{N-1}/00-draft-blueprint.md`
+  - If `system-design/01-blueprint/versions/round-{N-1}-create/03-updated-blueprint.md` exists → use it
+  - Otherwise → use `system-design/01-blueprint/versions/round-{N-1}-create/00-draft-blueprint.md`
 
-**Explore directory** (`{explore-dir}`): `system-design/01-blueprint/versions/create/round-{N}/explore/`
+**Explore directory** (`{explore-dir}`): `system-design/01-blueprint/versions/round-{N}-create/explore/`
 
-**Round directory** (`{round-dir}`): `system-design/01-blueprint/versions/create/round-{N}/`
+**Round directory** (`{round-dir}`): `system-design/01-blueprint/versions/round-{N}-create/`
 
 All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to refer to these resolved paths. **Resolve them once at startup and again after any round increment.**
 
@@ -278,15 +276,14 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    system-design/01-blueprint/
    ├── decisions/
    └── versions/
-       └── create/
-           └── round-1/
-               └── explore/
+       └── round-1-create/
+           └── explore/
    ```
 
    **Round N (N≥2, "another round"):**
    ```
-   system-design/01-blueprint/versions/create/
-   └── round-{N}/
+   system-design/01-blueprint/versions/
+   └── round-{N}-create/
        └── explore/
    ```
 

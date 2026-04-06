@@ -18,10 +18,10 @@ Given the PRD, Foundations, and the enrichment discussion file (with all enrichm
 - PRD (`system-design/02-prd/prd.md`)
 - Foundations (`system-design/03-foundations/foundations.md`)
 - Architecture guide (`{{GUIDES_PATH}}/04-architecture-guide.md`)
-- Filtered enrichment discussion file with resolutions (`versions/create/round-{N}/explore/02a-filtered-enrichment-discussion.md`)
+- Filtered enrichment discussion file with resolutions (`versions/round-{N}-create/explore/02a-filtered-enrichment-discussion.md`)
 
 **Output:**
-- Exploration summary -> `versions/create/round-{N}/explore/03-exploration-summary.md`
+- Exploration summary -> `versions/round-{N}-create/explore/03-exploration-summary.md`
 
 ---
 
@@ -191,6 +191,6 @@ Complete all steps autonomously without pausing for confirmation. The authoring 
 
 ## File Output
 
-**Output file**: `system-design/04-architecture/versions/create/round-{N}/explore/03-exploration-summary.md`
+**Output file**: `system-design/04-architecture/versions/round-{N}-create/explore/03-exploration-summary.md`
 
 Read the enrichment discussion, collect resolved enrichments, and write the exploration summary.

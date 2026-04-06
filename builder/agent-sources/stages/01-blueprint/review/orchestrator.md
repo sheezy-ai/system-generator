@@ -17,9 +17,9 @@
 
 2. **Determine Blueprint source path**:
    - **Round 1**: Use `system-design/01-blueprint/blueprint.md` (parent folder)
-   - **Round 2+**: Use `system-design/01-blueprint/versions/review/round-{N-1}/05-updated-blueprint.md`
+   - **Round 2+**: Use `system-design/01-blueprint/versions/round-{N-1}-review/05-updated-blueprint.md`
 
-3. **Copy source to round folder**: Copy the source Blueprint to `system-design/01-blueprint/versions/review/round-[N]/00-blueprint.md`. All agents in this round work from this copy.
+3. **Copy source to round folder**: Copy the source Blueprint to `system-design/01-blueprint/versions/round-[N]-review/00-blueprint.md`. All agents in this round work from this copy.
 
 4. **Update state file** at each step transition
 
@@ -67,7 +67,7 @@ Update the state file:
 **Output directory**: `system-design/01-blueprint/versions`
 **State file**: `system-design/01-blueprint/versions/workflow-state.md`
 
-Review outputs go under `versions/review/round-1/`, `versions/review/round-2/`, etc. Creation outputs go under `versions/create/`. Both workflows share the `versions/` folder with a unified state file (`Current Workflow` field distinguishes active workflow).
+Review outputs go under `versions/round-1-review/`, `versions/round-2-review/`, etc. Creation outputs go under `versions/round-[N]-create/`. Both workflows share the `versions/` folder with a unified state file (`Current Workflow` field distinguishes active workflow).
 
 ---
 
@@ -105,26 +105,25 @@ Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ```
 versions/
 ├── workflow-state.md          # Tracks current workflow/round/step for resume (shared)
-├── create/                    # Creation workflow outputs
-│   └── round-{N}/
-│       ├── explore/
-│       └── [generate files]
-└── review/                    # Review workflow outputs
-    ├── round-1/               # First review round
-    │   ├── 00-blueprint.md            # Snapshot of input (copied at round start)
-    │   ├── 01-strategist.md
-    │   ├── 01-commercial.md
-    │   ├── 01-customer-advocate.md
-    │   ├── 01-operator.md
-    │   ├── 02-consolidated-issues.md   # Full detail
-    │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
-    │   ├── 04-author-output.md
-    │   ├── 05-updated-blueprint.md
-    │   ├── 06-change-verification-report.md
-    │   ├── 07-coherence-report.md
-    │   └── 08-verification-summary.md
-    └── round-2/
-        └── ...
+├── round-{N}-create/              # Creation workflow outputs
+│   ├── explore/
+│   └── [generate files]
+├── round-1-review/                # First review round
+│   ├── 00-blueprint.md            # Snapshot of input (copied at round start)
+│   ├── 01-strategist.md
+│   ├── 01-commercial.md
+│   ├── 01-customer-advocate.md
+│   ├── 01-operator.md
+│   ├── 02-consolidated-issues.md   # Full detail
+│   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
+│   ├── 04-author-output.md
+│   ├── 05-updated-blueprint.md
+│   ├── 06-change-verification-report.md
+│   ├── 07-coherence-report.md
+│   └── 08-verification-summary.md
+├── round-2-review/
+│   └── ...
+└── ...
 ```
 
 ---
@@ -204,18 +203,18 @@ Output: [resolved file path]
 1. **Update state file**: Set Step 1, status = IN_PROGRESS
 
 2. **Create round directory and copy input**:
-   - Create `system-design/01-blueprint/versions/review/round-[N]/`
+   - Create `system-design/01-blueprint/versions/round-[N]-review/`
    - Copy source Blueprint (determined in On Start/Resume) to `round-[N]/00-blueprint.md`
    - If source doesn't exist, **error and stop**
 
 3. **Spawn expert agents in parallel** using Task tool
    - Pass to each agent:
-     - Blueprint file path: `system-design/01-blueprint/versions/review/round-[N]/00-blueprint.md`
+     - Blueprint file path: `system-design/01-blueprint/versions/round-[N]-review/00-blueprint.md`
      - Output file path (agent writes to it)
      - Round number
    - Agents identify **issues only** (no solutions)
    - Agents include clarifying questions where needed
-   - Agents write directly to `system-design/01-blueprint/versions/review/round-[N]/01-[expert-name].md`
+   - Agents write directly to `system-design/01-blueprint/versions/round-[N]-review/01-[expert-name].md`
 
 4. **Wait for all agents to complete**
 
@@ -230,7 +229,7 @@ Output: [resolved file path]
 8. **Run Consolidator** (MUST spawn as subagent using Task tool - do NOT perform inline)
    - Pass: paths to all expert output files + output path
    - Agent reads expert files, merges issues, groups by theme
-   - Agent writes to `system-design/01-blueprint/versions/review/round-[N]/02-consolidated-issues.md`
+   - Agent writes to `system-design/01-blueprint/versions/round-[N]-review/02-consolidated-issues.md`
 
 9. **Update state file**: Mark Step 2 complete, add history entry
 
@@ -245,8 +244,8 @@ Output: [resolved file path]
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/scope-filter.md
 
     Stage guide: guides/01-blueprint-guide.md
-    Input: system-design/01-blueprint/versions/review/round-[N]/02-consolidated-issues.md
-    Output: system-design/01-blueprint/versions/review/round-[N]/03-issues-discussion.md
+    Input: system-design/01-blueprint/versions/round-[N]-review/02-consolidated-issues.md
+    Output: system-design/01-blueprint/versions/round-[N]-review/03-issues-discussion.md
     ```
     - Agent filters issues to appropriate level
     - Agent outputs summary format (ID, severity, summary, core question)
@@ -274,9 +273,9 @@ Output: [resolved file path]
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/issue-analyst.md
 
     Context documents:
-    - Blueprint: system-design/01-blueprint/versions/review/round-[N]/00-blueprint.md
+    - Blueprint: system-design/01-blueprint/versions/round-[N]-review/00-blueprint.md
 
-    Issues file: system-design/01-blueprint/versions/review/round-[N]/03-issues-discussion.md
+    Issues file: system-design/01-blueprint/versions/round-[N]-review/03-issues-discussion.md
     Issues: [ID1, ID2, ID3, ...]
     ```
 
@@ -294,7 +293,7 @@ Output: [resolved file path]
 20. **Update state file**: Set Step 4, status = WAITING_FOR_HUMAN
 
 21. **Notify user** issues are ready for discussion
-    - Point them to `system-design/01-blueprint/versions/review/round-[N]/03-issues-discussion.md`
+    - Point them to `system-design/01-blueprint/versions/round-[N]-review/03-issues-discussion.md`
     - Full detail available in `02-consolidated-issues.md` if needed
 
 **STOP: Wait for human response before proceeding.**
@@ -322,9 +321,9 @@ Only proceed to step 22 after the human signals they have responded (e.g., "done
        Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
 
        Context documents:
-       - Blueprint: system-design/01-blueprint/versions/review/round-[N]/00-blueprint.md
+       - Blueprint: system-design/01-blueprint/versions/round-[N]-review/00-blueprint.md
 
-       Issues file: system-design/01-blueprint/versions/review/round-[N]/03-issues-discussion.md
+       Issues file: system-design/01-blueprint/versions/round-[N]-review/03-issues-discussion.md
        Issues: [ID1, ID2, ID3, ...]
        ```
 
@@ -381,7 +380,7 @@ This gate is mandatory. Do not skip it.
     - Pass: paths to Blueprint (`round-[N]/00-blueprint.md`) + issues-summary file (with resolved discussions) + output paths
     - Agent reads each resolved discussion's proposed changes from `03-issues-discussion.md`
     - Agent applies the confirmed changes
-    - Agent writes to `system-design/01-blueprint/versions/review/round-[N]/04-author-output.md` (changelog) and `system-design/01-blueprint/versions/review/round-[N]/05-updated-blueprint.md`
+    - Agent writes to `system-design/01-blueprint/versions/round-[N]-review/04-author-output.md` (changelog) and `system-design/01-blueprint/versions/round-[N]-review/05-updated-blueprint.md`
 
 28. **Update state file**: Mark Step 5 complete, add history entry
 
@@ -399,18 +398,18 @@ This gate is mandatory. Do not skip it.
     - Pass: paths to issues-summary (with resolutions) + author output + updated Blueprint + output path
     - Agent verifies each resolution was applied correctly
     - Agent checks for level violations (scope creep)
-    - Agent writes to `system-design/01-blueprint/versions/review/round-[N]/06-change-verification-report.md`
+    - Agent writes to `system-design/01-blueprint/versions/round-[N]-review/06-change-verification-report.md`
 
     **Internal Coherence Checker** (Step 7) (`{{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md`):
     - Pass: Updated Blueprint path, stage guide path, output path
     - Agent verifies cross-section consistency within the Blueprint
-    - Agent writes to `system-design/01-blueprint/versions/review/round-[N]/07-coherence-report.md`
+    - Agent writes to `system-design/01-blueprint/versions/round-[N]-review/07-coherence-report.md`
     ```
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
 
-    Document: system-design/01-blueprint/versions/review/round-[N]/05-updated-blueprint.md
+    Document: system-design/01-blueprint/versions/round-[N]-review/05-updated-blueprint.md
     Stage guide: guides/01-blueprint-guide.md
-    Output: system-design/01-blueprint/versions/review/round-[N]/07-coherence-report.md
+    Output: system-design/01-blueprint/versions/round-[N]-review/07-coherence-report.md
     ```
 
 32. **Wait for both agents to complete**
@@ -524,7 +523,7 @@ This gate is mandatory. Do not skip it.
 ### Step 9: Promote
 
 45. **Copy reviewed Blueprint to canonical path**:
-    - Copy `system-design/01-blueprint/versions/review/round-[N]/05-updated-blueprint.md` to `system-design/01-blueprint/blueprint.md`
+    - Copy `system-design/01-blueprint/versions/round-[N]-review/05-updated-blueprint.md` to `system-design/01-blueprint/blueprint.md`
 
 46. **Verify output file exists**: `system-design/01-blueprint/blueprint.md`
 

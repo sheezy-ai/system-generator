@@ -323,7 +323,7 @@ Complete all steps autonomously without pausing for confirmation. The generation
 ## File Output
 
 **Output files**:
-- `system-design/01-blueprint/versions/create/round-{N}/00-draft-blueprint.md` — Draft Blueprint with issues marked
+- `system-design/01-blueprint/versions/round-{N}-create/00-draft-blueprint.md` — Draft Blueprint with issues marked
 - `system-design/01-blueprint/versions/out-of-scope.md` — Append out-of-scope content (if any)
 - Downstream deferred items as needed:
   - `system-design/02-prd/versions/deferred-items.md` — Features, UI/UX details

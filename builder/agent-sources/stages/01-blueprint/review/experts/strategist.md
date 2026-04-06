@@ -148,7 +148,7 @@ Complete all steps autonomously without pausing for confirmation. The review dec
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/review/round-N/01-strategist.md` (where N is the current round number)
+**Output file**: `system-design/01-blueprint/versions/round-N-review/01-strategist.md` (where N is the current round number)
 
 Write your complete output to this file. Include a header and summary:
 

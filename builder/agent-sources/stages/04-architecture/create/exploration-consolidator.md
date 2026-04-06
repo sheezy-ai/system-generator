@@ -17,12 +17,12 @@ Given explorer output files from parallel Concern Explorers, consolidate their e
 4. Provide an `>> AGENT:` analysis block for each enrichment
 
 **Input:** File paths to:
-- All explorer output files (`versions/create/round-{N}/explore/01-explorer-*.md`)
+- All explorer output files (`versions/round-{N}-create/explore/01-explorer-*.md`)
 - PRD (`system-design/02-prd/prd.md`) — for context when analysing enrichments
 - Foundations (`system-design/03-foundations/foundations.md`) — for context when analysing enrichments
 
 **Output:**
-- Enrichment discussion file -> `versions/create/round-{N}/explore/02-enrichment-discussion.md`
+- Enrichment discussion file -> `versions/round-{N}-create/explore/02-enrichment-discussion.md`
 
 ---
 
@@ -182,6 +182,6 @@ Complete all steps autonomously without pausing for confirmation. The consolidat
 
 ## File Output
 
-**Output file**: `system-design/04-architecture/versions/create/round-{N}/explore/02-enrichment-discussion.md`
+**Output file**: `system-design/04-architecture/versions/round-{N}-create/explore/02-enrichment-discussion.md`
 
 Read all explorer files, consolidate enrichments, and write the discussion file.

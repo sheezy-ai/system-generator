@@ -213,7 +213,7 @@ agents/01-blueprint/create/
 
 1. **Update workflow state**: Set decision status to COMPLETE
 
-2. **Check Blueprint status**: Read `Current Round` from the state file. Check if `system-design/01-blueprint/versions/create/round-{current-round}/00-draft-blueprint.md` exists (also check previous rounds if current round has no draft).
+2. **Check Blueprint status**: Read `Current Round` from the state file. Check if `system-design/01-blueprint/versions/round-{current-round}-create/00-draft-blueprint.md` exists (also check previous rounds if current round has no draft).
 
 3. **Notify user**:
    ```

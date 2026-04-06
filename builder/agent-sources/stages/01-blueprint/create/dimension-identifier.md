@@ -18,7 +18,7 @@ Given a concept document, identify 3–5 strategic dimensions worth exploring. E
 - Workflow state file (`versions/workflow-state.md`) — for checking pending decisions
 
 **Output:**
-- Dimensions file → `versions/create/round-{N}/explore/00-dimensions.md`
+- Dimensions file → `versions/round-{N}-create/explore/00-dimensions.md`
 
 ---
 
@@ -190,6 +190,6 @@ Complete all steps autonomously without pausing for confirmation. The dimension 
 
 ## File Output
 
-**Output file**: `system-design/01-blueprint/versions/create/round-{N}/explore/00-dimensions.md`
+**Output file**: `system-design/01-blueprint/versions/round-{N}-create/explore/00-dimensions.md`
 
 Read the concept, identify dimensions, and write the dimensions file.

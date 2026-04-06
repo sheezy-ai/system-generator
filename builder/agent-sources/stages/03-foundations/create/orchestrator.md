@@ -20,12 +20,12 @@ Run this orchestrator at the start of the Foundations stage, after the PRD is co
 
 **PRD**: `system-design/02-prd/prd.md`
 **State file**: `system-design/03-foundations/versions/workflow-state.md`
-**Output directory**: `system-design/03-foundations/versions/round-0`
-**Assessment output**: `system-design/03-foundations/versions/round-0/00-assessment.md`
-**Draft output**: `system-design/03-foundations/versions/round-0/00-draft-foundations.md`
-**Gap discussion**: `system-design/03-foundations/versions/round-0/01-gap-discussion.md`
-**Author output**: `system-design/03-foundations/versions/round-0/02-author-output.md`
-**Updated draft**: `system-design/03-foundations/versions/round-0/03-updated-foundations.md`
+**Output directory**: `system-design/03-foundations/versions/round-1-create`
+**Assessment output**: `system-design/03-foundations/versions/round-1-create/00-assessment.md`
+**Draft output**: `system-design/03-foundations/versions/round-1-create/00-draft-foundations.md`
+**Gap discussion**: `system-design/03-foundations/versions/round-1-create/01-gap-discussion.md`
+**Author output**: `system-design/03-foundations/versions/round-1-create/02-author-output.md`
+**Updated draft**: `system-design/03-foundations/versions/round-1-create/03-updated-foundations.md`
 **Brief (optional)**: `system-design/03-foundations/brief.md`
 **Promoted output**: `system-design/03-foundations/foundations.md`
 **Final outputs** (created by Review workflow promoter — overwrites promoted output):
@@ -68,7 +68,7 @@ system-design/03-foundations/
     ├── deferred-items.md           # Upstream gaps for this stage
     ├── pending-issues.md          # Issues logged against this stage
     ├── workflow-state.md              # Unified workflow state (shared with Review)
-    └── round-0/
+    └── round-1-create/
         ├── 00-assessment.md                   # Assessor output
         ├── 00-draft-foundations.md             # Generator output
         ├── 01-gap-discussion.md               # Gap formatter output (if gaps exist)
@@ -104,13 +104,13 @@ system-design/03-foundations/
 # Foundations Workflow State
 
 **Foundations**: 03-foundations/foundations.md
-**Current Round**: 0
+**Current Round**: 1
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
 **Gaps Exist**: unknown | true | false
 
 ## Progress
 
-### Round 0 (Creation)
+### Round 1 (Creation)
 - [ ] Step 1-3b: Validate & Setup
 - [ ] Step 3c: Run Assessor
 - [ ] Step 4: Run Generator
@@ -186,7 +186,7 @@ Output: [resolved file path]
    ```
    system-design/03-foundations/
    └── versions/
-       └── round-0/
+       └── round-1-create/
    ```
 
 2. **Create deferred-items.md** (if not exists) at `system-design/03-foundations/versions/deferred-items.md`:
@@ -257,12 +257,12 @@ Output: [resolved file path]
    - Deferred items: system-design/03-foundations/versions/deferred-items.md
    - Brief: system-design/03-foundations/brief.md (if exists)
 
-   Output: system-design/03-foundations/versions/round-0/00-assessment.md
+   Output: system-design/03-foundations/versions/round-1-create/00-assessment.md
    ```
 
 2. **Wait for Assessor to complete**
 
-3. **Verify output exists** at `system-design/03-foundations/versions/round-0/00-assessment.md`
+3. **Verify output exists** at `system-design/03-foundations/versions/round-1-create/00-assessment.md`
 
 4. **Read assessment** — count categories and note which have open choices vs settled/constrained
 
@@ -272,7 +272,7 @@ Output: [resolved file path]
    ```
    Technology assessment complete.
 
-   Assessment: system-design/03-foundations/versions/round-0/00-assessment.md
+   Assessment: system-design/03-foundations/versions/round-1-create/00-assessment.md
 
    The assessment covers each Foundations technology category with viable options
    assessed against PRD constraints. Coupled decisions are flagged.
@@ -310,9 +310,9 @@ Only proceed after the human signals they have responded (e.g., "done", "ready",
    - Foundations guide: {{GUIDES_PATH}}/03-foundations-guide.md
    - Deferred items: system-design/03-foundations/versions/deferred-items.md
    - Brief: system-design/03-foundations/brief.md (if exists)
-   - Assessment: system-design/03-foundations/versions/round-0/00-assessment.md
+   - Assessment: system-design/03-foundations/versions/round-1-create/00-assessment.md
 
-   Output: system-design/03-foundations/versions/round-0/00-draft-foundations.md
+   Output: system-design/03-foundations/versions/round-1-create/00-draft-foundations.md
 
    Downstream deferred items (Generator may append):
    - Architecture: system-design/04-architecture/versions/deferred-items.md
@@ -321,13 +321,13 @@ Only proceed after the human signals they have responded (e.g., "done", "ready",
 
 2. **Wait for Generator to complete**
 
-3. **Verify output exists** at `system-design/03-foundations/versions/round-0/00-draft-foundations.md`
+3. **Verify output exists** at `system-design/03-foundations/versions/round-1-create/00-draft-foundations.md`
 
 4. **Update state file**: Mark "Step 4: Run Generator" complete `[x]`, add history entry
 
 ### Step 5: Format & Analyse Gaps
 
-1. **Read the draft** at `system-design/03-foundations/versions/round-0/00-draft-foundations.md`
+1. **Read the draft** at `system-design/03-foundations/versions/round-1-create/00-draft-foundations.md`
 
 2. **Check for Gap Summary section** — Look for `## Gap Summary` heading
 
@@ -340,14 +340,14 @@ Only proceed after the human signals they have responded (e.g., "done", "ready",
    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/gap-formatter.md
 
    Input:
-   - Draft: system-design/03-foundations/versions/round-0/00-draft-foundations.md
+   - Draft: system-design/03-foundations/versions/round-1-create/00-draft-foundations.md
 
-   Output: system-design/03-foundations/versions/round-0/01-gap-discussion.md
+   Output: system-design/03-foundations/versions/round-1-create/01-gap-discussion.md
    ```
 
 5. **Wait for Gap Formatter to complete**
 
-6. **Verify output exists** at `system-design/03-foundations/versions/round-0/01-gap-discussion.md`
+6. **Verify output exists** at `system-design/03-foundations/versions/round-1-create/01-gap-discussion.md`
 
 7. **Read output** — count gaps by severity for the Step 6 handoff message
 
@@ -356,12 +356,12 @@ Only proceed after the human signals they have responded (e.g., "done", "ready",
    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/gap-analyst.md
 
    Context documents:
-   - Draft Foundations: system-design/03-foundations/versions/round-0/00-draft-foundations.md
+   - Draft Foundations: system-design/03-foundations/versions/round-1-create/00-draft-foundations.md
    - PRD: system-design/02-prd/prd.md
-   - Assessment: system-design/03-foundations/versions/round-0/00-assessment.md
+   - Assessment: system-design/03-foundations/versions/round-1-create/00-assessment.md
    - Brief: system-design/03-foundations/brief.md (if exists)
 
-   Gap discussion file: system-design/03-foundations/versions/round-0/01-gap-discussion.md
+   Gap discussion file: system-design/03-foundations/versions/round-1-create/01-gap-discussion.md
    Gaps: [GAP-001, GAP-002, ...]
    ```
 
@@ -384,7 +384,7 @@ Only proceed after the human signals they have responded (e.g., "done", "ready",
    ```
    Gap analysis complete.
 
-   Discussion file: system-design/03-foundations/versions/round-0/01-gap-discussion.md
+   Discussion file: system-design/03-foundations/versions/round-1-create/01-gap-discussion.md
 
    - [N] HIGH (Must Answer) gaps
    - [M] MEDIUM (Should Answer) gaps
@@ -426,11 +426,11 @@ Only proceed to step 10 after the human signals they have responded (e.g., "done
        Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
 
        Context documents:
-       - Draft Foundations: system-design/03-foundations/versions/round-0/00-draft-foundations.md
+       - Draft Foundations: system-design/03-foundations/versions/round-1-create/00-draft-foundations.md
        - PRD: system-design/02-prd/prd.md
-       - Assessment: system-design/03-foundations/versions/round-0/00-assessment.md
+       - Assessment: system-design/03-foundations/versions/round-1-create/00-assessment.md
 
-       Issues file: system-design/03-foundations/versions/round-0/01-gap-discussion.md
+       Issues file: system-design/03-foundations/versions/round-1-create/01-gap-discussion.md
        Issues: [GAP-001, GAP-002, ...]
        ```
 
@@ -486,20 +486,20 @@ This gate is mandatory. Do not skip it.
     Follow the instructions in: {{AGENTS_PATH}}/03-foundations/create/author.md
 
     Input:
-    - Draft Foundations: system-design/03-foundations/versions/round-0/00-draft-foundations.md
-    - Gap discussion: system-design/03-foundations/versions/round-0/01-gap-discussion.md
+    - Draft Foundations: system-design/03-foundations/versions/round-1-create/00-draft-foundations.md
+    - Gap discussion: system-design/03-foundations/versions/round-1-create/01-gap-discussion.md
     - Foundations guide: {{GUIDES_PATH}}/03-foundations-guide.md
 
     Output:
-    - Change log: system-design/03-foundations/versions/round-0/02-author-output.md
-    - Updated Foundations: system-design/03-foundations/versions/round-0/03-updated-foundations.md
+    - Change log: system-design/03-foundations/versions/round-1-create/02-author-output.md
+    - Updated Foundations: system-design/03-foundations/versions/round-1-create/03-updated-foundations.md
     ```
 
 15. **Wait for Author to complete**
 
 16. **Verify outputs exist**:
-    - `system-design/03-foundations/versions/round-0/02-author-output.md`
-    - `system-design/03-foundations/versions/round-0/03-updated-foundations.md`
+    - `system-design/03-foundations/versions/round-1-create/02-author-output.md`
+    - `system-design/03-foundations/versions/round-1-create/03-updated-foundations.md`
 
 17. **Update state file**: Mark "Step 7: Apply Decisions" complete `[x]`, add history entry
 
@@ -508,8 +508,8 @@ This gate is mandatory. Do not skip it.
 **Purpose**: Verify alignment with PRD and internal coherence before promotion. Catches misalignment and cross-section consistency gaps introduced during creation.
 
 18. **Determine draft path**:
-    - If Steps 5-7 ran (gaps existed): Use `system-design/03-foundations/versions/round-0/03-updated-foundations.md`
-    - If Steps 5-7 were skipped (no gaps): Use `system-design/03-foundations/versions/round-0/00-draft-foundations.md`
+    - If Steps 5-7 ran (gaps existed): Use `system-design/03-foundations/versions/round-1-create/03-updated-foundations.md`
+    - If Steps 5-7 were skipped (no gaps): Use `system-design/03-foundations/versions/round-1-create/00-draft-foundations.md`
 
 19. **Spawn both verification agents in parallel**:
 
@@ -521,7 +521,7 @@ This gate is mandatory. Do not skip it.
     - Updated Foundations: [draft path from step 18]
     - PRD: system-design/02-prd/prd.md
 
-    Output: system-design/03-foundations/versions/round-0/04-alignment-report.md
+    Output: system-design/03-foundations/versions/round-1-create/04-alignment-report.md
     ```
 
     **Internal Coherence Checker**:
@@ -530,7 +530,7 @@ This gate is mandatory. Do not skip it.
 
     Document: [draft path from step 18]
     Stage guide: {{GUIDES_PATH}}/03-foundations-guide.md
-    Output: system-design/03-foundations/versions/round-0/05-coherence-report.md
+    Output: system-design/03-foundations/versions/round-1-create/05-coherence-report.md
     ```
 
 20. **Wait for both agents to complete**
@@ -564,8 +564,8 @@ This gate is mandatory. Do not skip it.
 ### Step 8: Promote & Report
 
 24. **Determine final draft path**:
-    - If Steps 5-7 ran (gaps existed): Use `system-design/03-foundations/versions/round-0/03-updated-foundations.md`
-    - If Steps 5-7 were skipped (no gaps): Use `system-design/03-foundations/versions/round-0/00-draft-foundations.md`
+    - If Steps 5-7 ran (gaps existed): Use `system-design/03-foundations/versions/round-1-create/03-updated-foundations.md`
+    - If Steps 5-7 were skipped (no gaps): Use `system-design/03-foundations/versions/round-1-create/00-draft-foundations.md`
 
 25. **Copy final draft to `foundations.md`** using Bash cp:
     ```
@@ -582,9 +582,9 @@ This gate is mandatory. Do not skip it.
     ```
     Foundations creation complete.
 
-    Draft: system-design/03-foundations/versions/round-0/00-draft-foundations.md
+    Draft: system-design/03-foundations/versions/round-1-create/00-draft-foundations.md
     [If gaps resolved:]
-    Updated: system-design/03-foundations/versions/round-0/03-updated-foundations.md
+    Updated: system-design/03-foundations/versions/round-1-create/03-updated-foundations.md
     Promoted to: system-design/03-foundations/foundations.md
 
     Brief: [Used / Not provided]
