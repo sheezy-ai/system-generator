@@ -10,10 +10,10 @@
 
 1. **Check if state file exists**:
    - **If NO**: Create it, initialize Round 1 Step 1, set `Current Workflow: Review`
-   - **If YES**: Read it and check `Current Workflow`:
-     - **If `Create` and Status COMPLETE**: Creation finished — set `Current Workflow: Review`, initialize Round 1, preserve existing history
-     - **If `Create` and Status not COMPLETE**: Error — "Creation workflow still in progress"
-     - **If `Review`**: Resume from current round/step
+   - **If YES**: Read the state file. The action depends on `Status` and `Current Workflow`:
+     - **`Status: COMPLETE`** (regardless of `Current Workflow`): Set `Current Workflow: Review`, initialize the next sequential round number (globally numbered — see unified `versions/` folder convention), preserve history.
+     - **`Status: not COMPLETE`** and **`Current Workflow: Review`**: Resume from current round/step.
+     - **`Status: not COMPLETE`** and **`Current Workflow`** is anything else: Error — `Cannot start Review: {Current Workflow} workflow still in progress`.
 
 2. **Determine Blueprint source path**:
    - Read the state file history to identify the last completed round number and type
