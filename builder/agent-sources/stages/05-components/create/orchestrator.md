@@ -152,6 +152,7 @@ system-design/05-components/
 - You COPY the final draft to `specs/[component-name].md` (promotion)
 - You DO NOT write draft spec content, gap discussion content, or author output — agents do that
 - You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
+- Spawn agents in FOREGROUND (not background) — agents need interactive approval for file writes
 
 **Context management**: The orchestrator persists across the entire creation lifecycle. Every document you Read stays in context. Spawned subagents run in their own context via the Task tool. Keep your context lean — use Grep for targeted extraction from state and output files, `ls` for existence checks. Working files are read by subagents, not by the orchestrator.
 
