@@ -336,6 +336,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
    - Cross-cutting spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
+   - Cross-cutting deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/cross-cutting/deferred-items.md
    - Workflow state: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/workflow-state.md
 
    Output: {explore-dir}/00-concerns.md
@@ -401,6 +402,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    - Cross-cutting spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
    - Concerns file: {explore-dir}/00-concerns.md
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
+   - Cross-cutting deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/cross-cutting/deferred-items.md
    - Assigned concern: CON-[N]
 
    Output: {explore-dir}/01-explorer-{concern-name}.md
@@ -617,6 +619,7 @@ Only proceed to step 3 after the human signals they have responded.
    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
    - Cross-cutting spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
+   - Cross-cutting deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/cross-cutting/deferred-items.md
    - Brief: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/brief.md (if exists)
    [If exploration summary exists:]
    - Exploration summary: {explore-dir}/03-exploration-summary.md
