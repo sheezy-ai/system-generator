@@ -176,7 +176,7 @@ The orchestrator will error if you try to create a spec without initializing fir
 
 ### Per-Component Creation Workflow
 
-Component Specs uses the **Explore** creation pattern (see `workflow-create-patterns.md`):
+Component Specs uses the **Explore** creation pattern (see `workflow-create.md`):
 
 ```
 [Explore → Generate → Gap Resolution]* → Promote

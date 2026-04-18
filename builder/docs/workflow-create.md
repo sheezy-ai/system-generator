@@ -1,186 +1,166 @@
 # Create Workflow
 
-The Create workflow generates a draft document from upstream inputs (concept document, or output from a previous stage). The human augments the draft, then runs the Review workflow to refine it.
+The Create workflow generates a draft document from upstream inputs. Each stage declares which creation pattern it follows. The human exits the loop by choosing to promote, then runs the Review workflow to refine the promoted draft.
 
-For a high-level overview, see `overview.md`.
+For the standard review workflow (used after creation), see `workflow-review.md`.
 
 ---
 
-## Flow Diagram
+## Creation Patterns
+
+Two patterns define how create workflows approach draft production, listed from lightest to heaviest pre-generation investment.
+
+---
+
+### Pattern: Select
 
 ```
-                    ┌─────────────────┐
-                    │ Concept/Upstream│
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │     Setup       │◄──── Step 1
-                    │ (structure,     │      (directories, deferred items)
-                    │  deferred items)│
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │    Generator    │◄──── Step 2
-                    │ (draft + gaps)  │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Report to Human │◄──── Step 3
-                    │  (gap summary)  │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Human Augments  │◄──── Human fills in gaps
-                    │   the Draft     │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Review Workflow │◄──── See workflow-review.md
-                    └─────────────────┘
+Setup → Assess → [Human checkpoint] → Generate → Gap Resolution Pipeline → Promote
 ```
 
-**Notes:**
-- The Create workflow produces a draft; the Review workflow refines it
-- **Blueprint has a custom create workflow** with an Explore phase (strategic dimension exploration, enrichment review with three-tier depth filtering), iterative rounds (round 1 from concept, round 2+ from previous draft), and a separate Decision Orchestrator. See `01-blueprint.md` for details.
-- **PRD has a custom create workflow** with an Explore phase (capability area decomposition, parallel explorers, enrichment review), iterative rounds (round 1 from Blueprint, round 2+ from previous draft), and inline decision resolution (no separate Decision Orchestrator). See `02-prd.md` for details.
-- **Foundations has a custom create workflow** with an Assess step (technology assessment against PRD constraints, human directional preferences) before generation, plus a structured gap discussion loop after generation. See `03-foundations.md` for details.
-- **Architecture has a custom create workflow** with a full Explore phase (architectural concern identification, parallel concern explorers, enrichment review), iterative rounds (round 1 from PRD + Foundations, round 2+ from previous draft), and gap resolution. See `04-architecture.md` for details.
-- **Component Specs has a custom create workflow** with the full Explore phase (design concern identification, parallel concern explorers, enrichment review), iterative rounds (round 1 from Architecture + Foundations, round 2+ from previous draft), depth verification after generation, and gap resolution. Also has an Initialize step (stage-level setup before per-component creation). See `05-components.md` for details.
-- **Architecture and Components** both have independent coverage verification — a separate agent extracts requirements from the upstream document, then a checker verifies the draft addresses every item. This catches gaps the Generator's self-review misses.
+**When to use**: Technology and convention selection problems where options are bounded and the input (PRD) implies constraints but doesn't prescribe specific choices. Assessment surfaces trade-offs and collects human direction before generation.
+
+**Stages using this pattern**: Foundations (03)
+
+#### Characteristics
+
+- **Pre-generation**: Assessor evaluates 2-3 options per category against upstream constraints, identifies coupled decisions, presents structured assessment with `>> HUMAN:` inline response placeholders
+- **Human preferences**: Persisted in the assessment file via inline markers — survive workflow resume
+- **Gap resolution**: Full pipeline (fewer gaps expected because assessment settles most decisions before generation)
+- **Rounds**: Single round (assessment + generation, no multi-round loop)
+
+#### Standard Steps
+
+| Step | Name | Agent | Auto/Human |
+|------|------|-------|------------|
+| 1-3b | Setup, deferred items, brief check | Orchestrator | Auto |
+| 3c | Assessment | Assessor | Auto → Human checkpoint |
+| 4 | Generate | Generator (uses assessment) | Auto |
+| 5 | Format gaps | Gap Formatter | Auto |
+| 5 (cont) | Analyse gaps | Gap Analyst | Auto |
+| 6 | Discussion | Discussion Facilitator | Human checkpoint |
+| 7 | Apply decisions | Author | Auto |
+| 8 | Promote | Orchestrator | Auto |
+
+#### State File Template
+
+```markdown
+**Current Round**: 0
+**Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
+**Gaps Exist**: unknown | true | false
+
+## Progress
+
+### Round 0 (Creation)
+- [ ] Step 1-3b: Validate & Setup
+- [ ] Step 3c: Run Assessor
+- [ ] Step 4: Run Generator
+- [ ] Step 5: Format & Analyse Gaps
+- [ ] Step 6: Discussion Loop
+- [ ] Step 7: Apply Decisions
+- [ ] Step 8: Promote & Report
+```
 
 ---
 
-## Step-by-Step Walkthrough
+### Pattern: Explore
 
-### Step 1: Setup
+```
+Setup → [Explore → Generate/Apply → Gap Resolution]* → Promote
+```
 
-**Agent:** Orchestrator (performs this step directly)
+**When to use**: Design problems where multiple viable alternatives need structured exploration before generation. The input needs decomposition into areas worth investigating, parallel deep-dives, and human review of proposed enrichments before the draft is produced.
 
-The orchestrator creates the required directory structure and initialises tracking files.
+**Stages using this pattern**: Blueprint (01), PRD (02), Architecture (04), Components (05)
 
-**Process:**
-1. Create stage directories (if not exist):
-   ```
-   system-design/[stage]/
-   └── versions/
-       └── round-1-create/
-   ```
-2. Create `deferred-items.md` (if not exists) - holds items deferred from upstream
-3. Create `pending-issues.md` (if not exists) - holds issues logged against this stage
+#### Characteristics
 
-**Deferred Items Intake (for stages 02-05):**
+- **Pre-generation**: Identify areas → parallel explorers → consolidate → scope filter → human enrichment review → summarize. This is the heaviest pre-generation investment.
+- **Generation**: Round 1 uses Generator (from scratch). Round 2+ uses Enrichment Applicator (targeted edits to previous draft, not regeneration).
+- **Gap resolution**: Varies by stage — Blueprint/PRD use lightweight resolution (human answers directly or edits draft), Architecture/Components use full gap pipeline
+- **Rounds**: Multi-round with human exit choice at gap resolution
+- **Area terminology**: Varies by stage — "dimensions" (Blueprint), "capabilities" (PRD), "concerns" (Architecture), "design concerns" (Components)
 
-If deferred items exist with PENDING items from upstream stages:
-1. Read final upstream document(s)
-2. For each PENDING item, check if addressed upstream
-3. Update validation status:
-   - `RESOLVED_UPSTREAM`: Fully addressed - mark closed
-   - `PARTIALLY_ADDRESSED`: Touched but not resolved - pass to Generator
-   - `STILL_RELEVANT`: Not addressed - pass to Generator
+#### Standard Steps
 
-**Note:** Blueprint skips deferred items intake (no upstream stage).
+| Step | Phase | Name | Agent | Auto/Human |
+|------|-------|------|-------|------------|
+| 1 | Explore | Setup | Orchestrator | Auto |
+| 2 | Explore | Identify areas | Area Identifier | Auto |
+| 3 | Explore | Review areas | — | Human checkpoint |
+| 4 | Explore | Explore areas | Area Explorers (parallel) | Auto |
+| 5 | Explore | Consolidate | Exploration Consolidator | Auto |
+| 6 | Explore | Filter | Enrichment Scope Filter | Auto |
+| 7 | Explore | Review enrichments | Discussion Facilitator | Human checkpoint |
+| 8 | Explore | Summarize | Enrichment Author | Auto |
+| 9 | Generate | Generate or apply enrichments | Generator (R1) / Applicator (R2+) | Auto |
+| 9b | Generate | Coverage verification (if applicable) | Requirements Extractor + Coverage Checker | Auto |
+| 9c | Generate | Depth verification (if applicable) | Depth Checker | Auto |
+| 10 | Generate | Gap resolution | Varies by stage | Human checkpoint |
+| 11 | Promote | Promote | Orchestrator | Auto |
 
----
+#### Stage Variations
 
-### Step 2: Generate Draft
+| Aspect | Blueprint | PRD | Architecture | Components |
+|--------|-----------|-----|-------------|------------|
+| Area term | Dimensions | Capabilities | Concerns | Design Concerns |
+| Upstream input | Concept | Blueprint | PRD + Foundations | Architecture + Foundations |
+| Decision system | Separate Decision Orchestrator | Inline | None | None |
+| Gap resolution | Lightweight (human answers/edits) | Lightweight | Full pipeline | Full pipeline |
+| Coverage verification | No | No | Yes (Step 9b) | Yes (Step 9b) |
+| Depth verification | No | No | No | Yes (Step 9c) |
+| Enrichment applicator | No (regenerates) | Yes (round 2+) | Yes (round 2+) | Yes (round 2+) |
 
-**Agent:** Generator
+#### State File Template
 
-The Generator creates an initial draft from the concept/upstream document.
+```markdown
+**Current Workflow**: Create
+**Current Phase**: Explore | Generate | Promote
+**Current Round**: 1
+**Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
+**Gaps Exist**: unknown | true | false
+**Explore Phase**: active | skipped | complete
 
-**Process:**
-1. Read the stage guide to understand required structure and abstraction level
-2. Read the concept/upstream document
-3. Read validated deferred items (if any from Step 1)
-4. Extract relevant information from concept
-5. Incorporate validated gaps/issues from deferred items
-6. Generate all required sections following the guide structure
-7. Mark all gaps clearly with markers
+## Progress
 
-**Gap markers:**
-| Marker | When to Use |
-|--------|-------------|
-| `[QUESTION: ...]` | Information needed |
-| `[DECISION NEEDED: ...]` | Choice required |
-| `[ASSUMPTION: ...]` | Guess that needs validation |
-| `[TODO: ...]` | Placeholder to fill |
-| `[CLARIFY: ...]` | Source is ambiguous |
+### Phase 1: Explore
+- [ ] Step 1: Setup
+- [ ] Step 2: Area Identifier
+- [ ] Step 3: Area Review
+- [ ] Step 4: Area Explorers
+- [ ] Step 5: Consolidator
+- [ ] Step 6: Scope Filter
+- [ ] Step 7: Enrichment Review
+- [ ] Step 8: Enrichment Author
 
-**Output:**
-- Draft document with gaps marked
-- Location: `system-design/[stage]/versions/round-1-create/00-draft-[document].md`
+### Phase 2: Generate
+- [ ] Step 9: Generate or Apply Enrichments
+- [ ] Step 9b: Coverage Verification (if applicable)
+- [ ] Step 9c: Depth Verification (if applicable)
+- [ ] Step 10: Gap Resolution
 
----
-
-### Step 3: Report to Human
-
-**Agent:** Orchestrator (performs this step directly)
-
-The orchestrator summarises the draft for the human.
-
-**Process:**
-1. Read the draft and count gap markers
-2. Present summary to human:
-   ```
-   [Stage] initialization complete.
-
-   Draft: system-design/[stage]/versions/round-1-create/00-draft-[document].md
-
-   Gap summary:
-   - [N] QUESTION items
-   - [M] DECISION NEEDED items
-   - [K] Assumptions to validate
-
-   Next steps:
-   1. Review the draft and fill in answers to open questions
-   2. Optionally ask Claude to tidy up the draft
-   3. When ready, run the [Stage] Review workflow
-   ```
+### Phase 3: Promote
+- [ ] Step 11: Promote & Report
+```
 
 ---
 
-### Human Augments the Draft
+## Choosing a Pattern
 
-**Actor:** Human (not an agent)
+| Question | Select | Explore |
+|----------|--------|---------|
+| Are options bounded and well-known? | Yes | No |
+| Do multiple viable design alternatives exist? | No | Yes |
+| Does the input need decomposition into areas? | No | Yes |
+| Is multi-round iteration valuable? | No | Yes |
 
-The human reviews the draft and fills in answers to open questions directly in the document.
-
-**Process:**
-1. Open the draft document
-2. Search for gap markers (`[QUESTION`, `[DECISION NEEDED`, etc.)
-3. Replace markers with actual content
-4. Add any additional content needed
-5. Optionally ask Claude to help tidy up the draft
-
-**Tips:**
-- Be specific - "Enterprise companies" is less useful than "Mid-market SaaS (100-1000 employees)"
-- State reasoning if helpful - it helps maintain context
-- Flag uncertainty - if you're guessing, say so
-- Don't worry about level - if you add detail that belongs downstream, Review will catch it
-
----
-
-### Run Review Workflow
-
-Once the draft is augmented, run the Review workflow to refine it. See `workflow-review.md`.
-
-The Review workflow will:
-- Run domain experts to identify issues
-- Facilitate discussion on issues found
-- Author approved changes
-- Verify alignment with source documents
-- Iterate until the document is satisfactory
+If a new stage doesn't fit cleanly, prefer the lighter pattern and add specific steps as deviations rather than using a heavier pattern and skipping steps.
 
 ---
 
 ## Component Specs: Two-Level Structure
 
-Component Specs has a unique structure with stage-level and component-level workflows:
+Component Specs is unique: it produces multiple specs (one per component) rather than a single document.
 
 ### Stage-Level: Initialize
 
@@ -208,29 +188,60 @@ Component Specs has a unique structure with stage-level and component-level work
 - Iterate (human can request additional explore→generate rounds)
 - Promote final draft
 
-**Pattern:** Explore (see `workflow-create-patterns.md`)
+**Pattern:** Explore
 
 **Orchestrator:** `agents/05-components/create/orchestrator.md`
 
 ### Component-Level: Review
 
-**Run for each component** after human augments the draft.
+**Run for each component** after creation promotes the draft.
 
-**Orchestrator:** `agents/05-components/review/orchestrator.md`
+**Orchestrator:** `agents/05-components/review/orchestrator-router.md`
 
 ---
 
-## Output File Structure
+## Shared Components
 
-```
-system-design/[stage]/
-├── versions/
-│   ├── deferred-items.md           # Items deferred from upstream
-│   ├── pending-issues.md          # Issues logged against this stage
-│   └── round-1-create/
-│       └── 00-draft-[document].md # Generator output
-└── [document].md                  # Final (created by Review workflow)
-```
+Both patterns share these universal agents and conventions:
+
+**Gap Resolution Pipeline** (used by Select; used by Explore stages with full gap resolution):
+- Gap Formatter → Gap Analyst → Discussion Facilitator → Author
+- Universal agents, stage-agnostic behaviour
+- Orchestrator passes stage-specific context documents
+
+**Coverage Verification** (used by Architecture and Components):
+- Requirements Extractor + Coverage Checker
+- Stage-specific agents (different upstream documents per stage)
+- Gaps injected as `[TODO: Coverage gap — ...]` markers
+
+**Depth Verification** (used by Components only):
+- Depth Checker
+- Verifies minimum specification depth (typed inputs/outputs, named error rules, index declarations, atomicity boundaries)
+- Shallow items injected as `[TODO: Depth gap — ...]` markers
+
+**Enrichment Review Loop** (used by Explore only):
+- Area Identifier → Area Explorers → Consolidator → Scope Filter → Human Review → Enrichment Author
+- Stage-specific agents (different area terminology and scope boundaries)
+
+**Author Features** (both patterns):
+- Level check with stage-appropriate examples
+- Design rationale documentation (inline + decisions section)
+- Maturity calibration
+- Copy-then-Edit approach
+
+---
+
+## Gap Markers
+
+Generators and checkers mark gaps with these inline markers:
+
+| Marker | When to Use |
+|--------|-------------|
+| `[QUESTION: ...]` | Information needed |
+| `[DECISION NEEDED: ...]` | Choice required |
+| `[ASSUMPTION: ...]` | Guess that needs validation |
+| `[TODO: ...]` | Placeholder to fill |
+| `[CLARIFY: ...]` | Source is ambiguous |
 
 ---
 
@@ -249,7 +260,6 @@ This ensures agents operate only on files and don't execute arbitrary commands o
 - **Draft, not final**: Create produces a draft; Review refines it
 - **Gaps, not issues**: Generator marks missing information for human to fill
 - **File-first**: Pass paths, not content; agents read and write files
-- **Human augments**: Human fills in gaps directly in the draft
 - **Stage level**: Keep content at appropriate abstraction level
 - **Defer, don't drop**: Wrong-level content goes to deferred items, never discarded
 
@@ -257,7 +267,7 @@ This ensures agents operate only on files and don't execute arbitrary commands o
 
 ## After Creation
 
-Once the draft is augmented:
+Once the draft is promoted:
 
 1. **Run the Review workflow** to refine the document (see `workflow-review.md`)
 2. Review workflow iterates until document is satisfactory
