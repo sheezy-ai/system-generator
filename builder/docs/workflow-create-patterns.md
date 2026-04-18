@@ -6,54 +6,9 @@ For the standard review workflow (used after creation), see `workflow-review.md`
 
 ---
 
-## Pattern: Direct
+## ~~Pattern: Direct~~ (No longer in use)
 
-```
-Setup → Generate → Coverage Verify → Gap Resolution Pipeline → Promote
-```
-
-**When to use**: Implementation-level documents derived from explicit upstream requirements. The upstream documents enumerate specific items this stage must address — no exploration or assessment needed before generation.
-
-**Stages using this pattern**: Components (05)
-
-### Characteristics
-
-- **Pre-generation**: None — upstream documents (Architecture, cross-cutting spec) are specific enough for direct generation
-- **Post-generation**: Independent coverage verification catches silent omissions the Generator's self-review misses
-- **Gap resolution**: Full pipeline (Gap Formatter → Gap Analyst → Discussion Facilitator → Author)
-- **Rounds**: Single round (no multi-round loop)
-
-### Standard Steps
-
-| Step | Name | Agent | Auto/Human |
-|------|------|-------|------------|
-| 1-2b | Setup & deferred items intake | Orchestrator | Auto |
-| 3 | Generate | Generator | Auto |
-| 3b | Coverage verification | Requirements Extractor + Coverage Checker | Auto |
-| 4 | Format gaps | Gap Formatter | Auto |
-| 4 (cont) | Analyse gaps | Gap Analyst | Auto |
-| 5 | Discussion | Discussion Facilitator | Human checkpoint |
-| 6 | Apply decisions | Author | Auto |
-| 7 | Promote | Orchestrator | Auto |
-
-### State File Template
-
-```markdown
-**Current Round**: 0
-**Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
-**Gaps Exist**: unknown | true | false
-
-## Progress
-
-### Round 0 (Creation)
-- [ ] Step 1-2b: Validate & Setup
-- [ ] Step 3: Run Generator
-- [ ] Step 3b: Coverage Verification
-- [ ] Step 4: Format & Analyse Gaps
-- [ ] Step 5: Discussion Loop
-- [ ] Step 6: Apply Decisions
-- [ ] Step 7: Promote & Report
-```
+Previously used by Components (05). Components now uses the Explore pattern — see below.
 
 ---
 
@@ -116,7 +71,7 @@ Setup → [Explore → Generate/Apply → Gap Resolution]* → Promote
 
 **When to use**: Design problems where multiple viable alternatives need structured exploration before generation. The input needs decomposition into areas worth investigating, parallel deep-dives, and human review of proposed enrichments before the draft is produced.
 
-**Stages using this pattern**: Blueprint (01), PRD (02), Architecture (04)
+**Stages using this pattern**: Blueprint (01), PRD (02), Architecture (04), Components (05)
 
 ### Characteristics
 
@@ -145,14 +100,15 @@ Setup → [Explore → Generate/Apply → Gap Resolution]* → Promote
 
 ### Stage Variations
 
-| Aspect | Blueprint | PRD | Architecture |
-|--------|-----------|-----|-------------|
-| Area term | Dimensions | Capabilities | Concerns |
-| Upstream input | Concept | Blueprint | PRD + Foundations |
-| Decision system | Separate Decision Orchestrator | Inline | None |
-| Gap resolution | Lightweight (human answers/edits) | Lightweight | Full pipeline |
-| Coverage verification | No | No | Yes (Step 9b) |
-| Enrichment applicator | No (regenerates) | Yes (round 2+) | Yes (round 2+) |
+| Aspect | Blueprint | PRD | Architecture | Components |
+|--------|-----------|-----|-------------|------------|
+| Area term | Dimensions | Capabilities | Concerns | Design Concerns |
+| Upstream input | Concept | Blueprint | PRD + Foundations | Architecture + Foundations |
+| Decision system | Separate Decision Orchestrator | Inline | None | None |
+| Gap resolution | Lightweight (human answers/edits) | Lightweight | Full pipeline | Full pipeline |
+| Coverage verification | No | No | Yes (Step 9b) | Yes (Step 9b) |
+| Depth verification | No | No | No | Yes (Step 9c) |
+| Enrichment applicator | No (regenerates) | Yes (round 2+) | Yes (round 2+) | Yes (round 2+) |
 
 ### State File Template
 
@@ -191,11 +147,10 @@ Setup → [Explore → Generate/Apply → Gap Resolution]* → Promote
 
 | Question | Direct | Select | Explore |
 |----------|--------|--------|---------|
-| Does upstream enumerate specific items to implement? | Yes | No | No |
-| Are options bounded and well-known? | N/A | Yes | No |
-| Do multiple viable structural alternatives exist? | No | No | Yes |
-| Does the input need decomposition into areas? | No | No | Yes |
-| Is multi-round iteration valuable? | No | No | Yes |
+| Are options bounded and well-known? | Yes | No |
+| Do multiple viable design alternatives exist? | No | Yes |
+| Does the input need decomposition into areas? | No | Yes |
+| Is multi-round iteration valuable? | No | Yes |
 
 If a new stage doesn't fit cleanly, prefer the lighter pattern and add specific steps as deviations rather than using a heavier pattern and skipping steps.
 

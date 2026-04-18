@@ -50,7 +50,7 @@ For a high-level overview, see `overview.md`.
 - **PRD has a custom create workflow** with an Explore phase (capability area decomposition, parallel explorers, enrichment review), iterative rounds (round 1 from Blueprint, round 2+ from previous draft), and inline decision resolution (no separate Decision Orchestrator). See `02-prd.md` for details.
 - **Foundations has a custom create workflow** with an Assess step (technology assessment against PRD constraints, human directional preferences) before generation, plus a structured gap discussion loop after generation. See `03-foundations.md` for details.
 - **Architecture has a custom create workflow** with a full Explore phase (architectural concern identification, parallel concern explorers, enrichment review), iterative rounds (round 1 from PRD + Foundations, round 2+ from previous draft), and gap resolution. See `04-architecture.md` for details.
-- **Component Specs** follows the generic flow with two additions: an Initialize step (stage-level setup before per-component creation) and an independent coverage verification step (requirements extractor + coverage checker) after generation to catch silent omissions against Architecture requirements. See `05-components.md` for details.
+- **Component Specs has a custom create workflow** with the full Explore phase (design concern identification, parallel concern explorers, enrichment review), iterative rounds (round 1 from Architecture + Foundations, round 2+ from previous draft), depth verification after generation, and gap resolution. Also has an Initialize step (stage-level setup before per-component creation). See `05-components.md` for details.
 - **Architecture and Components** both have independent coverage verification — a separate agent extracts requirements from the upstream document, then a checker verifies the draft addresses every item. This catches gaps the Generator's self-review misses.
 
 ---
@@ -201,8 +201,14 @@ Component Specs has a unique structure with stage-level and component-level work
 **Purpose:**
 - Validate dependencies are complete
 - Process component's deferred items
-- Generate draft spec from Architecture + Foundations
-- Report to human
+- Explore design concerns (parallel concern explorers, enrichment review)
+- Generate draft spec from Architecture + Foundations + exploration enrichments
+- Verify coverage and depth
+- Resolve gaps through structured discussion
+- Iterate (human can request additional explore→generate rounds)
+- Promote final draft
+
+**Pattern:** Explore (see `workflow-create-patterns.md`)
 
 **Orchestrator:** `agents/05-components/create/orchestrator.md`
 

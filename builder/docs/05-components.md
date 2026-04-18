@@ -174,21 +174,21 @@ Run the initializer before creating any component specs. It:
 
 The orchestrator will error if you try to create a spec without initializing first.
 
-### Step 0a: Deferred Items Consolidation (Per Component)
+### Per-Component Creation Workflow
 
-Runs for each component before its creation workflow begins.
+Component Specs uses the **Explore** creation pattern (see `workflow-create-patterns.md`):
 
-1. **Orchestrator** reads the component's deferred items
-2. Identifies potential duplicates and items resolved upstream
-3. Presents consolidation summary to user
-4. User confirms which items to merge, archive, or keep
-5. Updates the component deferred items
+```
+[Explore → Generate → Gap Resolution]* → Promote
+```
 
-### Step 0b: Deferred Items Intake (Per Component)
+**Phase 1 — Explore**: Design Concern Identifier reads Architecture + Foundations and identifies 3-5 design concerns for the component (operation contracts, data model trade-offs, error vocabulary, atomicity boundaries). Human reviews concerns. Concern Explorers investigate each in parallel, proposing enrichments. Consolidator merges, Scope Filter removes wrong-level items, human reviews enrichments. Enrichment Author produces exploration summary.
 
-Standard deferred items intake (see `workflow-create.md`), but reads from:
-- Component-specific deferred items: `versions/[component-name]/deferred-items.md`
-- Cross-cutting deferred items: `versions/cross-cutting/deferred-items.md`
+**Phase 2 — Generate**: Generator creates draft WITH enrichment context. Coverage Checker verifies Architecture requirements. Depth Checker verifies minimum specification depth (typed inputs/outputs, named error rules, index declarations, atomicity boundaries). Gap resolution via full pipeline. Author applies resolutions.
+
+**Phase 3 — Promote or Continue**: Human chooses to promote the draft or run another explore→generate round. Creation verification (alignment + coherence) runs before promotion.
+
+The explore→generate cycle can repeat. Round 1 explores from Architecture + Foundations. Round 2+ explores from the previous round's draft.
 
 ---
 
@@ -203,10 +203,17 @@ agents/05-components/
 │   ├── orchestrator.md             # One-time setup (run before first spec)
 │   └── deferred-items-processor.md  # Splits deferred items by component
 ├── create/
-│   ├── orchestrator.md             # Per-component workflow
-│   ├── generator.md
+│   ├── orchestrator.md             # Per-component workflow ([Explore → Generate → Gap Resolution]* → Promote)
+│   ├── concern-identifier.md       # Identifies design concerns for exploration
+│   ├── concern-explorer.md         # Explores one concern deeply (parallel)
+│   ├── exploration-consolidator.md # Merges explorer outputs by spec section
+│   ├── enrichment-scope-filter.md  # Filters enrichments by level (defers up, filters code)
+│   ├── enrichment-author.md        # Produces exploration summary
+│   ├── enrichment-applicator.md    # Applies enrichments to existing draft (round 2+)
+│   ├── generator.md                # Creates draft from Architecture + Foundations + enrichments
 │   ├── requirements-extractor.md   # Extracts Architecture requirements checklist
 │   ├── coverage-checker.md         # Verifies draft covers all checklist items
+│   ├── depth-checker.md            # Verifies draft meets minimum specification depth
 │   └── author.md                   # Applies resolved gap discussions
 ├── cross-cutting/
 │   ├── orchestrator.md             # Populate cross-cutting contracts
@@ -272,17 +279,30 @@ system/05-components/
     │   ├── deferred-items.md        # Component-specific deferred items
     │   ├── workflow-state.md        # Per-component state (steps, rounds, parts)
     │   ├── pending-issues.md        # Cross-component issues targeting this component
-    │   ├── round-1-create/           # Create workflow
-    │   │   └── 00-draft-spec.md     # Generator output (human augments this)
-    │   └── round-N-[build|ops]/     # Review workflow (build or ops phase)
+    │   ├── round-{N}-create/        # Create workflow (may have multiple rounds)
+    │   │   ├── explore/
+    │   │   │   ├── 00-concerns.md
+    │   │   │   ├── 01-explorer-*.md
+    │   │   │   ├── 02-enrichment-discussion.md
+    │   │   │   ├── 02a-filtered-enrichment-discussion.md
+    │   │   │   └── 03-exploration-summary.md
+    │   │   ├── 00-draft-spec.md
+    │   │   ├── 00-enrichment-applicator-output.md  # Round 2+ only
+    │   │   ├── 00-requirements-checklist.md
+    │   │   ├── 00-coverage-report.md
+    │   │   ├── 00-depth-report.md
+    │   │   ├── 01-gap-discussion.md
+    │   │   ├── 02-author-output.md
+    │   │   └── 03-updated-spec.md
+    │   └── round-{N}-review-[build|ops]/  # Review workflow (build or ops phase)
     │       ├── 00-spec.md           # Input spec snapshot
     │       ├── 01-[expert].md       # Expert outputs (3-4 per round)
     │       ├── 02-consolidated-issues.md
     │       ├── 03-issues-discussion.md  # Inline discussions + issue analysis
     │       ├── 04-author-output.md
     │       ├── 05-updated-spec.md
-    │       ├── 06-alignment-report.md
-    │       ├── 07-change-verification-report.md
+    │       ├── 06-change-verification-report.md
+    │       ├── 07-alignment-report.md
     │       ├── 08-contract-verification-report.md
     │       └── 09-verification-summary.md  # Combined results + recommendation
     └── [component-b]/
