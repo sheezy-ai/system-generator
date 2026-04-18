@@ -286,14 +286,21 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    - If component has dependencies listed, verify all have status `COMPLETE` in Component Specs table
    - **If any dependency not COMPLETE**: Error — "Cannot initialize [component]. Blocked by: [list incomplete dependencies]"
 
-4. **Create directories** (if not exist):
+4. **Validate deferred-items state** (Round 1 only):
+   - Read stage state and confirm `Stage Initialization: Status: COMPLETE`
+   - If COMPLETE, verify both of the following:
+     - The monolithic `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/deferred-items.md` does NOT exist, or if it exists, contains only the archived-header stub (no COMP-D items)
+     - The per-component file `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md` exists (empty content is fine; absent file is not)
+   - **If either check fails**: Error — see Error Handling table (Deferred-items state inconsistent)
+
+5. **Create directories** (if not exist):
    ```
    {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/
    └── round-{N}-create/
        └── explore/
    ```
 
-5. **Deferred Items Intake** (Round 1 only):
+6. **Deferred Items Intake** (Round 1 only):
 
    a. **Check if deferred items file exists** at `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md`
 
@@ -307,12 +314,12 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
         - `STILL_RELEVANT`: Not addressed — keep for exploration/generation
       - Update deferred items with validation results
 
-6. **Check for Brief**: Check if brief document exists at `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/brief.md`
+7. **Check for Brief**: Check if brief document exists at `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/brief.md`
    - If an explicit brief path was provided in the invocation, use that instead
    - If brief exists: Will be passed to Generator as additional input
    - If no brief: Continue without (standard generation)
 
-7. **Update state file**: Mark "Step 1: Setup" complete `[x]`, add history entry
+8. **Update state file**: Mark "Step 1: Setup" complete `[x]`, add history entry
 
 ### Step 2: Concern Identifier
 
@@ -1070,6 +1077,7 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
 | Component not in stage state | Error: "Component [name] not found in Component Specs table" |
 | Component not NOT_STARTED | Error: "Component [name] status is [status], expected NOT_STARTED" |
 | Dependencies incomplete | Error: "Cannot initialize [component]. Blocked by: [list]" |
+| Deferred-items state inconsistent | Error: "Stage state says initialization is COMPLETE, but deferred-items state is inconsistent: monolithic file still present with content: [yes/no]; per-component file missing: [yes/no]. This suggests the initialize orchestrator's Step 3 (deferred-items processor) did not complete cleanly. Fix: re-run the initialize workflow's deferred-items split/archive step, or manually reconcile, before re-running Create." |
 | Generator fails | Error: Report failure details |
 | Draft not created | Error: "Generator completed but draft not found at expected path" |
 | Concern Identifier fails | Error: Report failure details |
