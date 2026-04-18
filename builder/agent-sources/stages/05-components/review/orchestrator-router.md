@@ -102,15 +102,55 @@ This file is created when a component review starts and contains the full workfl
 
 | Current Step | Phase | Action |
 |--------------|-------|--------|
-| 0, 1, 2, 3, 4 | Pre-discussion | Dispatch pre-discussion |
+| 0, 0.5, 1, 2, 3, 4 | Pre-discussion | Dispatch pre-discussion |
 | 5 | Discussion | Dispatch discussion (single iteration) |
 | 6, 7, 8, 9, 10 | Post-discussion | Dispatch post-discussion |
 | 11 | Post-discussion | Dispatch with routing decision |
 | 12 | Post-discussion | Dispatch with action: PROMOTE |
 
+**Note**: Step 0.5 (Rubric Audit) runs only on Round 1 Build, before Step 1. If it finds gaps, it returns `RUBRIC_GAPS_FOUND` for human decision (see "At Step 0.5 (Rubric Audit)" below).
+
 ---
 
 ## Handling WAITING_FOR_HUMAN
+
+### At Step 0.5 (Rubric Audit)
+
+Pre-discussion returned `RUBRIC_GAPS_FOUND`. Mechanical consistency gaps were found before expert review started.
+
+**Read** `[component]/round-1-review-build/00.5-rubric-audit.md` — the "Gaps Summary (for human decision)" table.
+
+**Present:**
+```
+Rubric audit found [N] mechanical consistency gap(s) before expert review starts.
+
+File: [audit_file path]
+
+Gap summary:
+| Rubric | Location | Summary |
+|--------|----------|---------|
+| ... (from audit report Gaps Summary table)
+
+For each gap, options:
+- APPLY: fix will be applied in place before expert review
+- SKIP: gap becomes a waiver with reason
+
+Shortcut: "APPLY ALL" | "SKIP ALL with reason: <reason>" | per-gap decisions.
+
+Your decisions?
+```
+
+**Collect decisions, update state:**
+```markdown
+## Pending Decisions
+- RUB-001 @ §11 rule test: APPLY
+- RUB-002 @ §8 invalid_X row: APPLY
+- RUB-007 @ §4 notes col: SKIP reason="short-lived row, TTL 7 days"
+...
+```
+
+- Update state: Status = IN_PROGRESS (Step 0.5 continues)
+- Dispatch pre-discussion (it reads decisions, spawns Author for APPLY fixes, then proceeds to Step 1)
 
 ### At Step 5 (Discussion)
 
@@ -228,7 +268,17 @@ Or, if zero issues after routing:
 }
 ```
 
+Or, if Step 0.5 Rubric Audit found gaps (Round 1 Build only):
+```
+{
+  status: "RUBRIC_GAPS_FOUND",
+  audit_file: "[path]",
+  total_gaps: N
+}
+```
+
 **On return:**
+- **If `RUBRIC_GAPS_FOUND`**: Update state: Step = 0.5, Status = WAITING_FOR_HUMAN. Present rubric audit to human (see "At Step 0.5" above).
 - **If `ZERO_ISSUES`**: The spec is complete for this part. Skip Discussion and Post-Discussion phases. Proceed directly to Step 12 (Promote).
 - **If `READY_FOR_DISCUSSION`**: State is already WAITING_FOR_HUMAN at Step 5. Present issues to human (see above).
 

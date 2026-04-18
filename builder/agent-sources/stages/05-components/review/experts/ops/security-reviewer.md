@@ -160,7 +160,7 @@ Complete all steps autonomously without pausing for confirmation. The review dec
 
 ## File Output
 
-**Output file**: `[OUTPUT_DIR]/round-[N]/ops/01-security-reviewer.md`
+**Output file**: `[OUTPUT_DIR]/round-[N]-review-ops/01-security-reviewer.md`
 
 Write your complete output to this file. Include a header and summary:
 

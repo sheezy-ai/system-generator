@@ -197,6 +197,6 @@ Complete all steps autonomously without pausing for confirmation. The consolidat
 
 ## File Output
 
-**Output file**: `[OUTPUT_DIR]/round-[N]/[build|ops]/02-consolidated-issues.md`
+**Output file**: `[OUTPUT_DIR]/round-[N]-review-[build|ops]/02-consolidated-issues.md`
 
 Read all expert files, consolidate issues by theme, and write to the output file.

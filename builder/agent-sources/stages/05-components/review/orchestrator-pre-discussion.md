@@ -38,7 +38,7 @@ These are instructions for the router to follow directly. The router:
 
 2. **Verify round number against filesystem** (before starting a new round):
    - List existing directories: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-*-*/`
-   - Parse highest round number from directory names (e.g., `round-8-build` → 8)
+   - Parse highest round number from directory names (e.g., `round-8-review-build` → 8)
    - If state file says "Current Round: X" but highest directory is round-Y:
      - If Y > X: State is behind — update state to Round Y, log warning
      - If X > Y + 1: State is ahead — error and stop (manual intervention needed)
@@ -47,12 +47,12 @@ These are instructions for the router to follow directly. The router:
 
 3. **Determine spec source path** (used when starting a round):
    - **First Build round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`
-   - **Subsequent Build round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-build/05-updated-spec.md`
-   - **First Ops round**: Use final Build round's output (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{last-build}-build/05-updated-spec.md`)
-   - **Subsequent Ops round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-ops/05-updated-spec.md`
-   - **Build after Ops kick-back**: Use previous Ops round's output (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-ops/05-updated-spec.md`)
+   - **Subsequent Build round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-review-build/05-updated-spec.md`
+   - **First Ops round**: Use final Build round's output (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{last-build}-review-build/05-updated-spec.md`)
+   - **Subsequent Ops round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-review-ops/05-updated-spec.md`
+   - **Build after Ops kick-back**: Use previous Ops round's output (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-review-ops/05-updated-spec.md`)
 
-4. **Copy source at round start**: Copy the source spec to `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-[N]-[build|ops]/00-spec.md`. All agents in this round work from this copy.
+4. **Copy source at round start**: Copy the source spec to `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-[N]-review-[build|ops]/00-spec.md`. All agents in this round work from this copy.
 
 5. **Update state file** at each step transition
 
@@ -83,6 +83,11 @@ These are instructions for the router to follow directly. The router:
 - [x] Step 1: Expert Review
 - ... (completed)
 
+### Round 1 (build)
+- [x] Step 0.5: Rubric Audit (Round 1 Build only — CLEAN or gaps applied)
+- [x] Step 1: Expert Review
+- ...
+
 ### Round 3 (build) <- current
 - [x] Step 1: Expert Review
 - [ ] Step 2: Consolidation
@@ -110,9 +115,9 @@ These are instructions for the router to follow directly. The router:
 **Output directory**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions`
 **Stage state**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/workflow-state.md`
 **Per-component state**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/workflow-state.md`
-**Working files**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-[N]-[build|ops]/`
+**Working files**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-[N]-review-[build|ops]/`
 
-Review uses `round-1-build`, `round-2-build`, `round-3-ops`, etc. Creation workflow uses `round-0`.
+Review uses `round-1-review-build`, `round-2-review-build`, `round-3-review-ops`, etc. Creation workflow uses `round-{N}-create`.
 
 ---
 
@@ -153,6 +158,8 @@ Ops experts:
 - Consolidator: `{{AGENTS_PATH}}/05-components/review/consolidator.md`
 - Issue Router: `{{AGENTS_PATH}}/05-components/review/issue-router.md`
 - Issue Analyst: `{{AGENTS_PATH}}/universal-agents/issue-analyst.md`
+- Rubric Auditor: `{{AGENTS_PATH}}/universal-agents/rubric-auditor.md`
+- Author (reused for rubric fix application): `{{AGENTS_PATH}}/05-components/review/author.md`
 
 ---
 
@@ -163,9 +170,9 @@ versions/
 ├── workflow-state.md              # Index: status of all components
 ├── [component-name]/
 │   ├── workflow-state.md          # Per-component: detailed tracking
-│   ├── round-0/                   # Creation workflow output
+│   ├── round-{N}-create/           # Creation workflow output
 │   │   └── ...
-│   ├── round-1-build/             # First review round (build)
+│   ├── round-1-review-build/      # First review round (build)
 │   │   ├── 00-spec.md             # Snapshot of input spec
 │   │   ├── 01-technical-lead.md
 │   │   ├── 01-api-designer.md
@@ -174,9 +181,9 @@ versions/
 │   │   ├── 02-consolidated-issues.md
 │   │   ├── 03-issues-discussion.md
 │   │   └── ...
-│   ├── round-2-build/
+│   ├── round-2-review-build/
 │   │   └── ...
-│   └── round-3-ops/
+│   └── round-3-review-ops/
 │       ├── 00-spec.md
 │       ├── 01-security-reviewer.md
 │       ├── 01-operations-reviewer.md
@@ -201,7 +208,70 @@ versions/
      ```
    - If no unresolved issues for this component, proceed silently
 
-3. **Proceed to Step 1** (pending issues will be merged by Consolidator)
+3. **Proceed to Step 0.5 if Round 1 Build, otherwise to Step 1** (pending issues will be merged by Consolidator)
+
+---
+
+## Step 0.5: Rubric Audit (Round 1 Build only)
+
+**Run only when**: Current Round = 1 AND Current Part = build AND this is the first pre-discussion dispatch for the component. Skip for subsequent rounds and for Ops rounds.
+
+The rubric pre-pass catches mechanical consistency gaps that would otherwise consume expert-review rounds. It runs once, before Round 1 Step 1.
+
+### Step 0.5a: Run Rubric Auditor
+
+1. **Update state file**: Set Step 0.5, status = IN_PROGRESS
+
+2. **Create round-1-review-build directory if not yet created** and copy source spec:
+   - Create `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/`
+   - Copy source spec to `round-1-review-build/00-spec.md`
+
+3. **Run Rubric Auditor** (spawn as Task agent):
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/rubric-auditor.md
+
+   Input:
+   - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00-spec.md
+   - Universal rubric catalogue: {{GUIDES_PATH}}/05-components-rubrics.md
+   - Conditional catalogue (database-backed): {{GUIDES_PATH}}/05-components-rubrics-database-backed.md
+
+   Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00.5-rubric-audit.md
+   ```
+
+4. **Read the audit summary** to determine next action:
+   - If **CLEAN**: Update state file (mark Step 0.5 complete). Automatically proceed to Step 1.
+   - If **GAPS_FOUND**: Return `RUBRIC_GAPS_FOUND` status to router (see Return to Router). Router handles human decision.
+
+### Step 0.5b: Apply Rubric Fixes (after human decisions)
+
+Router re-dispatches pre-discussion after collecting human decisions. The state file's `## Pending Decisions` section contains per-rubric-gap decisions (APPLY / SKIP).
+
+1. **Read decisions from state file**
+
+2. **If all decisions are SKIP**:
+   - Skip Step 0.5c; go straight to Step 1. Any skipped gaps will be caught (or not) by expert review.
+
+3. **If any decisions are APPLY**:
+   - Spawn Author agent to apply approved fixes:
+     ```
+     Follow the instructions in: {{AGENTS_PATH}}/05-components/review/author.md
+
+     Mode: Rubric Fix Application (pre-Round-1)
+
+     Input:
+     - Current spec (edit in place): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00-spec.md
+     - Rubric audit report: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00.5-rubric-audit.md
+     - Rubric catalogue (for fix templates): {{GUIDES_PATH}}/05-components-rubrics.md
+     - Decisions: [per-gap APPLY / SKIP list from state file]
+
+     Task: Apply APPLY-decisioned fixes in place to the spec. For SKIP-decisioned gaps, add the appropriate `<!-- rubric:RUB-NNN waived: ... -->` comment at the flagged location (the SKIP decision must include a waiver reason).
+
+     Output:
+     - Updated spec (in place): 00-spec.md (the rubric-clean input for Step 1)
+     - Fix log appended to: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00.5-rubric-fixes.md
+     ```
+
+4. **Update state file**: Mark Step 0.5 complete. Proceed to Step 1.
 
 ---
 
@@ -210,11 +280,12 @@ versions/
 1. **Update state file**: Set Step 1, status = IN_PROGRESS
 
 2. **Create round directory and copy input**:
-   - Create `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-[N]-[build|ops]/`
-   - Copy source spec (determined in On Start/Resume) to `round-[N]-[build|ops]/00-spec.md`
+   - Create `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-[N]-review-[build|ops]/`
+   - If `round-[N]-review-[build|ops]/00-spec.md` already exists (Step 0.5 may have created and possibly rubric-patched it in Round 1 Build), do NOT overwrite — use it as-is
+   - Otherwise, copy source spec (determined in On Start/Resume) to `round-[N]-review-[build|ops]/00-spec.md`
    - If source doesn't exist, **error and stop**
 
-3. **Spec path for this round**: Use `round-[N]-[build|ops]/00-spec.md`
+3. **Spec path for this round**: Use `round-[N]-review-[build|ops]/00-spec.md`
 
 4. **Spawn expert agents in parallel** (based on current part):
 
@@ -225,12 +296,12 @@ versions/
    Follow the instructions in: {{AGENTS_PATH}}/05-components/review/experts/build/[expert].md
 
    Input:
-   - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-build/00-spec.md
+   - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-build/00-spec.md
    - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
    - Maturity guide: {{GUIDES_PATH}}/05-components-maturity.md
 
-   Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-build/01-[expert-name].md
+   Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-build/01-[expert-name].md
    ```
 
    **If Ops part**, spawn 3 Task agents (security-reviewer, operations-reviewer, test-engineer) with same pattern.
@@ -250,11 +321,11 @@ versions/
    Follow the instructions in: {{AGENTS_PATH}}/05-components/review/consolidator.md
 
    Input:
-   - Expert reports: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/01-*.md
+   - Expert reports: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/01-*.md
    - Pending issues: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/pending-issues.md
 
    Output:
-   - Consolidated issues: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/02-consolidated-issues.md
+   - Consolidated issues: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/02-consolidated-issues.md
    ```
 
 9. **Update state file**: Mark Step 2 complete
@@ -272,8 +343,8 @@ versions/
     Follow the instructions in: {{AGENTS_PATH}}/05-components/review/issue-router.md
 
     Stage guide: {{GUIDES_PATH}}/05-components-guide.md
-    Input: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/02-consolidated-issues.md
-    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/03-issues-discussion.md
+    Input: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/02-consolidated-issues.md
+    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md
     Component: [component]
     ```
     - Agent reads guide to understand what level of detail belongs at spec level
@@ -303,12 +374,12 @@ versions/
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/issue-analyst.md
 
     Context documents:
-    - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/00-spec.md
+    - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/00-spec.md
     - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
     - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
     - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
 
-    Issues file: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/03-issues-discussion.md
+    Issues file: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md
     Issues: [ID1, ID2, ID3, ...]
     ```
 
@@ -334,7 +405,7 @@ After Step 4 completes, return structured data to router:
 ```
 {
   status: "READY_FOR_DISCUSSION",
-  issues_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/03-issues-discussion.md",
+  issues_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md",
   issue_count: [total issues],
   high_count: [HIGH severity count],
   medium_count: [MEDIUM severity count],
@@ -347,8 +418,18 @@ If zero issues after Step 3 (zero-issues gate):
 ```
 {
   status: "ZERO_ISSUES",
-  issues_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/03-issues-discussion.md",
+  issues_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md",
   issue_count: 0
+}
+```
+
+If Step 0.5 (Rubric Audit) found gaps, return before Step 1:
+
+```
+{
+  status: "RUBRIC_GAPS_FOUND",
+  audit_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00.5-rubric-audit.md",
+  total_gaps: [N]
 }
 ```
 

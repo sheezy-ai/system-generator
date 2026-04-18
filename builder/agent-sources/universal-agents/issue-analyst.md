@@ -33,12 +33,12 @@ Example for Component Spec review:
 Follow the instructions in: {{AGENTS_PATH}}/universal-agents/issue-analyst.md
 
 Context documents:
-- Spec: system-design/05-components/versions/email-ingestion/round-3-build/00-spec.md
+- Spec: system-design/05-components/versions/email-ingestion/round-3-review-build/00-spec.md
 - Architecture: system-design/04-architecture/architecture.md
 - Foundations: system-design/03-foundations/foundations.md
 - PRD: system-design/02-prd/prd.md
 
-Issues file: system-design/05-components/versions/email-ingestion/round-3-build/03-issues-discussion.md
+Issues file: system-design/05-components/versions/email-ingestion/round-3-review-build/03-issues-discussion.md
 Issues: SPEC-001, SPEC-002, SPEC-003
 ```
 

@@ -92,12 +92,12 @@ If Category B issues exist:
    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/discussion-facilitator.md
 
    Context documents:
-   - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/00-spec.md
+   - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/00-spec.md
    - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
    - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
 
-   Issues file: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/03-issues-discussion.md
+   Issues file: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md
    Issues: [ID1, ID2, ID3, ...]
    ```
 

@@ -12,7 +12,7 @@ Given the current spec and approved solutions from human review, apply the chang
 
 **Input:** File paths to:
 - Current specification
-- Issues summary file with resolved discussions (`round-[N]/[build|ops]/03-issues-discussion.md`)
+- Issues summary file with resolved discussions (`round-[N]-review-[build|ops]/03-issues-discussion.md`)
 - Consolidated issues file (for context if needed)
 
 **Output:** Write to specified files:
@@ -26,7 +26,7 @@ Given the current spec and approved solutions from human review, apply the chang
 1. You will receive **file paths** as input, not file contents
 2. **Read the Components guide** (`guides/05-components-guide.md`) to understand appropriate level of detail
 3. **Read the specification** to understand current state
-4. **Read the issues summary file** (`round-[N]/[build|ops]/03-issues-discussion.md`)
+4. **Read the issues summary file** (`round-[N]-review-[build|ops]/03-issues-discussion.md`)
 5. **Find resolved discussions** — Look for `>> RESOLVED` or confirmed `**Proposed Spec change**:` sections
 6. **Skip unresolved discussions** — Issues without resolution confirmation
 7. **Read consolidated issues** for additional context if needed
@@ -465,7 +465,7 @@ When updating the Component Spec's Related Decisions section, include a source r
 - Source: Round N: ISSUE-ID
 ```
 
-This enables tracing any decision back to its originating discussion in `versions/round-N/03-issues-discussion.md`.
+This enables tracing any decision back to its originating discussion in `versions/round-N-review-[build|ops]/03-issues-discussion.md`.
 
 ---
 
@@ -501,8 +501,8 @@ Complete all steps autonomously without pausing for confirmation. The authoring 
 ## File Output
 
 **Output files**:
-- `[OUTPUT_DIR]/round-[N]/[build|ops]/04-author-output.md` — Change log and notes
-- `[OUTPUT_DIR]/round-[N]/[build|ops]/05-updated-spec.md` — The updated specification
+- `[OUTPUT_DIR]/round-[N]-review-[build|ops]/04-author-output.md` — Change log and notes
+- `[OUTPUT_DIR]/round-[N]-review-[build|ops]/05-updated-spec.md` — The updated specification
 - `[SPECS_DIR]/cross-cutting.md` — Update with contract schema/shared type changes (Edit)
 
 ### 04-author-output.md format:

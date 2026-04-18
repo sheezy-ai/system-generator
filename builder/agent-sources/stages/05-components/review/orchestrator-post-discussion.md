@@ -57,13 +57,13 @@ Router dispatches with an Action parameter:
    Follow the instructions in: {{AGENTS_PATH}}/05-components/review/author.md
 
    Input:
-   - Current spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/00-spec.md
-   - Issues discussion: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/03-issues-discussion.md
-   - Consolidated issues: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/02-consolidated-issues.md
+   - Current spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/00-spec.md
+   - Issues discussion: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md
+   - Consolidated issues: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/02-consolidated-issues.md
 
    Output:
-   - Change log: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/04-author-output.md
-   - Updated spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/05-updated-spec.md
+   - Change log: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/04-author-output.md
+   - Updated spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/05-updated-spec.md
    - Lateral pending-issues: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[target-component]/pending-issues.md (if any cross-component items identified)
    ```
 
@@ -84,11 +84,11 @@ Run all four verification steps in parallel — they have no dependencies on eac
     Follow the instructions in: {{AGENTS_PATH}}/05-components/review/change-verifier.md
 
     Input:
-    - Issues discussion: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/03-issues-discussion.md
-    - Author output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/04-author-output.md
-    - Updated spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/05-updated-spec.md
+    - Issues discussion: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md
+    - Author output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/04-author-output.md
+    - Updated spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/05-updated-spec.md
 
-    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/06-change-verification-report.md
+    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/06-change-verification-report.md
     ```
 
     **Alignment Verifier** (Step 8):
@@ -96,12 +96,12 @@ Run all four verification steps in parallel — they have no dependencies on eac
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/alignment-verifier.md
 
     Input:
-    - Updated spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/05-updated-spec.md
+    - Updated spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/05-updated-spec.md
     - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
     - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
     - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
 
-    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/07-alignment-report.md
+    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/07-alignment-report.md
     ```
 
     **Contract Verifier** (Step 9):
@@ -109,20 +109,20 @@ Run all four verification steps in parallel — they have no dependencies on eac
     Follow the instructions in: {{AGENTS_PATH}}/05-components/review/contract-verifier.md
 
     Input:
-    - Producer spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/05-updated-spec.md
+    - Producer spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/05-updated-spec.md
     - Cross-cutting specification: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
     - Pending issues: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/pending-issues.md
 
-    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/08-contract-verification.md
+    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/08-contract-verification.md
     ```
 
     **Internal Coherence Checker** (Step 10):
     ```
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
 
-    Document: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/05-updated-spec.md
+    Document: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/05-updated-spec.md
     Stage guide: guides/05-components-guide.md
-    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/09-coherence-report.md
+    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/09-coherence-report.md
     ```
 
 7. **Wait for all four agents to complete**
@@ -202,7 +202,7 @@ Read `## Pending Decisions` section:
          ```
          Follow the instructions in: {{AGENTS_PATH}}/universal-agents/pending-issue-resolver.md
 
-         Alignment report: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/07-alignment-report.md
+         Alignment report: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/07-alignment-report.md
 
          Upstream pending-issues:
          - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/versions/pending-issues.md
@@ -216,7 +216,7 @@ Read `## Pending Decisions` section:
          - PI-002: APPLY | DEFER | REJECT
          ...
 
-         Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/11-pending-issue-sync.md
+         Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/11-pending-issue-sync.md
          ```
 
 19. **If halt_action = ACKNOWLEDGE_AND_BLOCK**:
@@ -255,7 +255,7 @@ Router dispatches after human confirms EXIT.
     Follow the instructions in: {{AGENTS_PATH}}/05-components/review/spec-promoter.md
 
     Input:
-    - Reviewed spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-[build|ops]/05-updated-spec.md
+    - Reviewed spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/05-updated-spec.md
     - Component name: [component]
     - Guide: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/guide.md
 

@@ -245,7 +245,7 @@ For each issue, ask:
 
 ## File Output
 
-**Output file**: `[OUTPUT_DIR]/round-[N]/[build|ops]/06-change-verification-report.md`
+**Output file**: `[OUTPUT_DIR]/round-[N]-review-[build|ops]/06-change-verification-report.md`
 
 Write your complete output to this file. Include a header:
 

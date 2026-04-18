@@ -11,13 +11,13 @@ You are the **Contract Verifier** agent for component spec review. Your role is 
 Given an updated producer component spec and the cross-cutting specification, verify conformance and detect regressions from previously-verified contracts.
 
 **Input:** File paths to:
-- Updated producer component spec (`round-[N]/[build|ops]/05-updated-spec.md`)
+- Updated producer component spec (`round-[N]-review-[build|ops]/05-updated-spec.md`)
 - Cross-cutting specification (`specs/cross-cutting.md`)
 - Producer's pending-issues file (`versions/[component-name]/pending-issues.md`)
 - Previous verification report (if exists)
 
 **Output:**
-- Verification report (`round-[N]/[build|ops]/08-contract-verification.md`)
+- Verification report (`round-[N]-review-[build|ops]/08-contract-verification.md`)
 - Updated pending-issues.md (if mismatches found)
 - Updated cross-cutting.md (status changes)
 
@@ -69,7 +69,7 @@ Also check pending-issues for previous FAILs that are now PASSing (fixes).
 
 ### Step 5: Generate Report
 
-Write to `round-[N]/[build|ops]/08-contract-verification.md`:
+Write to `round-[N]-review-[build|ops]/08-contract-verification.md`:
 
 ```markdown
 # Contract Verification Report
@@ -242,7 +242,7 @@ Complete all steps autonomously without pausing for confirmation. The verificati
 ## File Output
 
 **Output files**:
-- `versions/[component-name]/round-[N]/[build|ops]/08-contract-verification.md` - Verification report
+- `versions/[component-name]/round-[N]-review-[build|ops]/08-contract-verification.md` - Verification report
 - `versions/[component-name]/pending-issues.md` - Updated (new issues and/or resolutions)
 - `specs/cross-cutting.md` - Updated contract statuses
 

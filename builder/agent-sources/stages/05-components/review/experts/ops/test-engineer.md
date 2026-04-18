@@ -156,7 +156,7 @@ Complete all steps autonomously without pausing for confirmation. The review dec
 
 ## File Output
 
-**Output file**: `[OUTPUT_DIR]/round-[N]/ops/01-test-engineer.md`
+**Output file**: `[OUTPUT_DIR]/round-[N]-review-ops/01-test-engineer.md`
 
 Write your complete output to this file. Include a header and summary:
 
