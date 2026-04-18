@@ -83,11 +83,6 @@ These are instructions for the router to follow directly. The router:
 - [x] Step 1: Expert Review
 - ... (completed)
 
-### Round 1 (build)
-- [x] Step 0.5: Rubric Audit (Round 1 Build only — CLEAN or gaps applied)
-- [x] Step 1: Expert Review
-- ...
-
 ### Round 3 (build) <- current
 - [x] Step 1: Expert Review
 - [ ] Step 2: Consolidation
@@ -158,8 +153,6 @@ Ops experts:
 - Consolidator: `{{AGENTS_PATH}}/05-components/review/consolidator.md`
 - Issue Router: `{{AGENTS_PATH}}/05-components/review/issue-router.md`
 - Issue Analyst: `{{AGENTS_PATH}}/universal-agents/issue-analyst.md`
-- Rubric Auditor: `{{AGENTS_PATH}}/universal-agents/rubric-auditor.md`
-- Author (reused for rubric fix application): `{{AGENTS_PATH}}/05-components/review/author.md`
 
 ---
 
@@ -208,70 +201,7 @@ versions/
      ```
    - If no unresolved issues for this component, proceed silently
 
-3. **Proceed to Step 0.5 if Round 1 Build, otherwise to Step 1** (pending issues will be merged by Consolidator)
-
----
-
-## Step 0.5: Rubric Audit (Round 1 Build only)
-
-**Run only when**: Current Round = 1 AND Current Part = build AND this is the first pre-discussion dispatch for the component. Skip for subsequent rounds and for Ops rounds.
-
-The rubric pre-pass catches mechanical consistency gaps that would otherwise consume expert-review rounds. It runs once, before Round 1 Step 1.
-
-### Step 0.5a: Run Rubric Auditor
-
-1. **Update state file**: Set Step 0.5, status = IN_PROGRESS
-
-2. **Create round-1-review-build directory if not yet created** and copy source spec:
-   - Create `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/`
-   - Copy source spec to `round-1-review-build/00-spec.md`
-
-3. **Run Rubric Auditor** (spawn as Task agent):
-   ```
-   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/rubric-auditor.md
-
-   Input:
-   - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00-spec.md
-   - Universal rubric catalogue: {{GUIDES_PATH}}/05-components-rubrics.md
-   - Conditional catalogue (database-backed): {{GUIDES_PATH}}/05-components-rubrics-database-backed.md
-
-   Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00.5-rubric-audit.md
-   ```
-
-4. **Read the audit summary** to determine next action:
-   - If **CLEAN**: Update state file (mark Step 0.5 complete). Automatically proceed to Step 1.
-   - If **GAPS_FOUND**: Return `RUBRIC_GAPS_FOUND` status to router (see Return to Router). Router handles human decision.
-
-### Step 0.5b: Apply Rubric Fixes (after human decisions)
-
-Router re-dispatches pre-discussion after collecting human decisions. The state file's `## Pending Decisions` section contains per-rubric-gap decisions (APPLY / SKIP).
-
-1. **Read decisions from state file**
-
-2. **If all decisions are SKIP**:
-   - Skip Step 0.5c; go straight to Step 1. Any skipped gaps will be caught (or not) by expert review.
-
-3. **If any decisions are APPLY**:
-   - Spawn Author agent to apply approved fixes:
-     ```
-     Follow the instructions in: {{AGENTS_PATH}}/05-components/review/author.md
-
-     Mode: Rubric Fix Application (pre-Round-1)
-
-     Input:
-     - Current spec (edit in place): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00-spec.md
-     - Rubric audit report: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00.5-rubric-audit.md
-     - Rubric catalogue (for fix templates): {{GUIDES_PATH}}/05-components-rubrics.md
-     - Decisions: [per-gap APPLY / SKIP list from state file]
-
-     Task: Apply APPLY-decisioned fixes in place to the spec. For SKIP-decisioned gaps, add the appropriate `<!-- rubric:RUB-NNN waived: ... -->` comment at the flagged location (the SKIP decision must include a waiver reason).
-
-     Output:
-     - Updated spec (in place): 00-spec.md (the rubric-clean input for Step 1)
-     - Fix log appended to: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00.5-rubric-fixes.md
-     ```
-
-4. **Update state file**: Mark Step 0.5 complete. Proceed to Step 1.
+3. **Proceed to Step 1** (pending issues will be merged by Consolidator)
 
 ---
 
@@ -281,8 +211,7 @@ Router re-dispatches pre-discussion after collecting human decisions. The state 
 
 2. **Create round directory and copy input**:
    - Create `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-[N]-review-[build|ops]/`
-   - If `round-[N]-review-[build|ops]/00-spec.md` already exists (Step 0.5 may have created and possibly rubric-patched it in Round 1 Build), do NOT overwrite — use it as-is
-   - Otherwise, copy source spec (determined in On Start/Resume) to `round-[N]-review-[build|ops]/00-spec.md`
+   - Copy source spec (determined in On Start/Resume) to `round-[N]-review-[build|ops]/00-spec.md`
    - If source doesn't exist, **error and stop**
 
 3. **Spec path for this round**: Use `round-[N]-review-[build|ops]/00-spec.md`
@@ -420,16 +349,6 @@ If zero issues after Step 3 (zero-issues gate):
   status: "ZERO_ISSUES",
   issues_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md",
   issue_count: 0
-}
-```
-
-If Step 0.5 (Rubric Audit) found gaps, return before Step 1:
-
-```
-{
-  status: "RUBRIC_GAPS_FOUND",
-  audit_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-1-review-build/00.5-rubric-audit.md",
-  total_gaps: [N]
 }
 ```
 
