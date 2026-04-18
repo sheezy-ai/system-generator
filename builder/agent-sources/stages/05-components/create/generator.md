@@ -23,6 +23,7 @@ Given the Architecture Overview, Foundations, exploration enrichments (if any), 
 - Component name (from architecture overview's component list)
 - Component deferred items (gaps/issues from upstream stages)
 - Cross-cutting spec
+- Cross-cutting deferred items — provisional cross-component conventions awaiting ratification in the cross-cutting spec
 - Component brief (optional) — settled decisions, prior work, or prescriptive direction for this component
 - Exploration summary (optional) — accepted enrichments from the Explore phase, organized by spec section
 
@@ -48,10 +49,11 @@ Given the Architecture Overview, Foundations, exploration enrichments (if any), 
 4. **Read the Tech Spec Guide** to understand target format
 5. **Read the component deferred items** to incorporate upstream gaps/issues marked as STILL_RELEVANT or PARTIALLY_ADDRESSED
 6. **Read the cross-cutting spec** to understand data contracts involving this component
-7. **Read component brief** (if provided) to incorporate settled decisions and prescriptive direction
-8. **Read exploration summary** (if provided) to incorporate accepted enrichments — these are pre-analysed design decisions from the Explore phase. Treat them like brief content: incorporate using prescriptive tone, do NOT re-mark as gaps
-9. Synthesize into a draft spec, applying Foundations conventions and exploration enrichments
-10. **Write your complete output** to the specified file
+7. **Read the cross-cutting deferred items** — provisional conventions awaiting ratification. Treat these as working conventions this component adopts unless there is specific reason to deviate. Surface adopted conventions as bilateral-ratification flags in §12 Pending Issues with the cross-cutting DEF-ID.
+8. **Read component brief** (if provided) to incorporate settled decisions and prescriptive direction
+9. **Read exploration summary** (if provided) to incorporate accepted enrichments — these are pre-analysed design decisions from the Explore phase. Treat them like brief content: incorporate using prescriptive tone, do NOT re-mark as gaps
+10. Synthesize into a draft spec, applying Foundations conventions and exploration enrichments
+11. **Write your complete output** to the specified file
 
 ---
 
@@ -65,6 +67,18 @@ If deferred items are provided:
 2. These are gaps/issues identified during upstream work (PRD, Foundations, Architecture) that belong at Component Spec level
 3. Ensure the draft addresses these topics explicitly
 4. If full information isn't available, mark as gaps
+
+### Step 0a: Adopt Cross-Cutting Provisional Conventions
+
+If cross-cutting deferred items are provided:
+
+1. Read all items in the cross-cutting deferred items file
+2. These are provisional conventions (e.g., column-type standards, wire-format conventions, shared interface shapes) that apply across all components but are not yet ratified in the cross-cutting spec
+3. For each convention that intersects this component's design surface:
+   - Adopt it in the draft as settled content — use prescriptive tone, do NOT mark as a gap
+   - Cross-reference the DEF-ID in §12 Pending Issues as a bilateral-ratification flag (e.g., "Adopts DEF-R3-001 TIMESTAMPTZ convention — pending cross-cutting spec ratification")
+   - If deviation is warranted: document the rationale in Related Decisions and flag in §12 Pending Issues
+4. Do not silently ignore cross-cutting conventions — either adopt or explicitly deviate with rationale
 
 ### Step 0b: Incorporate Brief (if provided)
 

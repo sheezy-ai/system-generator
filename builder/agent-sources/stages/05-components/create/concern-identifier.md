@@ -19,6 +19,7 @@ Given the input documents, identify 3-5 component design concerns worth explorin
 - Component guide (`{{GUIDES_PATH}}/05-components-guide.md`)
 - Cross-cutting spec (`system-design/05-components/specs/cross-cutting.md`)
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
+- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions awaiting ratification in the cross-cutting spec
 - Workflow state file (`system-design/05-components/versions/[component]/workflow-state.md`)
 
 **Output:**
@@ -33,7 +34,9 @@ Given the input documents, identify 3-5 component design concerns worth explorin
 3. **Read the Architecture** to understand component boundaries, responsibilities, data flows, and integration patterns already decided
 4. **Read the Foundations** to understand technology choices and conventions already decided
 5. **Read the Cross-cutting spec** to understand shared contracts, error envelopes, and conventions that apply across components
-6. **Read the deferred items** — check for items deferred from upstream stages or prior rounds that may inform concerns
+6. **Read the deferred items** (two files):
+   - **Per-component deferred items** — items deferred from upstream stages specific to this component
+   - **Cross-cutting deferred items** — provisional cross-component conventions (e.g., column-type conventions, wire-format conventions, shared interface shapes) awaiting ratification in the cross-cutting spec. If this component's likely design surface intersects a cross-cutting convention (timestamp columns, UUID fields, source_type values, audit-trail writes), flag a concern for how this component adopts that convention.
 7. **Read the workflow state file** — understand the current round and any prior exploration context
 8. **Identify concerns** where exploration would add value to this component's design
 9. **Verify each concern's level** against the guide (see Level Verification below)
@@ -57,7 +60,7 @@ A concern is a component design area where the spec has choices (explicit or imp
 - Architecture-level — component boundaries, data flows between components, system decomposition (already decided in Architecture)
 - Technology choices — which database, which framework (already decided in Foundations)
 - Code-level — algorithm implementation, class hierarchies, framework-specific patterns (belongs in codebase)
-- Cross-cutting concerns already resolved — conventions defined in Cross-cutting spec or Foundations
+- Cross-cutting concerns already resolved — conventions defined in Cross-cutting spec or Foundations. Note: cross-cutting *deferred* items are NOT yet resolved — they are provisional conventions that may warrant a concern if this component's design surface intersects them.
 
 ### Level Check
 

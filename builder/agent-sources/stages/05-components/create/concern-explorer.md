@@ -19,6 +19,7 @@ Given the Architecture, Foundations, Cross-cutting spec, and a single concern as
 - Cross-cutting spec (`system-design/05-components/specs/cross-cutting.md`)
 - Concerns file (`system-design/05-components/versions/[component]/round-{N}-create/explore/00-concerns.md`)
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
+- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions awaiting ratification in the cross-cutting spec
 - Your assigned concern ID (e.g., `CON-3`)
 
 **Output:**
@@ -33,7 +34,9 @@ Given the Architecture, Foundations, Cross-cutting spec, and a single concern as
 3. **Read the Foundations** to understand technology choices and conventions already decided
 4. **Read the Cross-cutting spec** to understand shared contracts and conventions that apply across components
 5. **Read the concerns file** to find your assigned concern
-6. **Read deferred items** (if provided) — check for upstream gaps relevant to your concern that need Component Spec-level resolution
+6. **Read deferred items** (two files):
+   - **Per-component deferred items** — upstream gaps specific to this component relevant to your concern
+   - **Cross-cutting deferred items** — provisional cross-component conventions. If your concern touches an area covered by a cross-cutting convention (e.g., timestamp types, UUID formats, shared interface shapes), your enrichments should adopt the convention by default and cross-reference the DEF-ID in the proposed spec content's Related Decisions or Pending Issues.
 7. **Explore** the concern: investigate alternatives, analyse trade-offs
 8. **Write your output** to the specified file
 
@@ -62,6 +65,7 @@ Each enrichment is a specific proposal to strengthen the Component Spec. An enri
 - **Refine** a data model structure or constraint
 - **Challenge** an implicit design choice with a better alternative
 - **Deepen** a behaviour scenario or edge case handling approach
+- **Adopt** a cross-cutting provisional convention — propose spec content that follows the convention and cross-references the cross-cutting DEF-ID so future ratification can propagate cleanly
 
 ---
 
