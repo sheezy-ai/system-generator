@@ -36,16 +36,31 @@ Run the initialization.
 
 **Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately with Step 1.
 
-### Step 1: Read Component List
+### Step 1: Read Component List and Compute Priority
 
-1. **Read Architecture Overview** to find the Component Spec List section
+1. **Read Architecture Overview** to find the Component Spec List section (§6)
 
 2. **Extract components**:
    - Component name
-   - Priority (creation order)
-   - Dependencies
+   - Dependencies (from the Dependencies column of the §6 table)
 
 3. **Validate** the component list is not empty
+
+4. **Classify each dependency** as cross-cutting or component:
+   - **Cross-cutting**: dependencies containing "(cross-cutting)" in their description — e.g., `audit-trail (cross-cutting interface)`, `source-attribution (cross-cutting interface)`, `compliance-gate (cross-cutting utility)`. These are pre-satisfied (step 0) and do not block component creation.
+   - **Partial/scoped**: dependencies containing "scoped to" or "only" — e.g., `events (scoped to find_entities_by_source only)`. These are non-blocking for priority computation. The component can be fully specced except for the scoped capability. Record the partial dependency in the table but do not count it as blocking.
+   - **Full component**: all other dependencies — e.g., `entities`, `events`, `pipeline`. These are blocking.
+
+5. **Compute priority tiers** via topological sort on blocking dependencies:
+   - **Tier 1**: components with no blocking component dependencies (only cross-cutting and/or partial)
+   - **Tier 2**: components whose blocking dependencies are all in tier 1
+   - **Tier 3**: components whose blocking dependencies are all in tiers 1-2
+   - Continue until all components are assigned a tier
+   - **If a cycle is detected**: error — "Circular dependency detected: [cycle]. Cannot compute priority."
+
+6. **Do NOT read or use the Architecture's "Spec creation order" narrative** for priority. The narrative is advisory documentation. Priority is derived from the dependency graph — this prevents drift between stated priority and actual dependencies.
+
+**Note on the Architecture's "Spec creation order"**: The Architecture §6 contains a prose section describing spec creation order. This section may conflate product-phase ordering with technical dependencies (e.g., grouping components by "Phase 1b" rather than by actual dependency). The orchestrator ignores this narrative and computes priority mechanically from the Dependencies column.
 
 ### Step 2: Create Folder Structure
 
@@ -191,9 +206,9 @@ See the populate cross-cutting orchestrator for the extraction process.
 - YYYY-MM-DD: Initialization complete. N components ready for spec creation.
 ```
 
-2. **Populate tables** from Architecture Overview:
-   - Component Specs table: all components, alphabetically sorted
-   - Component Dependencies table: ordered by priority, with dependencies from Architecture
+2. **Populate tables** using Step 1 results:
+   - Component Specs table: all components, alphabetically sorted, all NOT_STARTED
+   - Component Dependencies table: ordered by computed priority tier, with dependencies from the Architecture §6 table. The Priority column contains the computed tier (from Step 1), not a value copied from the Architecture's narrative. Cross-cutting dependencies are listed in the Dependencies column but do not affect priority. Partial/scoped dependencies are listed with their scope note.
 
 ### Step 5: Report Summary
 
