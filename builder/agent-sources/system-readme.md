@@ -143,7 +143,7 @@ Component: [component name]
 
 Optional: place a per-component brief at `{{PROJECT_PATH}}/system-design/05-components/versions/[component-name]/brief.md` before running Create.
 
-The create workflow generates a draft spec, runs independent coverage verification against Architecture requirements, then runs a structured gap analysis pipeline. After the draft is generated, review and augment it, then run Review.
+The create workflow iterates through **Explore** (identifies design concerns for the component — operation contracts, data model trade-offs, error vocabulary, atomicity boundaries — explores each in parallel, human reviews enrichments) and **Generate** (produces draft spec from Architecture + Foundations + accepted enrichments, with independent coverage verification against Architecture requirements, depth verification for minimum specification depth, then structured gap analysis) rounds — round 1 works from the Architecture + Foundations, round 2+ applies enrichments to the previous round's draft via the Enrichment Applicator. The human exits the loop by choosing to promote.
 
 **Review (per component):**
 ```
