@@ -79,6 +79,8 @@ agents/05-components/create/
 ├── requirements-extractor.md          # Extracts Architecture requirements checklist
 ├── coverage-checker.md                # Verifies draft covers all checklist items
 ├── depth-checker.md                   # Verifies draft meets minimum specification depth
+├── decomposition-evaluator.md         # Assesses whether spec should split into sub-specs
+├── spec-splitter.md                   # Produces sub-spec files from single draft
 └── author.md                          # Applies resolved gap discussions
 
 agents/universal-agents/
@@ -188,9 +190,11 @@ system-design/05-components/
 - [ ] Step 10: Gap Resolution
 - [ ] Step 11: Promote or Continue
 - [ ] Step 11b: Creation Verification
+- [ ] Step 11c: Decomposition Evaluation
+- [ ] Step 11d: Split into Sub-Specs (if approved)
 
 ### Phase 3: Promote
-- [ ] Step 12: Promote & Report
+- [ ] Step 12: Promote & Report (single-spec only; skipped if decomposed)
 
 ## Explore Details
 
@@ -988,16 +992,131 @@ Do NOT enter the discussion loop until the human has added actual response conte
     For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
     ```
     - If FIX: Spawn Author to address issues, then re-run verification
-    - If ACCEPT: Proceed to Step 12
+    - If ACCEPT: Proceed to Step 11c
     - Update state file: Mark "Step 11b: Creation Verification" complete `[x]`, add history entry
+
+### Step 11c: Decomposition Evaluation
+
+**Purpose**: Assess whether the settled spec should be decomposed into sub-specs (core + auxiliaries) before promotion. Runs once at the promote checkpoint.
+
+1. **Determine draft path** (same as Step 11b):
+    - If `{round-dir}/03-updated-spec.md` exists (Author ran): Use it
+    - Otherwise: Use `{round-dir}/00-draft-spec.md`
+
+2. **Spawn Decomposition Evaluator**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/05-components/create/decomposition-evaluator.md
+
+    Input:
+    - Draft spec: [draft path]
+    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
+
+    Output: {round-dir}/00-decomposition-report.md
+    ```
+
+3. **Wait for evaluator to complete**
+
+4. **Read the report summary** — extract recommendation: NO_SPLIT, SPLIT_RECOMMENDED, or ARCHITECTURE_ESCALATION
+
+5. **If NO_SPLIT**:
+    - Update state file: Mark "Step 11c: Decomposition Evaluation" complete `[x]`, add history entry "No decomposition recommended"
+    - Proceed to Step 12
+
+6. **If ARCHITECTURE_ESCALATION**:
+    - Present to human: "Decomposition evaluator recommends Architecture-level component decomposition — this spec may contain peer concerns that belong in separate Architecture components. See report for details."
+    - Human decides: proceed with promotion as single spec, or pause to escalate to Architecture
+    - Update state file accordingly
+
+7. **If SPLIT_RECOMMENDED**:
+    - Present to human:
+      ```
+      Decomposition recommended.
+
+      Report: {round-dir}/00-decomposition-report.md
+
+      Proposed split:
+      - core: [scope summary, N operations]
+      [For each auxiliary:]
+      - [name]: [scope summary, N operations, separability score N/5]
+
+      Options:
+      - "approve" — split into sub-specs before promotion
+      - "skip" — promote as single spec
+      - "modify" — adjust the split (edit the report, then say "approve")
+      ```
+    - **STOP: Wait for human response.**
+    - If "skip": proceed to Step 12 (single-spec promotion)
+    - If "approve" or "modify" then "approve": proceed to Step 11d
+    - Update state file: Mark "Step 11c: Decomposition Evaluation" complete `[x]`, add history entry
+
+### Step 11d: Split into Sub-Specs
+
+**Runs only if human approved decomposition in Step 11c.**
+
+1. **Spawn Spec Splitter**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/05-components/create/spec-splitter.md
+
+    Input:
+    - Draft spec: [draft path from Step 11c]
+    - Decomposition report: {round-dir}/00-decomposition-report.md
+    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
+    - Component name: [component-name]
+
+    Output:
+    - Sub-spec files: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name]/core.md, [auxiliary].md, ...
+    - Split summary: {round-dir}/00-split-summary.md
+    ```
+
+2. **Wait for splitter to complete**
+
+3. **Verify sub-spec files exist** in `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name]/`
+
+4. **Create per-sub-spec version folders and state files**:
+    - For each sub-spec (core + each auxiliary):
+      - Create `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/[sub-spec-name]/`
+      - Create workflow-state.md in each (status = NOT_STARTED, ready for review)
+
+5. **Update stage state** (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/workflow-state.md`):
+    - Add sub-spec rows under the component row:
+      ```
+      | [component-name]                    | DRAFT_READY | -                  | [date] |
+      |   [component-name]/core             | DRAFT_READY | -                  | [date] |
+      |   [component-name]/[auxiliary-1]    | DRAFT_READY | -                  | [date] |
+      |   [component-name]/[auxiliary-2]    | DRAFT_READY | -                  | [date] |
+      ```
+    - Component-level status is derived: DRAFT_READY when all sub-specs are DRAFT_READY, COMPLETE when all are COMPLETE, IN_PROGRESS otherwise
+    - Add history entry: "[date]: [component-name] decomposed into [N] sub-specs: core, [aux-1], [aux-2]"
+
+6. **Update state file**: Mark "Step 11d: Split into Sub-Specs" complete `[x]`, add history entry
+
+7. **Skip Step 12** (sub-specs are already in specs/ — splitter wrote them directly)
+
+8. **Present summary**:
+    ```
+    Component [component-name] creation complete — decomposed into [N] sub-specs.
+
+    Sub-specs promoted to specs/[component-name]/:
+    - core.md ([N] operations, [N] lines)
+    - [auxiliary-1].md ([N] operations, [N] lines)
+    - [auxiliary-2].md ([N] operations, [N] lines)
+
+    Version folders created for each sub-spec.
+
+    Next steps:
+    Review each sub-spec independently:
+      Component: [component-name]/core
+      Component: [component-name]/[auxiliary-1]
+      Component: [component-name]/[auxiliary-2]
+    ```
 
 ---
 
 ## Phase 3: Promote
 
-Phase 3 runs only when the human chooses to promote at Step 11, exiting the explore→generate loop.
+Phase 3 runs only when the human chooses to promote at Step 11 AND decomposition was not applied (Step 11d skips Step 12).
 
-### Step 12: Promote & Report
+### Step 12: Promote & Report (Single-Spec)
 
 1. **Determine final draft path** (from the current round):
     - If `{round-dir}/03-updated-spec.md` exists (Author ran): Use it
@@ -1053,7 +1172,8 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
 - Steps 8 → 9 → 9b → 9c: Enrichment author then generator/applicator then coverage then depth
 - Step 10: Gap resolution (Gap formatter → Gap analyst → discussion loop → Author)
-- Steps 11b → 12: Verification then promote (unless issues found)
+- Steps 11b → 11c: Verification then decomposition evaluation (unless issues found)
+- Steps 11d → done OR Step 12: Split sub-specs (if approved) or promote single spec
 
 **Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads. If a read is not in the step instructions, do not perform it — agents read their own inputs.
 
