@@ -470,7 +470,14 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
 1. **Update state file**: Set status = WAITING_FOR_HUMAN
 
-2. **Notify user** enrichments are ready for review:
+2. **Read enrichment recommendations**: Parse each enrichment's recommendation field from the filtered discussion file. Count:
+   - **Accept**: recommendation is "Accept"
+   - **Conditional Consider**: recommendation is "Consider" AND contains conditional language referencing another ENR-ID (e.g., "accept if ENR-XXX rejected", "consider alongside ENR-YYY")
+   - **Cautious**: recommendation is "Cautious"
+   - **Depth-flagged**: enrichment has a `!! Depth flag` marker
+   - **Unconditional Consider**: recommendation is "Consider" without conditional language
+
+3. **Notify user** and offer review mode:
    ```
    Exploration complete — [N] enrichment proposals ready for review (after scope filtering).
 
@@ -479,10 +486,64 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    [If items were deferred or filtered, include:]
    Scope filtering: [D] deferred upstream, [F] filtered (too detailed for spec)
 
-   [N] enrichments from [M] concerns, grouped by spec section impact.
+   [N] enrichments: [A] recommended Accept, [C] conditional Consider,
+   [U] unconditional Consider, [X] Cautious, [D] depth-flagged.
 
-   Each enrichment has analysis, trade-offs, and a recommendation.
-   Please review each and respond after the >> HUMAN: markers.
+   Review mode:
+   - "auto-resolve" — accept all Accept items, resolve conditional items
+     from their dependencies, present only Cautious/flagged/unconditional
+     Consider items for your input
+   - "review all" — present all [N] items for individual response
+   ```
+
+**STOP: Wait for human to choose review mode.**
+
+4. **If "auto-resolve"**:
+
+    a. **Auto-accept all Accept items**: For each enrichment with recommendation "Accept", add `>> RESOLVED [ACCEPTED]` after the `>> HUMAN:` placeholder.
+
+    b. **Resolve conditional Consider items**: For each conditional Consider:
+       - Parse the condition (e.g., "accept if ENR-XXX rejected")
+       - Look up ENR-XXX's recommendation:
+         - If the condition resolves cleanly (the dependency's recommendation determines this item's outcome): auto-resolve accordingly
+         - If ambiguous (e.g., both items are conditional on each other, or the dependency is itself Cautious): leave unresolved for human
+       - Add `>> RESOLVED [ACCEPTED]` or `>> RESOLVED [REJECTED]` based on condition resolution
+
+    c. **Present auto-resolution summary + remaining items**:
+       ```
+       Auto-resolved ([N]):
+       - [A] accepted (recommendation: Accept)
+       - [C] conditionally resolved ([details per item])
+
+       [If any items rejected by condition resolution:]
+       - [R] rejected (conditional — dependency accepted)
+
+       Need your input ([M]):
+       [For each unresolved item:]
+       - ENR-XXX ([Cautious/Consider/Depth-flagged]): [summary]
+
+       Options:
+       - "looks good" — confirm auto-resolutions, then respond to items
+         needing input (or "looks good, accept remaining" to accept all)
+       - Per-item overrides if any auto-resolution is wrong
+       ```
+
+    **STOP: Wait for human response.**
+
+    d. **After human confirms auto-resolutions**:
+       - If human flagged overrides: adjust the affected resolutions
+       - If "looks good, accept remaining" and no Cautious/flagged items: all resolved → proceed to Step 8
+       - If items remain needing input: human responds to those items, then proceed to step 5 (enrichment review loop) for the remaining items only
+
+5. **If "review all"** (or after auto-resolve for remaining items):
+
+**Enrichment review loop** (operates on `{explore-dir}/02a-filtered-enrichment-discussion.md`):
+
+Do NOT process enrichments until the human has added actual response content after `>> HUMAN:` markers. An empty `>> HUMAN:` marker is a placeholder, not a response. Only proceed after the human signals they have responded.
+
+   If "review all" was chosen, present:
+   ```
+   Please review each enrichment and respond after the >> HUMAN: markers.
 
    Respond naturally — say what you think. Examples:
    - Accept: "Happy with this", "Accept", "Agree", "Yes"
@@ -493,13 +554,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    When done, let me know and I'll process your responses.
    ```
 
-**STOP: Wait for human response before proceeding.**
-
-Do NOT process enrichments until the human has added actual response content after `>> HUMAN:` markers. An empty `>> HUMAN:` marker is a placeholder, not a response.
-
-Only proceed to step 3 after the human signals they have responded.
-
-3. **Enrichment review loop** (operates on `{explore-dir}/02a-filtered-enrichment-discussion.md`):
+   **STOP: Wait for human response before proceeding.**
 
     a. **Identify enrichments needing processing**: Read file, find enrichments where last entry is `>> HUMAN:` with content but no `>> RESOLVED`
 
