@@ -59,6 +59,7 @@ Files within the explore directory:
 - `01-gap-discussion.md`
 - `02-author-output.md`
 - `03-updated-spec.md`
+- `06-stage-appropriateness-report.md` (advisory lint; from Step 10b)
 
 **Promoted output**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`
 
@@ -123,7 +124,8 @@ system-design/05-components/
             ├── 00-depth-report.md
             ├── 01-gap-discussion.md
             ├── 02-author-output.md
-            └── 03-updated-spec.md
+            ├── 03-updated-spec.md
+            └── 06-stage-appropriateness-report.md
 ```
 
 ---
@@ -147,8 +149,9 @@ system-design/05-components/
    - Steps 2–8 (Explore phase) — if all marked SKIPPED, jump to Step 9
    - Step 7 resumes at WAITING_FOR_HUMAN — re-read filtered enrichment discussion file and continue loop
    - Step 9 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
-   - Step 10 (Gap Resolution) — if marked complete, skip to Step 11
-   - Step 11 resumes at WAITING_FOR_HUMAN — present promote/another-round choice to human
+   - Step 10 (Gap Resolution) — if marked complete, skip to Step 10b
+   - Step 10b (Stage-Appropriateness Verification) — if marked complete, verify report file exists and skip to Step 11
+   - Step 11 resumes at WAITING_FOR_HUMAN — present promote/another-round choice to human (include verifier report summary)
 
 3. **Update state file** at each step transition (instructions inline below)
 
@@ -188,6 +191,7 @@ system-design/05-components/
 - [ ] Step 9b: Coverage Verification
 - [ ] Step 9c: Depth Verification
 - [ ] Step 10: Gap Resolution
+- [ ] Step 10b: Stage-Appropriateness Verification (advisory)
 - [ ] Step 11: Promote or Continue
 - [ ] Step 11b: Creation Verification
 - [ ] Step 11c: Decomposition Evaluation
@@ -935,6 +939,43 @@ Do NOT enter the discussion loop until the human has added actual response conte
 
 14. **Update state file**: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry
 
+### Step 10b: Stage-Appropriateness Verification (advisory)
+
+**Purpose**: Evaluate the current draft against the derivation test and produce a lint-style findings report. Advisory only — findings surface to the human at Step 11 (Promote or Continue) alongside the promote/another-round choice. Does not block, does not edit the draft, does not enter the gap-resolution loop.
+
+**On resume**: If Step 10b already marked complete, verify `{round-dir}/06-stage-appropriateness-report.md` exists and skip to Step 11.
+
+1. **Determine draft path**:
+   - If `{round-dir}/03-updated-spec.md` exists (Author ran during Step 10): use it
+   - Otherwise: use `{round-dir}/00-draft-spec.md`
+
+2. **Spawn Stage-Appropriateness Verifier** using the Task tool:
+   - **subagent_type**: `general-purpose`
+   - **prompt**:
+     ```
+     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/stage-appropriateness-verifier.md
+
+     Input:
+     - Target draft: [draft path resolved in step 1]
+     - Project scale reference: system-design/project-scale.md
+     - Stage guide: {{GUIDES_PATH}}/05-components-guide.md
+     - PRD: system-design/02-prd/prd.md
+     - Foundations: system-design/03-foundations/foundations.md
+     - Architecture: system-design/04-architecture/architecture.md
+
+     Output: {round-dir}/06-stage-appropriateness-report.md
+     ```
+
+3. **Wait for agent to complete**
+
+4. **Verify output exists** at `{round-dir}/06-stage-appropriateness-report.md`
+
+5. **Read report Summary block** to extract per-classification counts for the Step 11 handoff notification
+
+6. **Do not act on findings** — this step is advisory. Findings are surfaced to the human at Step 11; acting on them is the human's decision at the promote/another-round choice.
+
+7. **Update state file**: Mark "Step 10b: Stage-Appropriateness Verification" complete `[x]`, add history entry with per-classification counts (APPROPRIATE / IMPLEMENTATION_LATITUDE / RESTATES_UPSTREAM / WRONG_STAGE)
+
 ### Step 11: Promote or Continue (`WAITING_FOR_HUMAN`)
 
 **On resume**: If status = WAITING_FOR_HUMAN for Step 11, present the promote/another-round choice to the human.
@@ -951,6 +992,13 @@ Do NOT enter the discussion loop until the human has added actual response conte
    Draft: {round-dir}/00-draft-spec.md
    [If Author ran:]
    Updated: {round-dir}/03-updated-spec.md
+
+   Stage-appropriateness lint (advisory, from Step 10b):
+   Report: {round-dir}/06-stage-appropriateness-report.md
+   Counts: [A] APPROPRIATE / [L] IMPLEMENTATION_LATITUDE / [R] RESTATES_UPSTREAM / [W] WRONG_STAGE
+   [Include brief per-classification summary if helpful — e.g., "L findings cluster in §9 and §3.6"]
+
+   Lint findings are advisory. You can act on them before promoting (another round with targeted edits, or manual edits) or accept them and promote as-is.
 
    You can:
    - Say "promote" — promote the current draft
@@ -1227,6 +1275,7 @@ Phase 3 runs only when the human chooses to promote at Step 11 AND decomposition
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
 - Steps 8 → 9 → 9b → 9c: Enrichment author then generator/applicator then coverage then depth
 - Step 10: Gap resolution (Gap formatter → Gap analyst → discussion loop → Author)
+- Steps 10 → 10b: Gap resolution then stage-appropriateness verification (advisory; does not pause)
 - Steps 11b → 11c: Verification then decomposition evaluation (unless issues found)
 - Steps 11d → done OR Step 12: Split sub-specs (if approved) or promote single spec
 
