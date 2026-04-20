@@ -60,6 +60,7 @@ Files within the explore directory:
 - `02-author-output.md`
 - `03-updated-spec.md`
 - `06-stage-appropriateness-report.md` (advisory lint; from Step 10b)
+- `07-remediation-output.md` (applied-findings diff log; from Step 11 "remediate" path — optional)
 
 **Promoted output**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`
 
@@ -125,7 +126,8 @@ system-design/05-components/
             ├── 01-gap-discussion.md
             ├── 02-author-output.md
             ├── 03-updated-spec.md
-            └── 06-stage-appropriateness-report.md
+            ├── 06-stage-appropriateness-report.md
+            └── 07-remediation-output.md
 ```
 
 ---
@@ -1001,7 +1003,8 @@ Do NOT enter the discussion loop until the human has added actual response conte
    Lint findings are advisory. You can act on them before promoting (another round with targeted edits, or manual edits) or accept them and promote as-is.
 
    You can:
-   - Say "promote" — promote the current draft
+   - Say "promote" — promote the current draft as-is (accept lint, ship with known findings)
+   - Say "remediate" — apply selected verifier findings to the draft, then promote
    - Say "another round" — run another explore→generate cycle
 
    When ready, let me know.
@@ -1024,9 +1027,64 @@ Do NOT enter the discussion loop until the human has added actual response conte
    - **Re-resolve paths** using Path Resolution with the new round number
    - **Loop to Step 1**
 
+   **If "remediate"**:
+   - Proceed to the remediation sub-flow below, then (on completion) to Step 11b.
+
    **If "promote"** or "promote as-is":
    - Update state file: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Promoting draft from round {N}"
    - Proceed to Step 11b
+
+---
+
+#### Remediation sub-flow (when human chose "remediate")
+
+**Purpose**: apply all applicable verifier findings to the draft mechanically. Single-checkpoint flow — the human's "remediate" choice at Step 11 *is* the checkpoint. Diff log is produced for reference; no separate review stop. If the remediation produces unacceptable changes, Step 11b's Creation Verification surfaces downstream issues (alignment/coherence drift); post-promotion, `git` history is the revert path.
+
+Rationale for single-checkpoint: matches Gap Resolution / Creation Verification ergonomics. Per-finding selection or post-apply per-finding review adds friction without proportionate false-positive protection — the verifier's "err toward APPROPRIATE when uncertain" principle already filters borderline cases, and the remediator's mechanical-apply posture means rewrites are pre-authored explicit-latitude replacements, not freeform elaboration. False-positive damage is bounded to restructured prose within preserved contract commitments.
+
+**Step R1 — Apply via remediator:**
+
+1. **Determine draft path** (same logic as Step 10b):
+   - If `{round-dir}/03-updated-spec.md` exists: use it
+   - Otherwise: `{round-dir}/00-draft-spec.md`
+
+2. **Spawn Stage-Appropriateness Remediator** using the Task tool:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/stage-appropriateness-remediator.md
+
+   Input:
+   - Target draft: [resolved draft path]
+   - Findings report: {round-dir}/06-stage-appropriateness-report.md
+   - Selected finding IDs: [all finding IDs from the report — 1..N]
+
+   Output:
+   - Updated draft: [same path — edited in place]
+   - Diff log: {round-dir}/07-remediation-output.md
+   ```
+
+   The remediator filters applicability per its own rules: applies LATITUDE findings with authored recommendations, applies RESTATES_UPSTREAM with concrete rewrites, skips APPROPRIATE (no rewrite authored) and WRONG_STAGE (requires human decision) with logged reasons.
+
+3. **Wait for remediator to complete**
+
+4. **Verify outputs exist** at the draft path and `{round-dir}/07-remediation-output.md`
+
+**Step R2 — Summarise and proceed:**
+
+1. Read `{round-dir}/07-remediation-output.md` summary block to extract applied/skipped counts
+
+2. Notify user briefly:
+   ```
+   Remediation applied ([N] applied, [M] skipped).
+
+   Updated draft: [path]
+   Diff log: {round-dir}/07-remediation-output.md
+
+   Proceeding to Step 11b (Creation Verification).
+   ```
+
+3. **Update state file**: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Remediation applied ([N] findings); promoting draft from round {N}"
+
+4. Proceed to Step 11b. Downstream alignment/coherence verification catches any structural issues the remediation may have introduced; post-promotion, `git` is the revert path.
 
 ### Step 11b: Creation Verification
 
