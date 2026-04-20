@@ -1128,7 +1128,7 @@ Rationale for single-checkpoint: matches Gap Resolution / Creation Verification 
 
 5. **If both CLEAN** (alignment PROCEED with no issues, coherence COHERENT or LOW only):
     - Update state file: Mark "Step 11b: Creation Verification" complete `[x]`, add history entry
-    - Proceed to Step 12
+    - Proceed to Step 11c (Decomposition Evaluation). The Step 11c human checkpoint governs whether the evaluator actually runs; clean-pass and issues-accepted paths both route through it for consistency.
 
 6. **Track rework pass count**: Count how many times verification has been run in this round. The first verification is pass 1. Each FIX that returns to Author and re-runs verification increments the count.
 
