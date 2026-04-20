@@ -1004,7 +1004,7 @@ Do NOT enter the discussion loop until the human has added actual response conte
 
    You can:
    - Say "promote" — promote the current draft as-is (accept lint, ship with known findings)
-   - Say "remediate" — apply selected verifier findings to the draft, then promote
+   - Say "remediate" — apply verifier findings to the draft; you'll be returned to this choice afterward with the updated draft summary
    - Say "another round" — run another explore→generate cycle
 
    When ready, let me know.
@@ -1028,7 +1028,7 @@ Do NOT enter the discussion loop until the human has added actual response conte
    - **Loop to Step 1**
 
    **If "remediate"**:
-   - Proceed to the remediation sub-flow below, then (on completion) to Step 11b.
+   - Proceed to the remediation sub-flow below, then (on completion) return to Step 11 WAITING_FOR_HUMAN with the updated draft summary. Human re-decides promote / remediate again / another round.
 
    **If "promote"** or "promote as-is":
    - Update state file: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Promoting draft from round {N}"
@@ -1068,23 +1068,25 @@ Rationale for single-checkpoint: matches Gap Resolution / Creation Verification 
 
 4. **Verify outputs exist** at the draft path and `{round-dir}/07-remediation-output.md`
 
-**Step R2 — Summarise and proceed:**
+**Step R2 — Summarise and return to Step 11:**
 
 1. Read `{round-dir}/07-remediation-output.md` summary block to extract applied/skipped counts
 
-2. Notify user briefly:
+2. Notify user with a remediation preamble plus the Step 11 prompt (re-emitted with the updated draft):
    ```
    Remediation applied ([N] applied, [M] skipped).
-
-   Updated draft: [path]
    Diff log: {round-dir}/07-remediation-output.md
 
-   Proceeding to Step 11b (Creation Verification).
+   Re-presenting Step 11 for your decision against the updated draft:
+
+   [Re-emit the Step 11 notification block — gap-resolution summary, updated draft path and line count, stage-appropriateness counts from the original report, three choices: promote / remediate again / another round]
    ```
 
-3. **Update state file**: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Remediation applied ([N] findings); promoting draft from round {N}"
+   Remediation is a draft transformation, not a commit. The human adjudicates whether the updated draft is ready to promote, whether another remediation pass is warranted, or whether a fresh explore→generate cycle is needed.
 
-4. Proceed to Step 11b. Downstream alignment/coherence verification catches any structural issues the remediation may have introduced; post-promotion, `git` is the revert path.
+3. **Update state file**: add history entry "Remediation applied ([N] findings) — awaiting human re-decision at Step 11". Step 11 remains `WAITING_FOR_HUMAN`.
+
+4. Return to Step 11 notification (loop back to step 2 of Step 11 above — do not advance to Step 11b without an explicit human "promote" choice).
 
 ### Step 11b: Creation Verification
 
@@ -1159,6 +1161,27 @@ Rationale for single-checkpoint: matches Gap Resolution / Creation Verification 
 ### Step 11c: Decomposition Evaluation
 
 **Purpose**: Assess whether the settled spec should be decomposed into sub-specs (core + auxiliaries) before promotion. Runs once at the promote checkpoint.
+
+0. **Human checkpoint — confirm decomposition evaluation**:
+
+   Update state file: Set status = `WAITING_FOR_HUMAN` (for Step 11c entry).
+
+   Notify user:
+   ```
+   Creation verification complete. About to run decomposition evaluation (Step 11c) — assesses whether the spec should be split into sub-specs before promotion.
+
+   This is separable from the decision to promote. You can:
+   - Say "proceed" — run decomposition evaluation (may recommend splitting)
+   - Say "skip" — go straight to promotion (Step 12), no decomposition check
+   - Say "back" — return to Step 11 promote/remediate/another-round choice
+   ```
+
+   **STOP: Wait for human response.**
+
+   Handle response:
+   - **If "proceed"**: Set status = `IN_PROGRESS`; continue with step 1 below
+   - **If "skip"**: Mark "Step 11c: Decomposition Evaluation" complete `[x]` with note `skipped — human opted out`; add history entry; proceed to Step 12
+   - **If "back"**: Add history entry "Stepped back from Step 11c to Step 11"; return to Step 11 (re-enter at Step 11 notification with the current draft)
 
 1. **Determine draft path** (same as Step 11b):
     - If `{round-dir}/03-updated-spec.md` exists (Author ran): Use it
