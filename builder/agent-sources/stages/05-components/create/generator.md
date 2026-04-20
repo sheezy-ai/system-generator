@@ -415,6 +415,10 @@ Before writing output, verify:
 
 Complete all steps autonomously without pausing for confirmation. The generation decisions are yours to make — read, analyse, and write the output file.
 
+<!-- INJECT: derivation-test -->
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

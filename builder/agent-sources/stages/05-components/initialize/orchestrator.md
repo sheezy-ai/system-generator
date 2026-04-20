@@ -169,6 +169,48 @@ See the populate cross-cutting orchestrator for the extraction process.
 | *None yet* | | | | |
 ```
 
+### Step 3b: Generate Project Scale Reference
+
+1. **Check if `system-design/project-scale.md` already exists**:
+   - **If yes**: Skip this step. The file may be a retrofit or a manually-revised instance — preserve it.
+   - **If no**: Continue.
+
+2. **Spawn Project Scale Generator** using the Task tool:
+   - **subagent_type**: `general-purpose`
+   - **prompt**:
+     ```
+     Follow the instructions in: {{AGENTS_PATH}}/05-components/initialize/project-scale-generator.md
+
+     Input:
+     - Project Scale Guide: {{GUIDES_PATH}}/project-scale-guide.md
+     - PRD: system-design/02-prd/prd.md
+     - Foundations: system-design/03-foundations/foundations.md
+     - Architecture Overview: system-design/04-architecture/architecture.md
+
+     Output: system-design/project-scale.md
+     ```
+
+3. **After agent completes**: Verify `system-design/project-scale.md` was created at the expected path.
+
+4. **Human review gate** — present the generated file to the user and halt:
+
+   ```
+   Project scale reference generated at system-design/project-scale.md.
+
+   Review gate: confirm extracted values, component classifications, and taxonomy mapping before initialization continues.
+
+   Respond with:
+   - "approved" — initialization continues with Step 4
+   - Specific edits — describe the changes; I'll apply them and re-present
+   - Redraft — I'll re-run the generator with any tightened prompt guidance
+
+   Initialization waits here.
+   ```
+
+   Do not proceed to Step 4 without explicit human approval.
+
+5. **Rationale**: `project-scale.md` is the canonical scale-context reference consumed by the Stage-Appropriateness Verifier and producer prompts. The generator produces a first draft from PRD + Architecture extraction; the human gate validates before downstream agents consume it.
+
 ### Step 4: Create Stage State File
 
 1. **Create** `system-design/05-components/versions/workflow-state.md` (stage-level state):
@@ -231,6 +273,9 @@ Cross-cutting specification:
 - Created specs/cross-cutting.md (placeholder - contracts extracted later)
 - Pending-issues.md initialized for each component
 
+Project scale reference:
+- [Generated project-scale.md (approved by human) | Preserved existing project-scale.md]
+
 Next step: Initialize first component:
   Run the Component Create Orchestrator for [component-1]
 
@@ -246,23 +291,25 @@ Invocation:
 After initialization:
 
 ```
-system-design/05-components/
-├── specs/
-│   └── cross-cutting.md                   # Placeholder (contracts extracted later)
-└── versions/
-    ├── deferred-items-archived-YYYY-MM-DD.md # Original backup (if had content)
-    ├── workflow-state.md                  # Stage state: initialization + component index
-    ├── cross-cutting/
-    │   └── deferred-items.md                 # Cross-cutting items (if any)
-    ├── event-store/
-    │   ├── deferred-items.md                 # Component-specific items
-    │   ├── pending-issues.md              # Pending issues for this component
-    │   └── workflow-state.md              # Per-component review state
-    ├── email-ingestion/
-    │   ├── deferred-items.md
-    │   ├── pending-issues.md
-    │   └── workflow-state.md
-    └── ...
+system-design/
+├── project-scale.md                          # Project scale reference (generated in Step 3b)
+└── 05-components/
+    ├── specs/
+    │   └── cross-cutting.md                  # Placeholder (contracts extracted later)
+    └── versions/
+        ├── deferred-items-archived-YYYY-MM-DD.md # Original backup (if had content)
+        ├── workflow-state.md                 # Stage state: initialization + component index
+        ├── cross-cutting/
+        │   └── deferred-items.md             # Cross-cutting items (if any)
+        ├── event-store/
+        │   ├── deferred-items.md             # Component-specific items
+        │   ├── pending-issues.md             # Pending issues for this component
+        │   └── workflow-state.md             # Per-component review state
+        ├── email-ingestion/
+        │   ├── deferred-items.md
+        │   ├── pending-issues.md
+        │   └── workflow-state.md
+        └── ...
 ```
 
 **Two-level state model:**

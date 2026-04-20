@@ -167,6 +167,10 @@ If an enrichment would add code-level detail, flag it in the change log rather t
 
 Complete all steps autonomously without pausing for confirmation. The application decisions are yours to make — read, apply, and write the output files.
 
+<!-- INJECT: derivation-test -->
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

@@ -187,6 +187,10 @@ Code belongs in the codebase. Stay at the contract/schema/behaviour level: inter
 
 Complete all steps autonomously without pausing for confirmation. The exploration decisions are yours to make — read, analyse, and write the output file.
 
+<!-- INJECT: derivation-test -->
+
+---
+
 <!-- INJECT: tool-restrictions -->
 
 ---

@@ -162,6 +162,18 @@ Foundations has already made technology choices and established conventions. Con
 ### Respect Cross-cutting Decisions
 The Cross-cutting spec defines shared contracts and conventions. Concerns should explore what is unique to this component, not re-examine shared decisions.
 
+### Apply a round-aware concern threshold
+
+The concern bar shifts across rounds. Applying the same threshold in Round 3 as in Round 1 produces low-value refinement-of-refinement concerns that drive accumulation. The bar:
+
+- **Round 1** — net-new coverage. Standard threshold: concern identifies a component-spec-level design area where choices exist and alternatives would add value.
+- **Round 2** — structural refinement. Concern must identify a posture, asymmetry, or invariant the Round 1 draft committed to without structural resolution. Not "this could be elaborated further" — "this choice was committed but the structural consequences weren't worked through."
+- **Round 3+** — rigour-gap-only. Concern must identify a structural rigour gap with a named downstream failure mode that prior rounds did not address. Not "this could be tightened" — "if this stays as-is, X fails because Y."
+
+If a round's concerns are predominantly refinements of refinements rather than genuine rigour gaps, surface fewer concerns. Zero is a valid outcome in Round 3+ — it means prior rounds closed the load-bearing gaps and the workflow should promote.
+
+Determine the current round from the workflow state file. Apply the threshold appropriate to that round.
+
 ### Avoid Overlap
 Each concern should be distinct. If two concerns would produce the same enrichments, merge them.
 
