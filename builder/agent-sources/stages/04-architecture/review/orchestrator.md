@@ -670,6 +670,26 @@ This gate is mandatory. Do not skip it.
          Output: system-design/04-architecture/versions/round-[N]-review/10-pending-issue-sync.md
          ```
 
+46b. **Close architecture-stage pending-issues for entries resolved this round**:
+
+    This step closes entries in the **current stage's own** pending-issues file (`system-design/04-architecture/versions/pending-issues.md`). It is distinct from step 46's Pending Issue Resolver, which writes to **upstream** pending-issues files (Foundations / PRD).
+
+    Procedure:
+    - Read `system-design/04-architecture/versions/pending-issues.md`
+    - Read this round's `02-consolidated-issues.md` to identify which Unresolved entries were merged into this round's issue stream by the Consolidator at Step 2 (these will be the entries with their original PI-NNN / SPEC-NNN IDs mapped to ARCH-NNN issue IDs in this round)
+    - Read this round's `03-issues-discussion.md` to identify the resolution outcome for each merged entry (APPLIED inline, close-with-no-change, close-as-stale, or close-as-resolved-by-prior-round)
+    - For each merged-and-resolved entry:
+      - Move it from the `## Unresolved Issues` section to the `## Resolved Issues` section (insert at the top of Resolved, in reverse-chronological order with a new dated subsection header for this round)
+      - Add resolution metadata to the entry:
+        - `**Status:** RESOLVED`
+        - `**Resolved:** [date]`
+        - `**Resolution Round:** Architecture Round [N] Review (issue tracked as ARCH-NNN)`
+        - `**Resolution:** [one-paragraph note explaining how the round closed the entry — APPLIED edits reference the architecture section/CTR; close-with-no-change references the human-approved recommendation; close-as-resolved-by-prior-round references the earlier round's ARCH-NNN that closed it]`
+    - Update the Summary table counts (UNRESOLVED ↓, RESOLVED ↑)
+    - **Do not touch entries that were not merged into this round's issue stream** (e.g., Unresolved entries logged after Step 2 but before Step 11) — those carry forward to the next round
+
+    Rationale: this step ensures the architecture-stage pending-issues file reflects the truth of what each round closed. Without it, downstream stages reading this file see stale Unresolved entries that have actually been addressed. The orchestrator separates this from step 46's Pending Issue Resolver because the Resolver's semantic is "edit upstream documents", whereas this step's semantic is "close entries in our own pending-issues register".
+
 47. **If HALT was acknowledged**:
     - Write blocking issue to upstream pending-issues.md (same format as above)
     - Set status = BLOCKED_UPSTREAM_ISSUE

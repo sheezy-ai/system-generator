@@ -223,6 +223,27 @@ Read `## Pending Decisions` section:
          Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/11-pending-issue-sync.md
          ```
 
+18b. **Close current-component pending-issues for entries resolved this round**:
+
+    This step closes entries in the **current component's own** pending-issues file (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/pending-issues.md`). It is distinct from step 18's Pending Issue Resolver, which writes to **upstream** pending-issues files (Architecture / Foundations / PRD). Scope is per-component — only this component's pending-issues file is touched.
+
+    Procedure:
+    - Read `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/pending-issues.md`
+    - Read this round's `02-consolidated-issues.md` to identify which Unresolved entries were merged into this round's issue stream by the Consolidator (Step 2) and routed by the Issue Router (Step 3) — these will be the entries with their original PI-NNN / SPEC-NNN IDs mapped to round-local issue IDs
+    - Read this round's `03-issues-discussion.md` to identify the resolution outcome for each merged entry (APPLIED inline, close-with-no-change, close-as-stale, or close-as-resolved-by-prior-round)
+    - For each merged-and-resolved entry:
+      - Move it from the `## Unresolved Issues` section to the `## Resolved Issues` section (insert at the top of Resolved, in reverse-chronological order with a new dated subsection header for this round, scoped as `[component] Round [N] Review-[build|ops]`)
+      - Add resolution metadata to the entry:
+        - `**Status:** RESOLVED`
+        - `**Resolved:** [date]`
+        - `**Resolution Round:** [component] Round [N] Review-[build|ops] (issue tracked as [round-local ID])`
+        - `**Resolution:** [one-paragraph note explaining how the round closed the entry — APPLIED edits reference the spec section; close-with-no-change references the human-approved recommendation; close-as-resolved-by-prior-round references the earlier round's issue ID that closed it]`
+    - Update the Summary table counts (UNRESOLVED ↓, RESOLVED ↑)
+    - **Do not touch entries that were not merged into this round's issue stream** (e.g., Unresolved entries logged after Step 2 but before Step 12) — those carry forward to the next round
+    - **Per-component scope only**: do not touch other components' pending-issues files; cross-component issues are handled by the Pending Issue Resolver in step 18 (upstream sync) or by the components Coherence orchestrator separately
+
+    Rationale: this step ensures each component's own pending-issues file reflects the truth of what each round closed. Without it, downstream readers (other components, Coherence reviews, future rounds) see stale Unresolved entries that have actually been addressed. The orchestrator separates this from step 18's Pending Issue Resolver because the Resolver's semantic is "edit upstream documents (Architecture/Foundations/PRD)", whereas this step's semantic is "close entries in this component's own pending-issues register".
+
 19. **If halt_action = ACKNOWLEDGE_AND_BLOCK**:
     - Write blocking issue to upstream pending-issues.md
     - Update state: Status = BLOCKED_UPSTREAM_ISSUE
