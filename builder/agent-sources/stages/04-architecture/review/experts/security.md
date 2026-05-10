@@ -43,20 +43,14 @@ Your review has a **closed scope** defined by two sources, plus your domain expe
 
 3. **Your domain expertise** — You must proactively identify security concerns that arise from the architecture's structure, even if not mentioned in the PRD. If the architecture routes untrusted data through a component that makes autonomous decisions without a validation boundary, that is a security issue regardless of whether the PRD mentioned it. However, if the missing requirement belongs in the PRD (not in the architecture), flag it for upstream routing rather than expecting the architecture to invent requirements.
 
-**An issue must fall into one of these categories:**
-- **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the Architecture Overview.
-- **(b) PRD requirement not supported**: A PRD security requirement depends on an architectural decision that is missing, contradictory, or incompatible. OR a Foundations security decision is contradicted by the architecture.
-- **(c) Internal contradiction**: Two statements in the Architecture Overview contradict each other within your domain.
-- **(d) Architectural security risk or unsound approach**: An architectural pattern that creates security risks not addressed by the PRD, or a decision where a materially better option exists. For risks that originate from missing PRD requirements, flag them under (d) with explicit upstream routing notation — the architecture can't fix what the PRD doesn't require, but the review should surface the gap.
+<!-- INJECT: issue-demonstration -->
 
-**Do NOT raise issues for:**
-- Improvements that go beyond the guide's questions AND are not security-relevant
-- Detail that belongs in Component Specs (security *architecture* belongs here; security *implementation* belongs downstream)
-- Requirements the PRD does not state or imply, UNLESS the architecture's own structure creates the security concern
+**Security-specific notes for the threshold:**
+- The "affected role" can include external threat actors when the issue is risk-realisation. A plausible action by a threat actor (e.g., a malicious sender crafting an email to bypass a missing trust boundary) is a valid action under part 2 of the demonstration.
+- Security architecture issues frequently fall under the "Risk realisation" branch of part 3 — name the risk class, threat actor or failure mode, and the chain to the materialised harm.
+- If a missing PRD requirement is the root cause of a security gap, raise as upstream-challenging per the threshold and route to PRD.
 
-**Note:** Challenging existing PRD or Foundations decisions IS in scope under category (d). If an upstream choice creates security risks at the architecture level, raise it and flag for upstream routing.
-
-If after checking all guide questions and security requirements in your domain you find zero issues, report zero issues. An empty review is a valid outcome.
+If after applying the threshold above you find zero issues, report zero issues. An empty review is a valid outcome.
 
 ---
 
@@ -68,7 +62,7 @@ If after checking all guide questions and security requirements in your domain y
 
 3. **Evaluate Autonomous Decision Points**: Identify where the architecture allows automated decisions (auto-approve, auto-merge, confidence-based routing). Verify that the data feeding these decisions has passed through a trust boundary with appropriate validation.
 
-4. **Verify Coverage Against Guide**: For each guide question in your domain, check whether the Architecture Overview answers it at the level specified.
+4. **Verify Coverage Against Guide**: Use guide questions as a navigation aid for where to look in the document, not as a category for raising issues. If a guide question is unanswered or partially answered, apply the three-part demonstration: who would consume the missing information, what would they plausibly do without it, and what concrete wrong outcome would result. Only raise if all three parts hold. Severity follows the threshold's rules.
 
 5. **Be Direct**: State clearly what the security concern is and how the architecture creates or fails to address it.
 
@@ -123,10 +117,10 @@ For each issue, use this structure:
 ---
 ```
 
-**Severity definitions:**
-- **HIGH**: Architectural pattern that leaves a security requirement unaddressed or creates an exploitable gap — no component owns the security boundary, trust boundary is missing, or autonomous decisions operate on unvalidated data
-- **MEDIUM**: Security concern that should be addressed but has partial mitigation or lower architectural impact
-- **LOW**: Defence-in-depth improvement at the architecture level; not critical
+**Severity definitions** (apply the threshold's severity rules; the bullets below are domain framing only):
+- **HIGH**: Security issue whose consequence names a security risk class (exploitable gap, missing trust boundary, autonomous decisions on unvalidated data) — by definition implementation-blocking or requiring rework spanning multiple components or specs.
+- **MEDIUM**: Security concern with a named concrete consequence (partial mitigation, lower architectural impact) addressable by a single component spec author or operator without rework cascade.
+- **LOW**: Security issue with a real but minor concrete consequence — single sentence or row edit at architecture level, no downstream rework. Do not use LOW as a catch-all for "defence-in-depth improvement."
 
 **Risk Type definitions:**
 - **Immediate**: Exploitable from launch given the architecture as described
@@ -139,7 +133,7 @@ For each issue, use this structure:
 - Leave component boundaries to System Architect, data flows to Data Architect, integration patterns to Integration Architect
 - Be specific about location in the architecture
 - **Do not propose solutions** - only identify and describe issues
-- **Pre-output self-check**: Before writing your output, review each issue against the Scope of Review criteria. For each issue, confirm it falls into category (a), (b), (c), or (d). Remove any that do not.
+- **Pre-output self-check**: Before writing your output, apply the three-part demonstration check from the Issue Demonstration Requirement (Document evidence, Affected role and plausible action, Wrong outcome). Remove any issue that fails any of the three parts.
 
 ---
 

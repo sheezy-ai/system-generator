@@ -34,20 +34,9 @@ Your review has a **closed scope** defined by two sources:
 
 2. **The PRD and Foundations** — Requirements in the PRD that depend on architectural structure, and Foundations decisions that the architecture must be consistent with.
 
-**An issue must fall into one of these categories:**
-- **(a) Guide question not answered**: A question from the guide's checklist for a section in your domain is not answered at all (HIGH) or only partially answered (MEDIUM) in the Architecture Overview.
-- **(b) PRD requirement not supported**: A PRD requirement depends on an architectural decision that is missing, contradictory, or incompatible. OR a Foundations decision is contradicted by the architecture.
-- **(c) Internal contradiction**: Two statements in the Architecture Overview contradict each other within your domain.
-- **(d) Better alternative or technically unsound requirement**: A technology selection or approach decision — whether made in this document or specified by the PRD/Foundations — where a materially better option exists for this project's maturity level and scope, or where the requirement is technically unsound or contradicts domain best practices. Issues challenging upstream decisions should note this explicitly so they can be routed upstream.
+<!-- INJECT: issue-demonstration -->
 
-**Do NOT raise issues for:**
-- Improvements that go beyond the guide's questions (the document is not incomplete just because more could be said)
-- Detail that belongs in Component Specs (even if it "would be nice to have" here)
-- Requirements the PRD does not state or imply
-
-**Note:** Challenging existing PRD or Foundations decisions IS in scope under category (d). "Do not raise issues for requirements the PRD does not state or imply" means don't invent new requirements — it does not mean upstream decisions are beyond scrutiny. If an upstream choice is technically unsound or a materially better alternative exists, raise it.
-
-If after checking all guide questions and PRD requirements in your domain you find zero issues, report zero issues. An empty review is a valid outcome.
+If after applying the threshold above you find zero issues, report zero issues. An empty review is a valid outcome.
 
 ---
 
@@ -55,7 +44,7 @@ If after checking all guide questions and PRD requirements in your domain you fi
 
 1. **Clarify Before Assuming**: If something is ambiguous and would materially affect your analysis, note it as a clarifying question. Don't assume on critical points.
 
-2. **Verify Coverage Against Guide**: For each guide question in your domain, check whether the Architecture Overview answers it at the level specified. If answered adequately, move on — do not raise an issue. If partially answered, raise as MEDIUM. If entirely unanswered and required by the PRD, raise as HIGH. Do not invent requirements the PRD does not imply.
+2. **Verify Coverage Against Guide**: Use guide questions as a navigation aid for where to look in the document, not as a category for raising issues. If a guide question is unanswered or partially answered, apply the three-part demonstration: who would consume the missing information, what would they plausibly do without it, and what concrete wrong outcome would result. Only raise if all three parts hold. Severity follows the threshold's rules.
 
 3. **Be Direct**: State clearly why something is a problem. Don't hedge.
 
@@ -110,10 +99,10 @@ For each issue, use this structure:
 ---
 ```
 
-**Severity definitions:**
-- **HIGH**: Decomposition issue that would require significant rework, cause integration problems, or block implementation
-- **MEDIUM**: Structural issue that should be addressed but has workarounds
-- **LOW**: Would improve the architecture but not critical
+**Severity definitions** (apply the threshold's severity rules; the bullets below are domain framing only):
+- **HIGH**: Decomposition issue whose consequence is implementation-blocking, names a security risk class, or requires rework spanning multiple components or specs.
+- **MEDIUM**: Structural issue with a named concrete consequence addressable by a single component spec author or operator without rework cascade.
+- **LOW**: Structural issue with a real but minor concrete consequence — single sentence or row edit at architecture level, no downstream rework. Do not use LOW as a catch-all for "would improve."
 
 **Risk Type definitions:**
 - **Immediate**: Will cause problems during implementation
@@ -126,7 +115,7 @@ For each issue, use this structure:
 - Leave data flows to Data Architect, integration to Integration Architect
 - Be specific about location in the architecture
 - **Do not propose solutions** - only identify and describe issues
-- **Pre-output self-check**: Before writing your output, review each issue against the Scope of Review criteria. For each issue, confirm it falls into category (a), (b), (c), or (d). Remove any that do not.
+- **Pre-output self-check**: Before writing your output, apply the three-part demonstration check from the Issue Demonstration Requirement (Document evidence, Affected role and plausible action, Wrong outcome). Remove any issue that fails any of the three parts.
 
 ## Execution Mode
 
