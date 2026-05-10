@@ -42,6 +42,20 @@ Issues that pass the threshold have at least MEDIUM impact (they have a named co
 
 These definitions override any softer severity language elsewhere in your prompt (e.g., "would improve but not critical" is not sufficient to raise as LOW under this threshold).
 
+**Active absence-search (before finalising)**
+
+Absence-spotting is harder than contradiction-spotting. Contradictions are reactive — you find them while reading. Absences require you to construct what's missing and notice it isn't there. Before concluding your review, walk the document for orphaned commitments where one half of a pattern is specified and the other half is silent. In your domain, check at minimum:
+
+- **Interface symmetry**: every named interface has both read and write surfaces specified, or explicit asymmetry rationale. If an interface has multiple operations, check each operation individually — operation A may be fully specified while operation B is half-specified.
+- **Contract producer/consumer pairing**: every cross-component contract row has both producer and consumer named, even if one is "deferred" or "MVP-empty."
+- **Ownership and consumers**: every component that owns data or behaviour has its expected consumers/callers enumerated at the architecture level, or "no consumer at MVP" stated.
+- **Cross-component flow paths**: every cross-component data or control flow has an §4 row (or stage-equivalent) or explicit deferral note. Walk the §6 component rows and ask: for each dependency listed, does the corresponding integration appear in §4?
+- **Commitment fan-out**: for every commitment in §5 Key Technical Decisions (or stage-equivalent), ask: what does §6 say about this? What does §8 say about this? What does §4 say about callers? An orphan commitment with no fan-out across sections is a candidate absence.
+
+This list is not exhaustive. The principle is: walk the document constructing the *expected* content for each named commitment, then check what's there. Each absence you find is a candidate — apply the three-part demonstration to determine whether it passes the threshold.
+
+Intentional asymmetry is not an absence. If the document explicitly states a one-sided commitment with rationale (e.g., "this interface is read-only because..."), the asymmetry is named, not missing. Absence is when the *expected complement* is silent without rationale.
+
 **Pre-output self-check**
 
 Before writing your output, for each issue:
@@ -51,3 +65,11 @@ Before writing your output, for each issue:
 - (3) Does the wrong outcome cite specific evidence per its branch?
 
 Remove any issue that fails any of the three. An empty review is a valid outcome — only issues that pass the threshold should appear in your output.
+
+**Considered-but-not-raised list (conditional on low issue count)**
+
+If your final issue count is ≤2 (zero, one, or two raised issues), include a "Considered but not raised" section in your output. List the principal candidate concerns you evaluated and why each did not pass the threshold — typically: which part of the three-part demonstration could not be completed, with reference to the specific document content that closes or rationalises the concern.
+
+This requirement is conditional on low issue counts because low-volume reviews carry the highest risk of silent drops without it, an empty or near-empty review provides no audit trail for what the expert evaluated. Reviews with 3+ raised issues do not need this section, but you may include one if useful.
+
+Include candidates you actively evaluated, not exhaustive scans of every possible concern. If you walked the absence-search procedure above and rejected candidates because they didn't pass the three-part test, those are the ones to list. Prior-round concerns in your domain that you confirmed as closed (with citation to the closing commitment) are also valid entries.
