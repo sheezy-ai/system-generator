@@ -100,11 +100,10 @@ agents/review/
 │   ├── compliance-legal.md
 │   └── security.md
 │
-└── workflow/                          # Sequential processing steps
-    ├── consolidator.md
-    ├── author.md
-    ├── change-verifier.md
-    └── promoter.md
+├── consolidator.md                    # Step 2: merges expert issues by theme
+├── author.md                          # Step 5: applies resolved changes
+├── change-verifier.md                 # Step 6: verifies each resolution applied
+└── promoter.md                        # Splits PRD into spec/decisions/future at exit
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── alignment-verifier.md              # Verifies alignment with source documents

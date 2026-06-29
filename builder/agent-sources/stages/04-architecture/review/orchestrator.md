@@ -104,17 +104,16 @@ Architecture Overview review uses a **single stage** with 6 experts focused on s
 agents/review/
 ├── orchestrator.md                    # This file
 ├── promoter.md                        # Splits Architecture into spec/decisions/future at exit
-├── experts/
-│   ├── system-architect.md
-│   ├── data-architect.md
-│   ├── integration-architect.md
-│   ├── technical-reviewer.md
-│   ├── finops.md
-│   └── security.md
-└── workflow/
-    ├── consolidator.md
-    ├── author.md
-    └── change-verifier.md
+├── consolidator.md                    # Step 2: merges expert issues by theme
+├── author.md                          # Step 5: applies resolved changes
+├── change-verifier.md                 # Step 6: verifies each resolution applied
+└── experts/
+    ├── system-architect.md
+    ├── data-architect.md
+    ├── integration-architect.md
+    ├── technical-reviewer.md
+    ├── finops.md
+    └── security.md
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── alignment-verifier.md              # Verifies alignment with source documents
@@ -433,7 +432,7 @@ This gate is mandatory. Do not skip it.
 
 31. **Spawn all four verification agents in parallel**:
 
-    **Change Verifier** (Step 6) (`workflow/change-verifier.md`):
+    **Change Verifier** (Step 6) (`change-verifier.md`):
     - Pass: paths to issues-summary (with resolutions) + author output + updated architecture + output path
     - Agent verifies each resolution was applied correctly
     - Write to `06-change-verification-report.md`

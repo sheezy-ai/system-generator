@@ -106,10 +106,9 @@ agents/review/
 │   ├── data-engineer.md
 │   ├── security-engineer.md
 │   └── platform-engineer.md
-└── workflow/
-    ├── consolidator.md
-    ├── author.md
-    └── change-verifier.md
+├── consolidator.md                    # Step 2: merges expert issues by theme
+├── author.md                          # Step 5: applies resolved changes
+└── change-verifier.md                 # Step 6: verifies each resolution applied
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── alignment-verifier.md              # Verifies alignment with source documents

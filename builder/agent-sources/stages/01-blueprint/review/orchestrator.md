@@ -88,10 +88,9 @@ agents/review/
 │   ├── customer-advocate.md
 │   └── operator.md
 │
-└── workflow/                          # Sequential processing steps
-    ├── consolidator.md
-    ├── author.md
-    └── change-verifier.md
+├── consolidator.md                    # Step 2: merges expert issues by theme
+├── author.md                          # Step 5: applies resolved changes
+└── change-verifier.md                 # Step 6: verifies each resolution applied
 
 Create agents (in {{AGENTS_PATH}}/01-blueprint/create/):
 └── scope-extractor.md                 # Re-extracts scope brief during promote
