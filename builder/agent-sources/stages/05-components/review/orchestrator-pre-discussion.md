@@ -88,6 +88,7 @@ These are instructions for the router to follow directly. The router:
 - [ ] Step 2: Consolidation
 - [ ] Step 3: Route Issues (Issue Router)
 - [ ] Step 4: Issue Analysis
+- [ ] Step 4b: Decision Triage
 - [ ] Step 5: Discussion
 - [ ] Step 6: Apply Changes
 - [ ] Step 7: Change Verification
@@ -153,6 +154,7 @@ Ops experts:
 - Consolidator: `{{AGENTS_PATH}}/05-components/review/consolidator.md`
 - Issue Router: `{{AGENTS_PATH}}/05-components/review/issue-router.md`
 - Issue Analyst: `{{AGENTS_PATH}}/universal-agents/issue-analyst.md`
+- Decision Triage: `{{AGENTS_PATH}}/05-components/review/decision-triage.md`
 
 ---
 
@@ -320,25 +322,57 @@ versions/
 
 20. **Update state file**: Mark Step 4 complete
 
-21. **Update state file for discussion phase**:
-    - Set Step 5, status = WAITING_FOR_HUMAN
+21. **Automatically proceed to Step 4b**
 
-22. **Count issues by severity** in `03-issues-discussion.md`
+---
+
+## Step 4b: Decision Triage
+
+Runs after the Issue Analyst and before the human is asked to respond. An independent skeptic pass that flags which issues the human **must personally engage with** — those whose resolution turns on a product/ground-truth fact, real-world scale, risk/regulatory appetite, scope/maturity intent, or a cross-document resolution-direction (conform-spec vs sync-upstream) call — versus those whose resolution is backstopped by the verifier suite (Change / Alignment / Contract / Coherence). This mitigates the failure mode of waving through recommendations at a level of detail the human cannot adjudicate. It never marks an issue "safe to wave"; it only raises the floor.
+
+22. **Update state file**: Set Step 4b, status = IN_PROGRESS
+
+23. **Run Decision-Triage agent** (spawn as Task agent):
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/05-components/review/decision-triage.md
+
+    Context documents:
+    - Spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/00-spec.md
+    - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
+    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
+    - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
+
+    Issues file: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md
+    Consolidated issues: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/02-consolidated-issues.md
+
+    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03b-decision-triage.md
+    ```
+    - The agent does NOT edit `03-issues-discussion.md`; it writes a separate triage file, leaving the Analyst's blocks and the `>> HUMAN:` markers intact.
+
+24. **Verify** `03b-decision-triage.md` was written. If missing, re-invoke once.
+
+25. **Update state file**: Mark Step 4b complete
+
+26. **Update state file for discussion phase**: Set Step 5, status = WAITING_FOR_HUMAN
+
+27. **Count issues by severity** in `03-issues-discussion.md`, and read the **must-engage count** from `03b-decision-triage.md` for the router hand-off.
 
 ---
 
 ## Return to Router
 
-After Step 4 completes, return structured data to router:
+After Step 4b completes, return structured data to router:
 
 ```
 {
   status: "READY_FOR_DISCUSSION",
   issues_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03-issues-discussion.md",
+  triage_file: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/03b-decision-triage.md",
   issue_count: [total issues],
   high_count: [HIGH severity count],
   medium_count: [MEDIUM severity count],
-  low_count: [LOW severity count]
+  low_count: [LOW severity count],
+  must_engage_count: [must-engage count from triage]
 }
 ```
 

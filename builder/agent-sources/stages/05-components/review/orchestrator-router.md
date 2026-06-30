@@ -116,15 +116,22 @@ This file is created when a component review starts and contains the full workfl
 
 Human needs to respond to issues in the file.
 
-**Present:**
+**Present** — lead with the decision-triage must-engage list so the human knows where their attention is actually required (read the must-engage shortlist from `triage_file` / `03b-decision-triage.md`):
 ```
 Issues ready for discussion.
 
 File: [issues_file path]
 Issues: [N] ([high] HIGH, [medium] MEDIUM, [low] LOW)
 
-Please review and respond to each issue in the file, then say "ready".
+⚠️ Must-engage — your input required ([must_engage_count]): these turn on product facts, scale, risk/regulatory appetite, scope intent, or an upstream-vs-spec direction call that the recommendations and verifiers cannot decide for you. Engaging these is the priority ("defer — need to check" is a valid answer):
+[list each must-engage issue: ID — why it's yours — default-if-waved and its risk, from 03b-decision-triage.md]
+
+Triage detail (incl. any "accept-with-scrutiny" recommendations): [triage_file path]
+
+The remaining issues are implementation choices backstopped by the verifier suite — review at your discretion. Please respond to each issue in the file, then say "ready".
 ```
+
+If `must_engage_count` is 0, say so explicitly ("Triage flagged no must-engage issues this round") rather than omitting the line.
 
 **On human "ready":**
 - Update state: Status = IN_PROGRESS
