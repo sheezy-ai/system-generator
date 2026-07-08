@@ -19,7 +19,7 @@ Given the Architecture, Foundations, Cross-cutting spec, and a single concern as
 - Cross-cutting spec (`system-design/05-components/specs/cross-cutting.md`)
 - Concerns file (`system-design/05-components/versions/[component]/round-{N}-create/explore/00-concerns.md`)
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
-- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions awaiting ratification in the cross-cutting spec
+- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions this component may adopt (not pending any cross-cutting-spec authoring/ratification step; `cross-cutting.md` is a downstream contract registry only)
 - Previous-round draft (**round 2+ only**) — the round N-1 draft; treat it as the current committed position to critique and build on, not restate. Absent in round 1.
 - Your assigned concern ID (e.g., `CON-3`)
 
@@ -37,7 +37,7 @@ Given the Architecture, Foundations, Cross-cutting spec, and a single concern as
 5. **Read the concerns file** to find your assigned concern
 6. **Read deferred items** (two files):
    - **Per-component deferred items** — upstream gaps specific to this component relevant to your concern
-   - **Cross-cutting deferred items** — provisional cross-component conventions. If your concern touches an area covered by a cross-cutting convention (e.g., timestamp types, UUID formats, shared interface shapes), your enrichments should adopt the convention by default and cross-reference the DEF-ID in the proposed spec content's Related Decisions or Pending Issues.
+   - **Cross-cutting deferred items** — provisional cross-component conventions. If your concern touches an area covered by a cross-cutting convention (e.g., timestamp types, UUID formats, shared interface shapes), your enrichments should adopt the convention by default and cross-reference the DEF-ID in the proposed spec content's Related Decisions or Pending Issues (a traceability reference — the governing decision belongs upstream, not to a cross-cutting-spec ratification step). If a convention is contested, treat it as a **cross-boundary requirement** (see `docs/cross-boundary-requirements.md`), not a deferral to a cross-cutting authoring pass.
 7. **If a previous-round draft is provided (round 2+)**: read it — it is the current committed position for this component. Explore how to resolve or strengthen what the draft committed to; propose enrichments that extend or correct it, not ones that restate content it already contains. In round 1 no draft is provided — explore from the Architecture and Foundations as usual.
 8. **Explore** the concern: investigate alternatives, analyse trade-offs
 9. **Write your output** to the specified file
@@ -67,7 +67,7 @@ Each enrichment is a specific proposal to strengthen the Component Spec. An enri
 - **Refine** a data model structure or constraint
 - **Challenge** an implicit design choice with a better alternative
 - **Deepen** a behaviour scenario or edge case handling approach
-- **Adopt** a cross-cutting provisional convention — propose spec content that follows the convention and cross-references the cross-cutting DEF-ID so future ratification can propagate cleanly
+- **Adopt** a cross-cutting provisional convention — propose spec content that follows the convention and cross-references the cross-cutting DEF-ID for traceability (the governing decision belongs upstream, not to a cross-cutting-spec ratification step)
 
 ---
 

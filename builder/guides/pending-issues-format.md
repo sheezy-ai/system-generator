@@ -19,8 +19,9 @@ Component Specs also has **per-component** pending-issues files for lateral/cros
 ## Who Writes
 
 - **Orchestrator** writes new pending issues (after human confirms Alignment Verifier's HALT recommendation)
-- **Issue Router** (05-components) appends escalated upstream issues and lateral cross-component issues
-- **Author** marks issues as RESOLVED (during Review workflow)
+- **Issue Router** (05-components review) appends escalated upstream issues and lateral cross-component issues, classified by `Kind` (see Cross-Boundary Requirements below)
+- **Enrichment Scope Filter** (05-components create) appends cross-boundary requirements surfaced during exploration — P1 lateral to a peer, P2 upstream to Architecture/Foundations
+- **Author** (05-components create and review) appends cross-boundary requirements surfaced during gap/issue resolution, and marks issues as RESOLVED
 - **Pending Issue Resolver** updates status for human-decided resolutions (APPLY → RESOLVED, DEFER → DEFERRED, REJECT → WONT_FIX)
 
 ## Who Reads
@@ -29,6 +30,9 @@ Component Specs also has **per-component** pending-issues files for lateral/cros
 - **Consolidator** reads unresolved issues and includes them in consolidated output
 - **Contract Verifier** (05-components) reads pending issues when checking for regressions
 - **Stage Coherence Orchestrator** (05-components) aggregates pending issues across all components during Phase 2
+- **Upstream stage workflows** (create/expand/review for PRD, Foundations, Architecture) action their own `AWAITS_UPSTREAM_REVISION` (P2) items when that stage is next revised
+
+Note: **create does not read `pending-issues.md`** — a component authors inside-out from upstream documents, and cross-component reconciliation happens at review. Create only *writes* cross-boundary requirements here; it does not consume them.
 
 ---
 
@@ -120,7 +124,8 @@ Issues identified in this stage's document during downstream work.
 
 | Field | Description |
 |-------|-------------|
-| **Status** | UNRESOLVED, RESOLVED, DEFERRED, or WONT_FIX |
+| **Status** | UNRESOLVED, AWAITS_UPSTREAM_REVISION, RESOLVED, DEFERRED, or WONT_FIX |
+| **Kind** | `DISCREPANCY` (default — a conflict with an existing document), `CROSS-BOUNDARY-PEER` (a non-contract requirement on a peer component), or `CROSS-BOUNDARY-UPSTREAM` (a cross-cutting invariant / shared design decision escalated to Architecture/Foundations). See Cross-Boundary Requirements below. |
 | **Severity** | SHOWSTOPPER, HIGH, MEDIUM, or LOW (from Alignment Verifier) |
 | **Logged** | Date the issue was logged |
 | **Source** | Which downstream workflow identified this. Standard format: `[Downstream stage] [Create\|Review] workflow, Round [N]`. Issue Router format: `Component Spec Review ([component]) - [Date]` with `Escalated by: Component Spec Issue Router` |
@@ -137,6 +142,42 @@ Issues identified in this stage's document during downstream work.
 | **Resolved** | Date resolved |
 | **Resolution Round** | Which Review round fixed it |
 | **Resolution** | Brief description of the fix |
+
+---
+
+## Cross-Boundary Requirements
+
+Two entry shapes share this file; the `Kind` field distinguishes them.
+
+**DISCREPANCY** (default) — a conflict between this document and a downstream document, logged by the Alignment Verifier / Orchestrator. Uses the `This Document States` / `Downstream Document States` quote pair shown in the File Format above.
+
+**CROSS-BOUNDARY-PEER (P1)** — a non-contract requirement one component needs a **peer** to uphold, where the peer can satisfy it entirely within its own spec. Written to the **target peer's** `pending-issues.md`; consumed at the peer's next **review** (Consolidator). This is how component-stage integration requirements are documented as components are developed.
+
+**CROSS-BOUNDARY-UPSTREAM (P2)** — a cross-component invariant or shared design decision that **no single component owns** (audit-trail failure posture, retention coordination, a shared type/format). A component must not bind a peer to a system invariant, so it is escalated to **Architecture** (or Foundations) `pending-issues.md` with **`Status: AWAITS_UPSTREAM_REVISION`** — an open obligation on an already-completed stage, actioned when a human next runs that stage's revision workflow, never treated as silently resolved. The originating spec records the dependency as awaiting upstream revision so it stays visible on both ends.
+
+Both cross-boundary kinds use the **lateral shape** (a `Target` component/stage, not a document-quote pair):
+
+```markdown
+### PI-[NNN]: [Brief summary]
+
+**Status:** UNRESOLVED | AWAITS_UPSTREAM_REVISION
+**Kind:** CROSS-BOUNDARY-PEER | CROSS-BOUNDARY-UPSTREAM
+**Severity:** SHOWSTOPPER | HIGH | MEDIUM | LOW
+**Logged:** [YYYY-MM-DD]
+**Source:** [source-component] Spec [Create|Review], Round [N]
+**Target:** [target-component | Architecture | Foundations]
+
+#### Issue
+[What the target needs to uphold, and why]
+
+#### Suggested Change
+[Specific recommendation for the target spec/stage]
+
+#### Reference
+See [source-component] spec Section [X].
+```
+
+See `docs/cross-boundary-requirements.md` for the full triage (P1 vs P2) and authority model.
 
 ---
 
@@ -192,6 +233,8 @@ Consolidator should check if the quoted text still exists in the document:
 ```
 
 DEFERRED and WONT_FIX are set by the Pending Issue Resolver based on human decisions during the review workflow (Step 11) or Stage Coherence Review (Phase 2).
+
+**AWAITS_UPSTREAM_REVISION** is a variant of UNRESOLVED for `CROSS-BOUNDARY-UPSTREAM` (P2) escalations: the item is a live obligation on an already-completed upstream stage. It transitions to RESOLVED when that stage's next revision round actions it (and the change propagates downstream via the Alignment Verifier). It is never silently treated as resolved.
 
 ---
 

@@ -23,7 +23,7 @@ Given the Architecture Overview, Foundations, exploration enrichments (if any), 
 - Component name (from architecture overview's component list)
 - Component deferred items (gaps/issues from upstream stages)
 - Cross-cutting spec
-- Cross-cutting deferred items — provisional cross-component conventions awaiting ratification in the cross-cutting spec
+- Cross-cutting deferred items — provisional cross-component conventions this component may adopt (not pending any cross-cutting-spec authoring/ratification step; `cross-cutting.md` is a downstream contract registry only)
 - Component brief (optional) — settled decisions, prior work, or prescriptive direction for this component
 - Exploration summary (optional) — accepted enrichments from the Explore phase, organized by spec section
 
@@ -49,7 +49,7 @@ Given the Architecture Overview, Foundations, exploration enrichments (if any), 
 4. **Read the Tech Spec Guide** to understand target format
 5. **Read the component deferred items** to incorporate upstream gaps/issues marked as STILL_RELEVANT or PARTIALLY_ADDRESSED
 6. **Read the cross-cutting spec** to understand data contracts involving this component
-7. **Read the cross-cutting deferred items** — provisional conventions awaiting ratification. Treat these as working conventions this component adopts unless there is specific reason to deviate. Surface adopted conventions as bilateral-ratification flags in §12 Pending Issues with the cross-cutting DEF-ID.
+7. **Read the cross-cutting deferred items** — provisional cross-component conventions. Treat these as working conventions this component adopts unless there is specific reason to deviate. Record each adopted convention in §12 Pending Issues as a cross-reference to the cross-cutting DEF-ID (traceability, not a pending action — there is no cross-cutting-spec ratification step; `cross-cutting.md` is a downstream contract registry). If a convention is contested or cannot be adopted cleanly, raise it as a **cross-boundary requirement** (see `docs/cross-boundary-requirements.md`) rather than deferring to a non-existent cross-cutting authoring pass.
 8. **Read component brief** (if provided) to incorporate settled decisions and prescriptive direction
 9. **Read exploration summary** (if provided) to incorporate accepted enrichments — these are pre-analysed design decisions from the Explore phase. Treat them like brief content: incorporate using prescriptive tone, do NOT re-mark as gaps
 10. **Read `{{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md`** to calibrate to the maturity/phase target, then synthesize into a draft spec, applying Foundations conventions and exploration enrichments. **Maturity discipline**: at MVP / early-phase scale, prefer *explicit-latitude* framing (state the contract commitment, then name what the implementer derives) over exhaustive internal enumeration; do not pre-build Prod/Enterprise-grade observability, error-taxonomy, or test ceremony the phase target doesn't warrant. Consumer-binding contracts and corruption/integrity invariants are pinned regardless (criticality discipline).
@@ -73,10 +73,10 @@ If deferred items are provided:
 If cross-cutting deferred items are provided:
 
 1. Read all items in the cross-cutting deferred items file
-2. These are provisional conventions (e.g., column-type standards, wire-format conventions, shared interface shapes) that apply across all components but are not yet ratified in the cross-cutting spec
+2. These are provisional conventions (e.g., column-type standards, wire-format conventions, shared interface shapes) that apply across all components but are not yet pinned in their governing upstream document (Foundations or Architecture)
 3. For each convention that intersects this component's design surface:
    - Adopt it in the draft as settled content — use prescriptive tone, do NOT mark as a gap
-   - Cross-reference the DEF-ID in §12 Pending Issues as a bilateral-ratification flag (e.g., "Adopts DEF-R3-001 TIMESTAMPTZ convention — pending cross-cutting spec ratification")
+   - Cross-reference the DEF-ID in §12 Pending Issues as an adoption record (e.g., "Adopts DEF-R3-001 TIMESTAMPTZ convention — provisional cross-component convention; governing decision belongs upstream, not to a cross-cutting-spec ratification step"). This is a traceability cross-reference, not a pending action.
    - If deviation is warranted: document the rationale in Related Decisions and flag in §12 Pending Issues
 4. Do not silently ignore cross-cutting conventions — either adopt or explicitly deviate with rationale
 

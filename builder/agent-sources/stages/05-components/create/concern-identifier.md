@@ -19,7 +19,7 @@ Given the input documents, identify 3-5 component design concerns worth explorin
 - Component guide (`{{GUIDES_PATH}}/05-components-guide.md`)
 - Cross-cutting spec (`system-design/05-components/specs/cross-cutting.md`)
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
-- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions awaiting ratification in the cross-cutting spec
+- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions this component may adopt (not pending any cross-cutting-spec authoring/ratification step; `cross-cutting.md` is a downstream contract registry only)
 - Workflow state file (`system-design/05-components/versions/[component]/workflow-state.md`)
 - Previous-round draft (**round 2+ only**) — the round N-1 draft this round critiques (`system-design/05-components/versions/[component]/round-{N-1}-create/03-updated-spec.md`, or `00-draft-spec.md` if no Author output ran). Absent in round 1.
 
@@ -37,7 +37,7 @@ Given the input documents, identify 3-5 component design concerns worth explorin
 5. **Read the Cross-cutting spec** to understand shared contracts, error envelopes, and conventions that apply across components
 6. **Read the deferred items** (two files):
    - **Per-component deferred items** — items deferred from upstream stages specific to this component
-   - **Cross-cutting deferred items** — provisional cross-component conventions (e.g., column-type conventions, wire-format conventions, shared interface shapes) awaiting ratification in the cross-cutting spec. If this component's likely design surface intersects a cross-cutting convention (timestamp columns, UUID fields, source_type values, audit-trail writes), flag a concern for how this component adopts that convention.
+   - **Cross-cutting deferred items** — provisional cross-component conventions (e.g., column-type conventions, wire-format conventions, shared interface shapes) not yet pinned in their governing upstream document (Foundations or Architecture). If this component's likely design surface intersects a cross-cutting convention (timestamp columns, UUID fields, source_type values, audit-trail writes), flag a concern for how this component adopts that convention.
 7. **Read the workflow state file** — understand the current round and any prior exploration context
 8. **If a previous-round draft is provided (round 2+)**: read it — this is the primary artefact you critique this round. Identify concerns about what it committed to without structural resolution (per the round-aware threshold below); do not re-raise concerns it already resolves. In round 1 no draft is provided — identify concerns from the Architecture and Foundations as usual.
 9. **Identify concerns** where exploration would add value to this component's design
@@ -62,7 +62,7 @@ A concern is a component design area where the spec has choices (explicit or imp
 - Architecture-level — component boundaries, data flows between components, system decomposition (already decided in Architecture)
 - Technology choices — which database, which framework (already decided in Foundations)
 - Code-level — algorithm implementation, class hierarchies, framework-specific patterns (belongs in codebase)
-- Cross-cutting concerns already resolved — conventions defined in Cross-cutting spec or Foundations. Note: cross-cutting *deferred* items are NOT yet resolved — they are provisional conventions that may warrant a concern if this component's design surface intersects them.
+- Cross-cutting concerns already resolved — conventions defined in the Cross-cutting registry or Foundations. Note: cross-cutting *deferred* items are NOT yet resolved — they are provisional conventions (governed upstream, not by a cross-cutting-spec ratification step) that may warrant a concern if this component's design surface intersects them.
 
 ### Level Check
 

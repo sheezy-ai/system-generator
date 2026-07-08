@@ -27,6 +27,7 @@ You run after the Exploration Consolidator and before the human's Enrichment Rev
 From Component Specs, defer to:
 - **Architecture** (upward): Component boundary changes, inter-component data flows, new components, system-level integration patterns
 - **Foundations** (upward): Technology choices, system-wide conventions (unlikely at this stage)
+- **Peer component** (lateral): A non-contract requirement a peer component must uphold within its own spec — a cross-boundary requirement (P1), documented as a component-stage integration requirement. See Cross-Boundary Requirements in the Filtering Logic below.
 
 Filter OUT (no deferral — discard):
 - **Implementation code**: Python/SQL/pseudo-code, framework-specific annotations, algorithm implementations, class hierarchies — these belong in the codebase, not the spec
@@ -37,6 +38,7 @@ Filter OUT (no deferral — discard):
 
 - Architecture: `system-design/04-architecture/versions/pending-issues.md`
 - Foundations: `system-design/03-foundations/versions/pending-issues.md`
+- Peer component (lateral): `system-design/05-components/versions/[target-component]/pending-issues.md`
 
 ---
 
@@ -106,6 +108,13 @@ Filter enrichment proposals from the consolidated enrichment discussion. Keep Co
 **DEFER UPWARD to Foundations if:**
 - Enrichment makes or requires technology choices not already established (unlikely at this stage)
 - Enrichment proposes changes to system-wide conventions (error formats, security standards)
+
+**CROSS-BOUNDARY REQUIREMENT (P1 peer / P2 upstream) if:**
+- Enrichment states a requirement this component **cannot satisfy within its own boundary** — a peer component must uphold it, or a cross-component invariant / shared design decision must be pinned. This is the create-stage way to record what the retired "forward commitment to a cross-cutting spec" tried to capture (see `docs/cross-boundary-requirements.md`).
+- **P1 (peer)**: the requirement affects only a **peer's own spec** (e.g. "admin-views must render candidate free-text fields as plain text"). Write a `CROSS-BOUNDARY-PEER` entry to the target peer's `pending-issues.md` (`Status: UNRESOLVED`), documenting a component-stage integration requirement for the peer's review to reconcile.
+- **P2 (upstream invariant/design)**: a cross-component **invariant** or shared **design decision** no single component owns (audit-trail failure posture, retention coordination, a shared type/format). Write a `CROSS-BOUNDARY-UPSTREAM` entry to Architecture (or Foundations) `pending-issues.md` with `Status: AWAITS_UPSTREAM_REVISION`. A component must not bind a peer to a system invariant — escalate it.
+- **Triage**: target can satisfy it within its own spec → P1; it coordinates two or more components or must be pinned once centrally → P2. When unsure, prefer P2. Data *contracts* are **not** this disposition — they flow through the cross-cutting registry / CTR machinery.
+- **Action**: write the entry using the **lateral shape** per `guides/pending-issues-format.md`, and note it in the output summary. If the enrichment also carries spec-level content for **this** component, KEEP that part for this component; only the cross-boundary obligation is routed out.
 
 **DEFER-FUTURE (above the maturity/phase target) if:** *(conservative — only clear-cut cases; the binding orchestrator Step 9d excess gate is the backstop for the rest)*
 - Enrichment is spec-level-appropriate (right topic, right altitude) BUT proposes **internal-only** rigour beyond what `project-scale.md` warrants for the current phase — e.g. exhaustive internal enum enumeration, per-row emission / round-trip tests, reflection / meta-tests, or Prod/Enterprise-grade observability or error-taxonomy ceremony against an MVP / early-phase target.
@@ -188,6 +197,12 @@ When you suspect an enrichment crosses into code territory but aren't confident,
 |----|-------|-------------|--------|
 | [ENR-NNN] | [Title] | [Stage] | [Reason] |
 
+## Cross-Boundary Requirements Routed
+
+| ID | Title | Kind | Target | Status |
+|----|-------|------|--------|--------|
+| [ENR-NNN] | [Title] | CROSS-BOUNDARY-PEER / CROSS-BOUNDARY-UPSTREAM | [target-component / Architecture / Foundations] | UNRESOLVED / AWAITS_UPSTREAM_REVISION |
+
 ## Filtered Enrichments (Below Spec Level)
 
 | ID | Title | Why Filtered |
@@ -228,9 +243,10 @@ Kept enrichments must preserve the original enrichment discussion format exactly
    a. Identify which Component Spec section it targets
    b. Check if the enrichment's content belongs at Component Spec level (use Stage Boundaries table)
    c. If too structural: defer upward to Architecture or Foundations
+   c2. If it states a requirement this component cannot satisfy alone — a peer must uphold it, or a cross-component invariant/shared design decision must be pinned: route as a **cross-boundary requirement** (P1 peer → target peer's pending-issues; P2 upstream → Architecture/Foundations pending-issues with AWAITS_UPSTREAM_REVISION). Keep any spec-level content for this component; route only the cross-boundary obligation.
    d. If below spec level: filter out (code belongs in codebase)
    e. If Component Spec level: check if it crosses from contracts into code
-   f. Classify as KEEP, DEFER (wrong level), FILTER OUT (below spec), DEFER-DEPTH (code extracted), or FLAG (borderline depth)
+   f. Classify as KEEP, DEFER (wrong level), CROSS-BOUNDARY (P1 peer / P2 upstream), FILTER OUT (below spec), DEFER-DEPTH (code extracted), or FLAG (borderline depth)
 4. Write filtered enrichment discussion file (kept enrichments in original format, with summary tables prepended)
 5. Append deferred items to appropriate upstream pending issues files using the append format
 

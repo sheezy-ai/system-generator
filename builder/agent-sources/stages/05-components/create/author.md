@@ -113,6 +113,14 @@ All gaps resolved during creation workflow.
 - **Applied**: [N]
 - **Flagged**: [N] (require clarification)
 - **Unresolved (Skipped)**: [N]
+
+## Cross-Boundary Requirements
+
+| Source Gap | Kind | Target | Destination File |
+|------------|------|--------|------------------|
+| GAP-NNN | CROSS-BOUNDARY-PEER / CROSS-BOUNDARY-UPSTREAM | [target-component / Architecture / Foundations] | versions/[target]/pending-issues.md or [stage]/versions/pending-issues.md |
+
+*(Omit this section if no cross-boundary requirements were routed.)*
 ```
 
 ---
@@ -177,7 +185,7 @@ Component Specs are implementation-level documents, so downward drift is less of
 | Behaviour as prose scenarios | Pseudo-code or algorithm implementation |
 | Entity schema as markdown table | SQL CREATE TABLE statement |
 
-**Upward drift test:** If the proposed change would affect other components or change a system-wide pattern, it belongs in Architecture or Foundations, not this spec.
+**Upward drift test:** If the proposed change would affect other components or change a system-wide pattern, it does not belong in this spec — but **do not just drop it**. Route it as a **cross-boundary requirement** (see Cross-Boundary Requirements below): a cross-component invariant or shared design decision goes P2 upstream to Architecture/Foundations; a requirement a specific peer must uphold goes P1 to that peer. Apply to this spec only the part that is genuinely this component's.
 
 **Code block test:** The Generator is instructed not to produce code blocks. If a gap proposal contains Python, SQL, or other implementation code, flag it and apply the intent as tables/prose instead.
 
@@ -191,6 +199,26 @@ If a proposed change violates these, flag it:
 - **Recommendation**: [How to fix — e.g., express as table instead of code, or defer to Architecture]
 - **Needs**: Human confirmation
 ```
+
+---
+
+## Cross-Boundary Requirements
+
+A resolved gap may surface a requirement this component **cannot satisfy within its own boundary** — a **peer** component must uphold it, or a **cross-component invariant / shared design decision** must be pinned. This is the create-stage way to record what the retired "forward commitment to a cross-cutting spec" tried to capture (see `docs/cross-boundary-requirements.md`). Do not silently drop these — route them, and still apply to this spec whatever part is genuinely this component's.
+
+### Detecting
+
+Scan resolved discussions and `>> HUMAN:` responses for:
+- "ensure [component]...", "note for [component]...", "when [component] is reviewed..."
+- "[peer] must...", "downstream components need...", "upstream components should..."
+- A resolution whose substance is a cross-component invariant or shared posture (audit-trail failure posture, retention coordination, a shared type/format) rather than this component's own design.
+
+### Routing (P1 peer vs P2 upstream)
+
+- **P1 (peer)** — affects only a peer's own spec. Append a `CROSS-BOUNDARY-PEER` entry (`Status: UNRESOLVED`) to the target peer's `pending-issues.md` (`system-design/05-components/versions/[target-component]/pending-issues.md`). Lateral items go to the target's pending-issues file regardless of whether the target spec exists yet; consumed at the peer's next review.
+- **P2 (upstream invariant/design)** — a cross-component invariant or shared design decision no single component owns. Append a `CROSS-BOUNDARY-UPSTREAM` entry (`Status: AWAITS_UPSTREAM_REVISION`) to Architecture (or Foundations) `pending-issues.md`. A component must not bind a peer to a system invariant — escalate it.
+- **Triage**: target can satisfy it within its own spec → P1; it coordinates two or more components or must be pinned once centrally → P2. When unsure, prefer P2. Data *contracts* are **not** this disposition (they flow through the cross-cutting registry / CTR).
+- Use the **lateral shape** per `guides/pending-issues-format.md`, and log each routed item in the change log under **Cross-Boundary Requirements** (Source gap, Kind, Target).
 
 ---
 
