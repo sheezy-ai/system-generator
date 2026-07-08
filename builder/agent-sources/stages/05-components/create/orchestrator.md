@@ -151,8 +151,9 @@ system-design/05-components/
    - Step 7 resumes at WAITING_FOR_HUMAN — re-read filtered enrichment discussion file and continue loop
    - Step 9 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
    - Step 9d (Excess Verification) — if marked complete, skip to Step 10
-   - Step 10 (Gap Resolution) — if marked complete, skip to Step 11
-   - Step 11 resumes at WAITING_FOR_HUMAN — present promote/another-round choice to human (include verifier report summary)
+   - Step 10 (Gap Resolution) — if marked complete, skip to Step 10c
+   - Step 10c (Creation Verification) — if marked complete, skip to Step 11; if status = WAITING_FOR_HUMAN within its FIX/ACCEPT loop, re-read the round's alignment/coherence reports and re-present the FIX/ACCEPT decision
+   - Step 11 resumes at WAITING_FOR_HUMAN — present promote/another-round choice to human (verification already ran this round at Step 10c — include its report summary)
 
 3. **Update state file** at each step transition (instructions inline below)
 
@@ -193,8 +194,8 @@ system-design/05-components/
 - [ ] Step 9c: Depth Verification
 - [ ] Step 9d: Excess Verification (binding)
 - [ ] Step 10: Gap Resolution
+- [ ] Step 10c: Creation Verification (alignment + coherence — per-round gate)
 - [ ] Step 11: Promote or Continue
-- [ ] Step 11b: Creation Verification
 - [ ] Step 11c: Decomposition Evaluation
 - [ ] Step 11d: Split into Sub-Specs (if approved)
 
@@ -1006,7 +1007,98 @@ Do NOT enter the discussion loop until the human has added actual response conte
 
 ### Step 10b: Stage-Appropriateness Verification — RETIRED (superseded by binding Step 9d)
 
-Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 9d), with its findings resolved inside Step 10 as excess TODO gaps. There is nothing to do here; proceed directly from Step 10 to Step 11. (Heading retained so older state files and resume logic that reference "Step 10b" resolve cleanly — treat as a no-op.)
+Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 9d), with its findings resolved inside Step 10 as excess TODO gaps. There is nothing to do here; proceed directly from Step 10 to Step 10c. (Heading retained so older state files and resume logic that reference "Step 10b" resolve cleanly — treat as a no-op.)
+
+### Step 10c: Creation Verification (alignment + coherence — per-round gate)
+
+**Purpose**: Verify alignment with the source documents and internal coherence **every round**, immediately after gap resolution and **before** the human's promote/continue choice. This mirrors the Review workflow's post-author verification gate (its Steps 7–10 + the `VERIFICATION_CLEAN` predicate): each round ends alignment- and coherence-clean, so cross-section gaps cannot accrete across rounds and the Step 11 decision is made on a fully-verified draft. This is the per-round counterpart of the check the create workflow previously deferred to a terminal-only gate (retired Step 11b).
+
+**On resume**: If Step 10c already marked complete, skip to Step 11. If status = WAITING_FOR_HUMAN within its FIX/ACCEPT loop, re-read the round's alignment/coherence reports and re-present the decision.
+
+1. **Determine draft path**:
+    - If `{round-dir}/03-updated-spec.md` exists (Author ran in Step 10): Use it
+    - Otherwise: Use `{round-dir}/00-draft-spec.md`
+
+2. **Spawn both verification agents in parallel**:
+
+    **Alignment Verifier**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/alignment-verifier.md
+
+    Input:
+    - Updated spec: [draft path from step 1]
+    - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
+    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
+    - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
+
+    Output: {round-dir}/04-alignment-report.md
+    ```
+
+    **Internal Coherence Checker**:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
+
+    Document: [draft path from step 1]
+    Stage guide: {{GUIDES_PATH}}/05-components-guide.md
+    Output: {round-dir}/05-coherence-report.md
+    ```
+
+3. **Wait for both agents to complete**
+
+4. **Read both reports** and aggregate findings:
+    - Alignment report: check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
+    - Coherence report: check for HIGH or MEDIUM gaps
+
+5. **Gate threshold** (matches the Review workflow's `VERIFICATION_CLEAN` bar): the round is **CLEAN** iff alignment is PROCEED with **no HALT** AND coherence has **no HIGH or MEDIUM gaps** (COHERENT or LOW only). LOW coherence and LOW/SYNC_UPSTREAM alignment items **do not gate** — carry them forward and note them.
+
+6. **If CLEAN**:
+    - Update state file: Mark "Step 10c: Creation Verification" complete `[x]`, add history entry with the alignment/coherence summary
+    - Proceed to Step 11 (automatic — no pause)
+
+7. **Track rework pass count**: The first verification is pass 1. Each FIX that returns to the Author and re-runs verification increments the count.
+
+8. **If issues found** (any HIGH or MEDIUM coherence gap, or an alignment HALT/REVIEW_NEEDED): Set status = WAITING_FOR_HUMAN and present to human:
+    ```
+    [If rework pass 2+, include at top:]
+    > **Rework pass [N]**: verification after rework pass [N]. Diminishing returns are expected — each fix may surface progressively more peripheral cross-section implications. Exit discipline: gate on **no HIGH/MEDIUM**, not zero issues.
+
+    Creation verification (round {N}) found issues:
+
+    [If alignment issues:]
+    ### Alignment Issues
+    [List discrepancies with classification and severity]
+
+    [If coherence gaps:]
+    ### Coherence Gaps
+    [List HIGH/MEDIUM gaps with source section, target section, and summary]
+
+    [If rework pass 2+:]
+    > HIGH gaps: **FIX** recommended.
+    > MEDIUM gaps: **ACCEPT** recommended — on rework pass [N], these are likely diminishing-returns implications. FIX only if build-affecting.
+
+    [If first pass:]
+    For each: **FIX** (return to Author) or **ACCEPT** (carry to the Step 11 decision as-is)?
+    ```
+
+    **STOP: Wait for human response.**
+
+9. **After human responds**:
+    - **If FIX**: Write the accepted findings as resolved directives to `{round-dir}/01-coherence-fixes.md` (gap-discussion resolved format: each item `>> RESOLVED` with a precise "Apply:" instruction), then spawn the Author:
+      ```
+      Follow the instructions in: {{AGENTS_PATH}}/05-components/create/author.md
+
+      Input:
+      - Draft Spec: {round-dir}/03-updated-spec.md (or {round-dir}/00-draft-spec.md if no Author ran in Step 10)
+      - Gap discussion (resolved coherence-fix directives): {round-dir}/01-coherence-fixes.md
+      - Component guide: {{GUIDES_PATH}}/05-components-guide.md
+
+      Output:
+      - Change log: {round-dir}/02c-creation-verify-author-output.md
+      - Updated Spec: {round-dir}/03-updated-spec.md (edit in place)
+      ```
+      Then **re-run verification** (loop to step 1). Apply the **no-HIGH/MEDIUM exit discipline**: stop the rework loop once no HIGH/MEDIUM remain; do not chase LOW residuals round-over-round (that is the non-convergence trap).
+    - **If ACCEPT**: the accepted items carry forward unresolved; proceed to Step 11.
+    - Update state file: Mark "Step 10c: Creation Verification" complete `[x]`, set status = IN_PROGRESS, add history entry with per-pass counts.
 
 ### Step 11: Promote or Continue (`WAITING_FOR_HUMAN`)
 
@@ -1025,7 +1117,7 @@ Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 
    [If Author ran:]
    Updated: {round-dir}/03-updated-spec.md
 
-   The spec passed the two-sided gate: no missing requirements (coverage/depth) AND no unresolved over-build (excess). The Step 9d stage-appropriateness report is at {round-dir}/06-stage-appropriateness-report.md for reference.
+   The spec passed this round's full gate: no missing requirements (coverage/depth), no unresolved over-build (excess), AND clean alignment + internal coherence (Step 10c — no HIGH/MEDIUM). Reports: {round-dir}/06-stage-appropriateness-report.md, {round-dir}/04-alignment-report.md, {round-dir}/05-coherence-report.md.
 
    You can:
    - Say "promote" — promote the current draft
@@ -1045,7 +1137,7 @@ Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 
    - Update state file:
      - Mark "Step 11: Promote or Continue" complete `[x]`
      - Increment `Current Round`
-     - Reset Steps 1–11 to unchecked `[ ]`
+     - Reset Steps 1–11 to unchecked `[ ]` (includes Step 10c)
      - Set phase = Explore, Explore Phase = active, Gaps Exist = unknown
      - Add history entry "Round {N} complete — starting round {N+1}"
    - **Re-resolve paths** using Path Resolution with the new round number
@@ -1053,7 +1145,7 @@ Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 
 
    **If "promote"** or "promote as-is":
    - Update state file: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Promoting draft from round {N}"
-   - Proceed to Step 11b
+   - Proceed to Step 11c (Creation Verification already ran this round at Step 10c)
 
 ---
 
@@ -1109,75 +1201,9 @@ Rationale for single-checkpoint: matches Gap Resolution / Creation Verification 
 
 4. Return to Step 11 notification (loop back to step 2 of Step 11 above — do not advance to Step 11b without an explicit human "promote" choice).
 
-### Step 11b: Creation Verification
+### Step 11b: Creation Verification — RETIRED (moved to per-round Step 10c)
 
-**Purpose**: Verify alignment with source documents and internal coherence before promotion. Catches misalignment and cross-section consistency gaps introduced during creation.
-
-1. **Determine draft path**:
-    - If `{round-dir}/03-updated-spec.md` exists (Author ran): Use it
-    - Otherwise: Use `{round-dir}/00-draft-spec.md`
-
-2. **Spawn both verification agents in parallel**:
-
-    **Alignment Verifier**:
-    ```
-    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/alignment-verifier.md
-
-    Input:
-    - Updated spec: [draft path from step 1]
-    - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
-    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
-    - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
-
-    Output: {round-dir}/04-alignment-report.md
-    ```
-
-    **Internal Coherence Checker**:
-    ```
-    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
-
-    Document: [draft path from step 1]
-    Stage guide: {{GUIDES_PATH}}/05-components-guide.md
-    Output: {round-dir}/05-coherence-report.md
-    ```
-
-3. **Wait for both agents to complete**
-
-4. **Read both reports** and aggregate findings:
-    - Alignment report: check for HALT recommendation, SYNC_UPSTREAM, REVIEW_NEEDED
-    - Coherence report: check for HIGH or MEDIUM gaps
-
-5. **If both CLEAN** (alignment PROCEED with no issues, coherence COHERENT or LOW only):
-    - Update state file: Mark "Step 11b: Creation Verification" complete `[x]`, add history entry
-    - Proceed to Step 11c (Decomposition Evaluation). The Step 11c human checkpoint governs whether the evaluator actually runs; clean-pass and issues-accepted paths both route through it for consistency.
-
-6. **Track rework pass count**: Count how many times verification has been run in this round. The first verification is pass 1. Each FIX that returns to Author and re-runs verification increments the count.
-
-7. **If issues found**: Present findings to human:
-    ```
-    [If rework pass 2+, include at top:]
-    > **Rework pass [N]**: This is verification after rework pass [N]. Diminishing returns are expected — each fix may surface progressively more peripheral cross-section implications.
-
-    Creation verification found issues:
-
-    [If alignment issues:]
-    ### Alignment Issues
-    [List discrepancies with classification and severity]
-
-    [If coherence gaps:]
-    ### Coherence Gaps
-    [List HIGH/MEDIUM gaps with source section, target section, and summary]
-
-    [If rework pass 2+:]
-    > HIGH gaps: **FIX** recommended.
-    > MEDIUM gaps: **ACCEPT** recommended — on rework pass [N], these are likely diminishing-returns implications. FIX only if build-affecting.
-
-    [If first pass:]
-    For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
-    ```
-    - If FIX: Spawn Author to address issues, then re-run verification
-    - If ACCEPT: Proceed to Step 11c
-    - Update state file: Mark "Step 11b: Creation Verification" complete `[x]`, add history entry
+Creation Verification (alignment + internal coherence) now runs **every round** as **Step 10c**, immediately after Gap Resolution and *before* the Step 11 promote/continue choice — mirroring the Review workflow's post-author verification gate. There is nothing to do here: by the time the human chooses "promote" at Step 11, the current round's draft has already passed Step 10c (no HIGH/MEDIUM coherence gaps, no alignment HALT), so promotion proceeds straight to Step 11c. (Heading retained so older state files and resume logic that reference "Step 11b" resolve cleanly — treat as a no-op that forwards to Step 10c / Step 11c.)
 
 ### Step 11c: Decomposition Evaluation
 
@@ -1377,8 +1403,8 @@ Phase 3 runs only when the human chooses to promote at Step 11 AND decomposition
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
 - Steps 8 → 9 → 9b → 9c → 9d: Enrichment author then generator/applicator then coverage then depth then excess verification
 - Step 10: Gap resolution (Gap formatter → Gap analyst → discussion loop → Author) — also resolves excess (over-build) gaps from Step 9d
-- Steps 11b → 11c: Verification then decomposition evaluation (unless issues found)
-- Steps 11d → done OR Step 12: Split sub-specs (if approved) or promote single spec
+- Step 10c: Per-round Creation Verification (alignment + internal coherence) — runs automatically after Step 10; gates the round on HIGH/MEDIUM coherence gaps or an alignment HALT (FIX → re-author + re-verify; else proceed). Mirrors the Review workflow's post-author verification gate.
+- Steps 11c → 11d → done OR Step 12: Decomposition evaluation then split sub-specs (if approved) or promote single spec
 
 **Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads. If a read is not in the step instructions, do not perform it — agents read their own inputs.
 
@@ -1386,6 +1412,7 @@ Phase 3 runs only when the human chooses to promote at Step 11 AND decomposition
 - **Step 3** — WAITING_FOR_HUMAN for concern review
 - **Step 7** — WAITING_FOR_HUMAN for enrichment review until all enrichments resolved
 - **Step 10** — WAITING_FOR_HUMAN within gap discussion loop (sub-steps 12-13)
+- **Step 10c** — WAITING_FOR_HUMAN only when Creation Verification finds HIGH/MEDIUM coherence gaps or an alignment HALT (FIX/ACCEPT per issue); otherwise automatic
 - **Step 11** — WAITING_FOR_HUMAN for promote vs another round
 
 **Skip paths:**
