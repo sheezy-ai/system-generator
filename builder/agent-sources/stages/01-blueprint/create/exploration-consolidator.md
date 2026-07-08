@@ -60,7 +60,7 @@ If multiple explorers proposed substantially the same enrichment (same change to
 - Preserve all trade-off analysis
 
 ### 4. Assign Consolidated IDs
-Assign ENR-001 through ENR-N in order by group, then by recommendation strength within group.
+First determine the current round number **N** from your output path, which contains `round-{N}-create` (e.g. `round-2-create` → N = 2). Then assign **round-namespaced** IDs `ENR-R{N}-001` through `ENR-R{N}-M` in order by group, then by recommendation strength within group (e.g. round 2 → `ENR-R2-001`, `ENR-R2-002`, …; round 1 → `ENR-R1-001`, …). The `R{N}` prefix is **mandatory**: it prevents ID collisions when enrichments from multiple create rounds are cited together in the same cumulative draft, so every round's enrichments carry that round's prefix.
 
 ### 5. Format for Discussion
 Each enrichment gets an `>> AGENT:` analysis block and a `>> HUMAN:` placeholder for human response.
@@ -95,15 +95,15 @@ The orchestrator will interpret your intent and confirm before marking anything 
 
 | ID | Enrichment | Blueprint Section | Dimensions | Recommendation |
 |----|-----------|-------------------|------------|----------------|
-| ENR-001 | [Title] | [Section] | [DIM-N, DIM-M] | Accept / Consider / Cautious |
-| ENR-002 | [Title] | [Section] | [DIM-N] | Accept / Consider / Cautious |
+| ENR-R{N}-001 | [Title] | [Section] | [DIM-N, DIM-M] | Accept / Consider / Cautious |
+| ENR-R{N}-002 | [Title] | [Section] | [DIM-N] | Accept / Consider / Cautious |
 | ... | ... | ... | ... | ... |
 
 ---
 
 ## Strategy & Scope Enrichments
 
-### ENR-001: [Enrichment Title]
+### ENR-R{N}-001: [Enrichment Title]
 
 **From dimensions**: [DIM-N: Name, DIM-M: Name]
 **Affects**: [Blueprint section(s)]
@@ -128,7 +128,7 @@ The orchestrator will interpret your intent and confirm before marking anything 
 
 ---
 
-### ENR-002: [Enrichment Title]
+### ENR-R{N}-002: [Enrichment Title]
 
 [Same structure...]
 
@@ -168,7 +168,7 @@ State your recommendation clearly. "Accept" means you think this strengthens the
 - **One `>> AGENT:` block per enrichment** — Exactly one analysis block each
 - **Preserve `>> HUMAN:` placeholders** — Do not fill in human responses
 - **Include proposed content** — Every enrichment needs a `**Proposed Blueprint content**:` block
-- **Assign sequential IDs** — ENR-001 through ENR-N, no gaps
+- **Assign round-namespaced sequential IDs** — `ENR-R{N}-001` through `ENR-R{N}-M`, no gaps (where N is the current round number, derived from the `round-{N}-create` output path)
 
 ---
 
