@@ -147,7 +147,7 @@ system-design/05-components/
    - Step 1 (Setup) is idempotent — always re-run on resume for validation
    - Step 2 (Concern Identifier) — if marked complete, verify `{explore-dir}/00-concerns.md` exists and skip
    - Step 3 resumes at WAITING_FOR_HUMAN — re-read concerns file and present to human
-   - Steps 2–8 (Explore phase) — if all marked SKIPPED, jump to Step 9
+   - Steps 3–8 (Explore phase) — if all marked SKIPPED (human chose "skip exploration" at Step 3), jump to Step 9
    - Step 7 resumes at WAITING_FOR_HUMAN — re-read filtered enrichment discussion file and continue loop
    - Step 9 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
    - Step 9d (Excess Verification) — if marked complete, skip to Step 10
@@ -369,11 +369,12 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
 3. **Verify output exists** at `{explore-dir}/00-concerns.md`
 
-4. **Read the concerns file** — Count concerns. If fewer than 2 concerns identified:
-   - **Update state file**: Set `Explore Phase` = `skipped`, mark Steps 2–8 as `[x] SKIPPED`, add history entry "Fewer than 2 concerns — skipping exploration"
-   - **Skip to Step 9**
+4. **Read the concerns file** — Count concerns. The count does **not** drive control flow — it only sets the recommendation carried into the Step 3 human checkpoint. Do **not** auto-skip exploration on a low count: a single genuine concern is worth exploring, and the human — not the count — decides whether to skip. Set the Step 3 recommendation from the count:
+   - **0 concerns**: identifier found no rigour gaps — a strong convergence signal. Carry a "recommend skip exploration / consider promoting" note into Step 3. Still proceed to Step 3; do NOT silently jump to Step 9.
+   - **1 concern**: a thin, likely-converging round. Carry a "low signal — weigh explore vs. promote" note into Step 3; present the concern as normal.
+   - **2+ concerns**: normal review, no special note.
 
-5. **Update state file**: Mark "Step 2: Concern Identifier" complete `[x]`, record concern list, add history entry
+5. **Update state file**: Mark "Step 2: Concern Identifier" complete `[x]`, record concern list and count, add history entry. Always proceed to Step 3 (the count never skips it).
 
 ### Step 3: Concern Review (`WAITING_FOR_HUMAN`)
 
@@ -387,10 +388,15 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
    Concerns file: {explore-dir}/00-concerns.md
 
+   [Convergence note — include per the Step 2.4 count:
+    - 0 concerns: "No rigour gaps found this round — strong convergence signal. I recommend skipping exploration (→ Step 9 re-verify) or promoting; explore only to push further."
+    - 1 concern: "Only one concern surfaced — thin, likely-converging round. Worth weighing explore-this-concern vs. promote."]
+
    [N] concerns identified:
    - CON-1: [Name] — [Focus]
    - CON-2: [Name] — [Focus]
    - ...
+   [If 0 concerns: write "No concerns identified." in place of the list.]
 
    Please review the concerns file:
    - Accept as-is: "looks good" / "continue"
@@ -1383,7 +1389,7 @@ Phase 3 runs only when the human chooses to promote at Step 11 AND decomposition
 - **Step 11** — WAITING_FOR_HUMAN for promote vs another round
 
 **Skip paths:**
-- **Explore skip** — If fewer than 2 concerns (Step 2) or human says "skip" (Step 3) → jump to Step 9
+- **Explore skip** — Only when the human chooses "skip exploration" at the Step 3 checkpoint → mark Steps 3–8 SKIPPED, jump to Step 9. (Concern *count* never auto-skips; a low count only sets a convergence recommendation the human weighs at Step 3.)
 - **Gap skip** — If no gaps in draft (Step 10) → Step 10 completes immediately, Step 11 still presents promote/another-round choice
 
 **Loop path:**
