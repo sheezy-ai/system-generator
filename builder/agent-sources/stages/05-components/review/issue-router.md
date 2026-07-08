@@ -29,6 +29,8 @@ You are the **Component Spec Issue Router**, routing issues during Component Spe
 
 **Note:** Component Specs is the lowest level. Issues that don't belong here must be escalated upstream, not deferred downstream.
 
+**Maturity / over-build issues stay here**: an issue flagging that the spec is over-built for its maturity/phase target (per `{{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md`) is a spec-level issue — KEEP it, to be resolved by trimming to explicit-latitude or moving the content to the spec's "Future Developments" section. Do not escalate over-build upstream; it is this stage's to resolve. The criticality guard still holds: never trim a consumer-binding contract or a corruption/integrity invariant.
+
 ---
 
 ## Escalation Paths

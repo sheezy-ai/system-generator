@@ -59,8 +59,7 @@ Files within the explore directory:
 - `01-gap-discussion.md`
 - `02-author-output.md`
 - `03-updated-spec.md`
-- `06-stage-appropriateness-report.md` (advisory lint; from Step 10b)
-- `07-remediation-output.md` (applied-findings diff log; from Step 11 "remediate" path — optional)
+- `06-stage-appropriateness-report.md` (excess / stage-appropriateness findings; from Step 9d — fed into the Step 10 gap loop)
 
 **Promoted output**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`
 
@@ -151,8 +150,8 @@ system-design/05-components/
    - Steps 2–8 (Explore phase) — if all marked SKIPPED, jump to Step 9
    - Step 7 resumes at WAITING_FOR_HUMAN — re-read filtered enrichment discussion file and continue loop
    - Step 9 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
-   - Step 10 (Gap Resolution) — if marked complete, skip to Step 10b
-   - Step 10b (Stage-Appropriateness Verification) — if marked complete, verify report file exists and skip to Step 11
+   - Step 9d (Excess Verification) — if marked complete, skip to Step 10
+   - Step 10 (Gap Resolution) — if marked complete, skip to Step 11
    - Step 11 resumes at WAITING_FOR_HUMAN — present promote/another-round choice to human (include verifier report summary)
 
 3. **Update state file** at each step transition (instructions inline below)
@@ -192,8 +191,8 @@ system-design/05-components/
 - [ ] Step 9: Generate or Apply Enrichments
 - [ ] Step 9b: Coverage Verification
 - [ ] Step 9c: Depth Verification
+- [ ] Step 9d: Excess Verification (binding)
 - [ ] Step 10: Gap Resolution
-- [ ] Step 10b: Stage-Appropriateness Verification (advisory)
 - [ ] Step 11: Promote or Continue
 - [ ] Step 11b: Creation Verification
 - [ ] Step 11c: Decomposition Evaluation
@@ -298,10 +297,10 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
 
 4. **Validate deferred-items state** (Round 1 only):
    - Read stage state and confirm `Stage Initialization: Status: COMPLETE`
-   - If COMPLETE, verify both of the following:
+   - If COMPLETE, verify:
      - The monolithic `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/deferred-items.md` does NOT exist, or if it exists, contains only the archived-header stub (no COMP-D items)
-     - The per-component file `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md` exists (empty content is fine; absent file is not)
-   - **If either check fails**: Error — see Error Handling table (Deferred-items state inconsistent)
+   - **If this check fails**: Error — see Error Handling table (Deferred-items state inconsistent)
+   - The per-component file `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md` may be absent — this is NOT an error. The initialize deferred-items processor writes a file only for components that received items, so an absent file means this component has zero deferred items. Step 5a creates an empty stub so downstream agents have a readable path.
 
 5. **Create directories** (if not exist):
    ```
@@ -309,6 +308,18 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    └── round-{N}-create/
        └── explore/
    ```
+
+5a. **Ensure per-component deferred-items.md exists** (Round 1 only): If `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md` is absent, create an empty stub:
+   ```markdown
+   # Deferred Items: [component-name]
+
+   Items deferred from upstream stages, relevant to this component.
+
+   ---
+
+   <!-- No deferred items for this component -->
+   ```
+   If the file already exists (processor wrote items, or a prior run created it), leave it unchanged. This guarantees the Deferred Items Intake step and all downstream agents that receive this path can read it.
 
 6. **Deferred Items Intake** (Round 1 only):
 
@@ -348,6 +359,8 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
    - Cross-cutting deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/cross-cutting/deferred-items.md
    - Workflow state: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/workflow-state.md
+   [Round 2+ only — the artefact this round critiques:]
+   - Previous-round draft (primary source): {primary-source}
 
    Output: {explore-dir}/00-concerns.md
    ```
@@ -413,6 +426,8 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    - Concerns file: {explore-dir}/00-concerns.md
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
    - Cross-cutting deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/cross-cutting/deferred-items.md
+   [Round 2+ only — the artefact this round critiques:]
+   - Previous-round draft (primary source): {primary-source}
    - Assigned concern: CON-[N]
 
    Output: {explore-dir}/01-explorer-{concern-name}.md
@@ -437,6 +452,8 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
    - Explorer outputs: {explore-dir}/01-explorer-*.md
      [List all explorer files explicitly]
+   [Round 2+ only — the draft the enrichments must build on, not restate:]
+   - Previous-round draft (primary source): {primary-source}
 
    Output: {explore-dir}/02-enrichment-discussion.md
    ```
@@ -458,6 +475,7 @@ All steps below use `{primary-source}`, `{explore-dir}`, and `{round-dir}` to re
    Input:
    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
    - Enrichment discussion: {explore-dir}/02-enrichment-discussion.md
+   - Project scale reference: {{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md
 
    Output: {explore-dir}/02a-filtered-enrichment-discussion.md
    ```
@@ -787,6 +805,7 @@ Do NOT process enrichments until the human has added actual response content aft
    Input:
    - Draft Spec: {round-dir}/00-draft-spec.md
    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
+   - Project scale reference: {{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md
 
    Output: {round-dir}/00-depth-report.md
    ```
@@ -798,6 +817,44 @@ Do NOT process enrichments until the human has added actual response content aft
 4. **If SHALLOW items found**: Add each as `[TODO: Depth gap — ...]` markers to the draft spec using targeted Edit operations, so the Gap Formatter can extract them alongside other gap markers.
 
 5. **Update state file**: Mark "Step 9c: Depth Verification" complete `[x]`, add history entry with depth counts
+
+### Step 9d: Excess Verification (binding — maturity over-build gate)
+
+**Purpose**: Detect content that exceeds the project's maturity/phase target — internal-only ceremony the implementer could derive, or upstream restatement — and route it into the **same binding gap-resolution loop** as coverage/depth gaps (Step 10), so over-build is resolved before promotion rather than accreting round-over-round. This is the symmetric counterpart to Steps 9b/9c: those catch *too little*; this catches *too much*. It runs **every round from round 1**, with the same force as coverage/depth.
+
+**On resume**: If Step 9d already marked complete, skip to Step 10.
+
+1. **Determine draft path**:
+   - If `{round-dir}/03-updated-spec.md` exists: use it
+   - Otherwise: use `{round-dir}/00-draft-spec.md`
+
+2. **Spawn Stage-Appropriateness Verifier** using the Task tool:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/universal-agents/stage-appropriateness-verifier.md
+
+   Input:
+   - Target draft: [draft path]
+   - Project scale reference: {{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md
+   - Stage guide: {{GUIDES_PATH}}/05-components-guide.md
+   - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
+   - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
+   - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
+
+   Output: {round-dir}/06-stage-appropriateness-report.md
+   ```
+
+3. **Wait for agent to complete**; verify `{round-dir}/06-stage-appropriateness-report.md` exists.
+
+4. **Read the report and inject excess gaps as TODO markers** (mirrors Step 9b.7 / 9c.4 — this is what makes the gate binding):
+   - For each `IMPLEMENTATION_LATITUDE` finding: add `[TODO: Excess (latitude) — <section>: <element_identifier>. Recommended: <recommendation — apply the explicit-latitude rewrite, or DEFER_FUTURE to the "Future Developments" section>]` at the flagged element via targeted Edit.
+   - For each `RESTATES_UPSTREAM` finding with a concrete reference: add `[TODO: Excess (restates upstream) — <section>: replace restated content with a reference to <recommendation>]`.
+   - For each `WRONG_STAGE` finding: add `[TODO: Excess (wrong stage) — <section>: belongs in <recommendation>; human decision]`.
+   - `APPROPRIATE` findings: **do not mark** — these are correctly pinned commitments. This preserves the **criticality discipline**: consumer-facing contracts and integrity invariants are never auto-removed.
+   - These markers are picked up by the Gap Formatter in Step 10 alongside coverage/depth gaps; the Gap Analyst proposes the resolution (apply rewrite / defer to Future Developments / keep-with-justification) and the human adjudicates each, exactly as for other gaps.
+
+5. **Conservative-bias note for the human handoff**: excess TODO markers are *proposals to slim down*, resolved in the Step 10 loop where the human sees each one. Defaulting to KEEP on any individual marker is always available — the gate surfaces candidates, it does not force removal.
+
+6. **Update state file**: Mark "Step 9d: Excess Verification" complete `[x]`, add history entry with per-classification counts (APPROPRIATE / IMPLEMENTATION_LATITUDE / RESTATES_UPSTREAM / WRONG_STAGE) and the number of excess TODO markers injected.
 
 ### Step 10: Gap Resolution
 
@@ -941,42 +998,9 @@ Do NOT enter the discussion loop until the human has added actual response conte
 
 14. **Update state file**: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry
 
-### Step 10b: Stage-Appropriateness Verification (advisory)
+### Step 10b: Stage-Appropriateness Verification — RETIRED (superseded by binding Step 9d)
 
-**Purpose**: Evaluate the current draft against the derivation test and produce a lint-style findings report. Advisory only — findings surface to the human at Step 11 (Promote or Continue) alongside the promote/another-round choice. Does not block, does not edit the draft, does not enter the gap-resolution loop.
-
-**On resume**: If Step 10b already marked complete, verify `{round-dir}/06-stage-appropriateness-report.md` exists and skip to Step 11.
-
-1. **Determine draft path**:
-   - If `{round-dir}/03-updated-spec.md` exists (Author ran during Step 10): use it
-   - Otherwise: use `{round-dir}/00-draft-spec.md`
-
-2. **Spawn Stage-Appropriateness Verifier** using the Task tool:
-   - **subagent_type**: `general-purpose`
-   - **prompt**:
-     ```
-     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/stage-appropriateness-verifier.md
-
-     Input:
-     - Target draft: [draft path resolved in step 1]
-     - Project scale reference: system-design/project-scale.md
-     - Stage guide: {{GUIDES_PATH}}/05-components-guide.md
-     - PRD: system-design/02-prd/prd.md
-     - Foundations: system-design/03-foundations/foundations.md
-     - Architecture: system-design/04-architecture/architecture.md
-
-     Output: {round-dir}/06-stage-appropriateness-report.md
-     ```
-
-3. **Wait for agent to complete**
-
-4. **Verify output exists** at `{round-dir}/06-stage-appropriateness-report.md`
-
-5. **Read report Summary block** to extract per-classification counts for the Step 11 handoff notification
-
-6. **Do not act on findings** — this step is advisory. Findings are surfaced to the human at Step 11; acting on them is the human's decision at the promote/another-round choice.
-
-7. **Update state file**: Mark "Step 10b: Stage-Appropriateness Verification" complete `[x]`, add history entry with per-classification counts (APPROPRIATE / IMPLEMENTATION_LATITUDE / RESTATES_UPSTREAM / WRONG_STAGE)
+Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 9d), with its findings resolved inside Step 10 as excess TODO gaps. There is nothing to do here; proceed directly from Step 10 to Step 11. (Heading retained so older state files and resume logic that reference "Step 10b" resolve cleanly — treat as a no-op.)
 
 ### Step 11: Promote or Continue (`WAITING_FOR_HUMAN`)
 
@@ -995,16 +1019,10 @@ Do NOT enter the discussion loop until the human has added actual response conte
    [If Author ran:]
    Updated: {round-dir}/03-updated-spec.md
 
-   Stage-appropriateness lint (advisory, from Step 10b):
-   Report: {round-dir}/06-stage-appropriateness-report.md
-   Counts: [A] APPROPRIATE / [L] IMPLEMENTATION_LATITUDE / [R] RESTATES_UPSTREAM / [W] WRONG_STAGE
-   [Include brief per-classification summary if helpful — e.g., "L findings cluster in §9 and §3.6"]
-
-   Lint findings are advisory. You can act on them before promoting (another round with targeted edits, or manual edits) or accept them and promote as-is.
+   The spec passed the two-sided gate: no missing requirements (coverage/depth) AND no unresolved over-build (excess). The Step 9d stage-appropriateness report is at {round-dir}/06-stage-appropriateness-report.md for reference.
 
    You can:
-   - Say "promote" — promote the current draft as-is (accept lint, ship with known findings)
-   - Say "remediate" — apply verifier findings to the draft; you'll be returned to this choice afterward with the updated draft summary
+   - Say "promote" — promote the current draft
    - Say "another round" — run another explore→generate cycle
 
    When ready, let me know.
@@ -1027,16 +1045,13 @@ Do NOT enter the discussion loop until the human has added actual response conte
    - **Re-resolve paths** using Path Resolution with the new round number
    - **Loop to Step 1**
 
-   **If "remediate"**:
-   - Proceed to the remediation sub-flow below, then (on completion) return to Step 11 WAITING_FOR_HUMAN with the updated draft summary. Human re-decides promote / remediate again / another round.
-
    **If "promote"** or "promote as-is":
    - Update state file: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Promoting draft from round {N}"
    - Proceed to Step 11b
 
 ---
 
-#### Remediation sub-flow (when human chose "remediate")
+#### Remediation sub-flow — RETIRED (unreachable; superseded by binding Step 9d; Step 11 no longer offers "remediate")
 
 **Purpose**: apply all applicable verifier findings to the draft mechanically. Single-checkpoint flow — the human's "remediate" choice at Step 11 *is* the checkpoint. Diff log is produced for reference; no separate review stop. If the remediation produces unacceptable changes, Step 11b's Creation Verification surfaces downstream issues (alignment/coherence drift); post-promotion, `git` history is the revert path.
 
@@ -1354,9 +1369,8 @@ Phase 3 runs only when the human chooses to promote at Step 11 AND decomposition
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2: Setup then identifier
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
-- Steps 8 → 9 → 9b → 9c: Enrichment author then generator/applicator then coverage then depth
-- Step 10: Gap resolution (Gap formatter → Gap analyst → discussion loop → Author)
-- Steps 10 → 10b: Gap resolution then stage-appropriateness verification (advisory; does not pause)
+- Steps 8 → 9 → 9b → 9c → 9d: Enrichment author then generator/applicator then coverage then depth then excess verification
+- Step 10: Gap resolution (Gap formatter → Gap analyst → discussion loop → Author) — also resolves excess (over-build) gaps from Step 9d
 - Steps 11b → 11c: Verification then decomposition evaluation (unless issues found)
 - Steps 11d → done OR Step 12: Split sub-specs (if approved) or promote single spec
 

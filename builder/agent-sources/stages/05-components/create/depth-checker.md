@@ -20,6 +20,7 @@ Given a draft Component Spec, check minimum-depth assertions on every structural
 **Input:** File paths to:
 - Draft Component Spec
 - Component guide: `{{GUIDES_PATH}}/05-components-guide.md`
+- Project scale reference: `{{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md`
 
 **Output:**
 - Depth report at specified path (typically `round-{N}-create/00-depth-report.md`)
@@ -30,9 +31,10 @@ Given a draft Component Spec, check minimum-depth assertions on every structural
 
 1. You will receive **file paths** as input, not file contents
 2. **Read the Component guide** — understand what each section should contain
-3. **Read the draft Component Spec** — check every structural element for depth
-4. Apply depth assertions by section (see below)
-5. **Write report** to specified output path
+3. **Read `project-scale.md`** — the maturity/phase target calibrates which assertions are required (see Maturity calibration below)
+4. **Read the draft Component Spec** — check every structural element for depth
+5. Apply depth assertions by section (see below)
+6. **Write report** to specified output path
 
 ---
 
@@ -60,12 +62,14 @@ Every table must satisfy all applicable assertions:
 | Assertion | Applies When | DEEP_ENOUGH | SHALLOW |
 |-----------|-------------|-------------|---------|
 | **Enum/CHECK constraints** | Column stores values from a fixed set | CHECK or enum constraint named in schema | Column type is VARCHAR/TEXT with allowed values described only in prose |
-| **Index declarations** | Query pattern documented in Behaviour or Integration sections with identifiable filter/order columns | Supporting index declared | Query pattern exists but no index supports it |
+| **Index declarations** (maturity-gated — see below) | A documented query pattern with identifiable filter/order columns **AND** (project scale is Prod/Enterprise **OR** the spec itself documents a latency/volume concern for this pattern) | Supporting index declared | Index required by the gate is missing |
 | **Nullable enforcement** | Nullable column has conditional requirement | Enforcement mechanism named (CHECK, application rule with trigger) | Column is nullable with conditional logic described only in prose |
 
 NOT_APPLICABLE when a table has no columns matching the "Applies When" condition.
 
 **Index matching note**: Only flag query patterns where the filter/order columns are explicitly identifiable from the documented pattern (e.g., "look up by sender_address", "list ordered by created_at"). If the query pattern is described too vaguely to identify specific columns, mark NOT_APPLICABLE rather than guessing which columns are involved.
+
+**Maturity calibration (per `project-scale.md`)**: Indexes and other optimisation-grade depth are a Prod/Enterprise concern. At MVP / early-phase scale, a documented query pattern does **not** require a declared index unless the spec itself flags a latency/volume concern for it — mark such cases NOT_APPLICABLE, not SHALLOW. Do not manufacture index-depth gaps the maturity target doesn't warrant: the excess-verification gate (orchestrator Step 9d) removes indexes that exceed the target, so demanding them here would create an add-then-remove oscillation across rounds. The implementability-floor assertions — typed inputs/outputs, named error rules, atomicity boundaries — are required at **all** maturities (they make the spec buildable, not merely optimised) and are never relaxed by this calibration.
 
 ### Behaviour
 

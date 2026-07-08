@@ -137,18 +137,23 @@ Each finding in the report carries structured metadata (not free prose) to enabl
 
 For content where it's genuinely unclear whether it's contract or delegation:
 
-### Overarching principle — err toward APPROPRIATE when uncertain
+### Overarching principle — scale-conditional uncertainty default
 
-When classification is genuinely 50/50, default to `APPROPRIATE`. Over-spec kept because of verifier uncertainty is cheaper than under-spec the implementer fills silently with plausible choices. The reviewer can always choose to remove an `APPROPRIATE`-flagged element on reading the report; they cannot retroactively recover content the implementer has already filled in.
+The default when classification is genuinely 50/50 depends on **content type** and **project scale** (read from `project-scale.md`):
 
-This principle applies after the directional defaults below have been considered. If a case fits cleanly into internal-only or consumer-facing, use that default. Only when neither applies cleanly (genuinely 50/50) does this principle kick in.
+- **Consumer-facing content** (contract shapes, error URIs, enum values consumers branch on, named field sets callers bind to) — *and any corruption / data-integrity invariant* regardless of consumer surface: when 50/50, default to `APPROPRIATE`. Under-spec of a contract is the more dangerous, less recoverable error — the implementer fills it silently and consumers bind to the guess. Pin it. This carve-out is the **criticality discipline**: never flag a consumer-binding contract or an integrity invariant as LATITUDE on uncertainty.
+- **Internal-only content** (how the component guards, logs, structures its own error handling) **at MVP / early-phase scale**: when 50/50, default to `IMPLEMENTATION_LATITUDE`. At small scale the cost of over-built internal ceremony (build + maintain + review-loop churn) outweighs an implementer deriving it, and the explicit-latitude rewrite *preserves the contract commitment while delegating the mechanism* — so nothing critical is lost, only relocated to the implementer with a pointer. At Prod / Enterprise scale, revert internal-only 50/50 to `APPROPRIATE`.
+
+This scale-conditional rule is the deliberate counter-pressure to over-build accretion: at MVP scale, internal-only ceremony the implementer could derive is flagged (as recoverable explicit-latitude), not waved through — while the consumer-facing carve-out keeps genuine contracts safe.
+
+This principle applies after the directional defaults below have been considered. If a case fits cleanly into internal-only or consumer-facing, use that default. The scale-conditional rule governs only the genuinely-50/50 residue.
 
 ### Directional defaults
 
 - **Internal-only content** (how the component guards, logs, structures error handling for its own concerns): default to `IMPLEMENTATION_LATITUDE` with explicit-latitude rewrite. Name the delegation; don't omit silently.
 - **Consumer-facing content** (contract shapes, error URIs consumers match on, enum values consumers branch on, named field sets callers bind to): default to `APPROPRIATE`. Contract integrity requires pinning.
 - **Guard / cleanup / internal-check sequences**: when content describes the internal structure producing a refusal or outcome (layer count, ordering between internal gates, specific internal predicates), classify the **structure** as `IMPLEMENTATION_LATITUDE` even when the **surfaced outcomes** (refusal exit codes, reason strings consumers see) are `APPROPRIATE`. Consumer-facing outcomes are contract; the count of internal gates, their ordering, and their specific predicates are delegation — unless a consumer structurally binds to a specific layer or ordering. Produce two separate findings (one APPROPRIATE for surfaced outcomes, one IMPLEMENTATION_LATITUDE for internal structure) rather than collapsing to a single verdict. Defence-in-depth stacks, pre-write validation sequences, and multi-phase cleanup orderings are the typical shape of this pattern.
-- **Undecidable after directional defaults**: apply the overarching principle above — default to `APPROPRIATE`. Use the `assumption` field to name the uncertainty explicitly (e.g., "could be consumer-binding if callers match on specific values; could be internal-only if callers treat as opaque status — derivation uncertain"). The reviewer has the context to adjudicate; the verifier's job is to surface the uncertainty, not resolve it.
+- **Undecidable after directional defaults**: apply the scale-conditional principle above — consumer-facing (or any integrity invariant) → `APPROPRIATE`; internal-only at MVP / early-phase scale → `IMPLEMENTATION_LATITUDE`. Use the `assumption` field to name the uncertainty explicitly (e.g., "could be consumer-binding if callers match on specific values; could be internal-only if callers treat as opaque status — derivation uncertain"). The reviewer has the context to adjudicate; the verifier surfaces the uncertainty with its directional lean, it does not silently resolve it.
 
 Per-component-type bias (from `project-scale.md` classifications): **Domain** components carry richer contract surfaces than **Utility** components; **Cross-cutting** interfaces are consumed-by-many and under tighter shape discipline. Apply lightly — this is an informing default, not a hard rule.
 

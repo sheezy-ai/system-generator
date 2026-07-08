@@ -21,6 +21,7 @@ Given the input documents, identify 3-5 component design concerns worth explorin
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
 - Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions awaiting ratification in the cross-cutting spec
 - Workflow state file (`system-design/05-components/versions/[component]/workflow-state.md`)
+- Previous-round draft (**round 2+ only**) — the round N-1 draft this round critiques (`system-design/05-components/versions/[component]/round-{N-1}-create/03-updated-spec.md`, or `00-draft-spec.md` if no Author output ran). Absent in round 1.
 
 **Output:**
 - Concerns file -> `system-design/05-components/versions/[component]/round-{N}-create/explore/00-concerns.md`
@@ -38,9 +39,10 @@ Given the input documents, identify 3-5 component design concerns worth explorin
    - **Per-component deferred items** — items deferred from upstream stages specific to this component
    - **Cross-cutting deferred items** — provisional cross-component conventions (e.g., column-type conventions, wire-format conventions, shared interface shapes) awaiting ratification in the cross-cutting spec. If this component's likely design surface intersects a cross-cutting convention (timestamp columns, UUID fields, source_type values, audit-trail writes), flag a concern for how this component adopts that convention.
 7. **Read the workflow state file** — understand the current round and any prior exploration context
-8. **Identify concerns** where exploration would add value to this component's design
-9. **Verify each concern's level** against the guide (see Level Verification below)
-10. **Write the concerns file** to the specified output path
+8. **If a previous-round draft is provided (round 2+)**: read it — this is the primary artefact you critique this round. Identify concerns about what it committed to without structural resolution (per the round-aware threshold below); do not re-raise concerns it already resolves. In round 1 no draft is provided — identify concerns from the Architecture and Foundations as usual.
+9. **Identify concerns** where exploration would add value to this component's design
+10. **Verify each concern's level** against the guide (see Level Verification below)
+11. **Write the concerns file** to the specified output path
 
 ---
 
@@ -172,7 +174,9 @@ The concern bar shifts across rounds. Applying the same threshold in Round 3 as 
 
 If a round's concerns are predominantly refinements of refinements rather than genuine rigour gaps, surface fewer concerns. Zero is a valid outcome in Round 3+ — it means prior rounds closed the load-bearing gaps and the workflow should promote.
 
-Determine the current round from the workflow state file. Apply the threshold appropriate to that round.
+**Maturity discipline (read `{{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md`)**: do not raise concerns whose exploration would push the spec above its maturity/phase target — e.g. concerns about exhaustive internal enumeration, Prod/Enterprise-grade observability or error-taxonomy rigour, or test ceremony at an MVP / early-phase target. Those drive over-build, not value. Concerns that pin consumer-binding contracts or correctness/integrity invariants are always in scope regardless of maturity.
+
+Determine the current round from the workflow state file. Apply the threshold appropriate to that round. In round 2+, the previous-round draft is provided as input — ground each concern in specific content from it (the posture, asymmetry, or invariant it committed to), not in the upstream documents alone.
 
 ### Avoid Overlap
 Each concern should be distinct. If two concerns would produce the same enrichments, merge them.

@@ -52,7 +52,7 @@ Given the Architecture Overview, Foundations, exploration enrichments (if any), 
 7. **Read the cross-cutting deferred items** — provisional conventions awaiting ratification. Treat these as working conventions this component adopts unless there is specific reason to deviate. Surface adopted conventions as bilateral-ratification flags in §12 Pending Issues with the cross-cutting DEF-ID.
 8. **Read component brief** (if provided) to incorporate settled decisions and prescriptive direction
 9. **Read exploration summary** (if provided) to incorporate accepted enrichments — these are pre-analysed design decisions from the Explore phase. Treat them like brief content: incorporate using prescriptive tone, do NOT re-mark as gaps
-10. Synthesize into a draft spec, applying Foundations conventions and exploration enrichments
+10. **Read `{{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md`** to calibrate to the maturity/phase target, then synthesize into a draft spec, applying Foundations conventions and exploration enrichments. **Maturity discipline**: at MVP / early-phase scale, prefer *explicit-latitude* framing (state the contract commitment, then name what the implementer derives) over exhaustive internal enumeration; do not pre-build Prod/Enterprise-grade observability, error-taxonomy, or test ceremony the phase target doesn't warrant. Consumer-binding contracts and corruption/integrity invariants are pinned regardless (criticality discipline).
 11. **Write your complete output** to the specified file
 
 ---

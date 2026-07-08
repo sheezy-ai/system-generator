@@ -89,7 +89,7 @@ Run the initialization.
      ```
    - Create `versions/[component-name]/workflow-state.md`:
      ```markdown
-     # Component Spec Review Workflow State
+     # [component-name] Workflow State
 
      **Component**: [component-name]
      **Spec**: 05-components/specs/[component-name].md
@@ -132,6 +132,18 @@ Run the initialization.
      ```
 
 4. **After agent completes**: Verify component-specific deferred items files were created and original was archived
+
+5. **Backfill empty deferred-items stubs**: The processor writes a `deferred-items.md` only for components that received items. For every component from the Component Spec List whose `versions/[component-name]/deferred-items.md` does NOT exist, create an empty stub so the post-init invariant holds (every component folder contains `deferred-items.md`):
+   ```markdown
+   # Deferred Items: [component-name]
+
+   Items deferred from upstream stages, relevant to this component.
+
+   ---
+
+   <!-- No deferred items for this component -->
+   ```
+   Components that already have a `deferred-items.md` (processor wrote items) are left unchanged.
 
 ### Step 3a: Create Cross-Cutting Specification Placeholder
 

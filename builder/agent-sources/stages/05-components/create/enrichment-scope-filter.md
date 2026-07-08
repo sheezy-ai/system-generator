@@ -70,6 +70,7 @@ Filter enrichment proposals from the consolidated enrichment discussion. Keep Co
 **Input paths:**
 - Component Spec guide (`{{GUIDES_PATH}}/05-components-guide.md`)
 - Enrichment discussion file (`{explore-dir}/02-enrichment-discussion.md`)
+- Project scale reference (`{{SYSTEM_DESIGN_PATH}}/system-design/project-scale.md`) — the maturity/phase target for the conservative DEFER-FUTURE route
 
 **Output:**
 - Filtered enrichment discussion file (`{explore-dir}/02a-filtered-enrichment-discussion.md`)
@@ -81,7 +82,8 @@ Filter enrichment proposals from the consolidated enrichment discussion. Keep Co
 
 1. You will receive **file paths** as input, not file contents
 2. **Read the Component Spec guide** — pay attention to each section's "Level of detail", the Scope Principles, and "What Should NOT Be in the Component Spec"
-3. **Read the enrichment discussion file** — understand the full set of enrichments
+3. **Read `project-scale.md`** — the maturity/phase target for the conservative DEFER-FUTURE route below
+4. **Read the enrichment discussion file** — understand the full set of enrichments
 4. **Apply filtering logic** to each enrichment (ENR-NNN)
 5. **Write the filtered enrichment discussion file** with kept enrichments preserved in original format
 6. **Append deferred items** to appropriate upstream pending issues files
@@ -105,6 +107,11 @@ Filter enrichment proposals from the consolidated enrichment discussion. Keep Co
 - Enrichment makes or requires technology choices not already established (unlikely at this stage)
 - Enrichment proposes changes to system-wide conventions (error formats, security standards)
 
+**DEFER-FUTURE (above the maturity/phase target) if:** *(conservative — only clear-cut cases; the binding orchestrator Step 9d excess gate is the backstop for the rest)*
+- Enrichment is spec-level-appropriate (right topic, right altitude) BUT proposes **internal-only** rigour beyond what `project-scale.md` warrants for the current phase — e.g. exhaustive internal enum enumeration, per-row emission / round-trip tests, reflection / meta-tests, or Prod/Enterprise-grade observability or error-taxonomy ceremony against an MVP / early-phase target.
+- **Criticality guard**: NEVER defer a consumer-binding contract (shapes, enums, or fields callers bind to) or a corruption / data-integrity invariant — those are KEEP regardless of weight.
+- **Action**: Mark the enrichment `DEFER-FUTURE` in the output summary with a one-line reason and the phase it would belong to. It is **not** carried into the Enrichment Author this round; it is recorded for the future backlog. When in doubt, KEEP (conservative) — Step 9d catches genuine over-build post-generation.
+
 **FILTER OUT (below spec level) if:**
 - Enrichment contains Python, SQL, or other language code as its primary contribution
 - Enrichment provides algorithm implementations or pseudo-code
@@ -127,6 +134,7 @@ Filter enrichment proposals from the consolidated enrichment discussion. Keep Co
 
 **If uncertain on topic:** KEEP. The human can reject during Enrichment Review.
 **If uncertain on depth:** FLAG. Surface the concern to the human rather than silently passing it through.
+**If uncertain on maturity/phase:** KEEP (conservative). Only DEFER-FUTURE clear-cut above-target internal ceremony; the binding Step 9d excess gate backstops the rest post-generation.
 
 ---
 

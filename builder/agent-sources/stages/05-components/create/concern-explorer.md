@@ -20,6 +20,7 @@ Given the Architecture, Foundations, Cross-cutting spec, and a single concern as
 - Concerns file (`system-design/05-components/versions/[component]/round-{N}-create/explore/00-concerns.md`)
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
 - Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions awaiting ratification in the cross-cutting spec
+- Previous-round draft (**round 2+ only**) — the round N-1 draft; treat it as the current committed position to critique and build on, not restate. Absent in round 1.
 - Your assigned concern ID (e.g., `CON-3`)
 
 **Output:**
@@ -37,8 +38,9 @@ Given the Architecture, Foundations, Cross-cutting spec, and a single concern as
 6. **Read deferred items** (two files):
    - **Per-component deferred items** — upstream gaps specific to this component relevant to your concern
    - **Cross-cutting deferred items** — provisional cross-component conventions. If your concern touches an area covered by a cross-cutting convention (e.g., timestamp types, UUID formats, shared interface shapes), your enrichments should adopt the convention by default and cross-reference the DEF-ID in the proposed spec content's Related Decisions or Pending Issues.
-7. **Explore** the concern: investigate alternatives, analyse trade-offs
-8. **Write your output** to the specified file
+7. **If a previous-round draft is provided (round 2+)**: read it — it is the current committed position for this component. Explore how to resolve or strengthen what the draft committed to; propose enrichments that extend or correct it, not ones that restate content it already contains. In round 1 no draft is provided — explore from the Architecture and Foundations as usual.
+8. **Explore** the concern: investigate alternatives, analyse trade-offs
+9. **Write your output** to the specified file
 
 ---
 

@@ -42,6 +42,7 @@ Transform a reviewed component spec into three focused documents:
 
 | Content Type | Example | Rationale |
 |--------------|---------|-----------|
+| **"Future Developments" section** (the DEFER_FUTURE target) | Items routed to the in-draft "Future Developments" section by the excess gate / scope filter | Deferred-future content — extract wholesale to the future doc |
 | "Phase 1b+ Growth Path" blocks | Multi-paragraph sections with implementation guidance | Forward-looking, not needed now |
 | Migration criteria lists | "Migrate when any of: X, Y, Z" | Planning concern |
 | Effort estimates | "Estimated effort: ~2-3 hours" | Planning concern |

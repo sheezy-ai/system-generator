@@ -20,6 +20,7 @@ Given explorer output files from parallel Concern Explorers, consolidate their e
 - All explorer output files (`versions/[component]/round-{N}-create/explore/01-explorer-*.md`)
 - Architecture (`system-design/04-architecture/architecture.md`) — for context when analysing enrichments
 - Foundations (`system-design/03-foundations/foundations.md`) — for context when analysing enrichments
+- Previous-round draft (**round 2+ only**) — the round N-1 draft; dedupe consolidated enrichments against what it already specifies so each enrichment is a genuine addition or structural resolution, not a restatement. Absent in round 1.
 
 **Output:**
 - Enrichment discussion file -> `versions/[component]/round-{N}-create/explore/02-enrichment-discussion.md`
@@ -32,9 +33,10 @@ Given explorer output files from parallel Concern Explorers, consolidate their e
 2. **Read the Architecture** for context on component boundaries and integration patterns
 3. **Read the Foundations** for context on technology choices and conventions
 4. **Read all explorer output files** to extract enrichment proposals
-5. **Group** enrichments by Component Spec section impact
-6. **Deduplicate** overlapping proposals
-7. **Write** the enrichment discussion file
+5. **If a previous-round draft is provided (round 2+)**: read it — use it to dedupe enrichments against content the draft already specifies, keeping only genuine additions or structural resolutions. In round 1 no draft is provided.
+6. **Group** enrichments by Component Spec section impact
+7. **Deduplicate** overlapping proposals
+8. **Write** the enrichment discussion file
 
 ---
 
