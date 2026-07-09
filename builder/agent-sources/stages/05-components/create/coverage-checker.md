@@ -73,6 +73,11 @@ For each item in the requirements checklist:
 - COVERED if the contract's schema is defined in the spec (producer side) or consumed by the spec (consumer side)
 - GAP if a cross-cutting contract names this component but the spec doesn't define/consume it
 
+**Bound-contract fields (registry `Binds:`):**
+- COVERED if the bound field appears at the contract boundary — the owned-entity §4 schema (produced/owned contract), or a named read projection / usage (consumed contract)
+- **CONFIRM-INTENTIONAL** if a *consumed* bound field is absent AND the draft neither reads nor references it — surface for human confirmation. A consumer may legitimately rely on a subset, but silently narrowing a bound payload to an opaque blob is exactly the CTR-015 failure (a load-bearing entity payload dropped while coverage still reports PASS), so it must not pass silently
+- **GAP** if a *produced/owned* bound field is absent — a genuine owner omission, identical to the owned-entity GAP rule (and typically already flagged there)
+
 **Deferred items:**
 - COVERED if the spec addresses the deferred item
 - GAP-MARKED if the spec acknowledges it with a gap marker
@@ -103,7 +108,7 @@ For each item in the requirements checklist:
 - **Total requirements**: [N]
 - **COVERED**: [N]
 - **GAP-MARKED**: [N]
-- **CONFIRM-INTENTIONAL**: [N] (owned-entity PRD §5 fields absent — deliberate-deferral confirmations for the human)
+- **CONFIRM-INTENTIONAL**: [N] (owned-entity PRD §5 fields absent, or consumed bound-contract fields not referenced — deliberate-deferral confirmations for the human)
 - **GAP**: [N] (silent omissions)
 - **Overall**: PASS | GAPS_FOUND | CONFIRM_NEEDED
 
@@ -141,6 +146,11 @@ For each item in the requirements checklist:
 
 | # | Item | Status | Covered By | Notes |
 |---|------|--------|-----------|-------|
+
+### Bound-Contract Fields (registry `Binds:`)
+
+| # | Contract.Field | Role | Status | Covered By / Confirmation Needed |
+|---|----------------|------|--------|----------------------------------|
 
 ### Deferred Items
 

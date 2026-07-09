@@ -79,6 +79,19 @@ concrete wrong outcome results — and only if all three hold. A genuinely N/A o
 architect had no reason to state explicitly is not a gap; don't manufacture an exclusion
 requirement where no multi-party hazard exists.
 
+### Delegated field-shape names its source (pointer-exists)
+
+A contract whose payload is an **owned domain entity** may — and *should*, to keep altitude —
+delegate the entity's field-shape to an authoritative source (PRD §5 Conceptual Data Model,
+Foundations) rather than reproduce it here. For each such contract, verify the architecture
+**names that source explicitly** (e.g. "feedback payload: see PRD §5 Feedback Entry"). This is a
+**pointer-exists** check, *not* a field check — do **not** flag missing field definitions (those
+belong in the component spec and its named source, and are the Data Architect's exclusion too).
+Flag only an entity-bearing contract that delegates its shape **implicitly** — no named source —
+because an unnamed delegation is silently unenforced downstream: it is the CTR-015 failure class
+(a load-bearing entity payload realized as an opaque blob, coverage still green). The named source
+is what lets the components stage materialize a binding and conformance-check it.
+
 ---
 
 ## Your Approach

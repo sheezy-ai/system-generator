@@ -73,6 +73,10 @@ If deferred items exist for this component:
 Find data contracts where this component is named as producer or consumer:
 - Each contract becomes a checklist item (the spec must define the contract's schema/interface)
 
+**Bound-contract fields (registry `Binds:` pointers).** The materialized registry resolves a contract whose payload is an owned entity to an explicit `**Binds**: PRD §5 [Entity] — [field list]` pointer. For each contract involving this component that carries a `Binds:` pointer, extract the bound field list as **Bound-Contract Fields** checklist items, tagged with this component's role:
+- **Consumer** of the bound contract → the bound fields are the payload shape this component is entitled to rely on; the spec must account for reading/using them at the contract boundary. This is the case Step 1b does **not** cover — the consumer does not own the entity, so its fields never appear in owned-entity extraction, yet silently narrowing them to an opaque blob is exactly the CTR-015 failure.
+- **Producer/owner** of the bound contract → the bound fields must equal what Step 1b already extracts for the owned entity; record the item as a cross-reference to Step 1b (do not double-count as a separate gap).
+
 ### Step 4: Note Foundations Conventions
 
 These are constraints, not individual checklist items:
@@ -93,6 +97,7 @@ Group items into:
 - **Interfaces** — endpoints, events, contracts this component must expose
 - **Integrations** — how this component connects to others
 - **Data contracts** — producer/consumer contracts from cross-cutting spec
+- **Bound-contract fields** — for contracts carrying a registry `Binds:` pointer, the bound PRD §5 field list, tagged by role (Step 3)
 - **Deferred items** — upstream requirements assigned to this component
 - **Foundations conventions** — cross-cutting patterns to reference
 
@@ -148,6 +153,12 @@ Group items into:
 |---|---------|------|-------------------|
 | [N+M+K+J] | [Contract name] | Producer / Consumer | CTR-NNN |
 
+## Bound-Contract Fields (registry `Binds:`)
+
+| # | Contract.Field | Role | Binds Source | Note |
+|---|----------------|------|--------------|------|
+| [N+...] | CTR-NNN.[field] | Consumer / Producer | PRD §5 [Entity] | Consumer-relies / Owner (see Step 1b) |
+
 ## Deferred Items
 
 | # | Item | Source | Status |
@@ -174,6 +185,7 @@ Group items into:
 - [ ] All data flows involving this component extracted
 - [ ] All integration points involving this component extracted
 - [ ] All data contracts from cross-cutting spec extracted
+- [ ] Bound-contract fields extracted for every contract carrying a registry `Binds:` pointer, tagged by role (Step 3)
 - [ ] PRD §5 field list extracted for every owned entity (Step 1b), each tagged Carried / Refined / Silent
 - [ ] Deferred items checked and included
 - [ ] No items invented — only what Architecture/cross-cutting explicitly assigns
