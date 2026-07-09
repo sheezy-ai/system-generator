@@ -19,7 +19,7 @@ Given the Architecture, Foundations, Cross-cutting spec, and a single concern as
 - Cross-cutting spec (`system-design/05-components/specs/cross-cutting.md`)
 - Concerns file (`system-design/05-components/versions/[component]/round-{N}-create/explore/00-concerns.md`)
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
-- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions this component may adopt (not pending any cross-cutting-spec authoring/ratification step; `cross-cutting.md` is a downstream contract registry only)
+- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions this component may adopt (governed upstream — there is no cross-cutting-spec ratifying author). These are distinct from `cross-cutting.md` itself, which is **materialized up-front from Architecture §7/§8** as a resolved contract layer.
 - Previous-round draft (**round 2+ only**) — the round N-1 draft; treat it as the current committed position to critique and build on, not restate. Absent in round 1.
 - Your assigned concern ID (e.g., `CON-3`)
 

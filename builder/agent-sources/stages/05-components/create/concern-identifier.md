@@ -19,7 +19,7 @@ Given the input documents, identify 3-5 component design concerns worth explorin
 - Component guide (`{{GUIDES_PATH}}/05-components-guide.md`)
 - Cross-cutting spec (`system-design/05-components/specs/cross-cutting.md`)
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
-- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions this component may adopt (not pending any cross-cutting-spec authoring/ratification step; `cross-cutting.md` is a downstream contract registry only)
+- Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions this component may adopt (governed upstream — there is no cross-cutting-spec ratifying author). These are distinct from `cross-cutting.md` itself, which is **materialized up-front from Architecture §7/§8** as a resolved contract layer.
 - Workflow state file (`system-design/05-components/versions/[component]/workflow-state.md`)
 - Previous-round draft (**round 2+ only**) — the round N-1 draft this round critiques (`system-design/05-components/versions/[component]/round-{N-1}-create/03-updated-spec.md`, or `00-draft-spec.md` if no Author output ran). Absent in round 1.
 

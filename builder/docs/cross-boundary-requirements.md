@@ -2,7 +2,7 @@
 
 This rule governs what a spec does when it discovers a requirement it **cannot satisfy within its own boundary** — one that belongs to a *peer* component or to a *cross-cutting concern*. It is generator-wide methodology and applies across stages.
 
-It replaces the retired forward-commitment **ratification** model — specifically the part that assumed a separate step-0 cross-cutting-spec *author* would later "ratify" downstream commitments. That ratifying party was never built and is the fiction being retired. The **step-0 cross-cutting interfaces themselves are real** — Architecture §6/§7 order them before component specs — and their **authority is Architecture §7**. So a component **may** forward-commit to a step-0 cross-cutting interface: it records the commitment as *adopt-by-reference to §7* (e.g. "adopts the XC-004 audit caps by reference"), which **resolves by reference to §7**, not by a phantom ratifier. What does not exist is the separate ratifying author, and `cross-cutting.md` remains a **downstream contract registry only** (populated post-hoc by the cross-cutting population workflow).
+It replaces the retired forward-commitment **ratification** model — specifically the part that assumed a separate step-0 cross-cutting-spec *author* would later "ratify" downstream commitments. That ratifying party was never built and is the fiction being retired. The **step-0 cross-cutting interfaces themselves are real** — Architecture §6/§7 order them before component specs — and their **authority is Architecture §7**. So a component **may** forward-commit to a step-0 cross-cutting interface: it records the commitment as *adopt-by-reference to §7* (e.g. "adopts the XC-004 audit caps by reference"), which **resolves by reference to §7**, not by a phantom ratifier. What does not exist is the separate ratifying author. `cross-cutting.md` is **materialized up-front from Architecture §7/§8** at stage init — a projection of the already-frozen contracts, authoritative only *by reference* to §7/§8, consumed by component creation as a resolved contract layer. It is still **not** an independent authority and no party ratifies it; the post-promotion cross-cutting population workflow reconciles the realized bodies against it.
 
 ## Authority Direction (unchanged)
 
@@ -10,7 +10,7 @@ The system-generator holds **architecture → downstream** as the binding author
 
 The reverse direction — **downstream → architecture/foundations** — and the lateral direction — **component → peer** — are **proposal-only**. A spec may *surface* a concrete requirement it needs another party to uphold, but the receiving authority (the upstream stage author, or the peer's own review) is the one that ratifies it.
 
-Data *contracts* between components are the exception handled elsewhere: they are extracted into `cross-cutting.md` and enforced by the contract verifier. This document is about **non-contract** design / behavioural / invariant requirements.
+Data *contracts* between components are the exception handled elsewhere: they are materialized into `cross-cutting.md` up-front from Architecture §7/§8, and reconciled/enforced by the contract verifier against the bodies that realize them. This document is about **non-contract** design / behavioural / invariant requirements.
 
 ## Three exits
 
