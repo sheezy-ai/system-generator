@@ -40,6 +40,46 @@ If after applying the threshold above you find zero issues, report zero issues. 
 
 ---
 
+## Sub-Operation Contract Obligations
+
+The guide's §8 "Sufficient when" checks contracts at *presence* granularity — every
+cross-component data flow has a named row with producer, consumer, and direction. That
+misses **load-bearing obligations that live *inside* a contract** rather than as separate
+rows: the concurrency, transactional, identity, and failure semantics that only get pinned
+when someone reasons about two components touching shared state concurrently. Such an
+obligation is invisible to presence-checking, yet a missing one becomes a late
+implementation discovery or a silent cross-component divergence — a deadlock, a broken
+join, an unhandled failure path.
+
+For **each multi-writer or multi-reader edge** — two or more components writing the same
+state (a caller-plus-callee write, a delegated write), or two or more reading a shared
+identifier/state to compose a result (a cross-domain join) — verify the architecture
+**pins, or deliberately and explicitly excludes,** an obligation in each class below:
+
+- **Concurrency / lock-ordering** — if concurrent invocations can lock the same rows from
+  different components, is a deterministic acquisition order (or other deadlock-avoidance
+  obligation) stated?
+- **Transaction-participation** — does the contract state whether the operation joins the
+  caller's ambient transaction (commit-or-rollback-together) or commits independently?
+- **Identifier canonicalization / equality** — if an identifier crosses the boundary and is
+  later compared or joined on the other side, is its equality / canonical form an
+  obligation, so both sides compare equal?
+- **Failure-surfacing posture** — if the operation can fail or degrade, is the posture
+  stated per direction (e.g. write fails hard vs read degrades to a placeholder)?
+
+**Altitude:** flag the *missing obligation* ("this is a multi-writer contract but states no
+lock-ordering obligation — concurrent callers could deadlock"), not the fix (which column to
+lock, the canonical string format, the isolation level). The obligation is architecture's;
+the realization is the component spec's.
+
+**Threshold.** Raise a finding here through the same three-part demonstration as any other
+issue — who consumes the missing obligation, what they'd plausibly do without it, what
+concrete wrong outcome results — and only if all three hold. A genuinely N/A obligation the
+architect had no reason to state explicitly is not a gap; don't manufacture an exclusion
+requirement where no multi-party hazard exists.
+
+---
+
 ## Your Approach
 
 1. **Clarify Before Assuming**: If something is ambiguous and would materially affect your analysis, note it as a clarifying question. Don't assume on critical points.
