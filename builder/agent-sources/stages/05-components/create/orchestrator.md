@@ -768,6 +768,7 @@ Do NOT process enrichments until the human has added actual response content aft
    - Component: [component-name]
    - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
+   - PRD (its §5 Conceptual Data Model — authoritative field list for owned entities): {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
    - Cross-cutting spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
@@ -793,9 +794,9 @@ Do NOT process enrichments until the human has added actual response content aft
 
 5. **Wait for checker to complete**
 
-6. **Read coverage report summary** — extract GAPS_FOUND or PASS status
+6. **Read coverage report summary** — extract PASS / GAPS_FOUND / CONFIRM_NEEDED status and the GAP + CONFIRM-INTENTIONAL counts
 
-7. **If GAPS_FOUND**: Add any GAP items as `[TODO: Coverage gap — ...]` markers to the draft spec using targeted Edit operations, so the Gap Formatter can extract them alongside the Generator's own gap markers.
+7. **If GAPS_FOUND or CONFIRM_NEEDED**: Add each GAP item as a `[TODO: Coverage gap — ...]` marker, and each CONFIRM-INTENTIONAL item (an owned-entity PRD §5 field absent from the draft where the Architecture is silent/refined) as a `[TODO: Coverage confirm — <Entity.field> (PRD §5): present in the PRD conceptual data model but absent from this spec. Confirm deliberate MVP scoping (record an explicit waiver) or add the field.]` marker, to the draft spec using targeted Edit operations, so the Gap Formatter extracts both alongside the Generator's own gap markers.
 
 8. **Update state file**: Mark "Step 9b: Coverage Verification" complete `[x]`, add history entry with coverage counts
 

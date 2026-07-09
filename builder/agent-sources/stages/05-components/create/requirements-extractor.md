@@ -15,6 +15,7 @@ Given the Architecture Overview, Foundations, and a component name, extract ever
 **Input:** File paths to:
 - Architecture Overview
 - Foundations
+- PRD (its §5 Conceptual Data Model — the authoritative field list for entities this component owns)
 - Component guide (for understanding what "address" means at Component Spec level)
 - Component name
 - Component deferred items (if exists)
@@ -32,8 +33,9 @@ Given the Architecture Overview, Foundations, and a component name, extract ever
 3. **Read the Architecture Overview** — find everything assigned to this component
 4. **Read the Foundations** — note conventions this component must follow
 5. **Read the cross-cutting spec** — find data contracts where this component is producer or consumer
-6. **Read deferred items** (if provided) — extract upstream requirements marked STILL_RELEVANT or PARTIALLY_ADDRESSED
-7. **Write the checklist** to the specified output path
+6. **Read the PRD §5 Conceptual Data Model** — for each entity this component is authoritative for (from Architecture data-ownership), find its PRD-specified field list
+7. **Read deferred items** (if provided) — extract upstream requirements marked STILL_RELEVANT or PARTIALLY_ADDRESSED
+8. **Write the checklist** to the specified output path
 
 ---
 
@@ -51,6 +53,14 @@ For the named component, extract:
 | §6 Component Spec List | Scope, data owned, dependencies |
 | §7 Cross-Cutting Concerns | Concerns that apply to this component |
 | §8 Data Contracts | Contracts where this component is producer or consumer |
+
+### Step 1b: Extract owned-entity field requirements from the PRD Conceptual Data Model
+
+The Architecture deliberately delegates entity **field** specifications downward — it names the entities a component owns but does not reproduce the PRD §5 field lists ("field specifications: see PRD"; "fields defined in the PRD data model"). For each entity this component is **authoritative for** (its data-ownership items from §6 above), read the entity's field list in **PRD §5 Conceptual Data Model** and extract each field as a checklist item under **Owned-Entity Data-Model Fields**.
+
+- Scope strictly to entities this component **owns** — do NOT extract fields for entities owned by other components (that would re-litigate the whole PRD).
+- For each field, tag whether the Architecture **carries it down**, **refines it**, or is **silent** on it. Architecture silence does not remove the requirement — the PRD §5 field is the authoritative source the Architecture delegates to — but the tag lets the Coverage Checker surface a deliberate-deferral confirmation rather than a hard gap.
+- This is the one place the extractor reaches past the Architecture, and it is scoped to **field-level coverage of owned entities only**, because the Architecture's own delegation makes the PRD §5 conceptual model the authoritative field source for those entities.
 
 ### Step 2: Extract from Deferred Items
 
@@ -79,6 +89,7 @@ The Component Spec must reference these — the coverage checker verifies this.
 Group items into:
 - **Responsibilities** — from Architecture §2 (what this component does)
 - **Data ownership** — entities this component owns (from §6)
+- **Owned-entity data-model fields** — the PRD §5 field list for each owned entity (from Step 1b), each tagged Architecture-carried / refined / silent
 - **Interfaces** — endpoints, events, contracts this component must expose
 - **Integrations** — how this component connects to others
 - **Data contracts** — producer/consumer contracts from cross-cutting spec
@@ -112,6 +123,12 @@ Group items into:
 | # | Entity | Architecture Location |
 |---|--------|---------------------|
 | [N+1] | [Entity name] | §6, Component Spec List |
+
+## Owned-Entity Data-Model Fields (PRD §5)
+
+| # | Entity.Field | PRD §5 Source | Architecture Treatment |
+|---|--------------|---------------|------------------------|
+| [N+...] | [Entity.field] | §5 [entity] | Carried / Refined / Silent |
 
 ## Interfaces
 
@@ -157,6 +174,7 @@ Group items into:
 - [ ] All data flows involving this component extracted
 - [ ] All integration points involving this component extracted
 - [ ] All data contracts from cross-cutting spec extracted
+- [ ] PRD §5 field list extracted for every owned entity (Step 1b), each tagged Carried / Refined / Silent
 - [ ] Deferred items checked and included
 - [ ] No items invented — only what Architecture/cross-cutting explicitly assigns
 - [ ] Items numbered sequentially
@@ -167,8 +185,8 @@ Group items into:
 ## Constraints
 
 - **Extract only**: Do NOT generate spec content. Produce only the checklist.
-- **Architecture-driven**: Only extract what the Architecture explicitly assigns to this component
-- **Named component only**: Do not extract requirements for other components
+- **Architecture-primary, with one scoped PRD exception**: Extract what the Architecture assigns to this component. The single exception is **owned-entity field coverage** (Step 1b): for entities this component owns, the PRD §5 Conceptual Data Model is the authoritative field list the Architecture explicitly delegates downward — extract those fields even when the Architecture does not reproduce them. Do NOT otherwise validate the draft against the PRD.
+- **Named component only**: Do not extract requirements for other components — and for the PRD-field exception, only entities this component **owns**
 - **No solutions**: Identify what must be addressed, not how
 
 ---

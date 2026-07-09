@@ -43,6 +43,7 @@ For each item in the requirements checklist:
 2. **Classify as:**
    - **COVERED** — the spec has substantive content addressing this item (endpoint defined, entity schema present, behaviour described, integration documented)
    - **GAP-MARKED** — the draft has an explicit gap marker acknowledging this item
+   - **CONFIRM-INTENTIONAL** — (owned-entity data-model fields only) the PRD-specified field is absent from the draft, but the checklist tags it Architecture-silent or Architecture-refined, so the omission may be a deliberate scoping decision. Surface it for human confirmation rather than passing silently or asserting a hard gap.
    - **GAP** — the draft neither addresses nor acknowledges this item
 
 ### Coverage Rules
@@ -54,6 +55,11 @@ For each item in the requirements checklist:
 **Data ownership:**
 - COVERED if the entity appears in §4 Data Model with a schema
 - GAP if the entity is assigned to this component in Architecture but absent from the spec
+
+**Owned-entity data-model fields (PRD §5):**
+- COVERED if the PRD-specified field appears in the draft's §4 Data Model, or is explicitly captured/derived by a named operation (e.g. a write input or a read projection)
+- **CONFIRM-INTENTIONAL** if the field is absent AND the checklist tags it Architecture-silent or Architecture-refined — the omission may be deliberate scoping; surface it for the human to confirm (neither a silent pass nor an automatic gap). These are requirements the Architecture delegated to this spec; a load-bearing PRD field dropped here is exactly the failure mode this category exists to catch
+- **GAP** if the field is absent AND the checklist tags it Architecture-carried (the Architecture explicitly carried it down, so absence is a genuine omission)
 
 **Interfaces:**
 - COVERED if the endpoint/event/contract appears in §3 Interfaces
@@ -97,8 +103,9 @@ For each item in the requirements checklist:
 - **Total requirements**: [N]
 - **COVERED**: [N]
 - **GAP-MARKED**: [N]
+- **CONFIRM-INTENTIONAL**: [N] (owned-entity PRD §5 fields absent — deliberate-deferral confirmations for the human)
 - **GAP**: [N] (silent omissions)
-- **Overall**: PASS | GAPS_FOUND
+- **Overall**: PASS | GAPS_FOUND | CONFIRM_NEEDED
 
 ---
 
@@ -114,6 +121,11 @@ For each item in the requirements checklist:
 
 | # | Item | Status | Covered By | Notes |
 |---|------|--------|-----------|-------|
+
+### Owned-Entity Data-Model Fields (PRD §5)
+
+| # | Entity.Field | Status | Covered By / Confirmation Needed |
+|---|--------------|--------|----------------------------------|
 
 ### Interfaces
 
