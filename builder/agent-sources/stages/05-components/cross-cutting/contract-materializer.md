@@ -62,7 +62,7 @@ A contract is **Freezable-but-delegated** when its payload is an entity that som
 
 For each such contract:
 
-1. Identify the **owned entity** carried by the payload (e.g. CTR-015 `decision_point_reads` carries **Feedback Entry**).
+1. Identify the **owned entity** carried by the payload (e.g. CTR-NNN `<contract_name>` carries **[Entity]**).
 2. Locate that entity in **PRD §5 Conceptual Data Model** and read its field list.
 3. Record a **binding pointer** on the contract:
 
@@ -70,7 +70,7 @@ For each such contract:
    **Binds**: PRD §5 [Entity] — [comma-separated field list copied from PRD §5]
    ```
 
-   Example: `**Binds**: PRD §5 Feedback Entry — participant, date, success dimension(s), signal type, period marker, transition marker, cohort marker, content`
+   Example: `**Binds**: PRD §5 [Entity] — [field list]`
 
 4. The binding pointer is a **pointer + resolved field list**, not a re-specification. Copy the PRD §5 field names; do **not** invent types, add fields, or design the schema — that is the owning component's realization. The binding says *which fields the contract's payload is obligated to carry*; the component spec later realizes them, and the coverage/contract checks verify the realization covers this set.
 5. If a contract's payload is an owned entity but you **cannot** find a field source in PRD §5 (or the source the Description names does not resolve), that is an **under-pinned delegation** → escalate it (Step 4) with `Binds: UNRESOLVED`.
@@ -87,7 +87,7 @@ For each **Under-pinned (D)** item and each **unresolved delegation**, append an
 
 Do **not** invent the missing decision, and do **not** defer it into a component spec. Escalation is the only correct destination for (D).
 
-**Known residual (expected):** XC-003's immutable-record audit-write failure posture is a standing `(D)` per the contract-first design — if §7 has not pinned it, escalate it here; do not resolve it.
+**Known residual (expected):** a system may carry a standing `(D)` — a cross-cutting failure-posture or invariant sub-question the architecture has not yet pinned (per the contract-first design). Where §7 has not pinned such an obligation, escalate it here; do not resolve it.
 
 ### Step 5: Write the registry
 
@@ -176,7 +176,7 @@ Summarize: contracts materialized, bindings resolved, gaps escalated, and REMOVE
 
 | CTR | Owned Entity | PRD §5 Field Source | Fields Bound |
 |-----|--------------|---------------------|--------------|
-| CTR-015 | Feedback Entry | PRD §5 | participant, date, success dimension(s), signal type, period marker, transition marker, cohort marker, content |
+| CTR-NNN | [Entity] | PRD §5 | [field list] |
 
 ## Escalations (D — routed to Architecture pending-issues)
 

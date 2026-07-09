@@ -74,7 +74,7 @@ Find data contracts where this component is named as producer or consumer:
 - Each contract becomes a checklist item (the spec must define the contract's schema/interface)
 
 **Bound-contract fields (registry `Binds:` pointers).** The materialized registry resolves a contract whose payload is an owned entity to an explicit `**Binds**: PRD §5 [Entity] — [field list]` pointer. For each contract involving this component that carries a `Binds:` pointer, extract the bound field list as **Bound-Contract Fields** checklist items, tagged with this component's role:
-- **Consumer** of the bound contract → the bound fields are the payload shape this component is entitled to rely on; the spec must account for reading/using them at the contract boundary. This is the case Step 1b does **not** cover — the consumer does not own the entity, so its fields never appear in owned-entity extraction, yet silently narrowing them to an opaque blob is exactly the CTR-015 failure.
+- **Consumer** of the bound contract → the bound fields are the payload shape this component is entitled to rely on; the spec must account for reading/using them at the contract boundary. This is the case Step 1b does **not** cover — the consumer does not own the entity, so its fields never appear in owned-entity extraction, yet silently narrowing them to an opaque blob is exactly the unnamed-delegation failure.
 - **Producer/owner** of the bound contract → the bound fields must equal what Step 1b already extracts for the owned entity; record the item as a cross-reference to Step 1b (do not double-count as a separate gap).
 
 ### Step 4: Note Foundations Conventions

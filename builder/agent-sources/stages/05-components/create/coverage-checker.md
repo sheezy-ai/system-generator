@@ -75,7 +75,7 @@ For each item in the requirements checklist:
 
 **Bound-contract fields (registry `Binds:`):**
 - COVERED if the bound field appears at the contract boundary — the owned-entity §4 schema (produced/owned contract), or a named read projection / usage (consumed contract)
-- **CONFIRM-INTENTIONAL** if a *consumed* bound field is absent AND the draft neither reads nor references it — surface for human confirmation. A consumer may legitimately rely on a subset, but silently narrowing a bound payload to an opaque blob is exactly the CTR-015 failure (a load-bearing entity payload dropped while coverage still reports PASS), so it must not pass silently
+- **CONFIRM-INTENTIONAL** if a *consumed* bound field is absent AND the draft neither reads nor references it — surface for human confirmation. A consumer may legitimately rely on a subset, but silently narrowing a bound payload to an opaque blob is exactly the unnamed-delegation failure (a load-bearing entity payload dropped while coverage still reports PASS), so it must not pass silently
 - **GAP** if a *produced/owned* bound field is absent — a genuine owner omission, identical to the owned-entity GAP rule (and typically already flagged there)
 
 **Deferred items:**

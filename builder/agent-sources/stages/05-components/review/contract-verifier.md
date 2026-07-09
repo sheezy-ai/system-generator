@@ -54,7 +54,7 @@ Same checks as Create verifier:
 - Type compatibility
 - Constraints satisfied
 
-**Bound contracts (registry `Binds:`).** When the contract carries a `**Binds**: PRD §5 [Entity] — [field list]` pointer, the **bound field list is the required-field set** for conformance: the producer's realized schema (§4, or the operation that emits the payload) must cover every bound field. A bound field that is absent — or collapsed into an opaque blob — is a **FAIL**, even if the producer's chosen schema is internally consistent. This is the CTR-015 regression class: a load-bearing entity payload silently narrowed while the spec still reads well. Verify against the bound fields, not merely against what the producer chose to model.
+**Bound contracts (registry `Binds:`).** When the contract carries a `**Binds**: PRD §5 [Entity] — [field list]` pointer, the **bound field list is the required-field set** for conformance: the producer's realized schema (§4, or the operation that emits the payload) must cover every bound field. A bound field that is absent — or collapsed into an opaque blob — is a **FAIL**, even if the producer's chosen schema is internally consistent. This is the unnamed-delegation regression class: a load-bearing entity payload silently narrowed while the spec still reads well. Verify against the bound fields, not merely against what the producer chose to model.
 
 ### Step 4: Detect Regressions and Fixes
 

@@ -84,12 +84,12 @@ requirement where no multi-party hazard exists.
 A contract whose payload is an **owned domain entity** may — and *should*, to keep altitude —
 delegate the entity's field-shape to an authoritative source (PRD §5 Conceptual Data Model,
 Foundations) rather than reproduce it here. For each such contract, verify the architecture
-**names that source explicitly** (e.g. "feedback payload: see PRD §5 Feedback Entry"). This is a
+**names that source explicitly** (e.g. "CTR-NNN payload: see PRD §5 [Entity]"). This is a
 **pointer-exists** check, *not* a field check — do **not** flag missing field definitions (those
 belong in the component spec and its named source, and are the Data Architect's exclusion too).
 Flag only an entity-bearing contract that delegates its shape **implicitly** — no named source —
-because an unnamed delegation is silently unenforced downstream: it is the CTR-015 failure class
-(a load-bearing entity payload realized as an opaque blob, coverage still green). The named source
+because an unnamed delegation is silently unenforced downstream: it is the unnamed-delegation
+failure class (a load-bearing entity payload realized as an opaque blob, coverage still green). The named source
 is what lets the components stage materialize a binding and conformance-check it.
 
 ---
