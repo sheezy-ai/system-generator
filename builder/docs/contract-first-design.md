@@ -1,6 +1,6 @@
 # Contract-First Component Specs — Design
 
-**Status:** PROPOSAL (not yet implemented)
+**Status:** PARTIALLY IMPLEMENTED — Gaps 1, 2, 3 shipped; Gap 4 cross-stage pending (see §5)
 **Scope:** the 04-architecture ↔ 05-components seam — how inter-component contracts get frozen, consumed, and escalated.
 **Relationship to existing docs:** extends `cross-boundary-requirements.md` (which defines P1/P2 routing and `AWAITS_UPSTREAM_REVISION`). This doc is about *where contracts are frozen and why*, and the narrow reinforcements needed; that doc is about *how a discovered cross-boundary requirement is routed*.
 
