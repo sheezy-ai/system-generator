@@ -2,7 +2,7 @@
 
 This rule governs what a spec does when it discovers a requirement it **cannot satisfy within its own boundary** — one that belongs to a *peer* component or to a *cross-cutting concern*. It is generator-wide methodology and applies across stages.
 
-It replaces the retired "forward commitments to cross-cutting specs" model. That model assumed a **step-0 cross-cutting-spec authoring/ratification** pass that is not built and was never intended: cross-cutting *design* is authored upstream in Architecture / Foundations, and `cross-cutting.md` is a **downstream contract registry only** (populated post-hoc by the cross-cutting population workflow). A downstream spec therefore does **not** "forward-commit" content to a future cross-cutting spec, and nothing ratifies such commitments. See the Defect note `DEFECT-cross-boundary-requirements.md` for the full history.
+It replaces the retired forward-commitment **ratification** model — specifically the part that assumed a separate step-0 cross-cutting-spec *author* would later "ratify" downstream commitments. That ratifying party was never built and is the fiction being retired. The **step-0 cross-cutting interfaces themselves are real** — Architecture §6/§7 order them before component specs — and their **authority is Architecture §7**. So a component **may** forward-commit to a step-0 cross-cutting interface: it records the commitment as *adopt-by-reference to §7* (e.g. "adopts the XC-004 audit caps by reference"), which **resolves by reference to §7**, not by a phantom ratifier. What does not exist is the separate ratifying author, and `cross-cutting.md` remains a **downstream contract registry only** (populated post-hoc by the cross-cutting population workflow). See the Defect note `DEFECT-cross-boundary-requirements.md` for the full history.
 
 ## Authority Direction (unchanged)
 
@@ -20,7 +20,7 @@ When a spec finds a requirement it cannot satisfy inside its own boundary, class
 |------|-----------|-------------|----------|
 | **Data contract** | A produces/consumes B's data, or calls B's API | Inline in the spec now; extracted to `cross-cutting.md` later (CTR-*) | Contract verifier (review) |
 | **Peer requirement (P1)** | "Component X must uphold behaviour Y" that affects **only X's own spec** | X's `pending-issues.md`, `Kind: CROSS-BOUNDARY-PEER` | X's **review** (consolidator) + Coherence |
-| **Cross-cutting invariant / cross-cutting design (P2)** | A cross-component invariant, or a shared design decision **no single component owns** (audit-trail failure posture, retention coordination, a shared type/format) | Architecture (or Foundations) `pending-issues.md`, `Kind: CROSS-BOUNDARY-UPSTREAM`, `Status: AWAITS_UPSTREAM_REVISION` | The upstream stage's own review/create/expand (on its next revision round) |
+| **Cross-cutting invariant / cross-cutting design (P2)** | A cross-component invariant or shared design decision **no single component owns and that §7 does not already settle** (retention coordination between two components; a shared posture/type/format not yet pinned). *If §7 already governs it — e.g. an audit-trail cross-cutting interface convention — it is **adopted by reference to §7**, not escalated (see below).* | Architecture (or Foundations) `pending-issues.md`, `Kind: CROSS-BOUNDARY-UPSTREAM`, `Status: AWAITS_UPSTREAM_REVISION` | The upstream stage's own review/create/expand (on its next revision round) |
 
 ### P1 vs P2 — the triage
 
@@ -30,6 +30,8 @@ Ask: **does this bind a peer's own internal design (P1), or is it a system invar
 - If it coordinates two or more components, or fixes a shared posture/type/format that must be pinned once and centrally → **P2** (escalate upstream). A component must **not** bind a peer to a system invariant; that inverts the authority direction.
 
 When unsure, prefer **P2** (escalate upstream): a cross-component invariant wrongly filed as a peer request is harder to reconcile than an upstream escalation the author declines.
+
+**Adopt-by-reference vs escalate.** A cross-cutting-interface convention that Architecture §7 **already governs** (audit-trail caps, failure posture for state transitions, the source-attribution shape) is **adopted by reference to §7** in the component's own §12 — a forward commitment to the real step-0 interface, resolved by reference. That is **not** a P2 escalation. Escalate as P2 (`AWAITS_UPSTREAM_REVISION`) only a genuinely *unsettled* cross-component invariant that §7 does not yet answer and that needs an upstream position (e.g. XC-003's immutable-record failure-posture sub-question, if it is to be pinned centrally).
 
 ## The `AWAITS_UPSTREAM_REVISION` marker (P2)
 
