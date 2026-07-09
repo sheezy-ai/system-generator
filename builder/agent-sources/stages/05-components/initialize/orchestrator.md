@@ -7,7 +7,7 @@
 One-time stage-level setup before creating any component specs. Run this once at the start of the Component Specs stage to:
 - Create folder structure for all components
 - Split the monolithic deferred items into component-specific files
-- Create cross-cutting specification placeholder
+- Materialize the cross-cutting contract registry up-front from Architecture §7/§8 (a resolved contract layer for component creation to consume)
 - Initialize pending-issues files for each component
 - Initialize the workflow state file
 
@@ -145,41 +145,40 @@ Run the initialization.
    ```
    Components that already have a `deferred-items.md` (processor wrote items) are left unchanged.
 
-### Step 3a: Create Cross-Cutting Specification Placeholder
+### Step 3a: Materialize the Cross-Cutting Contract Registry (up-front)
 
-1. **Create** `specs/cross-cutting.md` with placeholder content:
+The inter-component data contracts are **already frozen** in Architecture §8 (the CTR table) + §7 (interfaces). Materialize them up-front into `specs/cross-cutting.md` so component creation reads a **resolved contract layer** instead of authoring against §7/§8 with no projected contracts. This is a **projection** of §7/§8 — authority stays upstream (see the Contract Materializer's authority note). It replaces the former DEFERRED placeholder.
+
+1. **Create** `specs/cross-cutting.md` as an empty target (the materializer overwrites it):
 
 ```markdown
 # Cross-Cutting Specification
 
 ## Status
 
-**Population**: DEFERRED
-
-Contracts are defined inline in component specs during initial development. This registry will be populated by extracting established contracts once component specs stabilize.
-
-See the populate cross-cutting orchestrator for the extraction process.
-
----
-
-## 1. Data Contracts
-
-*To be extracted from component specs*
-
----
-
-## 2. Shared Types
-
-*To be extracted from component specs*
-
----
-
-## Appendix: Contract Status Summary
-
-| Contract ID | Name | Consumer | Producer(s) | Status |
-|-------------|------|----------|-------------|--------|
-| *None yet* | | | | |
+**Population**: MATERIALIZING
 ```
+
+2. **Spawn Contract Materializer** using the Task tool:
+   - **subagent_type**: `general-purpose`
+   - **prompt**:
+     ```
+     Follow the instructions in: {{AGENTS_PATH}}/05-components/cross-cutting/contract-materializer.md
+
+     Input:
+     - Architecture Overview: system-design/04-architecture/architecture.md
+     - PRD: system-design/02-prd/prd.md
+     - Cross-cutting registry: system-design/05-components/specs/cross-cutting.md
+     - Architecture pending-issues: system-design/04-architecture/versions/pending-issues.md
+
+     Output:
+     - Populated registry: system-design/05-components/specs/cross-cutting.md
+     - Materialization report: system-design/05-components/versions/cross-cutting/materialization.md
+     ```
+
+3. **After agent completes**: Verify `cross-cutting.md` status is `MATERIALIZED` and the materialization report was written. Read the report's Escalations count.
+
+4. **If the materializer escalated any under-pinned contracts** (D items appended to Architecture pending-issues): surface this in the Step 5 summary — the Architecture may need an Expand round *before* the affected components are created. This is a signal, not a blocker; the human decides whether to run Expand now or proceed and let the affected contracts resolve later.
 
 ### Step 3b: Generate Project Scale Reference
 
@@ -281,8 +280,9 @@ Deferred items status:
 - [M] cross-cutting items
 - Original archived to: deferred-items-archived-YYYY-MM-DD.md
 
-Cross-cutting specification:
-- Created specs/cross-cutting.md (placeholder - contracts extracted later)
+Cross-cutting contract registry:
+- Materialized specs/cross-cutting.md from Architecture §7/§8 ([N] contracts, [N] bindings resolved)
+- Under-pinned contracts escalated to Architecture pending-issues: [N] (if >0, consider an Architecture Expand round before creating the affected components)
 - Pending-issues.md initialized for each component
 
 Project scale reference:
@@ -307,12 +307,13 @@ system-design/
 ├── project-scale.md                          # Project scale reference (generated in Step 3b)
 └── 05-components/
     ├── specs/
-    │   └── cross-cutting.md                  # Placeholder (contracts extracted later)
+    │   └── cross-cutting.md                  # Materialized registry (projection of Architecture §7/§8)
     └── versions/
         ├── deferred-items-archived-YYYY-MM-DD.md # Original backup (if had content)
         ├── workflow-state.md                 # Stage state: initialization + component index
         ├── cross-cutting/
-        │   └── deferred-items.md             # Cross-cutting items (if any)
+        │   ├── deferred-items.md             # Cross-cutting items (if any)
+        │   └── materialization.md            # Contract materialization report (bindings + escalations)
         ├── event-store/
         │   ├── deferred-items.md             # Component-specific items
         │   ├── pending-issues.md             # Pending issues for this component

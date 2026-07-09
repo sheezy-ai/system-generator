@@ -53,8 +53,9 @@ join, an unhandled failure path.
 
 For **each multi-writer or multi-reader edge** — two or more components writing the same
 state (a caller-plus-callee write, a delegated write), or two or more reading a shared
-identifier/state to compose a result (a cross-domain join) — verify the architecture
-**pins, or deliberately and explicitly excludes,** an obligation in each class below:
+identifier/state to compose a result (a cross-domain join) — check each class below; where
+the edge carries a genuine hazard in that class, verify the architecture **pins the
+obligation** (or has **deliberately and explicitly excluded** it):
 
 - **Concurrency / lock-ordering** — if concurrent invocations can lock the same rows from
   different components, is a deterministic acquisition order (or other deadlock-avoidance
