@@ -1107,6 +1107,12 @@ Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 
 
 1. **Update state file**: Set status = WAITING_FOR_HUMAN
 
+1b. **Compute this round's convergence signal** (severity-gated round-exit — mirrors the review loop's "no HIGH/MEDIUM → mature" gate and the Step 10c threshold). Do **not** re-run any agent; read the counts already recorded this round:
+   - **Gaps resolved this round** by severity (from `{round-dir}/01-gap-discussion.md` + the Step 10 history entry): how many HIGH / MEDIUM / LOW.
+   - **Over-build (Step 9d)**: whether the IMPLEMENTATION_LATITUDE / RESTATES_UPSTREAM findings were **KEEP'd / confirmed** (no substantive change) or drove real edits (from the Step 9d history entry).
+   - **Creation Verification (Step 10c)**: whether it was **clean on the first pass** or required rework (from the Step 10c history entry).
+   - **Verdict** — a round is **diminishing-returns** if it resolved **no HIGH or MEDIUM gaps**, all excess findings were KEEP'd/confirmed, and Step 10c was clean first-pass (the round produced only LOW/polish refinement). Otherwise it made **substantive** change. This is a *recommendation to the human*, not an auto-terminate — the promote/continue choice stays theirs.
+
 2. **Notify user**:
    ```
    [If gaps were resolved:]
@@ -1119,6 +1125,13 @@ Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 
    Updated: {round-dir}/03-updated-spec.md
 
    The spec passed this round's full gate: no missing requirements (coverage/depth), no unresolved over-build (excess), AND clean alignment + internal coherence (Step 10c — no HIGH/MEDIUM). Reports: {round-dir}/06-stage-appropriateness-report.md, {round-dir}/04-alignment-report.md, {round-dir}/05-coherence-report.md.
+
+   Convergence signal (round {N}): [substantive | diminishing-returns]
+   - Gaps resolved this round: [X HIGH, Y MEDIUM, Z LOW] (or "none")
+   - Over-build (Step 9d): [all KEEP'd/confirmed | drove edits]
+   - Creation Verification (Step 10c): [clean first pass | required rework]
+   [If diminishing-returns:] → **Recommend promote.** This round resolved no HIGH/MEDIUM concerns and made only low-value/polish refinement; another round would likely surface more of the same. Exit on "no HIGH/MEDIUM", not "zero possible refinements".
+   [If substantive:] → This round made substantive (HIGH/MEDIUM) change; another round may still surface load-bearing concerns worth resolving before promotion.
 
    You can:
    - Say "promote" — promote the current draft
