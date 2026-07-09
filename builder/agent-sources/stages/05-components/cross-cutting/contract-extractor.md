@@ -126,7 +126,13 @@ Related interfaces that form one logical contract share one CTR-ID. Grouping rul
 
 ### Step 5: Check Existing Registrations
 
-Read cross-cutting.md. If any of the extracted produced interfaces are already registered (from a previous run or manual entry), note them as ALREADY_REGISTERED and do not assign new CTR-IDs.
+Read cross-cutting.md. If any of the extracted produced interfaces are already registered, note them as ALREADY_REGISTERED and do **not** assign new CTR-IDs — reuse the existing `CTR-NNN`.
+
+Registrations come in two forms:
+- **Post-hoc entries** (Status `DEFINED`/`VERIFIED`, from a previous run or manual entry) — already body-backed.
+- **Materialized entries** (Status `MATERIALIZED`) — the registry was frozen up-front from Architecture §8, so the entry pre-exists as a *projection* (obligation + `Binds:` field list), phrased from Architecture rather than from this body. Match the body's produced interface to it by **contract name / producer / bound entity**, not by verbatim schema; mark it ALREADY_REGISTERED and note that registration should transition its Status `MATERIALIZED → DEFINED` (a real body now backs the projected contract).
+
+If a produced interface has **no** matching registration, assign the next `CTR-NNN` as normal — but if the registry is `MATERIALIZED` (contracts were meant to be frozen up-front), also flag it as **UNMATERIALIZED** in the report (the materializer under-projected, or the body over-reaches its contract surface) for review, rather than silently absorbing it.
 
 ### Step 6: Boundary Completeness Check
 

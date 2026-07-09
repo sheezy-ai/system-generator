@@ -44,6 +44,8 @@ For each consumed interface in the extraction report:
 | Producer processed but no matching contract found | **NO_PRODUCER_CONTRACT** (genuine gap) |
 | Producer not yet processed (not in cross-cutting.md) | **PENDING_REGISTRATION** |
 
+**On a `MATERIALIZED` registry:** producer contracts pre-exist as materialized projections from stage init, so `PENDING_REGISTRATION` (producer not yet in cross-cutting.md) is rare — the producer contract is normally already present. Match the consumed expectation against the materialized entry's **obligation + `Binds:` field list** (the frozen field set), not a verbatim producer schema. A materialized entry whose producer body has not yet been reconciled still carries Status `MATERIALIZED`; treat it as a valid producer contract for matching. `PENDING_REGISTRATION` applies only to legacy fresh-population where nothing was materialized up-front.
+
 **Matching heuristics** (in priority order):
 1. Exact name match (contract name = consumed interface name)
 2. Function name match (consumed function name appears in contract's grouped interfaces)

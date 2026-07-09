@@ -4,7 +4,9 @@
 
 ## Purpose
 
-Extract data contracts from completed component specs and populate the cross-cutting specification incrementally — one component at a time in dependency order. Each component goes through extraction, reconciliation, human review, and registration before proceeding to the next.
+Reconcile the **realized component bodies** against the **already-materialized** cross-cutting registry. Since the components initializer materializes the inter-component contracts up-front at stage init (`Population: MATERIALIZED`), this workflow is **no longer initial population** — its role is **post-promotion conformance-over-bodies**: once specs are promoted, walk each component in dependency order, extract the contracts its body actually realizes, and reconcile them against the materialized obligations — confirming conformance (a materialized contract now backed by a real body transitions `MATERIALIZED → DEFINED`) and flagging any divergence for the contract verifier.
+
+**Legacy projects** whose registry was never materialized (`Population: DEFERRED`) fall back to the original behavior: fresh population that extracts and registers contracts from scratch.
 
 **Flow:** All specs promoted → Human invokes this orchestrator → Per-component: extract → reconcile → human review → register → Next component → Finalise
 
@@ -14,7 +16,7 @@ Extract data contracts from completed component specs and populate the cross-cut
 
 Run this orchestrator **manually** when:
 - All application-layer component specs have been completed and promoted
-- You want to establish a central contract registry for verification
+- You want to reconcile the realized bodies against the materialized registry (or, on a legacy `DEFERRED` registry, establish the registry from scratch)
 
 **Invocation:**
 ```
@@ -77,10 +79,11 @@ Rule: If a file path appears in your agent invocation, don't read it yourself.
 1. **Check cross-cutting.md exists** at `specs/cross-cutting.md`
    - **If NO**: Error — "Cross-cutting placeholder not found. Run the initialize orchestrator first."
 
-2. **Read cross-cutting.md** and check status:
-   - **If status is COMPLETE**: Warning — "Cross-cutting already populated. Re-running will replace existing contracts. Continue? (y/n)"
-   - **If status is IN_PROGRESS**: Check for population state file and attempt resume (see Resume Support below)
-   - **If status is DEFERRED**: Proceed with fresh population
+2. **Read cross-cutting.md** and check `Population` status:
+   - **If status is `MATERIALIZED`** (expected post-init state): Proceed with **conformance reconciliation** — the registry already holds the frozen contracts from stage init; this run reconciles the realized bodies against them (see Purpose). Do NOT wipe the materialized entries; treat them as the reconciliation baseline (see the Step 2c conformance note).
+   - **If status is `DEFERRED`** (legacy — contract layer never materialized): Proceed with **fresh population** from scratch.
+   - **If status is `IN_PROGRESS`**: Check for population state file and attempt resume (see Resume Support below)
+   - **If status is `COMPLETE`**: Warning — "Cross-cutting already reconciled. Re-running will re-reconcile existing contracts. Continue? (y/n)"
 
 3. **Find completed specs**:
    - List all `.md` files in `specs/` directory
@@ -96,8 +99,9 @@ Rule: If a file path appears in your agent invocation, don't read it yourself.
 5. **Initialise population state file** at `versions/cross-cutting/population-state.md` (see State File Format below)
 
 6. **Update cross-cutting.md** status section:
-   - Change `**Population**: DEFERRED` to `**Population**: IN_PROGRESS`
+   - Change `**Population**: MATERIALIZED` (or legacy `**Population**: DEFERRED`) to `**Population**: IN_PROGRESS`
    - Add `**Started**: [date]`
+   - **Preserve any materialized contract entries** — on a `MATERIALIZED` registry they are the reconciliation baseline; do not clear them.
 
 7. **Report to human**:
    ```
@@ -172,6 +176,8 @@ For each component in Processing Order (or resume from current component):
 #### Step 2c: Register
 
 All produced contracts are registered automatically. All mismatches are documented as NOTE.
+
+**On a `MATERIALIZED` registry (conformance mode):** the produced contracts already exist as materialized entries. Match each body-realized contract to its existing `CTR-NNN` (the extractor already reads the registry "to check for existing registrations") and **update that entry** — transition its Status `MATERIALIZED → DEFINED` (a real body now backs it) and record any divergence from the materialized obligation/binding as a NOTE — rather than minting a duplicate `CTR-NNN`. A contract a body realizes that is **absent from the materialized set** is a signal (the materializer under-projected, or the body over-reached): register it, but flag it in the final summary for review — do not silently absorb it. On a legacy `DEFERRED` registry, register from scratch as below.
 
 1. **Update population state**: Set current component status to REGISTERING
 

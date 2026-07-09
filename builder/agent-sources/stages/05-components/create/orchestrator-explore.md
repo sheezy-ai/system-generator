@@ -52,7 +52,10 @@ Read the per-component state file. Resolve paths for `Current Round`. Read `## P
 
 2. **Read stage state** and validate: component exists in the Component Specs table; status is `NOT_STARTED`.
 
-3. **Check dependencies** (Component Dependencies table): if the component has dependencies, verify all have status `COMPLETE`. If any is not COMPLETE → Error "Cannot initialize [component]. Blocked by: [list]".
+3. **Check the contract layer is frozen** (not dependency review status): component creation authors **inside-out** — against the frozen cross-cutting contract layer, not against peer component bodies — so the gate is that the layer is *materialized*, **not** that dependencies are *reviewed*. Read the `**Population**` status from `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md`:
+   - **`MATERIALIZED`** (or a later post-hoc `COMPLETE`) → the contract layer is frozen. **Proceed** — dependencies need **not** be `COMPLETE`. Bodies are created in parallel against the frozen contracts; full review sequences later, once consumers exist.
+   - **`DEFERRED`** (legacy projects whose contract layer was never materialized) → fall back to the pre-materialization gate: if the component has dependencies, verify all have status `COMPLETE`; if any is not → Error "Cannot create [component]: contract layer not materialized and dependency not COMPLETE. Blocked by: [list]".
+   - **`MATERIALIZING`** (materializer interrupted mid-run) → Error "Contract layer materialization incomplete. Re-run the initialize orchestrator's Step 3a (contract materialization) before creating components."
 
 4. **Validate deferred-items state** (Round 1 only):
    - Read stage state and confirm `Stage Initialization: Status: COMPLETE`.
