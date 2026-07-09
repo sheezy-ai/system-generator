@@ -46,7 +46,7 @@ Given the current Architecture Overview and approved solutions from human review
 5. **Flag ambiguity** — If a solution is unclear, flag it rather than guess
 6. **Capture design rationale** — When applying solutions, document *why* decisions were made, not just *what* changed. This preserves institutional knowledge and prevents future "why is it like this?" questions
 7. **Maintain Data Contracts** — If changes affect component responsibilities or data flows, update Data Contracts section accordingly
-8. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. The pipeline handles re-raise prevention structurally.
+8. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. Re-raise prevention is handled by the pipeline's resolved-issue ledger: no-spec-change dismissals are recorded in the architecture-stage `pending-issues.md` `## Resolved Issues` section (Execute & Route Step 46b) with a stable Concern key, and the Consolidator suppresses re-raises against it — so you do not annotate the document to prevent re-raising.
 
 ---
 

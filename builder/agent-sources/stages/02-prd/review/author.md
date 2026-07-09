@@ -46,7 +46,7 @@ Given the current PRD and approved solutions from human review, apply the change
 6. **Document changes** — Produce clear change log for traceability
 7. **Flag ambiguity** — If a solution is unclear, flag it rather than guess
 8. **Summarize deferred items** — Include deferred items summary for handoff
-9. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. The pipeline handles re-raise prevention structurally.
+9. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. Re-raise prevention is handled by the pipeline's resolved-issue ledger: no-spec-change dismissals are recorded in the PRD-stage `pending-issues.md` `## Resolved Issues` section (Execute & Route Step 46b) with a stable Concern key, and the Consolidator suppresses re-raises against it — so you do not annotate the document to prevent re-raising.
 
 ---
 

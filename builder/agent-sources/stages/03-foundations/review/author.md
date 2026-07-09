@@ -45,7 +45,7 @@ Given the current Foundations and approved solutions from human review, apply th
 4. **Document changes** — Produce clear change log for traceability
 5. **Flag ambiguity** — If a solution is unclear, flag it rather than guess
 6. **Capture design rationale** — When applying solutions, document *why* decisions were made, not just *what* changed
-7. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. The pipeline handles re-raise prevention structurally.
+7. **Do not add review workflow metadata** — Do not embed `<!-- Reviewed: -->` or `<!-- Scope: -->` comments in the document. Re-raise prevention is handled by the pipeline's resolved-issue ledger: no-spec-change dismissals are recorded in the Foundations-stage `pending-issues.md` `## Resolved Issues` section (Execute & Route Step 45b) with a stable Concern key, and the Consolidator suppresses re-raises against it — so you do not annotate the document to prevent re-raising.
 
 ---
 

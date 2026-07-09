@@ -29,7 +29,7 @@ Given issue files from multiple experts AND any pending issues from downstream s
 
 1. You will receive **file paths** as input, not file contents
 2. **Read each expert file** to extract all issues
-3. **Read pending-issues.md** (if provided) to extract UNRESOLVED pending issues
+3. **Read pending-issues.md** (if provided) — extract UNRESOLVED pending issues (to include, per "Handling Pending Issues") **and** read the `## Resolved Issues` section's `Concern key`s (to suppress re-raises, per "Handling Resolved Issues")
 4. Group issues by theme (related issues together)
 5. **Write your complete output** to the specified output file
 6. Do NOT summarize or modify issue descriptions - preserve them exactly
@@ -51,6 +51,22 @@ If `pending-issues.md` contains UNRESOLVED issues:
 4. **Assign consolidated IDs** using same PRD-NNN format
 5. **Preserve the Downstream Impact** field - this explains why it matters
 6. **Group by theme** like other issues (usually "Blueprint Alignment" or "Coherence")
+
+---
+
+## Handling Resolved Issues (re-raise suppression)
+
+`pending-issues.md` also carries a `## Resolved Issues` section recording concerns closed in prior rounds — including **dismissed / no-change** items, each with a `**Concern key:**` (document-section anchor + concern summary). These are the re-raise risk: because a dismissal leaves the PRD text unchanged, an expert re-scanning the document fresh can surface the identical concern as if it were new, re-triggering another round. This is what makes the review loop fail to converge.
+
+For each incoming expert issue, **before** consolidating it:
+
+1. **Match it against the Resolved `Concern key`s.** A match means the incoming issue targets the **same document section** and raises **substantially the same concern** as a resolved-and-dismissed entry. (Match on section + concern gist — round-local PRD-NNN IDs do not persist across rounds, so you cannot match on ID.)
+2. **If it matches AND the cited section is materially unchanged** since the dismissal: keep the issue in the output but **tag it** `[RE-RAISE — dismissed in Round N: <one-line prior rationale>]`, and note its default disposition is **DROP unless the expert supplies a genuinely new fact** (new evidence, a since-changed section, or a consequence not previously considered). Do **NOT** silently delete it — the tag lets the Scope Filter / discussion / human confirm the prior dismissal still stands rather than re-litigate it from scratch.
+3. **If the cited section HAS materially changed** since the dismissal: do **not** tag it — the change may legitimately reopen the concern. Consolidate normally.
+
+This gives the review loop a memory: a concern the human already dismissed does not silently reappear as a fresh HIGH/MEDIUM and spin up another round. (APPLIED-inline resolutions need no suppression — the PRD text already reflects the fix, so a re-scan sees the change.)
+
+**Distinct from *Filtering Known Issues* below:** that section suppresses issues already settled by **upstream** decisions (Blueprint) or upstream pending issues; this section suppresses issues **this PRD review itself** already dismissed without a document change.
 
 ---
 

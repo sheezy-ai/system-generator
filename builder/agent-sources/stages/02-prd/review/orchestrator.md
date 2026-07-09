@@ -708,6 +708,12 @@ This gate is mandatory. Do not skip it.
         - `**Resolved:** [date]`
         - `**Resolution Round:** PRD Round [N] Review (issue tracked as [round-local ID])`
         - `**Resolution:** [one-paragraph note explaining how the round closed the entry — APPLIED edits reference the PRD section; close-with-no-change references the human-approved recommendation; close-as-resolved-by-prior-round references the earlier round's issue ID that closed it]`
+    - **Also record mainline dismissals (re-raise ledger)**: for each **expert-raised issue this round** (a round-local PRD-NNN that was **not** already a pending-issue) whose resolution outcome in `03-issues-discussion.md` is **close-with-no-change** or **close-as-stale** (dismissed / won't-fix / working-as-intended — a resolution that leaves **no trace in the PRD text**), **add a new entry** to the `## Resolved Issues` section with:
+      - `**Status:** RESOLVED (dismissed — no document change)`
+      - `**Resolved:** [date]` · `**Resolution Round:** PRD Round [N] Review`
+      - `**Concern key:** [PRD section anchor] — [one-line concern summary]` — this is the **stable key the Consolidator matches against to suppress re-raises**; use the document section + concern gist, because round-local PRD-NNN IDs do not persist across rounds
+      - `**Resolution:** [why it was dismissed — the human-approved rationale]`
+      APPLIED-inline resolutions do **not** need a ledger entry (the PRD text changed, so a future round sees the fix directly). It is specifically the **no-document-change dismissals** that must be recorded — otherwise the unchanged PRD text invites the identical concern to be re-raised next round, which is the review loop's non-convergence trap.
     - Update the Summary table counts (UNRESOLVED ↓, RESOLVED ↑)
     - **Do not touch entries that were not merged into this round's issue stream** (e.g., Unresolved entries logged after Step 2 but before Step 11) — those carry forward to the next round
 
@@ -721,7 +727,8 @@ This gate is mandatory. Do not skip it.
 48. **Update state file**: Mark Step 11 complete
 
 49. **Route to completion**:
-    - Ask user: next round or exit?
+    - **Determine maturity**: from this round's `03-issues-discussion.md`, count the **HIGH and MEDIUM** issues this round surfaced and kept at document level. LOW issues do **not** count toward maturity. This round is **mature** if it surfaced **no HIGH or MEDIUM** issues — the convergence criterion: exit on "no HIGH/MEDIUM", **not** "zero issues" (aligning the human routing with the zero-issues auto-gate's intent and the create-stage exit).
+    - **Present the routing choice to the user with the maturity signal**: state `Round [N] — maturity: [mature | not mature]; this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)`. If **mature**, tell the user the document has stabilised and **EXIT (promote) is the default** — remaining LOW items are carried, not chased, and another round is warranted only if they expect genuinely new HIGH/MEDIUM concerns. Then ask: **next round or exit?**
     - If user chooses next round: Update state file to increment round, reset to Step 1
     - If user chooses exit: Proceed to Step 12 (Promote)
 
@@ -768,7 +775,7 @@ The review exits via one of two paths:
 
 1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–11 and proceeds directly to Step 12 (Promote).
 
-2. **Human override**: After Step 11, the user can choose to exit even if issues were found in the current round. This is a fallback for cases where remaining issues are not worth another round.
+2. **Severity-gated exit (maturity)**: After Step 11, the user exits when the round is **mature** — it surfaced no HIGH or MEDIUM issues (Step 49). Remaining LOW items are carried, not chased. This is a first-class exit, not merely a fallback: the convergence criterion is "no HIGH/MEDIUM", reconciling with the zero-issues gate (which is the stronger short-circuit when nothing at all remains). The user may still override and exit despite open HIGH/MEDIUM if the remaining issues are not worth another round.
 
 **After final round**: Run the PRD Promoter (Step 12) to split the reviewed PRD into three documents: `prd.md` (clean requirements), `decisions.md` (rationale), and `future.md` (deferred items).
 
