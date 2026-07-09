@@ -18,7 +18,7 @@ When a spec finds a requirement it cannot satisfy inside its own boundary, class
 
 | Kind | What it is | Destination | Consumer |
 |------|-----------|-------------|----------|
-| **Data contract** | A produces/consumes B's data, or calls B's API | Inline in the spec now; extracted to `cross-cutting.md` later (CTR-*) | Contract verifier (review) |
+| **Data contract** | A produces/consumes B's data, or calls B's API | Obligation materialized up-front in `cross-cutting.md` from §7/§8 (CTR-*); the spec realizes it inline and the contract verifier reconciles | Contract verifier (review) |
 | **Peer requirement (P1)** | "Component X must uphold behaviour Y" that affects **only X's own spec** | X's `pending-issues.md`, `Kind: CROSS-BOUNDARY-PEER` | X's **review** (consolidator) + Coherence |
 | **Cross-cutting invariant / cross-cutting design (P2)** | A cross-component invariant or shared design decision **no single component owns and that §7 does not already settle** (retention coordination between two components; a shared posture/type/format not yet pinned). *If §7 already governs it — e.g. a shared cross-cutting-interface convention §7 already pins — it is **adopted by reference to §7**, not escalated (see below).* | Architecture (or Foundations) `pending-issues.md`, `Kind: CROSS-BOUNDARY-UPSTREAM`, `Status: AWAITS_UPSTREAM_REVISION` | The upstream stage's own review/create/expand (on its next revision round) |
 
