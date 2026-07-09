@@ -43,62 +43,46 @@ get_output_dir() {
     esac
 }
 
-# Inject common sections into content
-inject_common_sections() {
-    local content="$1"
-
-    # Inject shared common sections
-    for common_file in "$BUILDER_SOURCES/common"/*.md; do
-        if [[ -f "$common_file" ]]; then
-            local section_name=$(basename "$common_file" .md)
-            local marker="<!-- INJECT: $section_name -->"
-            local section_content
-            section_content=$(cat "$common_file")
-            content="${content//$marker/$section_content}"
-        fi
-    done
-
-    # Substitute path placeholders with explicit absolute paths
-    content="${content//\{\{AGENTS_PATH\}\}/$AGENTS_PATH}"
-    content="${content//\{\{GUIDES_PATH\}\}/$GUIDES_PATH}"
-    content="${content//\{\{SYSTEM_DESIGN_PATH\}\}/$SYSTEM_DESIGN_PATH}"
-
-    echo "$content"
+# Inject <!-- INJECT: name --> markers from a common dir in a single pass.
+# Replaces the previous per-marker bash `${content//...}` loop, which was O(n^2)
+# in the content length and took minutes on large files (e.g. the ~1500-line
+# create orchestrator). This perl pass is O(n) and byte-for-byte equivalent:
+# each `<!-- INJECT: X -->` is replaced with the content of `<dir>/X.md` (with
+# trailing newlines stripped, matching the old `$(cat ...)`), or left unchanged
+# if that file does not exist (so a later dir-specific pass can resolve it).
+# Common section files contain no INJECT markers, so a single pass suffices.
+# $1 = content, $2 = common dir, $3 = non-empty to also substitute {{PATH}} placeholders.
+_inject_from_dir() {
+    COMMON_DIR="$2" DO_PATHS="$3" \
+    _AP="$AGENTS_PATH" _GP="$GUIDES_PATH" _SDP="$SYSTEM_DESIGN_PATH" \
+    perl -0777 -pe '
+        s{<!-- INJECT: ([A-Za-z0-9._-]+) -->}{
+            my $f = "$ENV{COMMON_DIR}/$1.md";
+            if (-f $f) {
+                open my $h, "<", $f or die "$f: $!";
+                local $/; my $c = <$h>; close $h;
+                $c =~ s/\n+\z//;   # match old $(cat) trailing-newline stripping
+                $c;
+            } else {
+                $&;                # no such section file here: leave marker for a later pass
+            }
+        }ge;
+        if ($ENV{DO_PATHS}) {
+            s/\Q{{AGENTS_PATH}}\E/$ENV{_AP}/g;
+            s/\Q{{GUIDES_PATH}}\E/$ENV{_GP}/g;
+            s/\Q{{SYSTEM_DESIGN_PATH}}\E/$ENV{_SDP}/g;
+        }
+    ' <<< "$1"
 }
+
+# Inject shared common sections (+ path placeholder substitution)
+inject_common_sections() { _inject_from_dir "$1" "$BUILDER_SOURCES/common" paths; }
 
 # Inject create-specific common sections
-inject_create_sections() {
-    local content="$1"
-
-    for common_file in "$BUILDER_SOURCES/common/create"/*.md; do
-        if [[ -f "$common_file" ]]; then
-            local section_name=$(basename "$common_file" .md)
-            local marker="<!-- INJECT: $section_name -->"
-            local section_content
-            section_content=$(cat "$common_file")
-            content="${content//$marker/$section_content}"
-        fi
-    done
-
-    echo "$content"
-}
+inject_create_sections() { _inject_from_dir "$1" "$BUILDER_SOURCES/common/create" ""; }
 
 # Inject review-specific common sections
-inject_review_sections() {
-    local content="$1"
-
-    for common_file in "$BUILDER_SOURCES/common/review"/*.md; do
-        if [[ -f "$common_file" ]]; then
-            local section_name=$(basename "$common_file" .md)
-            local marker="<!-- INJECT: $section_name -->"
-            local section_content
-            section_content=$(cat "$common_file")
-            content="${content//$marker/$section_content}"
-        fi
-    done
-
-    echo "$content"
-}
+inject_review_sections() { _inject_from_dir "$1" "$BUILDER_SOURCES/common/review" ""; }
 
 # Clean stale .md files from an output directory that have no corresponding source
 clean_output_dir() {
