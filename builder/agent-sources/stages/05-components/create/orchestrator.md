@@ -797,6 +797,7 @@ Do NOT process enrichments until the human has added actual response content aft
 6. **Read coverage report summary** — extract PASS / GAPS_FOUND / CONFIRM_NEEDED status and the GAP + CONFIRM-INTENTIONAL counts
 
 7. **If GAPS_FOUND or CONFIRM_NEEDED**: Add each GAP item as a `[TODO: Coverage gap — ...]` marker, and each CONFIRM-INTENTIONAL item (an owned-entity PRD §5 field absent from the draft where the Architecture is silent/refined) as a `[TODO: Coverage confirm — <Entity.field> (PRD §5): present in the PRD conceptual data model but absent from this spec. Confirm deliberate MVP scoping (record an explicit waiver) or add the field.]` marker, to the draft spec using targeted Edit operations, so the Gap Formatter extracts both alongside the Generator's own gap markers.
+   - **Re-raise suppression (round 2+)**: before injecting a **Coverage-confirm** marker, consult the re-raise ledger `create-decisions.md` in the component directory (if it exists). If this exact field was **waived** in a prior round and its situation is unchanged (still Architecture-silent/refined and still absent), **do not re-inject** the marker — the waiver stands; note the suppression in the history entry. This prevents a settled MVP-scoping waiver from being re-flagged every round. (GAP items and any field whose situation changed are still injected normally.)
 
 8. **Update state file**: Mark "Step 9b: Coverage Verification" complete `[x]`, add history entry with coverage counts
 
@@ -823,6 +824,7 @@ Do NOT process enrichments until the human has added actual response content aft
 3. **Read depth report summary** — extract SHALLOW count or PASS status
 
 4. **If SHALLOW items found**: Add each as `[TODO: Depth gap — ...]` markers to the draft spec using targeted Edit operations, so the Gap Formatter can extract them alongside other gap markers.
+   - **Re-raise suppression (round 2+)**: before injecting a **Depth** marker, consult the re-raise ledger `create-decisions.md` in the component directory (if it exists). If this element was **waived** in a prior round and remains unchanged, **do not re-inject** the marker — the waiver stands; note the suppression. (Elements that changed, or newly-shallow elements, are still injected.)
 
 5. **Update state file**: Mark "Step 9c: Depth Verification" complete `[x]`, add history entry with depth counts
 
@@ -854,6 +856,7 @@ Do NOT process enrichments until the human has added actual response content aft
 3. **Wait for agent to complete**; verify `{round-dir}/06-stage-appropriateness-report.md` exists.
 
 4. **Read the report and inject excess gaps as TODO markers** (mirrors Step 9b.7 / 9c.4 — this is what makes the gate binding):
+   - **Re-raise suppression (round 2+, do this first)**: consult the re-raise ledger `create-decisions.md` in the component directory (if it exists). For any `IMPLEMENTATION_LATITUDE` / `RESTATES_UPSTREAM` finding that the human chose to **KEEP** in a prior round and whose flagged element is **unchanged**, **do not re-inject** the marker — the KEEP stands; note the suppression. This stops a settled KEEP being re-flagged as over-build every round. (Findings on changed elements, and new findings, are injected normally.)
    - For each `IMPLEMENTATION_LATITUDE` finding: add `[TODO: Excess (latitude) — <section>: <element_identifier>. Recommended: <recommendation — apply the explicit-latitude rewrite, or DEFER_FUTURE to the "Future Developments" section>]` at the flagged element via targeted Edit.
    - For each `RESTATES_UPSTREAM` finding with a concrete reference: add `[TODO: Excess (restates upstream) — <section>: replace restated content with a reference to <recommendation>]`.
    - For each `WRONG_STAGE` finding: add `[TODO: Excess (wrong stage) — <section>: belongs in <recommendation>; human decision]`.
@@ -1148,6 +1151,10 @@ Stage-appropriateness is now a **binding** gate run *before* the gap loop (Step 
    - Determine the latest draft for this round:
      - If `{round-dir}/03-updated-spec.md` exists (Author ran): use it
      - Otherwise: use `{round-dir}/00-draft-spec.md`
+   - **Record no-spec-change decisions into the re-raise ledger** (so the next round's verifiers do not re-flag settled waivers — the create-loop counterpart of the review loop's `## Resolved Issues` ledger): append to the per-component ledger `create-decisions.md` in the component directory (`versions/[component-name]/`, the parent of `{round-dir}`; create it with a `# Create Decisions (re-raise ledger)` header if absent) one entry per finding **resolved this round without a spec change** — a coverage **CONFIRM-INTENTIONAL** field the human **waived**, a depth item **waived**, or a stage-appropriateness **IMPLEMENTATION_LATITUDE / RESTATES_UPSTREAM** finding the human chose to **KEEP** (cross-reference the resolutions in `{round-dir}/01-gap-discussion.md` against `{round-dir}/00-coverage-report.md` and `{round-dir}/06-stage-appropriateness-report.md`). For each, write:
+       - `**Concern key:** <spec section/element> — <finding type> (<Entity.field or identifier>)`
+       - `**Round:** {N}` · `**Decision:** waived | KEEP` · `**Rationale:** <human-approved reason>`
+     Record **only** findings whose Step 10 resolution left the draft text **unchanged** — APPLIED fixes self-suppress (the draft changed, so a re-scan sees the fix; it is the no-change waivers/KEEPs that would otherwise be re-flagged verbatim every round).
    - Update state file:
      - Mark "Step 11: Promote or Continue" complete `[x]`
      - Increment `Current Round`
