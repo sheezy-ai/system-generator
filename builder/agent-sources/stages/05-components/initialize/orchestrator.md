@@ -289,10 +289,10 @@ Project scale reference:
 - [Generated project-scale.md (approved by human) | Preserved existing project-scale.md]
 
 Next step: Initialize first component:
-  Run the Component Create Orchestrator for [component-1]
+  Run the Component Create Router for [component-1]
 
 Invocation:
-  {{AGENTS_PATH}}/05-components/create/orchestrator.md
+  {{AGENTS_PATH}}/05-components/create/orchestrator-router.md
   Component: [component-1]
 ```
 

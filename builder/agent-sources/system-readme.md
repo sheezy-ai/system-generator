@@ -135,8 +135,8 @@ Execute the Component Specs initialization workflow using the orchestrator at:
 
 **Create (per component):**
 ```
-Execute the Component Spec creation workflow using the orchestrator at:
-{{AGENTS_PATH}}/05-components/create/orchestrator.md
+Execute the Component Spec creation workflow using the router at:
+{{AGENTS_PATH}}/05-components/create/orchestrator-router.md
 
 Component: [component name]
 ```
