@@ -42,6 +42,8 @@ A P2 escalation is an **open obligation on an already-completed upstream stage**
 
 There is **no automatic consumer** for P2 escalations by design: a human triggers the upstream revision round when escalations accumulate. This is deliberate — an auto-actioning loop across completed stages is a non-convergence risk.
 
+**Batched and suppressed (cross-stage convergence).** When the human runs that upstream revision round, the stage's Expand workflow consumes **all** accumulated `AWAITS_UPSTREAM_REVISION` escalations in **one batch** (not one round per escalation), and applies **cross-stage re-raise suppression**: an escalation whose concern matches one the stage previously **declined** (recorded `WONT_FIX` with a `Concern key` in that stage's `## Resolved Issues`) is tagged `[RE-RAISE …]` and default-dropped unless it supplies a materially new fact. Matching is **origin-agnostic** (on target + concern gist), so it covers escalations produced by a review Issue Router, a create Author, or the Alignment Verifier alike — none of which carry a Concern key at production time. On conclusion the Expand round transitions each consumed entry to `RESOLVED` (integrated) or `WONT_FIX` + `Concern key` (declined) so it clears and cannot re-trigger a future batch. See the stage `expand/orchestrator.md` (Step 1 batched consume + suppression, Step 45b write-back).
+
 ## Non-Ratification Fallback (unchanged)
 
 If the receiving authority declines a requirement (an upstream author rejects a P2, or a peer's review rejects a P1), the **originating spec rewrites to match** the ratified position. The architecture, Foundations, and the peer spec are **not** silently amended to honour an unratified downstream/lateral requirement. This preserves the authority direction.

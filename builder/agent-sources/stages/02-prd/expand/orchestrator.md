@@ -175,6 +175,8 @@ Output: [resolved file path]
    - If the human provided a trigger description in the invocation: create `round-[N]-expand/00-trigger.md` with the description
    - If neither: ask the human what the expansion is about — **STOP** until they provide input
 
+   **Batched escalation consumption + cross-stage suppression** (when the trigger is the pending-issues file): a single Expand round consumes **all** accumulated `AWAITS_UPSTREAM_REVISION` (P2) escalations at once — do **not** run one round per escalation. Before scoping, apply **cross-stage re-raise suppression**: for each incoming `AWAITS_UPSTREAM_REVISION` entry, check this stage's own `pending-issues.md` `## Resolved Issues` for a prior **declined** escalation (`Status: WONT_FIX`, or a dismissed no-change close) whose `Concern key` matches the same concern — match on **target + concern gist, origin-agnostic**: the escalation may have been produced by a downstream review Issue Router, a create Author, **or** the Alignment Verifier, none of which carry a Concern key at production time, so match on the concern itself, not on ID or producer. If it matches and nothing materially new is supplied, **tag it** `[RE-RAISE — declined in Round N: <prior rationale>]` and **default-drop** it (do not re-scope this round on it). Escalation consumption stays **human-triggered — never auto-loop** (an auto-actioning loop across completed stages is a non-convergence risk; batching is what makes human-triggering cheap — one round drains all accumulated escalations).
+
 3. **Run Scope Analyst**:
    ```
    Follow the instructions in: {{AGENTS_PATH}}/02-prd/expand/scope-analyst.md
@@ -504,6 +506,12 @@ This gate is mandatory. Do not skip it.
 45. **Handle pending issue sync** (if alignment verification found SYNC_UPSTREAM items):
     - Same pending issue resolver pattern as review workflow
     - Sync to Blueprint if applicable
+
+45b. **Close consumed escalations in this stage's own pending-issues (cross-stage re-raise ledger)**: for each `AWAITS_UPSTREAM_REVISION` (P2) escalation this round consumed at Step 1, transition its entry in `system-design/02-prd/versions/pending-issues.md` and move it to `## Resolved Issues`:
+    - **Integrated** (an accepted proposal addressed it): `**Status:** RESOLVED` · `**Resolved:** [date]` · `**Resolution Round:** PRD Expand Round [N]` · `**Resolution:** [PRD section changed]`.
+    - **Declined** (no accepted proposal addresses it — the originating spec must rewrite to match, per `cross-boundary-requirements.md` Non-Ratification Fallback): `**Status:** WONT_FIX` · `**Resolved:** [date]` · `**Resolution Round:** PRD Expand Round [N]` · `**Resolution:** [why the escalation was declined — the human-approved rationale]` · `**Concern key:** [PRD section anchor] — [one-line concern summary]`. The Concern key is what the **next** Expand batch's cross-stage suppression (Step 1) matches against, so the same concern — if re-escalated later by another component — does not silently re-trigger a round.
+    - **Suppressed as a re-raise** (tagged `[RE-RAISE …]` and dropped at Step 1): leave the existing `## Resolved Issues` entry as-is; do not duplicate it.
+    Without this write-back, consumed `AWAITS_UPSTREAM_REVISION` entries never clear and re-trigger every Expand run — the cross-stage non-convergence trap.
 
 46. **Update state file**: Mark Step 11 complete
 
