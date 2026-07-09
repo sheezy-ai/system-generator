@@ -99,9 +99,11 @@ The earlier idea of a *new* contract-first components workflow was largely reinv
 
 **Problem:** `create/orchestrator.md` Step 1.3 blocks creating a component until its dependencies are `COMPLETE` (fully reviewed). Since creation is inside-out and reads only contracts, this uses full review as a proxy for contract-stability — over-serializing, and forcing upstream components to be reviewed *before their consumers exist to weigh in* (which maximizes late upstream re-review).
 
-**Fix:** add a **contract-frozen** milestone (a component's produced CTRs registered + agreed) between `DRAFT_READY` and `COMPLETE`, and change the create gate to require dependencies **contract-frozen**, not `COMPLETE`. Bodies can then be created in parallel against frozen contracts; full review sequences later, when consumers are known.
+**Fix (as implemented — supersedes the per-component milestone below):** Gap 1 materializes *all* inter-component contracts up-front at stage init (registry `Population: MATERIALIZED`), atomically and stage-wide. That makes a per-component "contract-frozen" milestone carry no information — every component's produced contracts freeze at the same instant. So **"contract-frozen" is simply the stage-level `MATERIALIZED` status**, and the create gate becomes **"frozen-or-strict"**: if the registry is `MATERIALIZED` (or a later post-hoc `COMPLETE`), create the component in parallel with **no dependency-review check**; if `DEFERRED` (a legacy project whose contract layer was never materialized), fall back to the old deps-`COMPLETE` gate; if `MATERIALIZING`, error. Bodies are created in parallel against the frozen contracts; full review sequences later, when consumers are known. The "frozen-or-strict" shape inherently honors the "don't relax while under-frozen" guard — the parallel path activates *only* once contracts are provably frozen.
 
-**Lands in:** `create/orchestrator.md` Step 1.3 + the stage-state status model (`versions/workflow-state.md`) + create resume logic. **Do not ship this before Gaps 1, 2, and 4** — relaxing the gate while contracts are still under-frozen just moves churn downstream.
+**Superseded (original pre-Gap-1 proposal):** ~~add a per-component contract-frozen milestone (a component's produced CTRs registered + agreed) between `DRAFT_READY` and `COMPLETE`.~~ Unnecessary once Gap 1 freezes contracts atomically up-front; the Component Specs status table is therefore **unchanged** — only the gate *predicate* over it changes.
+
+**Lands in (DONE — commit `bdfa021`):** `create/orchestrator-explore.md` Step 1.3 + the router error table (the gate); `cross-cutting/orchestrator.md` (populate workflow reframed to post-promotion conformance-over-bodies, `MATERIALIZED`-aware); `contract-extractor`/`contract-reconciler` (match body interfaces against materialized entries — reuse CTR-ID, `MATERIALIZED → DEFINED`, `UNMATERIALIZED` flag); `coherence/orchestrator.md` Phase 4 (no longer skips a `MATERIALIZED` registry). Resume semantics preserved (the gate is idempotent Step 1, re-checked on resume). Shipped after Gaps 1 & 2 and the within-component convergence half of Gap 4; Gap 4 cross-stage does not block it because the gate degrades safely.
 
 ### Gap 4 — Convergence discipline (two levels)
 
@@ -119,7 +121,7 @@ The earlier idea of a *new* contract-first components workflow was largely reinv
 
 - **Phase 0 (cheap, high-leverage, no re-architecture):** Gap 4 within-component convergence (ledger + suppression + severity-exit) **and** un-defer the existing `cross-cutting/` extract→reconcile against the specs you already have (email-sources). Fixes the acute pain and starts populating the registry with zero new machinery.
 - **Phase 1 (the root fix):** Gap 1 (contract-materialization + binding-delegation pass at the components initializer) and Gap 2 (subtle-obligation checklist). These make component-stage (D) discoveries *rare* — the whole point.
-- **Phase 2:** Gap 3 (contract-frozen milestone + gate change). Only after Phases 1 and the convergence half of 4, so the relaxed gate opens onto stable contracts.
+- **Phase 2:** Gap 3 (gate change — relax to the stage-level `MATERIALIZED` predicate; the per-component milestone was superseded, see §5). Only after Phase 1 and the convergence half of 4, so the relaxed gate opens onto stable contracts. **DONE (`bdfa021`).**
 - **Ongoing:** Gap 4 cross-stage batching as Expand rounds accumulate escalations.
 
 ## 7. Risks
@@ -138,7 +140,7 @@ The earlier idea of a *new* contract-first components workflow was largely reinv
 ## 9. Open items to confirm before implementing
 
 - The exact form of the binding-delegation annotation on CTRs (a §8 column? an inline "binds PRD §5 …" clause?), and how the initializer / `cross-cutting/` define pass materializes + escalates (which agents, registry format).
-- Whether `contract-frozen` is a distinct status or a separate column alongside the review status, and its resume semantics.
+- ~~Whether `contract-frozen` is a distinct status or a separate column alongside the review status, and its resume semantics.~~ **Resolved (Gap 3, `bdfa021`):** neither — `contract-frozen` is the stage-level registry `MATERIALIZED` status; no per-component status/column is added; resume is preserved because the gate is the idempotent create Step 1 (re-checked each resume).
 - The resolved-issue ledger format and where it lives (per-component vs per-round).
 
 *(All agent-prompt edits are authored in `builder/agent-sources/` and built via `build-prompts.sh`, not edited in `builder/agents/` directly.)*
