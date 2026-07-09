@@ -71,15 +71,20 @@ The earlier idea of a *new* contract-first components workflow was largely reinv
 
 ## 5. The four gaps and their fixes
 
-### Gap 1 — Checked delegation (closes the CTR-015 class)
+### Gap 1 — Checked delegation, via a contract-materialization pass at the components initializer (closes the CTR-015 class)
 
-**Problem:** Architecture may delegate a CTR's field-shape to an authoritative source (PRD §5, Foundations) — and *should*, to keep altitude. But the delegation currently falls in a seam: `integration-architect` works at operation granularity and `data-architect` explicitly excludes field definitions, so *no one checks the delegation is explicit and will be enforced.*
+**Problem:** Architecture may delegate a CTR's field-shape to an authoritative source (PRD §5, Foundations) — and *should*, to keep altitude. But the delegation falls in a seam: `integration-architect` works at operation granularity and `data-architect` explicitly excludes field definitions, so *no one checks the delegation is explicit and will be enforced.* Relatedly, the builder has **no pass that materializes the frozen inter-component contracts up-front** — `cross-cutting.md` is a post-hoc registry (currently a DEFERRED stub), so components author against Architecture §7/§8 with no resolved contract layer to consume.
 
-**Fix (two ends):**
-- **Architecture side:** introduce a **binding-delegation annotation** convention on CTRs whose payload is an owned entity — e.g. "CTR-015 feedback payload **binds** PRD §5 Feedback Entry (authoritative field list)." Add a check (extend `integration-architect` or `data-architect`) that every entity-bearing CTR *names its authoritative field source*. This stays at altitude — it checks the *pointer exists*, not the fields.
-- **Component side:** already present (`30e3ab0`) — coverage enforces the bound fields or records an explicit waiver (CONFIRM-INTENTIONAL). Wire it to read the CTR's binding annotation rather than re-deriving ownership.
+**Fix — a contract-materialization ("define") pass at the components initializer / the existing `cross-cutting/` workflow:**
+- **Materialize up-front:** at stage init, read Architecture §7/§8 (+ PRD) and populate `cross-cutting.md` with the frozen inter-component contracts, so component creation reads a *resolved* contract layer. The existing `cross-cutting/` `contract-extractor` + `contract-reconciler` are ~80% of this machinery — run them *up front* instead of deferred.
+- **Bind + check the delegations:** where a CTR's payload is an owned entity, resolve the delegation as a **binding, conformance-checked pointer** — e.g. "CTR-015 feedback payload **binds** PRD §5 Feedback Entry." The component-side enforcement already exists (`30e3ab0`: owned-entity PRD §5 fields + CONFIRM-INTENTIONAL); wire it to the registry's binding annotation.
+- **Escalate gaps:** when materialization reveals a contract the Architecture under-pinned, the initializer escalates it upstream (the Expand loop), not inline.
 
-**Lands in:** architecture review (new pointer check) + components coverage (already done; connect to the annotation).
+**Why the initializer, not architecture review:** materialization is a component-stage consumption/setup step (lower blast-radius than modifying the mature architecture review), and it's the natural point to deliver contract-first *at the point of consumption*. This is the deliberate choice to **build the step-0 contract-authoring pass** rather than leave the step-0 interface schema collapsed into "§7 + a post-hoc registry" — a question the builder previously flagged as an open decision, now settled here. One residual stays genuinely open upstream: **XC-003's immutable-record audit-write failure posture** is a `(D)` unmade-upstream-decision to escalate (P2 / `AWAITS_UPSTREAM_REVISION`), not resolve at the initializer.
+
+**Architecture side (small):** the architecture reviewers should confirm every entity-bearing CTR *names its authoritative field source* (a pointer-exists check, at altitude — not the fields). This folds naturally into Gap 2's `integration-architect` work.
+
+**Lands in:** the components **initialize** + `cross-cutting/` workflow (materialize / bind / escalate); the `cross-cutting.md` registry (un-DEFERRED); component coverage (already `30e3ab0`); a light architecture-review pointer-exists check.
 
 ### Gap 2 — Subtle-obligation completeness (the incomplete-freezing risk)
 
@@ -112,7 +117,7 @@ The earlier idea of a *new* contract-first components workflow was largely reinv
 ## 6. Adoption sequencing
 
 - **Phase 0 (cheap, high-leverage, no re-architecture):** Gap 4 within-component convergence (ledger + suppression + severity-exit) **and** un-defer the existing `cross-cutting/` extract→reconcile against the specs you already have (email-sources). Fixes the acute pain and starts populating the registry with zero new machinery.
-- **Phase 1 (the root fix):** Gap 1 (checked-delegation annotation + architecture-side pointer check) and Gap 2 (subtle-obligation checklist). These make component-stage (D) discoveries *rare* — the whole point.
+- **Phase 1 (the root fix):** Gap 1 (contract-materialization + binding-delegation pass at the components initializer) and Gap 2 (subtle-obligation checklist). These make component-stage (D) discoveries *rare* — the whole point.
 - **Phase 2:** Gap 3 (contract-frozen milestone + gate change). Only after Phases 1 and the convergence half of 4, so the relaxed gate opens onto stable contracts.
 - **Ongoing:** Gap 4 cross-stage batching as Expand rounds accumulate escalations.
 
@@ -131,7 +136,7 @@ The earlier idea of a *new* contract-first components workflow was largely reinv
 
 ## 9. Open items to confirm before implementing
 
-- The exact form of the binding-delegation annotation on CTRs (a §8 column? an inline "binds PRD §5 …" clause?) and which architecture expert owns the pointer check.
+- The exact form of the binding-delegation annotation on CTRs (a §8 column? an inline "binds PRD §5 …" clause?), and how the initializer / `cross-cutting/` define pass materializes + escalates (which agents, registry format).
 - Whether `contract-frozen` is a distinct status or a separate column alongside the review status, and its resume semantics.
 - The resolved-issue ledger format and where it lives (per-component vs per-round).
 

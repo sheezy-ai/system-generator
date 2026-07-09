@@ -2,7 +2,7 @@
 
 This rule governs what a spec does when it discovers a requirement it **cannot satisfy within its own boundary** — one that belongs to a *peer* component or to a *cross-cutting concern*. It is generator-wide methodology and applies across stages.
 
-It replaces the retired forward-commitment **ratification** model — specifically the part that assumed a separate step-0 cross-cutting-spec *author* would later "ratify" downstream commitments. That ratifying party was never built and is the fiction being retired. The **step-0 cross-cutting interfaces themselves are real** — Architecture §6/§7 order them before component specs — and their **authority is Architecture §7**. So a component **may** forward-commit to a step-0 cross-cutting interface: it records the commitment as *adopt-by-reference to §7* (e.g. "adopts the XC-004 audit caps by reference"), which **resolves by reference to §7**, not by a phantom ratifier. What does not exist is the separate ratifying author, and `cross-cutting.md` remains a **downstream contract registry only** (populated post-hoc by the cross-cutting population workflow). See the Defect note `DEFECT-cross-boundary-requirements.md` for the full history.
+It replaces the retired forward-commitment **ratification** model — specifically the part that assumed a separate step-0 cross-cutting-spec *author* would later "ratify" downstream commitments. That ratifying party was never built and is the fiction being retired. The **step-0 cross-cutting interfaces themselves are real** — Architecture §6/§7 order them before component specs — and their **authority is Architecture §7**. So a component **may** forward-commit to a step-0 cross-cutting interface: it records the commitment as *adopt-by-reference to §7* (e.g. "adopts the XC-004 audit caps by reference"), which **resolves by reference to §7**, not by a phantom ratifier. What does not exist is the separate ratifying author, and `cross-cutting.md` remains a **downstream contract registry only** (populated post-hoc by the cross-cutting population workflow).
 
 ## Authority Direction (unchanged)
 
@@ -55,4 +55,3 @@ If the receiving authority declines a requirement (an upstream author rejects a 
 
 - `guides/pending-issues-format.md` — the `pending-issues.md` format, including the `Kind` field, the lateral cross-component PI shape, and the `AWAITS_UPSTREAM_REVISION` status.
 - `agents/universal-agents/alignment-verifier.md` — SYNC_UPSTREAM / FIX_DOCUMENT classification for discrepancies between *existing* documents (a separate concern).
-- `DEFECT-cross-boundary-requirements.md` — the defect this methodology resolves.
