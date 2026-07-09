@@ -241,6 +241,12 @@ Read `## Pending Decisions` section:
     - Update the Summary table counts (UNRESOLVED ↓, RESOLVED ↑)
     - **Do not touch entries that were not merged into this round's issue stream** (e.g., Unresolved entries logged after Step 2 but before Step 12) — those carry forward to the next round
     - **Per-component scope only**: do not touch other components' pending-issues files; cross-component issues are handled by the Pending Issue Resolver in step 18 (upstream sync) or by the components Coherence orchestrator separately
+    - **Also record mainline dismissals (re-raise ledger)**: for each **expert-raised issue this round** (a round-local SPEC-NNN that was **not** already a pending-issue) whose resolution outcome in `03-issues-discussion.md` is **close-with-no-change** or **close-as-stale** (dismissed / won't-fix / working-as-intended — a resolution that leaves **no trace in the spec text**), **add a new entry** to the `## Resolved Issues` section with:
+        - `**Status:** RESOLVED (dismissed — no spec change)`
+        - `**Resolved:** [date]` · `**Resolution Round:** [component] Round [N] Review-[build|ops]`
+        - `**Concern key:** [spec section anchor] — [one-line concern summary]` — this is the **stable key the Consolidator matches against to suppress re-raises**; use the spec section + concern gist, because round-local SPEC-NNN IDs do not persist across rounds
+        - `**Resolution:** [why it was dismissed — the human-approved rationale]`
+      APPLIED-inline resolutions do **not** need a ledger entry (the spec text changed, so a future round sees the fix directly). It is specifically the **no-spec-change dismissals** that must be recorded — otherwise the unchanged spec text invites the identical concern to be re-raised next round, which is the review loop's non-convergence trap.
 
     Rationale: this step ensures each component's own pending-issues file reflects the truth of what each round closed. Without it, downstream readers (other components, Coherence reviews, future rounds) see stale Unresolved entries that have actually been addressed. The orchestrator separates this from step 18's Pending Issue Resolver because the Resolver's semantic is "edit upstream documents (Architecture/Foundations/PRD)", whereas this step's semantic is "close entries in this component's own pending-issues register".
 
@@ -253,8 +259,8 @@ Read `## Pending Decisions` section:
 
 21. **Determine recommendation** (for routing decision):
     - Current part: build or ops
-    - HIGH issues remaining: count from last expert review
-    - Maturity: mature if no HIGH issues remain
+    - **Blocking issues this round**: count the **HIGH and MEDIUM** issues this round surfaced and kept at spec level (from `03-issues-discussion.md`). LOW issues do **not** count toward maturity.
+    - **Maturity**: mature if this round surfaced **no HIGH or MEDIUM** issues. This is the convergence criterion — a round that comes back with only LOW (or nothing) has stabilised this part. LOW items are **carried and recorded** (Step 18b), not chased round-over-round. This aligns the maturity threshold with the VERIFICATION_CLEAN gate and the create-stage Step 10c gate: exit on "no HIGH/MEDIUM", **not** "zero issues".
 
     Recommendation logic:
     - If build and not mature → CONTINUE_BUILD

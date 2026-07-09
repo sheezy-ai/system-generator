@@ -110,6 +110,7 @@ Issues identified in this stage's document during downstream work.
 **Resolved:** YYYY-MM-DD
 **Resolution Round:** Blueprint Review Round 3
 **Resolution:** [Brief description of how it was fixed]
+**Concern key:** [*no-spec-change dismissals only* — spec-section anchor + one-line concern summary; the Consolidator matches incoming issues against this to suppress re-raises]
 
 [Rest of original issue preserved for audit trail]
 
@@ -142,6 +143,7 @@ Issues identified in this stage's document during downstream work.
 | **Resolved** | Date resolved |
 | **Resolution Round** | Which Review round fixed it |
 | **Resolution** | Brief description of the fix |
+| **Concern key** | *(no-spec-change dismissals only)* Stable identifier — spec-section anchor + one-line concern summary — used by the Consolidator to suppress re-raises. Required when a mainline issue is closed **without** a spec edit (dismissed / won't-fix / working-as-intended), since the unchanged spec text would otherwise invite the same concern to be re-raised next round. Not needed for APPLIED-inline resolutions (the spec text changed). |
 
 ---
 

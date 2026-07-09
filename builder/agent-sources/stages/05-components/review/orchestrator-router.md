@@ -185,10 +185,13 @@ Post-discussion returned VERIFICATION_CLEAN with recommendation.
 Verification complete — all clean.
 
 Current: Round [N] ([part])
+Maturity: [mature | not mature] — this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)
 Recommendation: [recommendation reason]
 
+[If mature (no HIGH/MEDIUM surfaced this round): state that this part has stabilised and present EXIT / TRANSITION as the default. Any remaining LOW items are carried (recorded), not blocking. Another round of the same part is warranted only if you expect genuinely new HIGH/MEDIUM concerns — not to chase LOWs.]
+
 Options:
-1. [CONTINUE_BUILD / CONTINUE_OPS] — Another round of [part]
+1. [CONTINUE_BUILD / CONTINUE_OPS] — Another round of [part] (only if you expect new HIGH/MEDIUM concerns; LOW items alone do not warrant another round)
 2. [TRANSITION_TO_OPS / KICK_BACK_TO_BUILD] — Switch to [other part]
 3. EXIT — Finish review, promote spec
 
