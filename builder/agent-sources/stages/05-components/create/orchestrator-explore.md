@@ -117,7 +117,9 @@ Automatically proceed to Step 2.
    - **1 concern**: thin, likely-converging round. `convergence_note = "1-concern"`.
    - **2+ concerns**: normal review. `convergence_note = "none"`.
 
-4. **Update state**: Mark "Step 2" complete `[x]`, record concern list and count, add history entry.
+   **Rigour-gap exit predicate (this round).** The `0-concerns` case is the workflow's explicit **convergence exit predicate** — *a round yields zero rigour-gap-qualifying concerns*. It is a first-class exit signal that is carried forward to the **promote/continue checkpoint** (Step 11), where the human acts on it — **not** merely the advisory Step 3 note, and **not** an auto-exit. Set `rigour_gap_exit = MET` iff `convergence_note == "0-concerns"`, else `rigour_gap_exit = not-met`.
+
+4. **Update state**: Mark "Step 2" complete `[x]`, record concern list and count, and **persist the rigour-gap exit predicate** for this round into the `## Explore Details` section (`Rigour-Gap Exit Predicate: MET | not-met`) so it survives to the promote checkpoint (a later, separate generate dispatch reads it there). Add history entry.
 
 5. **Set status = WAITING_FOR_HUMAN** and **return** `CONCERNS_READY { concerns_file: {explore-dir}/00-concerns.md, concern_count: [N], convergence_note: [0-concerns|1-concern|none] }`. (Router presents the concern review; the count never skips it.)
 

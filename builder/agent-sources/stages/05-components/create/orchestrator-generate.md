@@ -347,10 +347,13 @@ Verify alignment with source documents and internal coherence **every round**, i
 - **Creation Verification (Step 10c)**: whether it was **clean on the first pass** or required rework (from the Step 10c history entry).
 - **Verdict** — a round is **diminishing-returns** if it resolved **no HIGH or MEDIUM gaps**, all excess findings were KEEP'd/confirmed, and Step 10c was clean first-pass (the round produced only LOW/polish refinement). Otherwise it made **substantive** change. This is a *recommendation to the human*, not an auto-terminate.
 
+**Also carry forward the rigour-gap exit predicate** (a **separate, independent** exit signal from the severity-based `convergence_signal` above — do not conflate them). Read `Rigour-Gap Exit Predicate` from the `## Explore Details` section of the state file (the explore phase persisted it this round at Step 2). Do **not** recompute it — it reflects this round's Concern Identifier result (`MET` = the identifier surfaced zero rigour-gap-qualifying concerns). Pass it through unchanged as `rigour_gap_exit`. If the field is absent (e.g. a legacy in-flight state file), set `rigour_gap_exit = unknown`. This predicate is presented to the human at the promote checkpoint alongside `convergence_signal`; it does **not** auto-terminate the loop.
+
 **Set status = WAITING_FOR_HUMAN** and **return**:
 ```
 ROUND_COMPLETE {
   convergence_signal: [substantive | diminishing-returns],
+  rigour_gap_exit: [MET | not-met | unknown],   // B: explicit exit predicate — this round's Concern Identifier surfaced zero rigour-gap-qualifying concerns. Independent of convergence_signal; informs the human, never auto-exits.
   gaps_resolved: { HIGH, MEDIUM, LOW },     // or "none"
   overbuild: [all-KEEP'd/confirmed | drove-edits],
   verification_10c: [clean-first-pass | required-rework],

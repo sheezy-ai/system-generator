@@ -140,6 +140,7 @@ Detailed tracking for one component's creation (current round, phase, step, stat
 ## Explore Details
 
 Concerns: [CON-1, CON-2, ...] or [none]
+Rigour-Gap Exit Predicate: MET | not-met   (set by explore Step 2 each round: MET iff the Concern Identifier surfaced zero rigour-gap-qualifying concerns; carried to the Step 11 promote checkpoint)
 Enrichments Accepted: [N]
 Enrichments Rejected: [N]
 
@@ -400,7 +401,7 @@ For each: **FIX** (return to Author) or **ACCEPT** (carry to the promote/continu
 
 ### At Step 11 (Promote or Continue)
 
-Generate returned `ROUND_COMPLETE` (use the return's `convergence_signal`, gap summary, and report paths). **Present:**
+Generate returned `ROUND_COMPLETE` (use the return's `convergence_signal`, `rigour_gap_exit`, gap summary, and report paths). **Present** — the human sees **two independent convergence signals** and decides; neither auto-exits the loop:
 ```
 [If gaps were resolved:]
 All gaps resolved and applied (round {N}).
@@ -413,7 +414,13 @@ Updated: {round-dir}/03-updated-spec.md
 
 The spec passed this round's full gate: no missing requirements (coverage/depth), no unresolved over-build (excess), AND clean alignment + internal coherence (Step 10c — no HIGH/MEDIUM). Reports: {round-dir}/06-stage-appropriateness-report.md, {round-dir}/04-alignment-report.md, {round-dir}/05-coherence-report.md.
 
-Convergence signal (round {N}): [substantive | diminishing-returns]
+Convergence — two signals:
+
+1. Rigour-gap exit predicate (round {N}): [MET | not met]
+[If MET:] → **CONVERGED — promote warranted.** This round's concern identification surfaced **zero rigour-gap-qualifying concerns** — the workflow's explicit exit predicate. Another round is unlikely to surface load-bearing concerns. (This is the decisive convergence signal; you still decide — it informs, it does not auto-promote.)
+[If not met:] → Concerns were surfaced this round, so the rigour-gap exit predicate does not hold; weigh the severity signal below.
+
+2. Severity signal (round {N}): [substantive | diminishing-returns]
 - Gaps resolved this round: [X HIGH, Y MEDIUM, Z LOW] (or "none")
 - Over-build (Step 9d): [all KEEP'd/confirmed | drove edits]
 - Creation Verification (Step 10c): [clean first pass | required rework]
@@ -426,7 +433,7 @@ You can:
 
 When ready, let me know.
 ```
-**STOP.**
+**STOP.** The rigour-gap exit predicate and the severity signal are **inputs the human acts on**, not gates that fire automatically — the promote decision stays human-gated regardless of either signal.
 
 **On response:**
 - **"another round"** → record `## Pending Decision: another-round`, dispatch generate (Action: ANOTHER_ROUND). Generate writes the re-raise ledger, increments the round, resets Steps 1–11, and returns `NEW_ROUND_READY`. Then re-resolve paths for the new round and dispatch explore.
@@ -492,7 +499,7 @@ Component: [component-name]
 Round: [N]
 Action: [RUN | ANOTHER_ROUND]
 ```
-**Returns:** `GAPS_READY {gap_discussion_file, counts}` · `GAPS_NEED_HUMAN {...}` · `VERIFY_DECISION {alignment_issues, coherence_gaps, rework_pass}` · `ROUND_COMPLETE {convergence_signal, gap_summary, report_paths}` · `NEW_ROUND_READY {new_round}`.
+**Returns:** `GAPS_READY {gap_discussion_file, counts}` · `GAPS_NEED_HUMAN {...}` · `VERIFY_DECISION {alignment_issues, coherence_gaps, rework_pass}` · `ROUND_COMPLETE {convergence_signal, rigour_gap_exit, gap_summary, report_paths}` · `NEW_ROUND_READY {new_round}`.
 
 ### Promote
 
