@@ -79,6 +79,7 @@ Phases to run:
 2. Cross-Cutting Reconciliation - [Reconcile bodies vs materialized registry | Already reconciled | Populate (legacy DEFERRED) | Skip]
 3. Contract Verification - [Available (contracts present) | Requires materialization/population first]
 4. Consistency Check - Scan for naming/schema drift
+5. Cross-Boundary Routing Reconciliation - verify each spec's routing claims landed in the target's pending-issues
 
 Proceed? (y/n)
 ```
@@ -241,6 +242,26 @@ Proceed? (y/n)
 
 ---
 
+### Phase 5b: Cross-Boundary Routing Reconciliation
+
+Verify that every cross-boundary requirement a component spec *claims* to have routed actually exists in the target's `pending-issues.md`. Component specs author **inside-out** (a component reads only its own `pending-issues.md`, not peer specs), so a routing claim that never landed in the target is a **silently-lost obligation** the moment that target is authored.
+
+1. **Invoke the Cross-Boundary Routing Reconciler** (stage-wide mode):
+   ```
+   Read the Cross-Boundary Routing Reconciler at:
+   {{AGENTS_PATH}}/05-components/coherence/cross-boundary-routing-reconciler.md
+
+   Reconcile cross-boundary routing claims against target pending-issues (stage-wide).
+   ```
+
+2. **Read the reconciler's verdict** (`RECONCILED` | `GAPS`).
+
+3. **On `GAPS`**: present the routing worklist to the human — each claimed-but-unlanded obligation must be written into its named target's `pending-issues.md` (a `CROSS-BOUNDARY-PEER` / `CROSS-BOUNDARY-UPSTREAM` entry per `guides/pending-issues-format.md`) before that target is authored, or it is lost at inside-out authoring. This phase **reports**, it does not auto-route; writing the entries is a human/orchestrator action. (The same reconciler runs as a **hard gate at create Step 1** before a `NOT_STARTED` component is authored — so a miss targeting a not-yet-authored component is caught there too.)
+
+**Output:** the routing-reconciliation report (`versions/coherence/[date]-routing-reconciliation.md`); any GAPS surfaced as the routing worklist.
+
+---
+
 ### Phase 6: Coherence Report
 
 Compile all findings into `versions/coherence/[date]-coherence-report.md`:
@@ -259,6 +280,7 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 | Pending Issues | 12 | 10 | 2 (deferred) |
 | Contract Verification | 3 | 3 | 0 |
 | Consistency Check | 2 | 2 | 0 |
+| Routing Reconciliation | [claims] | [routed] | [gaps] |
 | **Total** | 17 | 15 | 2 |
 
 ## Blocking Issues
@@ -287,6 +309,7 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 [ ] All blocking issues resolved
 [ ] Cross-cutting contracts populated and verified
 [ ] Consistency issues addressed
+[ ] Cross-boundary routing claims reconciled (no stranded obligations)
 [ ] Ready for implementation phase
 ```
 
@@ -318,6 +341,7 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 | Agent | Purpose | Invocation |
 |-------|---------|------------|
 | Cross-Cutting Population Orchestrator | Extract and populate contracts | Phase 3 (delegation) |
+| Cross-Boundary Routing Reconciler | Verify routing claims landed in target pending-issues | Phase 5b (stage-wide); also the create Step 1 authoring gate |
 
 **Note:** This orchestrator handles pending issue resolution and consistency checking directly rather than delegating to separate agents, as the logic is straightforward and context-dependent.
 

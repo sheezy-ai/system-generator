@@ -18,6 +18,7 @@ Given the input documents, identify 3-5 component design concerns worth explorin
 - Foundations (`system-design/03-foundations/foundations.md`)
 - Component guide (`{{GUIDES_PATH}}/05-components-guide.md`)
 - Cross-cutting spec (`system-design/05-components/specs/cross-cutting.md`)
+- Cross-cutting interface schema-specs (`system-design/05-components/specs/cross-cutting-interfaces/`, if any) — step-0 shared schemas for §7 interfaces; a concern may examine whether this component's use of an interface it writes/reads conforms to the frozen schema-spec (adopt by reference), not whether the shared schema itself should change
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
 - Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions this component may adopt (governed upstream — there is no cross-cutting-spec ratifying author). These are distinct from `cross-cutting.md` itself, which is **materialized up-front from Architecture §7/§8** as a resolved contract layer.
 - Workflow state file (`system-design/05-components/versions/[component]/workflow-state.md`)

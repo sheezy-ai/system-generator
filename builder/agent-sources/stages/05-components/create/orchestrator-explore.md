@@ -57,6 +57,16 @@ Read the per-component state file. Resolve paths for `Current Round`. Read `## P
    - **`DEFERRED`** (legacy projects whose contract layer was never materialized) → fall back to the pre-materialization gate: if the component has dependencies, verify all have status `COMPLETE`; if any is not → Error "Cannot create [component]: contract layer not materialized and dependency not COMPLETE. Blocked by: [list]".
    - **`MATERIALIZING`** (materializer interrupted mid-run) → Error "Contract layer materialization incomplete. Re-run the initialize orchestrator's Step 3a (contract materialization) before creating components."
 
+3b. **Check inbound cross-boundary obligations are landed** (Round 1 only — the authoring gate): a component authors **inside-out** from its own `pending-issues.md`, so any peer requirement a producer *claims* to have routed here but never actually wrote is **lost the moment this component is authored**. Invoke the **Cross-Boundary Routing Reconciler** in **scoped mode** for this component:
+   ```
+   Read the Cross-Boundary Routing Reconciler at:
+   {{AGENTS_PATH}}/05-components/coherence/cross-boundary-routing-reconciler.md
+
+   Reconcile routing claims scoped to target component: [component-name].
+   ```
+   - **`RECONCILED`** → every inbound obligation producers claim to have routed here is present in this component's `pending-issues.md`. **Proceed.**
+   - **`GAPS`** → **Error / halt**: "Cannot create [component]: inbound cross-boundary obligations claimed by producer specs are absent from `versions/[component]/pending-issues.md` and would be lost at authoring. Route each into the component's pending-issues.md (`CROSS-BOUNDARY-PEER` per `guides/pending-issues-format.md`), then re-run. Missing: [list from the reconciler's GAPS worklist]." Do **not** proceed until the missing entries are routed and the scoped reconciler returns `RECONCILED`. This is a halt-for-human gate (it never auto-routes). **Rounds 2+ skip this gate** — the component is already authored; its inbound obligations were gated at Round 1.
+
 4. **Validate deferred-items state** (Round 1 only):
    - Read stage state and confirm `Stage Initialization: Status: COMPLETE`.
    - If COMPLETE, verify the monolithic `versions/deferred-items.md` does NOT exist, or contains only the archived-header stub (no COMP-D items). If this fails → Error (Deferred-items state inconsistent).
@@ -101,6 +111,7 @@ Automatically proceed to Step 2.
    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
    - Cross-cutting spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
+   - Cross-cutting interface schema-specs (step-0; may be empty): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting-interfaces/ — shared schema-specs for §7 cross-cutting interfaces; where this component writes/reads such an interface, adopt the frozen schema by reference (non-blocking — a component may adopt; it is not required)
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
    - Cross-cutting deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/cross-cutting/deferred-items.md
    - Workflow state: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/workflow-state.md
@@ -143,6 +154,7 @@ On re-dispatch, read `## Pending Decision`:
    - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
    - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
    - Cross-cutting spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
+   - Cross-cutting interface schema-specs (step-0; may be empty): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting-interfaces/ — shared schema-specs for §7 cross-cutting interfaces; where this component writes/reads such an interface, adopt the frozen schema by reference (non-blocking — a component may adopt; it is not required)
    - Concerns file: {explore-dir}/00-concerns.md
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
    - Cross-cutting deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/cross-cutting/deferred-items.md

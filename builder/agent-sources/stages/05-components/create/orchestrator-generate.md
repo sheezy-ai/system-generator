@@ -73,6 +73,7 @@ Router dispatches with an Action:
    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
    - Cross-cutting spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
+   - Cross-cutting interface schema-specs (step-0; may be empty): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting-interfaces/ — shared schema-specs for §7 cross-cutting interfaces; where this component writes/reads such an interface, adopt the frozen schema by reference (non-blocking — a component may adopt; it is not required)
    - Cross-cutting deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/cross-cutting/deferred-items.md
    - Brief: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/brief.md (if exists)
    [If exploration summary exists:]
@@ -127,6 +128,7 @@ Independently verify the draft addresses every requirement the Architecture assi
    - Component guide: {{GUIDES_PATH}}/05-components-guide.md
    - Deferred items: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/deferred-items.md
    - Cross-cutting spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
+   - Cross-cutting interface schema-specs (step-0; may be empty): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting-interfaces/ — shared schema-specs for §7 cross-cutting interfaces; where this component writes/reads such an interface, adopt the frozen schema by reference (non-blocking — a component may adopt; it is not required)
 
    Output: {round-dir}/00-requirements-checklist.md
    ```

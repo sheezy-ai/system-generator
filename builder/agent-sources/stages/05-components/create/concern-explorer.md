@@ -17,6 +17,7 @@ Given the Architecture, Foundations, Cross-cutting spec, and a single concern as
 - Architecture (`system-design/04-architecture/architecture.md`)
 - Foundations (`system-design/03-foundations/foundations.md`)
 - Cross-cutting spec (`system-design/05-components/specs/cross-cutting.md`)
+- Cross-cutting interface schema-specs (`system-design/05-components/specs/cross-cutting-interfaces/`, if any) — step-0 shared schemas for §7 interfaces this component may write/read; adopt by reference where relevant (do not re-examine the shared schema itself)
 - Concerns file (`system-design/05-components/versions/[component]/round-{N}-create/explore/00-concerns.md`)
 - Deferred items (`system-design/05-components/versions/[component]/deferred-items.md`)
 - Cross-cutting deferred items (`system-design/05-components/versions/cross-cutting/deferred-items.md`) — provisional cross-component conventions this component may adopt (governed upstream — there is no cross-cutting-spec ratifying author). These are distinct from `cross-cutting.md` itself, which is **materialized up-front from Architecture §7/§8** as a resolved contract layer.

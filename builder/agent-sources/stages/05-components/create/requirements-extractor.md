@@ -20,6 +20,7 @@ Given the Architecture Overview, Foundations, and a component name, extract ever
 - Component name
 - Component deferred items (if exists)
 - Cross-cutting spec (for data contracts involving this component)
+- Cross-cutting interface schema-specs (`system-design/05-components/specs/cross-cutting-interfaces/`, if any) — for a §7 interface this component writes/reads, extract its frozen schema/write-signature/posture/reason-taxonomy/retention as requirements this component must conform to (so coverage verifies the component adopts the shared schema, not a divergent one)
 
 **Output:**
 - Requirements checklist file
