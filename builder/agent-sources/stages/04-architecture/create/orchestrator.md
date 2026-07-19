@@ -4,11 +4,11 @@
 
 ## Purpose
 
-Initialize the Architecture stage by setting up structure, exploring architectural concerns from the PRD and Foundations that need structured analysis, generating a draft Architecture Overview enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, promote the final draft.
+Initialize the Architecture stage by setting up structure, exploring architectural concerns from the PRD and Foundations that need structured analysis, generating a draft Architecture Overview enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, finalise the final draft and hand it to the Architecture Review workflow (which promotes it).
 
-**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Finalise (hand to Review)
 
-The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the PRD and Foundations. Round 2+ explores from the previous round's draft, finding concerns and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to promote at Gap Resolution.
+The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the PRD and Foundations. Round 2+ explores from the previous round's draft, finding concerns and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to finalise at Gap Resolution.
 
 ---
 
@@ -44,8 +44,7 @@ Files within the explore directory:
 - `03-updated-architecture.md`
 
 **Brief (optional)**: `system-design/04-architecture/brief.md`
-**Promoted output**: `system-design/04-architecture/architecture.md`
-**Final outputs** (created by Review workflow promoter — overwrites promoted output):
+**Final outputs** (created by the Review workflow promoter at review exit — Create does not produce these):
 - `system-design/04-architecture/architecture.md` — Clean current-scope Architecture Overview
 - `system-design/04-architecture/decisions.md` — Design rationale and trade-offs
 - `system-design/04-architecture/future.md` — Deferred items and future considerations
@@ -85,7 +84,7 @@ agents/04-architecture/review/
 
 ```
 system-design/04-architecture/
-├── architecture.md                # Promoted from create (then overwritten by Review promoter)
+├── architecture.md                # Created by the Review promoter at review exit (Create does not produce it)
 ├── decisions.md                   # Design rationale (created by Review promoter)
 ├── future.md                      # Deferred items (created by Review promoter)
 └── versions/
@@ -134,7 +133,7 @@ system-design/04-architecture/
    - Step 7 resumes at WAITING_FOR_HUMAN — re-read filtered enrichment discussion file and continue loop
    - Step 9 (Generator) is non-idempotent — if marked complete, verify draft exists and skip
    - Step 10 (Gap Resolution) — if marked complete, skip to Step 11
-   - Step 11 resumes at WAITING_FOR_HUMAN — present promote/another-round choice to human
+   - Step 11 resumes at WAITING_FOR_HUMAN — present finalise/another-round choice to human
 
 3. **Update state file** at each step transition (instructions inline below)
 
@@ -147,7 +146,7 @@ system-design/04-architecture/
 
 **Architecture**: 04-architecture/architecture.md
 **Current Workflow**: Create
-**Current Phase**: Explore | Generate | Promote
+**Current Phase**: Explore | Generate | Finalise
 **Current Round**: 1
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
 **Gaps Exist**: unknown | true | false
@@ -169,11 +168,11 @@ system-design/04-architecture/
 - [ ] Step 9: Generate or Apply Enrichments
 - [ ] Step 9b: Coverage Verification
 - [ ] Step 10: Gap Resolution
-- [ ] Step 11: Promote or Continue
+- [ ] Step 11: Finalise or Continue
 - [ ] Step 11b: Creation Verification
 
-### Phase 3: Promote
-- [ ] Step 12: Promote & Report
+### Phase 3: Finalise & Hand to Review
+- [ ] Step 12: Finalise & Hand to Review
 
 ## Explore Details
 
@@ -201,7 +200,6 @@ Enrichments Rejected: [N]
 - You READ input files to validate they exist
 - You SPAWN agents to do work
 - You CREATE structure files (deferred-items.md, pending-issues.md, gap-resolutions.md)
-- You COPY the final draft to `architecture.md` (promotion)
 - You DO NOT write draft content, exploration content, or author output — agents do that
 - You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
 - Spawn agents in FOREGROUND (not background) — agents need interactive approval for file writes
@@ -847,9 +845,9 @@ Do NOT enter the discussion loop until the human has added actual response conte
 
 14. **Update state file**: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry
 
-### Step 11: Promote or Continue (`WAITING_FOR_HUMAN`)
+### Step 11: Finalise or Continue (`WAITING_FOR_HUMAN`)
 
-**On resume**: If status = WAITING_FOR_HUMAN for Step 11, present the promote/another-round choice to the human.
+**On resume**: If status = WAITING_FOR_HUMAN for Step 11, present the finalise/another-round choice to the human.
 
 1. **Update state file**: Set status = WAITING_FOR_HUMAN
 
@@ -865,7 +863,7 @@ Do NOT enter the discussion loop until the human has added actual response conte
    Updated: {round-dir}/03-updated-architecture.md
 
    You can:
-   - Say "promote" — promote the current draft
+   - Say "finalise" — finalise the current draft and hand it to Review
    - Say "another round" — run another explore→generate cycle
 
    When ready, let me know.
@@ -880,7 +878,7 @@ Do NOT enter the discussion loop until the human has added actual response conte
      - If `{round-dir}/03-updated-architecture.md` exists (Author ran): use it
      - Otherwise: use `{round-dir}/00-draft-architecture.md`
    - Update state file:
-     - Mark "Step 11: Promote or Continue" complete `[x]`
+     - Mark "Step 11: Finalise or Continue" complete `[x]`
      - Increment `Current Round`
      - Reset Steps 1–11 to unchecked `[ ]`
      - Set phase = Explore, Explore Phase = active, Gaps Exist = unknown
@@ -888,8 +886,8 @@ Do NOT enter the discussion loop until the human has added actual response conte
    - **Re-resolve paths** using Path Resolution with the new round number
    - **Loop to Step 1**
 
-   **If "promote"** or "promote as-is":
-   - Update state file: Mark "Step 11: Promote or Continue" complete `[x]`, add history entry "Promoting draft from round {N}"
+   **If "finalise"** or "finalise as-is":
+   - Update state file: Mark "Step 11: Finalise or Continue" complete `[x]`, add history entry "Finalising draft from round {N}"
    - Proceed to Step 11b
 
 ### Step 11b: Creation Verification
@@ -969,7 +967,7 @@ Do NOT enter the discussion loop until the human has added actual response conte
     > MEDIUM gaps: **ACCEPT** recommended — on rework pass [N], these are likely diminishing-returns implications. FIX only if build-affecting.
 
     [If first pass:]
-    For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
+    For each: **FIX** (return to Author) or **ACCEPT** (finalise as-is)?
     ```
     - If FIX: Spawn Author to address issues, then re-run verification
     - If ACCEPT: Proceed to Step 12
@@ -977,28 +975,21 @@ Do NOT enter the discussion loop until the human has added actual response conte
 
 ---
 
-## Phase 3: Promote
+## Phase 3: Finalise & Hand to Review
 
-Phase 3 runs only when the human chooses to promote at Step 11, exiting the explore→generate loop.
+Phase 3 runs only when the human chooses to finalise at Step 11, exiting the explore→generate loop. It finalises the round's draft and hands it to the Architecture Review workflow — it does **not** produce a promoted `architecture.md`. The Review workflow's promoter is the sole producer of `architecture.md`, so a usable promoted Architecture Overview cannot exist without a review round.
 
-### Step 12: Promote & Report
+### Step 12: Finalise & Hand to Review
 
 1. **Determine final draft path** (from the current round):
     - If `{round-dir}/03-updated-architecture.md` exists (Author ran): Use it
     - Otherwise: Use `{round-dir}/00-draft-architecture.md`
 
-2. **Copy final draft to `architecture.md`** using Bash cp:
-    ```
-    cp [final draft path] system-design/04-architecture/architecture.md
-    ```
+2. **Update state file**: Mark "Step 12: Finalise & Hand to Review" complete `[x]`, set status = COMPLETE, add history entry
 
-3. **Verify promotion** — Confirm `system-design/04-architecture/architecture.md` exists
+3. **Check downstream deferred items** for items the Generator deferred
 
-4. **Update state file**: Mark "Step 12: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
-
-5. **Check downstream deferred items** for items the Generator deferred
-
-6. **Present summary**:
+4. **Present summary**:
     ```
     Architecture creation complete (after {total_rounds} round(s)).
 
@@ -1010,7 +1001,6 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
     Final draft: {round-dir}/00-draft-architecture.md
     [If Author ran in final round:]
     Updated: {round-dir}/03-updated-architecture.md
-    Promoted to: system-design/04-architecture/architecture.md
 
     [If gaps existed in final round:]
     Gap resolution:
@@ -1023,10 +1013,9 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
     Deferred to downstream:
     - [X] items to Components deferred items
 
-    Next steps:
-    1. Review architecture.md — verify promoted content looks correct
-    2. When ready, run the Architecture Review workflow
-       (Review reads from: system-design/04-architecture/architecture.md)
+    NEXT: run the Architecture Review workflow — it reads {round-dir}/03-updated-architecture.md
+    (or {round-dir}/00-draft-architecture.md if the Author did not run). Create does not
+    produce architecture.md; the Review promoter creates it at review exit.
     ```
 
 ---
@@ -1038,7 +1027,7 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
 - Steps 8 → 9 → 9b: Enrichment author then generator/applicator then coverage verification
 - Step 10: Gap resolution (Gap formatter → Gap analyst → discussion loop → Author)
-- Steps 11b → 12: Verification then promote (unless issues found)
+- Steps 11b → 12: Verification then finalise & hand to review (unless issues found)
 
 **Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads (e.g., "Read the concerns file," "Check for Gap Summary"). If a read is not in the step instructions, do not perform it — agents read their own inputs.
 
@@ -1046,11 +1035,11 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
 - **Step 3** — WAITING_FOR_HUMAN for concern review
 - **Step 7** — WAITING_FOR_HUMAN for enrichment review until all enrichments resolved
 - **Step 10** — WAITING_FOR_HUMAN within gap discussion loop (sub-steps 12-13)
-- **Step 11** — WAITING_FOR_HUMAN for promote vs another round
+- **Step 11** — WAITING_FOR_HUMAN for finalise vs another round
 
 **Skip paths:**
 - **Explore skip** — If fewer than 2 concerns (Step 2) or human says "skip" (Step 3) → jump to Step 9
-- **Gap skip** — If no gaps in draft (Step 10) → Step 10 completes immediately, Step 11 still presents promote/another-round choice
+- **Gap skip** — If no gaps in draft (Step 10) → Step 10 completes immediately, Step 11 still presents finalise/another-round choice
 
 **Loop path:**
 - **Another round** — If human says "another round" at Step 11 → increment round, reset Steps 1–11, loop to Step 1
@@ -1074,7 +1063,6 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
 | Draft not created | Error: "Generator completed but draft not found at expected path" |
 | Author fails | Error: Report failure details |
 | Author output files not created | Error: "Author completed but outputs not found" |
-| Promotion copy fails | Error: "Failed to copy final draft to architecture.md" |
 | State file corrupted/unreadable | Warning: Report issue, re-create state from file existence checks |
 | Resume: draft missing but Step 9 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
 | Round N primary source missing | Error: "Round {N} requires draft from round {N-1} but no draft found" |
@@ -1086,17 +1074,17 @@ Phase 3 runs only when the human chooses to promote at Step 11, exiting the expl
 
 After this orchestrator completes:
 
-1. **Human reviews promoted Architecture** — Opens `system-design/04-architecture/architecture.md`
-2. **Human optionally makes manual edits** — Can refine directly
+1. **Human optionally reviews the final draft** — Opens `{round-dir}/03-updated-architecture.md` (or `00-draft-architecture.md` if the Author did not run)
+2. **Human optionally makes manual edits** — Can refine the round draft directly
 3. **Human runs Review workflow** — Invokes the Architecture Review orchestrator
 
-**IMPORTANT**: The Review workflow reads from `system-design/04-architecture/architecture.md` for Round 1. This file is created by the promotion step (Step 12). It MUST exist before starting the Review workflow.
+**IMPORTANT**: Create does **not** produce `architecture.md`. The Review workflow reads from the create round's final draft (`{round-dir}/03-updated-architecture.md`, or `00-draft-architecture.md`) — never from a promoted `architecture.md`. The promoted `architecture.md` is created only by the Review workflow's promoter at review exit; until a review round runs, no promoted file exists.
 
 The Review workflow will:
 - Run expert reviewers on the Architecture
 - Facilitate discussion on issues found
 - Author changes and verify alignment with PRD and Foundations
-- Promote final version (overwriting `architecture.md` with reviewed version)
+- Promote the reviewed version (the promoter is the sole producer of `architecture.md`)
 
 ---
 
