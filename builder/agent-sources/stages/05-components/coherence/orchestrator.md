@@ -76,10 +76,9 @@ Cross-Cutting Contracts: [MATERIALIZED with N contracts | reconciled (COMPLETE) 
 
 Phases to run:
 1. Pending Issues Resolution - [N] issues to triage
-2. Cross-Cutting Reconciliation - [Reconcile bodies vs materialized registry | Already reconciled | Skip]
-3. Contract Verification - [Available (contracts present) | Requires materialization/population first]
-4. Consistency Check - Scan for naming/schema drift
-5. Cross-Boundary Routing Reconciliation - verify each spec's routing claims landed in the target's pending-issues
+2. Contract Conformance & Verification - body-check MATERIALIZED contracts (→ DEFINED) and verify producer/consumer alignment (DEFINED → VERIFIED)
+3. Consistency Check - Scan for naming/schema drift
+4. Cross-Boundary Routing Reconciliation - verify each spec's routing claims landed in the target's pending-issues
 
 Proceed? (y/n)
 ```
@@ -124,30 +123,9 @@ Proceed? (y/n)
 
 ---
 
-### Phase 3: Cross-Cutting Conformance
+### Phase 4: Contract Conformance & Verification
 
-1. **Check cross-cutting.md status**:
-   - **If MATERIALIZED**: Ask human whether to run **conformance reconciliation** now — reconcile the realized bodies against the up-front materialized registry (the populate orchestrator handles this mode)
-   - **If COMPLETE** (already reconciled): Ask human whether to refresh (re-reconcile from current specs)
-   - **If human declines**: Skip to Phase 4
-
-2. **If reconciling**, invoke the Cross-Cutting Population Orchestrator:
-   ```
-   Read the Cross-Cutting Population Orchestrator at:
-   {{AGENTS_PATH}}/05-components/cross-cutting/orchestrator.md
-
-   Populate cross-cutting specification from completed specs.
-   ```
-
-3. **Wait for completion** before proceeding
-
-**Note:** This phase delegates to the existing cross-cutting orchestrator rather than duplicating its logic.
-
----
-
-### Phase 4: Contract Verification
-
-**Prerequisite:** Cross-cutting.md must contain contract definitions — `MATERIALIZED` (frozen projections) or `COMPLETE`/reconciled (body-backed). Against a purely `MATERIALIZED` registry not yet reconciled (Phase 3), verification checks each realized spec against the frozen obligation/`Binds:` set; running Phase 3 reconciliation first is preferable so entries are body-backed (`DEFINED`).
+**Prerequisite:** Cross-cutting.md must contain contract definitions — `MATERIALIZED` (frozen projections from the Promote freeze) and/or `DEFINED`/`VERIFIED` (already body-backed from prior rounds). This phase is **self-sufficient** — it performs the routine conformance itself; there is no separate reconciliation phase to run first. Iterate over **every** contract in the registry (do **not** narrow the sweep to a subset — the wholesale iteration over all contracts is what re-verifies ownerless composed-query/invariant contracts that no single producer review reaches): for a `MATERIALIZED` entry, check the producer body against the frozen obligation/`Binds:` set and, on a clean check, transition it `MATERIALIZED → DEFINED` (a real body now backs it); for a `DEFINED` entry, verify producer/consumer alignment and, on a pass, transition it `DEFINED → VERIFIED`.
 
 1. **Read cross-cutting.md** to get contract definitions
 
@@ -179,14 +157,14 @@ Proceed? (y/n)
    | overall_confidence | required, top-level | missing | Consumer schema doesn't include field |
 
    Resolution options:
-   - UPDATE_CONSUMER: Add field to consumer spec
-   - UPDATE_PRODUCER: Change producer to match consumer
+   - UPDATE_CONSUMER: a pure consumer-side realization fix (the consumer spec misreads a correctly-frozen contract) — apply locally to the consumer spec
+   - ESCALATE_UPSTREAM: the mismatch implies the **frozen contract itself** is wrong (its obligation / `Binds:` set needs changing) — an authority-level (04) decision, **not** a local edit. Write a `CROSS-BOUNDARY-UPSTREAM` entry to `system-design/04-architecture/versions/pending-issues.md` (`Status: AWAITS_UPSTREAM_REVISION`) → backward edge → the next Promote re-freeze projects the corrected contract from §7/§8. Never rewrite the producer to match the consumer locally (05 owns status, 04 owns obligations)
    - DEFER: Leave for manual resolution
    ```
 
 5. **Apply resolutions** based on human decisions
 
-6. **Update contract status** in cross-cutting.md (DEFINED → VERIFIED)
+6. **Update contract status** in cross-cutting.md: a `MATERIALIZED` entry with a clean producer body-check → `DEFINED`; a `DEFINED` entry that passes producer/consumer alignment → `VERIFIED`. **Preserve the `DEFINED` rung** — it is the `contract-verifier`'s regression-demote target and the Slice-4 re-freeze reset state; never collapse `MATERIALIZED → VERIFIED` directly (a materialized contract must be body-backed as `DEFINED` before it can be consumer-verified as `VERIFIED`)
 
 **Output:**
 - Contract verification report
@@ -338,7 +316,6 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 
 | Agent | Purpose | Invocation |
 |-------|---------|------------|
-| Cross-Cutting Population Orchestrator | Extract and populate contracts | Phase 3 (delegation) |
 | Cross-Boundary Routing Reconciler | Verify routing claims landed in target pending-issues | Phase 5b (stage-wide); also the create Step 1 authoring gate |
 
 **Note:** This orchestrator handles pending issue resolution and consistency checking directly rather than delegating to separate agents, as the logic is straightforward and context-dependent.

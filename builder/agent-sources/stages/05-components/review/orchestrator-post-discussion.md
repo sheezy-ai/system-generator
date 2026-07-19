@@ -28,6 +28,7 @@ These are instructions for the router to follow directly. The router:
 - Change Verifier: `{{AGENTS_PATH}}/05-components/review/change-verifier.md`
 - Alignment Verifier: `{{AGENTS_PATH}}/universal-agents/alignment-verifier.md`
 - Contract Verifier: `{{AGENTS_PATH}}/05-components/review/contract-verifier.md`
+- Absent-From-Freeze Detector: `{{AGENTS_PATH}}/05-components/create/absent-from-freeze-detector.md` (the same body-driven detector spawned at create round-0; run here at **every review round**, since a review edit can introduce a new uncontracted cross-component read)
 - Internal Coherence Checker: `{{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md`
 - Pending Issue Resolver: `{{AGENTS_PATH}}/universal-agents/pending-issue-resolver.md`
 - Spec Promoter: `{{AGENTS_PATH}}/05-components/review/spec-promoter.md`
@@ -73,11 +74,11 @@ Router dispatches with an Action parameter:
 
 ### Steps 7-10: Verification (Parallel)
 
-Run all four verification steps in parallel — they have no dependencies on each other.
+Run all five verification steps in parallel — they have no dependencies on each other.
 
 5. **Update state file**: Set Steps 7-10, status = IN_PROGRESS
 
-6. **Spawn all four verification agents in parallel**:
+6. **Spawn all five verification agents in parallel**:
 
     **Change Verifier** (Step 7):
     ```
@@ -120,6 +121,18 @@ Run all four verification steps in parallel — they have no dependencies on eac
     Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/08-contract-verification.md
     ```
 
+    **Absent-From-Freeze Detector** (Step 9b): body-driven — the `contract-verifier` above is producer-only and registry-driven, so nothing else catches a cross-component contract **absent from the frozen registry**, and a review edit can introduce a new uncontracted read. Scans the updated spec's produced **and** consumed cross-component interfaces and escalates any absence `CROSS-BOUNDARY-UPSTREAM`:
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/05-components/create/absent-from-freeze-detector.md
+
+    Input:
+    - Component body (updated spec): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/05-updated-spec.md
+    - Frozen cross-cutting registry: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
+    - Architecture pending-issues (escalation target): {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/versions/pending-issues.md
+
+    Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/10-absent-from-freeze-report.md
+    ```
+
     **Internal Coherence Checker** (Step 10):
     ```
     Follow the instructions in: {{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md
@@ -129,9 +142,9 @@ Run all four verification steps in parallel — they have no dependencies on eac
     Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/09-coherence-report.md
     ```
 
-7. **Wait for all four agents to complete**
+7. **Wait for all five agents to complete**
 
-8. **Update state file**: Mark Steps 7, 8, 9, and 10 complete
+8. **Update state file**: Mark Steps 7, 8, 9, 9b, and 10 complete
 
 9. **Proceed to Step 11**
 
@@ -143,6 +156,7 @@ Run all four verification steps in parallel — they have no dependencies on eac
     - `06-change-verification-report.md` — check for PARTIALLY_RESOLVED, NOT_RESOLVED, LEVEL_VIOLATION, or MISSING/WRONG lateral items
     - `07-alignment-report.md` — check for HALT recommendation, SYNC_UPSTREAM
     - `08-contract-verification.md` — check for failures or regressions
+    - `10-absent-from-freeze-report.md` — the Absent-From-Freeze Detector verdict (COVERED | ABSENCES_ESCALATED). Its escalations are written **directly** to Architecture's pending-issues (a backward edge, `CROSS-BOUNDARY-UPSTREAM`); this is informational for the review round — record the escalated/suppressed counts but do **not** gate the round on them (they are upstream obligations, not local rework)
     - `09-coherence-report.md` — check for HIGH or MEDIUM coherence gaps
 
 12. **Categorize overall status**:

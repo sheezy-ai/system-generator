@@ -217,7 +217,7 @@ Scan resolved discussions and `>> HUMAN:` responses for:
 
 - **P1 (peer)** — affects only a peer's own spec. Append a `CROSS-BOUNDARY-PEER` entry (`Status: UNRESOLVED`) to the target peer's `pending-issues.md` (`system-design/05-components/versions/[target-component]/pending-issues.md`). Lateral items go to the target's pending-issues file regardless of whether the target spec exists yet; consumed at the peer's next review.
 - **P2 (upstream invariant/design)** — a cross-component invariant or shared design decision no single component owns. Append a `CROSS-BOUNDARY-UPSTREAM` entry (`Status: AWAITS_UPSTREAM_REVISION`) to Architecture (or Foundations) `pending-issues.md`. A component must not bind a peer to a system invariant — escalate it.
-- **Triage**: target can satisfy it within its own spec → P1; it coordinates two or more components or must be pinned once centrally → P2. When unsure, prefer P2. Data *contracts* are **not** this disposition (they flow through the cross-cutting registry / CTR).
+- **Triage**: target can satisfy it within its own spec → P1; it coordinates two or more components or must be pinned once centrally → P2. When unsure, prefer P2. Data *contracts* are **not** this disposition — a cross-component data contract **absent from the frozen registry** is escalated `CROSS-BOUNDARY-UPSTREAM` to Architecture by the absent-from-freeze detector (which runs at create round-0 and every review round); do not register it locally.
 - Use the **lateral shape** per `guides/pending-issues-format.md`, and log each routed item in the change log under **Cross-Boundary Requirements** (Source gap, Kind, Target).
 
 ---

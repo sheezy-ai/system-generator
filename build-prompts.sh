@@ -539,13 +539,17 @@ echo ""
 echo "Building Cross-Cutting prompts..."
 echo ""
 
-# Clean stale cross-cutting output files
+# Clean stale cross-cutting output files.
+# NOTE: the `-d "$stage_dir/cross-cutting"` guard is deliberately omitted here.
+# When a cross-cutting/ SOURCE dir is deleted entirely (Slice 7 retired it), a
+# guarded clean would never run and the stale agents/<stage>/cross-cutting/*.md
+# would persist on every incremental build. clean_output_dir already returns
+# early when the output dir is absent and removes any file whose source is gone,
+# so running it unconditionally cleans a retired cross-cutting output correctly.
 for stage_dir in "$BUILDER_SOURCES/stages"/*; do
-    if [[ -d "$stage_dir/cross-cutting" ]]; then
-        stage=$(basename "$stage_dir")
-        output_dir_name=$(get_output_dir "$stage")
-        clean_output_dir "$AGENTS_DIR/$output_dir_name/cross-cutting" "$stage_dir/cross-cutting"
-    fi
+    stage=$(basename "$stage_dir")
+    output_dir_name=$(get_output_dir "$stage")
+    clean_output_dir "$AGENTS_DIR/$output_dir_name/cross-cutting" "$stage_dir/cross-cutting"
 done
 
 for stage_dir in "$BUILDER_SOURCES/stages"/*; do

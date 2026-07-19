@@ -54,7 +54,7 @@ An escalated or lateral item is often a **cross-boundary requirement** — somet
 - **CROSS-BOUNDARY-PEER (P1)** — a non-contract requirement a **peer component** must uphold, which the peer can satisfy entirely within its own spec (e.g. "admin-views must render candidate free-text fields as plain text"). Route **laterally** to the target peer's `pending-issues.md`, `Kind: CROSS-BOUNDARY-PEER`, `Status: UNRESOLVED`. Consumed at the peer's next review.
 - **CROSS-BOUNDARY-UPSTREAM (P2)** — a cross-component **invariant** or shared **design decision** no single component owns (audit-trail failure posture, retention coordination, a shared type/format). A component must not bind a peer to a system invariant. Route **upstream** to Architecture (or Foundations) `pending-issues.md`, `Kind: CROSS-BOUNDARY-UPSTREAM`, `Status: AWAITS_UPSTREAM_REVISION` — an open obligation actioned when that stage is next revised.
 
-**Triage**: if the target could satisfy it within its own spec → P1; if it coordinates two or more components or must be pinned once centrally → P2. When unsure, prefer P2 (escalate upstream). Data *contracts* are **not** this disposition — they flow through the cross-cutting registry / CTR machinery.
+**Triage**: if the target could satisfy it within its own spec → P1; if it coordinates two or more components or must be pinned once centrally → P2. When unsure, prefer P2 (escalate upstream). Data *contracts* are **not** this disposition — a cross-component data contract **absent from the frozen registry** is escalated `CROSS-BOUNDARY-UPSTREAM` to Architecture by the absent-from-freeze detector (which runs at create round-0 and every review round); do not register it locally.
 
 See `docs/cross-boundary-requirements.md` for the full model.
 

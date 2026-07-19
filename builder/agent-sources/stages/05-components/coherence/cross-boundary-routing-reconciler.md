@@ -41,7 +41,7 @@ Extract every cross-boundary **routing claim** from the component specs, verify 
 Scan each spec's cross-boundary sections (typically §7 "Cross-boundary requirements" and §12, but scan the whole spec). A **routing claim** is a statement that asserts a cross-boundary requirement was **routed / recorded / logged to a named target's `pending-issues.md`** — e.g. "routed to X's pending-issues", "recorded/logged in X's pending-issues (`Kind: CROSS-BOUNDARY-PEER`)", "escalated to Architecture/Foundations (`AWAITS_UPSTREAM_REVISION`)".
 
 - A **bare peer-mention** with no routing assertion ("X displays the field…", "the pipeline owns Y") is **not** a claim — do not flag it.
-- **Exclude data contracts** — producer/consumer data contracts flow through the cross-cutting registry / CTR machinery, **not** `pending-issues.md`. They are out of scope here.
+- **Exclude data contracts** — a normal producer/consumer data contract is **not** a routing item and is not routed here. A data contract **absent from the frozen registry** is escalated by the absent-from-freeze detector, which writes its `CROSS-BOUNDARY-UPSTREAM` entry **directly** to `04-architecture/versions/pending-issues.md` — it is **not** a producer-spec-authored routing claim, so it is **outside your claim-scope**: do not treat a detector-written escalation as an unreconciled routing claim (that would be a false positive / loop).
 
 ### Step 2: Resolve each claim
 
@@ -111,7 +111,7 @@ Do **not** infer a match from a loosely-related entry (that hides a real miss), 
 
 - **Verify, never trust the claim** — a producing spec's "routed to X" is the claim under test; the only evidence is a matching entry in X's actual `pending-issues.md`, which you read yourself. This independence is the whole point.
 - **Read-only** — you check and report. You do **not** write the missing entries, edit specs, or route anything. Routing the gaps is the orchestrator's/human's job; the report is their worklist.
-- **Claim vs mention** — flag only statements that assert routing to a named target; ignore bare peer-mentions. **Exclude data contracts** (registry/CTR machinery, not pending-issues).
+- **Claim vs mention** — flag only statements that assert routing to a named target; ignore bare peer-mentions. **Exclude data contracts** — a normal data contract is not routed here; an absent-from-freeze escalation is written **directly** to 04 pending-issues by the absent-from-freeze detector (not a producer-authored routing claim — outside your claim-scope).
 - **Match on substance, origin-agnostic** — match `target + source + concern-gist`, not IDs; a close-but-unclear candidate is WRONG-TARGET/uncertain, not a silent pass or fail.
 - **Generic** — reason about "component / target / peer / upstream stage" in the abstract; embed no specific project's components, contracts, or entities.
 

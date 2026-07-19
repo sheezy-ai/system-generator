@@ -325,7 +325,7 @@ When a cross-component requirement is identified, classify it (P1 vs P2 — see 
 1. **P1 — peer requirement** (the target peer can satisfy it within its own spec): **identify the target component(s)** from the human's request and **write to** `system-design/05-components/versions/[target-component]/pending-issues.md` with `Kind: CROSS-BOUNDARY-PEER`, `Status: UNRESOLVED`. Lateral items (component → component) always go to the target's pending-issues file, regardless of whether the target spec exists yet.
 2. **P2 — cross-component invariant / shared design decision** (no single component owns it — audit-trail failure posture, retention coordination, a shared type/format): **write to** `system-design/04-architecture/versions/pending-issues.md` (or `system-design/03-foundations/versions/pending-issues.md`) with `Kind: CROSS-BOUNDARY-UPSTREAM`, `Status: AWAITS_UPSTREAM_REVISION`. A component must not bind a peer to a system invariant — escalate it.
 
-**Triage**: target can satisfy it within its own spec → P1; it coordinates two or more components or must be pinned once centrally → P2. When unsure, prefer P2. Data *contracts* are **not** this disposition (they flow through the cross-cutting registry / CTR).
+**Triage**: target can satisfy it within its own spec → P1; it coordinates two or more components or must be pinned once centrally → P2. When unsure, prefer P2. Data *contracts* are **not** this disposition — a cross-component data contract **absent from the frozen registry** is escalated `CROSS-BOUNDARY-UPSTREAM` to Architecture by the absent-from-freeze detector (which runs at create round-0 and every review round); do not register it locally.
 
 ### Pending Issue Entry Format
 

@@ -26,6 +26,7 @@ You READ output files only to extract statuses/counts and to inject TODO markers
 - Enrichment Applicator: `{{AGENTS_PATH}}/05-components/create/enrichment-applicator.md`
 - Requirements Extractor: `{{AGENTS_PATH}}/05-components/create/requirements-extractor.md`
 - Coverage Checker: `{{AGENTS_PATH}}/05-components/create/coverage-checker.md`
+- Absent-From-Freeze Detector: `{{AGENTS_PATH}}/05-components/create/absent-from-freeze-detector.md`
 - Depth Checker: `{{AGENTS_PATH}}/05-components/create/depth-checker.md`
 - Stage-Appropriateness Verifier: `{{AGENTS_PATH}}/universal-agents/stage-appropriateness-verifier.md`
 - Gap Formatter: `{{AGENTS_PATH}}/universal-agents/gap-formatter.md`
@@ -147,7 +148,19 @@ Independently verify the draft addresses every requirement the Architecture assi
    Output: {round-dir}/00-coverage-report.md
    ```
 
-4. **Wait**; read the coverage report summary — extract PASS / GAPS_FOUND / CONFIRM_NEEDED and the GAP + CONFIRM-INTENTIONAL counts.
+3b. **Spawn Absent-From-Freeze Detector** (sibling to the Coverage Checker — a body-driven scan that runs unavoidably at create round-0 and every subsequent round; it is **not** gated behind any optional phase). Unlike the Coverage Checker (registry/checklist-bounded — blind to a contract absent from the freeze), this reads the **body** and diffs its produced **and** consumed cross-component interfaces against the frozen registry:
+   ```
+   Follow the instructions in: {{AGENTS_PATH}}/05-components/create/absent-from-freeze-detector.md
+
+   Input:
+   - Component body (draft): {round-dir}/00-draft-spec.md
+   - Frozen cross-cutting registry: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/cross-cutting.md
+   - Architecture pending-issues (escalation target): {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/versions/pending-issues.md
+
+   Output: {round-dir}/00-absent-from-freeze-report.md
+   ```
+
+4. **Wait** for both the Coverage Checker and the Absent-From-Freeze Detector. Read the coverage report summary — extract PASS / GAPS_FOUND / CONFIRM_NEEDED and the GAP + CONFIRM-INTENTIONAL counts. Also read the detector report verdict (COVERED | ABSENCES_ESCALATED) and its escalated/suppressed counts — the detector writes any `CROSS-BOUNDARY-UPSTREAM` escalations **directly** to Architecture's pending-issues (a backward edge); record the counts in the Step 9b history entry but do **not** gate the round on them (they are upstream obligations, not local gaps).
 
 5. **If GAPS_FOUND or CONFIRM_NEEDED**: add each GAP item as a `[TODO: Coverage gap — ...]` marker, and each CONFIRM-INTENTIONAL item (an owned-entity PRD §5 field absent from the draft where the Architecture is silent/refined) as a `[TODO: Coverage confirm — <Entity.field> (PRD §5): present in the PRD conceptual data model but absent from this spec. Confirm deliberate MVP scoping (record an explicit waiver) or add the field.]` marker, to the draft via targeted Edit, so the Gap Formatter extracts both alongside the Generator's own gap markers.
    - **Re-raise suppression (round 2+)**: before injecting a **Coverage-confirm** marker, consult the re-raise ledger `create-decisions.md` in the component directory (if it exists). If this exact field was **waived** in a prior round and its situation is unchanged (still Architecture-silent/refined and still absent), **do not re-inject** the marker — the waiver stands; note the suppression in the history entry. (GAP items and any field whose situation changed are still injected normally.)

@@ -201,7 +201,8 @@ The explore→generate cycle can repeat. Round 1 explores from Architecture + Fo
 agents/05-components/
 ├── initialize/
 │   ├── orchestrator.md             # One-time setup (run before first spec)
-│   └── deferred-items-processor.md  # Splits deferred items by component
+│   ├── deferred-items-processor.md  # Splits deferred items by component
+│   └── interface-schema-author.md   # Authors step-0 §7 cross-cutting interface schema-specs
 ├── create/
 │   ├── orchestrator.md             # Per-component workflow ([Explore → Generate → Gap Resolution]* → Promote)
 │   ├── concern-identifier.md       # Identifies design concerns for exploration
@@ -214,11 +215,8 @@ agents/05-components/
 │   ├── requirements-extractor.md   # Extracts Architecture requirements checklist
 │   ├── coverage-checker.md         # Verifies draft covers all checklist items
 │   ├── depth-checker.md            # Verifies draft meets minimum specification depth
-│   └── author.md                   # Applies resolved gap discussions
-├── cross-cutting/
-│   ├── orchestrator.md             # Populate cross-cutting contracts
-│   ├── contract-extractor.md       # Extract contracts from one component spec
-│   └── contract-reconciler.md      # Reconcile consumed interfaces against registered contracts
+│   ├── author.md                   # Applies resolved gap discussions
+│   └── absent-from-freeze-detector.md # Escalates cross-component contracts absent from the frozen registry (CROSS-BOUNDARY-UPSTREAM)
 ├── coherence/
 │   └── orchestrator.md             # Stage coherence review
 └── review/
@@ -268,11 +266,7 @@ system/05-components/
     ├── workflow-state.md            # Stage-level state (all components)
     ├── cross-cutting/
     │   ├── deferred-items.md        # Items spanning multiple components
-    │   ├── population-state.md      # Cross-cutting population progress tracker
-    │   ├── extraction/              # Per-component extraction reports
-    │   │   └── [component-name].md
-    │   └── reconciliation/          # Per-component reconciliation reports
-    │       └── [component-name].md
+    │   └── interface-schemas.md     # Step-0 §7 interface schema-authoring report
     ├── coherence/                   # Stage coherence review reports
     │   └── [date]-coherence-report.md
     ├── [component-a]/
@@ -354,14 +348,6 @@ Then run the review workflow for:
 Start or resume the review.
 ```
 
-**Populate Cross-Cutting Contracts:**
-```
-Read the Cross-Cutting Population Orchestrator at:
-agents/05-components/cross-cutting/orchestrator.md
-
-Populate cross-cutting specification from completed specs.
-```
-
 **Run Stage Coherence Review:**
 ```
 Read the Stage Coherence Review Orchestrator at:
@@ -418,25 +404,7 @@ Component Specs should stabilize before Tasks are generated. If a spec changes s
 
 ## Stage-Wide Workflows
 
-Beyond individual component creation and review, Component Specs has two stage-wide workflows:
-
-### Cross-Cutting Population
-
-Extracts data contracts from completed component specs and populates the cross-cutting specification. Processes one component at a time in dependency order using three agents: an orchestrator, a contract extractor, and a contract reconciler.
-
-**When to run:**
-- All application-layer component specs are complete and promoted
-- You want to establish a central contract registry for verification
-
-**What it does:**
-1. Processes each component in dependency order (upstream producers first)
-2. **Extracts** produced and consumed interfaces from each spec (contract-extractor agent)
-3. **Reconciles** consumed interfaces against already-registered producer contracts (contract-reconciler agent)
-4. **Registers** produced contracts to `specs/cross-cutting.md` with schema, consumer expectations, and verification notes
-5. **Finalises** with source traceability, reconciliation summary, and deferred items validation
-6. Runs fully automatically — presents a single summary at the end
-
-Contracts are registered as DEFINED. The contract verifier in the review workflow transitions them to VERIFIED during subsequent reviews.
+Beyond individual component creation and review, Component Specs has one stage-wide workflow (Stage Coherence Review). The cross-cutting contract registry is **materialized up-front** by the Promote stage (frozen from Architecture §7/§8), not populated from component bodies — the legacy Cross-Cutting Population workflow that extracted/reconciled contracts from finished specs has been **retired** (obsolete under the materialized model). Routine conformance of realized bodies against the frozen registry (`MATERIALIZED → DEFINED → VERIFIED`) is now performed by **coherence Phase 4**, and a cross-component contract a body realizes but that is **absent from the frozen registry** is caught by the per-component **absent-from-freeze detector** (create round-0 and every review round), which escalates it `CROSS-BOUNDARY-UPSTREAM` to Architecture for the next re-freeze.
 
 ### Stage Coherence Review
 
@@ -457,8 +425,7 @@ Verifies cross-component coherence before stage sign-off. Addresses issues that 
 |-------|------|-------------|
 | 1 | Gather State | Read component statuses, count pending issues, check cross-cutting status |
 | 2 | Pending Issues Resolution | Aggregate unresolved issues by target, triage (APPLY/DEFER/REJECT), apply resolutions |
-| 3 | Cross-Cutting Population | Refresh cross-cutting contracts if needed (delegates to cross-cutting orchestrator) |
-| 4 | Contract Verification | Build contract matrix, verify producer/consumer alignment, resolve mismatches |
+| 4 | Contract Conformance & Verification | Body-check MATERIALIZED contracts (→ DEFINED), verify producer/consumer alignment (DEFINED → VERIFIED), resolve mismatches |
 | 5 | Consistency Check | Scan for naming/schema drift (enums, field naming, schema patterns) |
 | 6 | Coherence Report | Compile findings into `versions/coherence/[date]-coherence-report.md` |
 | 7 | Update Stage State | Add history entry to workflow-state.md |

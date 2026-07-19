@@ -167,7 +167,7 @@ For each §7 cross-cutting **interface** whose schema layer Architecture leaves 
    - **subagent_type**: `general-purpose`
    - **prompt**:
      ```
-     Follow the instructions in: {{AGENTS_PATH}}/05-components/cross-cutting/interface-schema-author.md
+     Follow the instructions in: {{AGENTS_PATH}}/05-components/initialize/interface-schema-author.md
 
      Input:
      - Architecture Overview: system-design/04-architecture/architecture.md
