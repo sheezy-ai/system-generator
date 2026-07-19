@@ -49,7 +49,9 @@ Because the promoter is the **sole producer of `architecture.md`** and Promote i
 - [ ] Step 3: Promote (split)
 - [ ] Step 3b: Materialize the contract registry
 - [ ] Step 3c: Materialization-fidelity check
-- [ ] Step 4: Finalise
+- [ ] Step 4: Finalise (publish registry)
+- [ ] Step 4b: Write-direction re-verify flag (MERGE only)
+- [ ] Step 4c: Record the freeze & mark complete
 
 ## History
 - YYYY-MM-DD HH:MM: Round [N] (Promote) started — freezing round-[R]-review
@@ -246,6 +248,7 @@ Output: [resolved file path]
     Input:
     - Reviewed Architecture Overview: system-design/04-architecture/versions/round-[N]-promote/00-architecture.md
     - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
+    - Freeze token: round-[N]-promote   (stamp into architecture.md's header as **Frozen-At** — the whole-registry freeze identity; must match the token passed to the materializer at Step 3b)
 
     Output:
     - system-design/04-architecture/architecture.md
@@ -296,6 +299,7 @@ Output: [resolved file path]
     - Architecture pending-issues: system-design/04-architecture/versions/pending-issues.md
     - Mode: [FIRST_FREEZE | MERGE]
     - Prior-freeze baseline (MERGE only): system-design/04-architecture/versions/round-[N]-promote/00-prior-published-architecture.md
+    - Freeze-Token: round-[N]-promote   (stamp into the registry Status block as **Frozen-At** — the whole-registry freeze identity; MUST be the same token passed to the promoter at Step 3, both modes)
 
     Output:
     - Registry ORIGINAL (round folder): system-design/04-architecture/versions/round-[N]-promote/cross-cutting.md
@@ -343,6 +347,35 @@ Output: [resolved file path]
 
 27. **Publish the registry to 05 — ONLY now, after fidelity CLEAN** (`cp`): copy `round-[N]-promote/cross-cutting.md` → `system-design/05-components/specs/cross-cutting.md`. This is the **single publish point** — the round-folder original is the source of truth; `05-specs` receives the fidelity-verified copy that 05-init consumes. A Step-3c `MISMATCH` HALTs *before* reaching here, so an unverified registry is **never** published and the prior `05-specs` registry (if any) stays intact. The two freeze reports (`materialization.md`, `materialization-fidelity.md`) remain **round-folder records only** — no live 05 agent reads them. Verify `system-design/05-components/specs/cross-cutting.md` now exists with `Population: MATERIALIZED` after the copy; if the copy failed → **Error**, do **not** mark COMPLETE.
 
+---
+
+### Step 4b: Write-direction re-verify flag (MERGE only)
+
+**MERGE only — SKIP this entire step on FIRST_FREEZE** (nothing was previously verified on a first freeze, so there is nothing to re-verify — record "N/A (FIRST_FREEZE)" in the state history and go straight to Step 4c). Runs **after** the registry is published (item 27 above) so producers + patterns are read from the final registry.
+
+This step keeps the materializer a **pure projector** — the **orchestrator** (not the materializer) writes the durable re-verify flags. It makes the write-direction re-verify need **prominent** in each producer's own `pending-issues.md`, rather than merely implicit in a reset-to-`DEFINED` status.
+
+**Update state file**: Set Step 4b, status = IN_PROGRESS.
+
+**Inputs (the published registry alone cannot substitute — a contract can be `DEFINED` without having *changed this freeze*):**
+- **Changed-set** — from `round-[N]-promote/materialization.md`, the `## MERGE Status Decisions` table: the CTRs whose `Changed?` column is **CHANGED** (Track A §8/§7 or Track B PRD §5 fired). These are the only contracts that changed *this* round; the reset-to-`DEFINED` status is **not** the changed-set.
+- **Pattern + Producer(s)** — for each changed CTR, read from the published registry (`system-design/05-components/specs/cross-cutting.md`).
+
+**For each CHANGED contract whose Pattern is `write-direction`:**
+- For **each** of its **Producer(s)** — a write-direction contract may carry 2+ producers in some projects, so **flag every one; do NOT assume a single producer**:
+  - If `system-design/05-components/versions/[producer]/` does **not** exist (e.g. a component **newly added to §6 in this same re-freeze**), **`mkdir -p`** it and create an empty `pending-issues.md` stub first.
+  - Append a durable re-verify entry to `system-design/05-components/versions/[producer]/pending-issues.md` using the **lateral shape** (`{{GUIDES_PATH}}/pending-issues-format.md`): `Kind: CROSS-BOUNDARY-PEER`, `Status: UNRESOLVED`, `Severity: HIGH`, `Target: [producer]`, `Source: Architecture Promote re-freeze, round-[N]-promote`. Body: *"CTR-NNN's write-direction obligation changed at re-freeze `round-[N]-promote` — re-verify the producer's conformance to the new obligation."* The producer's next **review** consumes it (`{{AGENTS_PATH}}/05-components/review/orchestrator-pre-discussion.md`, Step 0 pending-issues read), so the need is durable + prominent, not merely inferable from a `DEFINED` status.
+
+**Composed-query / invariant contracts — NO flag.** Their re-verify rests **entirely on coherence being run as the stage-close gate**: `{{AGENTS_PATH}}/05-components/coherence/orchestrator.md` Phase 4 re-verifies *all* contracts wholesale when run, and it is **human-invoked**. This is a **known, deliberate reliance** stated here — not a silent gap. **Honest caveat:** coherence's producer-schema-vs-consumer-input method *iterates* every contract but verifies multi-/interface-producer composed-query contracts only **weakly** — "covered by coherence" means *iterated*, not rigorously verified (pre-existing, not a Slice-6 defect; rigorous ownerless verification is deferred-subsystem work).
+
+**Known consumption gap (do NOT silently rely on create-time pickup):** the create workflow does **not** consume `pending-issues.md` (`{{GUIDES_PATH}}/pending-issues-format.md` states plainly: "create does not read `pending-issues.md`" — a component authors inside-out from upstream docs; cross-component reconciliation happens at **review**). So for a **newly-added producer** (created before its first review), the flag is consumed at that producer's **first review**, not at create. Because Create → Review always precedes stage sign-off, the flag is **durable and eventually consumed, not lost** — but there is no create-time consumption. (04→05 write ownership: promote writing a 05 producer pending-issue is accepted and named — consistent with promote already publishing the 05 registry; this is a lightweight flag, not the full verifier, which is the deferred L2 piece.)
+
+**Update state file**: Mark Step 4b complete (record the flagged producers + CTRs, or "N/A (FIRST_FREEZE)"). **Automatically proceed to Step 4c.**
+
+---
+
+### Step 4c: Record the freeze & mark complete
+
 28. **Write `round-[N]-promote/promote-metadata.md`** (the freeze record):
     ```markdown
     # Promote Round [N]
@@ -382,7 +415,7 @@ Output: [resolved file path]
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Step 1 → 2 → 3 → 3b → 3c → 4: proceed automatically **unless** the gate (Step 2) HALTs, the materializer escalates a (D) contract (Step 3b), or the fidelity check returns `MISMATCH` (Step 3c).
+- Step 1 → 2 → 3 → 3b → 3c → 4 → 4b → 4c: proceed automatically **unless** the gate (Step 2) HALTs, the materializer escalates a (D) contract (Step 3b), or the fidelity check returns `MISMATCH` (Step 3c). Step 4b (write-direction re-verify flag) is MERGE-only and never HALTs — it writes durable producer flags and proceeds.
 
 **Human checkpoints (orchestrator handles these directly):**
 - **Step 2 (gate)** — if EITHER reviewer returns a HIGH finding: WAITING_FOR_HUMAN. Every HIGH gets a recorded disposition (Resolved → log to `pending-issues.md` + HALT for a Review round; Deferred → `future.md`; Dismissed / Override → `decisions.md`) before the promoter runs.

@@ -24,6 +24,7 @@ Given the Architecture Overview and the PRD, populate the cross-cutting registry
 - Cross-cutting registry (live 05-specs, `system-design/05-components/specs/cross-cutting.md`) — **read for status only**: on `FIRST_FREEZE` there is nothing to preserve; on `MERGE` this is the **live, status-bearing** registry you read for each CTR's current status. **You do not write here** — you write the new registry to the **output path the orchestrator passes** (the promote round folder, below), and the orchestrator publishes it to 05-specs after the fidelity gate
 - Architecture pending-issues path (`system-design/04-architecture/versions/pending-issues.md`) — the escalation target for under-pinned contracts
 - **Mode** (`FIRST_FREEZE` | `MERGE`) — supplied by the orchestrator; selects the write behaviour below
+- **Freeze-Token** (`round-[N]-promote`) — supplied by the orchestrator; the **whole-registry freeze identity** you stamp as `**Frozen-At**` into the registry `Status` block (in **both** modes). It must match the `**Frozen-At**` the promoter stamps into `architecture.md`'s header, so 05-init can confirm the registry is not stale relative to the architecture
 - **Prior-freeze baseline** (`MERGE` only — `system-design/04-architecture/versions/round-[N]-promote/00-prior-published-architecture.md`) — the previously-published `architecture.md`, the Track A source you diff the incoming §8/§7 against. If absent, treat the run as `FIRST_FREEZE` (nothing to diff)
 
 **Output** (paths supplied by the orchestrator — write where it points; do **not** hard-code 05-specs):
@@ -97,7 +98,10 @@ Do **not** invent the missing decision, and do **not** defer it into a component
 
 ### Step 5: Write the registry
 
-Set **Population: MATERIALIZED** and record that authority remains Architecture §7/§8. Re-derive and write every contract's **obligation / `Binds` / Pattern / Producer / Consumer** columns from the incoming §7/§8/PRD §5 in **both** modes — the re-derivation of *obligations* is identical. The modes differ **only** in how each contract's **Status** is set (a fresh `MATERIALIZED` on `FIRST_FREEZE` vs. a preserved/merged status on `MERGE`) — in both modes you write the new registry to the round-folder output path:
+Set **Population: MATERIALIZED** and record that authority remains Architecture §7/§8. **Stamp `**Frozen-At**: [Freeze-Token]`** (the `round-[N]-promote` id the orchestrator passes) into the `Status` block in **both** modes — this is the whole-registry freeze identity, and it must match the `**Frozen-At**` the promoter stamps into `architecture.md`'s header so 05-init can verify the registry is not stale versus the architecture. Re-derive and write every contract's **obligation / `Binds` / Pattern / Producer / Consumer** columns from the incoming §7/§8/PRD §5 in **both** modes — the re-derivation of *obligations* is identical. The modes differ **only** in how each contract's **Status** is set (a fresh `MATERIALIZED` on `FIRST_FREEZE` vs. a preserved/merged status on `MERGE`) — in both modes you write the new registry to the round-folder output path:
+
+<!-- INVARIANT (E1/E2 freeze-identity rests on this — do not break it without revisiting Slice 6): every promote RE-PUBLISHES the registry; there is NO skip-gate. This agent re-projects and re-stamps `Frozen-At` UNCONDITIONALLY in both modes (Step 5 here), and promote/orchestrator.md publishes the registry to 05-specs UNCONDITIONALLY after fidelity returns CLEAN (Step 4 publish). A future skip-gate that reused a prior registry without re-stamping `Frozen-At` would desynchronise the registry token from architecture.md's token and break the 05-init staleness check — revisit E1/E2 if one is ever added. -->
+
 
 - **`FIRST_FREEZE`** — clean full re-projection, written to the **round-folder output path** the orchestrator passes. Every materialized contract carries Status **MATERIALIZED** (distinct from the post-hoc `DEFINED`/`VERIFIED` the `contract-extractor`/`contract-reconciler` and `contract-verifier` use later against real bodies). This is the original behaviour (a from-scratch projection); keep it behaviourally equivalent.
 - **`MERGE`** — write the merged registry to the **round-folder output path** (not the live registry), setting each CTR's Status by the **two-track change detection + fail-safe status rule** below, reading the **live 05-specs registry** for the current status you preserve. **Never blanket-stamp `MATERIALIZED`** — that would clobber the `DEFINED`/`VERIFIED` conformance 05 accrued (the KT2 violation at re-freeze).
@@ -147,6 +151,7 @@ Summarize: contracts materialized, bindings resolved, gaps escalated, and REMOVE
 
 **Population**: MATERIALIZED
 **Materialized**: [date]
+**Frozen-At**: round-[N]-promote   ← the whole-registry freeze identity (the Freeze-Token the orchestrator passed). Stamped in BOTH modes; must equal the `Frozen-At` in `architecture.md`'s header. 05-init compares the two for staleness.
 **Freeze Mode**: [FIRST_FREEZE | MERGE — on MERGE, obligations re-projected from the incoming §7/§8/PRD §5; 05-owned status preserved on unchanged contracts, reset to DEFINED on changed ones]
 **Authority**: Architecture §7 (Cross-Cutting Concerns) + §8 (Data Contracts). This registry is a materialized **projection** of the frozen upstream contracts — authoritative only by reference to §7/§8. It is not an independent authority and no party ratifies it. Component creation consumes it as a resolved contract layer.
 

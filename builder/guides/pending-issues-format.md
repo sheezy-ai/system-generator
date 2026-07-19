@@ -23,6 +23,7 @@ Component Specs also has **per-component** pending-issues files for lateral/cros
 - **Enrichment Scope Filter** (05-components create) appends cross-boundary requirements surfaced during exploration — P1 lateral to a peer, P2 upstream to Architecture/Foundations
 - **Author** (05-components create and review) appends cross-boundary requirements surfaced during gap/issue resolution, and marks issues as RESOLVED
 - **Pending Issue Resolver** updates status for human-decided resolutions (APPLY → RESOLVED, DEFER → DEFERRED, REJECT → WONT_FIX)
+- **Architecture Promote** (`04-architecture/promote`) — on a re-freeze (MERGE), appends a durable re-verify flag (`CROSS-BOUNDARY-PEER`, `HIGH`) to each affected write-direction producer's file when its contract obligation changed at the freeze; consumed at that producer's next review (Slice 6)
 
 ## Who Reads
 

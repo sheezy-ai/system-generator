@@ -41,6 +41,13 @@ Run the initialization.
 
 **Precondition — the frozen contract registry must already exist (produced by Promote).** Before any component work, assert `system-design/05-components/specs/cross-cutting.md` exists with a materialized `Population` status (`MATERIALIZED`). If it is **absent**, or its `Population` is `MATERIALIZING` (an interrupted freeze) or any non-materialized value → **Error**: "The frozen contract registry is not present. Run the Promote stage (which materializes it) before initializing Component Specs." 05-init **consumes** the frozen registry — as of Slice 4 it no longer produces it (materialization + fidelity were relocated to the Promote stage).
 
+**Precondition — freeze-identity check (the registry must not be stale relative to the current architecture).** Read the `**Frozen-At**` value from the registry `Status` block (`system-design/05-components/specs/cross-cutting.md`) and the `**Frozen-At**` value from the current `architecture.md` header (`system-design/04-architecture/architecture.md`), then:
+- **Both present and equal** → the registry was frozen from the current architecture. **Proceed.**
+- **Both present but they differ** → **Error (stale)**: "The contract registry (`Frozen-At: [X]`) is stale relative to the current architecture (`Frozen-At: [Y]`) — re-run the Promote stage to re-freeze before initializing Component Specs." (Catches the promote-HALT case: `architecture.md` is round-N but the still-published registry at 05-specs is round-(N-1).)
+- **Either token absent** (a pre-Slice-6 artifact produced before freeze identity was stamped) → this is **not** a staleness error. **Require re-promote**, worded as identity-stamping: "Freeze identity not established (pre-Slice-6 artifact) — re-run the Promote stage to stamp `Frozen-At` before initializing Component Specs." Do **not** report a missing token as stale (no false-positive). This guarantees the token is always present going forward.
+
+Comparison is **equality of the `round-[N]-promote` id strings only** — no ordering, recency, or comparison beyond equality (that would be ledger machinery, deferred).
+
 1. **Read Architecture Overview** to find the Component Spec List section (§6)
 
 2. **Extract components**:
@@ -339,6 +346,8 @@ system-design/
 | Deferred Items Processor fails | Error: Report failure, do not create state file |
 | Interface Schema-Author fails (no report written) | Error: Report failure. (Zero interfaces authored is NOT a failure — a written report with 0 authored is a valid outcome.) |
 | Frozen registry missing / not materialized (`specs/cross-cutting.md` absent or `Population` not `MATERIALIZED`) | Error: "The frozen contract registry is not present. Run the Promote stage (which materializes it) before initializing Component Specs." (materialization + fidelity moved to Promote in Slice 4) |
+| Registry stale vs architecture (both `Frozen-At` present but differ) | Error: "The contract registry (`Frozen-At: [X]`) is stale relative to the current architecture (`Frozen-At: [Y]`) — re-run the Promote stage to re-freeze before initializing Component Specs." (equality check only — catches the promote-HALT round-mismatch case) |
+| Freeze identity not stamped (either `Frozen-At` absent — pre-Slice-6 artifact) | Error: "Freeze identity not established (pre-Slice-6 artifact) — re-run the Promote stage to stamp `Frozen-At` before initializing Component Specs." (NOT a staleness error — require re-promote to stamp identity; do not false-positive a missing token as stale) |
 
 ---
 

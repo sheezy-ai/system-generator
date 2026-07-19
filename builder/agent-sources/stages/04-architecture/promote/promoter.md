@@ -15,6 +15,7 @@ Transform a reviewed Architecture Overview into three focused documents:
 |-------|------|---------|
 | Reviewed Architecture Overview | Provided at invocation | Source document to split |
 | Guide | `guides/04-architecture-guide.md` | Validation reference |
+| Freeze token | Provided at invocation (`round-[N]-promote`) | Stamp into `architecture.md`'s header as `**Frozen-At**` — the whole-registry freeze identity (must match the token the contract-materializer stamps into the registry) |
 
 ---
 
@@ -97,6 +98,16 @@ Preserve the original 9-section structure. Within each section:
 5. Simplify §5 Key Technical Decisions to brief statements with decisions.md references
 6. Replace full Design Decisions section (if present) with brief notes referencing decisions.md
 7. Keep §9 Open Questions as a section header with a reference to future.md
+
+### Stamp the freeze identity into the header (required — insert, do not merely preserve)
+
+The promoter is the **sole producer** of `architecture.md`, and today it **preserves** the reviewed doc's incoming header rather than emitting a fresh one. This edit adds **one explicit header write**: **insert (or update) a `**Frozen-At**: [freeze-token]` line** into `architecture.md`'s **real header block** — the block at the top of the file that carries `**Version**` / `**Last Updated**` (place it directly after the `**Last Updated**` line). Use the `round-[N]-promote` freeze token passed at invocation.
+
+This is the **whole-registry freeze identity**. It MUST match the `**Frozen-At**` the contract-materializer stamps into the registry `Status` block, so 05-init can confirm the registry is not stale relative to the architecture.
+
+- **Do NOT stamp the `**Source Version**` line** in the future.md template — that is the Future Planning doc, not `architecture.md`'s header.
+- **If a `**Frozen-At**` line already exists** in the header (a re-freeze) → **overwrite** its value with the current freeze token (do not append a duplicate).
+- **Fallback — no `**Version**` / `**Last Updated**` header exists:** insert a **minimal provenance line** immediately under the top-level `# ...` title of `architecture.md`: `**Frozen-At**: [freeze-token]`. Do not fabricate a Version or date you were not given — the single `Frozen-At` line is sufficient to establish freeze identity.
 
 ---
 
@@ -265,7 +276,7 @@ This document captures design rationale, trade-offs, and deliberate architectura
    - Rationale/decision content → decisions
 4. **Extract** content, noting which section it came from
 5. **Group** extracted content by theme within each target document
-6. **Write** the clean Architecture Overview with brief reference notes where content was extracted
+6. **Write** the clean Architecture Overview with brief reference notes where content was extracted, and **stamp the freeze identity** into its header: insert/overwrite `**Frozen-At**: [freeze-token]` per "Stamp the freeze identity into the header" above (fallback: a minimal provenance line under the title if no `**Version**`/`**Last Updated**` header exists)
 7. **Write** the future planning doc with grouped future content
 8. **Write** the decisions doc with grouped rationale content
 9. **Validate** output Architecture Overview against guide (see Quality Checks)
@@ -302,6 +313,7 @@ For each of the 9 sections, verify the output Architecture Overview still covers
 - [ ] No orphaned references to removed content
 - [ ] Component Spec List (§6) is complete and unmodified
 - [ ] Data Contracts (§8) are complete and unmodified
+- [ ] `**Frozen-At**: [freeze-token]` present in architecture.md's header (inserted/overwritten this promote, not merely preserved; fallback provenance line used only if no Version/Last Updated header exists)
 - [ ] Future planning doc has clear groupings
 - [ ] Decisions doc captures all rationale content
 - [ ] Cross-references between all three docs are accurate

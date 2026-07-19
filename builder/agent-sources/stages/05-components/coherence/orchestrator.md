@@ -124,14 +124,14 @@ Proceed? (y/n)
 
 ---
 
-### Phase 3: Cross-Cutting Population
+### Phase 3: Cross-Cutting Conformance
 
 1. **Check cross-cutting.md status**:
    - **If MATERIALIZED**: Ask human whether to run **conformance reconciliation** now — reconcile the realized bodies against the up-front materialized registry (the populate orchestrator handles this mode)
    - **If COMPLETE** (already reconciled): Ask human whether to refresh (re-reconcile from current specs)
    - **If human declines**: Skip to Phase 4
 
-2. **If populating**, invoke the Cross-Cutting Population Orchestrator:
+2. **If reconciling**, invoke the Cross-Cutting Population Orchestrator:
    ```
    Read the Cross-Cutting Population Orchestrator at:
    {{AGENTS_PATH}}/05-components/cross-cutting/orchestrator.md
