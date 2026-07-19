@@ -73,6 +73,14 @@ Trigger: [description of what needs expanding, or path to a pending issue]
 
 The expand workflow adds new capability areas or scope changes to the PRD. Same phases as Blueprint expand but includes alignment verification against Blueprint. Use when downstream stages (Foundations, Architecture) discover the PRD needs new capabilities that weren't in the original scope. Expand never promotes — always follow with a Review round.
 
+**Promote:**
+```
+Execute the PRD promote workflow using the orchestrator at:
+{{AGENTS_PATH}}/02-prd/promote/orchestrator.md
+```
+
+Run after a Review round completes. Promote is a separate workflow (not a step of Review): it guards that the last completed round was Review, then splits the reviewed PRD into `prd.md` (clean requirements), `decisions.md` (rationale), and `future.md` (deferred items), recorded under `round-N-promote/`. Review no longer promotes at exit — it completes and recommends running Promote.
+
 ### Foundations
 
 **Create:**
@@ -99,6 +107,14 @@ Trigger: [description of what needs expanding, or path to a pending issue]
 
 The expand workflow adds new conventions or technology decisions to Foundations. Same phases as PRD expand with alignment verification against Blueprint. Use when downstream stages discover Foundations needs new conventions (e.g., a new external integration pattern, a new trust boundary requiring security conventions). Expand never promotes — always follow with a Review round.
 
+**Promote:**
+```
+Execute the Foundations promote workflow using the orchestrator at:
+{{AGENTS_PATH}}/03-foundations/promote/orchestrator.md
+```
+
+Run after a Review round completes. Promote is a separate workflow (not a step of Review): it guards that the last completed round was Review, then splits the reviewed Foundations into `foundations.md`, `decisions.md`, and `future.md`, recorded under `round-N-promote/`. Review no longer promotes at exit — it completes and recommends running Promote.
+
 ### Architecture Overview
 
 **Create:**
@@ -124,6 +140,14 @@ Trigger: [description of what needs expanding, or path to a pending issue]
 ```
 
 The expand workflow adds new architectural concerns to the Architecture Overview. Includes alignment verification against both PRD and Foundations. Use when scope changes require new components, data flows, or integration patterns that weren't in the original architecture. Expand never promotes — always follow with a Review round.
+
+**Promote:**
+```
+Execute the Architecture Overview promote workflow using the orchestrator at:
+{{AGENTS_PATH}}/04-architecture/promote/orchestrator.md
+```
+
+Run after a Review round completes — this is the **single freeze**. Promote is a separate workflow (not a step of Review): it guards that the last completed round was Review, re-runs the contract completeness/freezability gate, splits the reviewed Architecture into `architecture.md`, `decisions.md`, and `future.md`, and materializes + fidelity-checks the frozen contract registry (`05-components/specs/cross-cutting.md`) that Component Specs consumes — all recorded under `round-N-promote/`. Review no longer promotes at exit — it completes and recommends running Promote.
 
 ### Component Spec
 
@@ -275,16 +299,18 @@ The session handles workflow state updates automatically - it will add a new rou
 
 ## After Review Completes
 
-**Stages 03–05** (Foundations, Architecture, Components) have promoter agents that run automatically at review exit. The promoter splits the reviewed document into three files:
+**Stages 02–04** (PRD, Foundations, Architecture) promote via a **separate Promote workflow** — not automatically at review exit. When a Review round completes (via the zero-issues gate or the maturity exit), Review sets itself COMPLETE and *recommends* running Promote; you then run that stage's Promote workflow (see its **Promote** trigger above), which splits the reviewed document into three files:
 - `[document].md` — Clean current-scope spec
 - `decisions.md` — Design rationale and trade-offs
 - `future.md` — Deferred items and future considerations
 
-No manual promotion is needed for these stages.
+Architecture's Promote additionally re-runs the contract completeness/freezability gate and materializes the frozen contract registry (`05-components/specs/cross-cutting.md`) for Component Specs. Each Promote run is recorded as a `round-N-promote/` round.
 
-**Stage 01** (Blueprint) auto-promotes during both create and review. The review orchestrator also re-extracts `scope-brief.md` to keep it consistent with the reviewed Blueprint.
+**Stage 05** (Component Specs) uses its own per-component `spec-promoter`.
 
-**Stage 02** (PRD) auto-promotes during creation. The create orchestrator promotes the final draft to `prd.md` when the human chooses to promote at Gap Resolution. The review orchestrator handles promotion separately.
+**Stage 01** (Blueprint) auto-promotes during both create and review (it copies to `blueprint.md`, it does not split), and re-extracts `scope-brief.md` to keep it consistent with the reviewed Blueprint.
+
+Note: the stage 02–03 create workflows still write an initial draft to the published path at the end of creation, but the authoritative split is always produced later by the Promote workflow after Review. (Stage 04 create finalises and hands to Review without writing `architecture.md` — the Promote workflow is its sole producer.)
 
 ## When to Use Expand vs Review
 
@@ -327,11 +353,12 @@ Each stage folder (01–05) contains:
   - **round-N-create/** — Creation workflow rounds
   - **round-N-review/** — Review workflow rounds
   - **round-N-expand/** — Expand workflow rounds
+  - **round-N-promote/** — Promote workflow rounds (stages 02–04; the freeze/split record)
   - **workflow-state.md** — Tracks current round, workflow type, and status
   - **deferred-items.md** — Content deferred from upstream stages
   - **pending-issues.md** — Issues for upstream stages
 
-Round numbers are globally sequential across all workflow types (e.g., rounds 1-8 create, round 9 review, round 10 expand, round 11 review).
+Round numbers are globally sequential across all workflow types (e.g., rounds 1-8 create, round 9 review, round 10 promote, round 11 expand, round 12 review, round 13 promote).
 
 Stages 06–12 use different structures defined by their coordinators. Deferred items and pending issues apply to stages 01–05 only.
 
