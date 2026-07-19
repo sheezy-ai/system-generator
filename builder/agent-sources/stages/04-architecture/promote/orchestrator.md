@@ -76,16 +76,14 @@ Because the promoter is the **sole producer of `architecture.md`** and Promote i
 
 ```
 agents/04-architecture/promote/
-├── orchestrator.md                    # This file
-└── promoter.md                        # Splits the reviewed Architecture into spec/decisions/future
+├── orchestrator.md                     # This file
+├── promoter.md                         # Splits the reviewed Architecture into spec/decisions/future
+├── contract-materializer.md            # Step 3b: materialize the registry (FIRST_FREEZE | MERGE) — relocated here in Slice 5
+└── materialization-fidelity-checker.md # Step 3c: fidelity gate — relocated here in Slice 5
 
 Gate reviewers (re-run — they LIVE in review, not moved):
 ├── {{AGENTS_PATH}}/04-architecture/review/experts/contract-completeness.md
 └── {{AGENTS_PATH}}/04-architecture/review/experts/contract-freezability.md
-
-Freeze agents (relocated from 05-init in Slice 4 — the whole freeze happens here):
-├── {{AGENTS_PATH}}/05-components/cross-cutting/contract-materializer.md          # Step 3b: materialize the registry (FIRST_FREEZE | MERGE)
-└── {{AGENTS_PATH}}/05-components/cross-cutting/materialization-fidelity-checker.md  # Step 3c: fidelity gate
 
 Backward-edge machinery (existing):
 └── system-design/04-architecture/versions/pending-issues.md   # consumed by Review Step 0
@@ -112,16 +110,17 @@ system-design/04-architecture/
     │   ├── architecture.md                # Copy of the promoted spec
     │   ├── decisions.md                   # Copy of the promoted decisions
     │   ├── future.md                      # Copy of the promoted future
-    │   ├── cross-cutting.md               # Freeze record: copy of the materialized registry (Step 3b)
-    │   ├── materialization.md             # Freeze record: copy of the materialization report (Step 3b)
-    │   ├── materialization-fidelity.md    # Freeze record: copy of the fidelity report (Step 3c)
+    │   ├── cross-cutting.md               # The materialized registry ORIGINAL (Step 3b writes here; published to 05-specs at Step 4 after fidelity CLEAN)
+    │   ├── materialization.md             # The materialization report ORIGINAL (Step 3b) — round-folder record only
+    │   ├── materialization-fidelity.md    # The fidelity report ORIGINAL (Step 3c) — round-folder record only
     │   └── promote-metadata.md            # date, source review round, gate verdict, HIGH gaps promoted past, contracts/bindings/escalations, fidelity verdict, MERGE changed/reset/preserved counts
     └── pending-issues.md
 
-# The registry itself is written in place at (produced by Promote, consumed by 05-init):
+# The registry is PUBLISHED (copied from the round-folder original above) to 05 — ONLY after fidelity returns CLEAN
+# (produced by Promote, consumed by 05-init):
 #   system-design/05-components/specs/cross-cutting.md
-#   system-design/05-components/versions/cross-cutting/materialization.md
-#   system-design/05-components/versions/cross-cutting/materialization-fidelity.md
+# The two freeze reports (materialization.md, materialization-fidelity.md) live ONLY in the round folder above —
+# no live 05 agent reads them (the fidelity gate now lives at Promote).
 ```
 
 ---
@@ -264,7 +263,7 @@ Output: [resolved file path]
 
 ### Step 3b: Materialize the contract registry (new — the relocated freeze)
 
-**Ordering (do not reorder):** materialize runs **after** the split (Step 3) because the materializer reads the freshly-promoted parent `architecture.md` §7/§8 — the **same input path 05-init read before Slice 4**, so first-freeze output is behaviourally equivalent to the old 05-init result (the materializer is an LLM agent — *semantic* equivalence: same contracts / Binds / obligations / verdict, not a byte-diff). A mid-freeze HALT is safe: this promote round's `Status` only becomes `COMPLETE` at Step 4 (Finalise), so 05-init's `Status: COMPLETE → start next` guard never consumes a half-frozen state.
+**Ordering (do not reorder):** materialize runs **after** the split (Step 3) because the materializer reads the freshly-promoted parent `architecture.md` §7/§8 — the **same input path 05-init read before Slice 4**, so first-freeze output is behaviourally equivalent to the old 05-init result (the materializer is an LLM agent — *semantic* equivalence: same contracts / Binds / obligations / verdict, not a byte-diff). A mid-freeze HALT corrupts nothing new: this promote round's `Status` only becomes `COMPLETE` at Step 4 (Finalise), and under the round-first write-order (§Step 3b/3c/4) the registry is **not published to `05-specs` until Step 4, after fidelity returns CLEAN** — so a HALT at 3b/3c leaves the **prior** `05-specs` registry intact and this round non-`COMPLETE`. **There is no mechanical guard** stopping 05-init from running against that prior (still-`MATERIALIZED`) registry during a HALT: 05-init is immediate-execution, gated only by its registry precondition, and never reads promote state. The protection is **human sequencing** — the human driving the stage sees the promote HALT and does not run 05-init until the freeze completes. Protocol, not a state-machine gate.
 
 17. **Update state file**: Set Step 3b, status = IN_PROGRESS.
 
@@ -279,7 +278,7 @@ Output: [resolved file path]
 
       **Population**: MATERIALIZING
       ```
-    - If `specs/cross-cutting.md` already exists, **do not** overwrite it here — the materializer reads its live status and (on MERGE) writes in place.
+    - If `specs/cross-cutting.md` already exists, **do not** overwrite it here — on MERGE the materializer reads its live status for the preserve-vs-reset decision, but writes the new registry to the **round folder** (Step 4 publishes it to `05-specs` after fidelity CLEAN).
 
 19. **Select the materialize mode** by inspecting the live registry `system-design/05-components/specs/cross-cutting.md`:
     - **No status-bearing registry** — no registry file, the placeholder just created, or every contract entry carries `Status: MATERIALIZED` → **FIRST_FREEZE** (clean overwrite, all `MATERIALIZED` — the materializer's existing behaviour, behaviourally equivalent to old 05-init).
@@ -288,22 +287,22 @@ Output: [resolved file path]
 
 20. **Spawn the Contract Materializer** (FOREGROUND) reading the just-promoted parent `architecture.md`, passing the selected mode and (for MERGE) the baseline path:
     ```
-    Follow the instructions in: {{AGENTS_PATH}}/05-components/cross-cutting/contract-materializer.md
+    Follow the instructions in: {{AGENTS_PATH}}/04-architecture/promote/contract-materializer.md
 
     Input:
     - Architecture Overview (incoming, just promoted): system-design/04-architecture/architecture.md
     - PRD: system-design/02-prd/prd.md
-    - Cross-cutting registry (live — read for status, write in place): system-design/05-components/specs/cross-cutting.md
+    - Cross-cutting registry (live 05-specs — read for status only, on MERGE): system-design/05-components/specs/cross-cutting.md
     - Architecture pending-issues: system-design/04-architecture/versions/pending-issues.md
     - Mode: [FIRST_FREEZE | MERGE]
     - Prior-freeze baseline (MERGE only): system-design/04-architecture/versions/round-[N]-promote/00-prior-published-architecture.md
 
     Output:
-    - Registry (in place): system-design/05-components/specs/cross-cutting.md
-    - Materialization report: system-design/05-components/versions/cross-cutting/materialization.md
+    - Registry ORIGINAL (round folder): system-design/04-architecture/versions/round-[N]-promote/cross-cutting.md
+    - Materialization report: system-design/04-architecture/versions/round-[N]-promote/materialization.md
     ```
 
-21. **After the materializer completes**: verify the registry `Status` block (`Population: MATERIALIZED`) and read the materialization report. If the materializer escalated any under-pinned **(D)** contract (it appends to `04 pending-issues` itself): **HALT — route back via the backward edge** (same disposition as the Step 2 gate's "Resolved": log/confirm the escalation in `pending-issues.md`, set status = WAITING_FOR_HUMAN, and HALT with `Materializer escalated an under-pinned (D) contract — re-run the Review workflow to pin it, then re-run Promote.`). Note the anomaly — the Step-2 freezability reviewer should already have caught it; this is rare by construction. Otherwise mark Step 3b complete and **automatically proceed to Step 3c.**
+21. **After the materializer completes**: verify the round-folder registry original (`round-[N]-promote/cross-cutting.md`) `Status` block (`Population: MATERIALIZED`) and read the materialization report (`round-[N]-promote/materialization.md`). If the materializer escalated any under-pinned **(D)** contract (it appends to `04 pending-issues` itself): **HALT — route back via the backward edge** (same disposition as the Step 2 gate's "Resolved": log/confirm the escalation in `pending-issues.md`, set status = WAITING_FOR_HUMAN, and HALT with `Materializer escalated an under-pinned (D) contract — re-run the Review workflow to pin it, then re-run Promote.`). Note the anomaly — the Step-2 freezability reviewer should already have caught it; this is rare by construction. Otherwise mark Step 3b complete and **automatically proceed to Step 3c.**
 
 ---
 
@@ -313,15 +312,15 @@ Output: [resolved file path]
 
 23. **Spawn the Materialization-Fidelity Checker** (FOREGROUND). **Do NOT** pass the materialization report — independence requires re-deriving from authority:
     ```
-    Follow the instructions in: {{AGENTS_PATH}}/05-components/cross-cutting/materialization-fidelity-checker.md
+    Follow the instructions in: {{AGENTS_PATH}}/04-architecture/promote/materialization-fidelity-checker.md
 
     Input:
     - Architecture Overview: system-design/04-architecture/architecture.md
     - PRD: system-design/02-prd/prd.md
-    - Materialized registry: system-design/05-components/specs/cross-cutting.md
+    - Materialized registry (round-folder original — not yet published): system-design/04-architecture/versions/round-[N]-promote/cross-cutting.md
 
     Output:
-    - Fidelity report: system-design/05-components/versions/cross-cutting/materialization-fidelity.md
+    - Fidelity report: system-design/04-architecture/versions/round-[N]-promote/materialization-fidelity.md
     ```
     **Gate on the verdict** (semantics identical to the old 05-init gate):
     - **`MISMATCH`** → **HALT (promote-local).** A load-bearing discrepancy between the registry and Architecture §7/§8 would poison every consumer. Set status = WAITING_FOR_HUMAN; present the fidelity report; the fix is **re-materialize (re-run Step 3b) or an explicit human accept** — **not** a backward-to-Review round (this is a projection fault, not an architecture gap).
@@ -336,13 +335,13 @@ Output: [resolved file path]
 
 25. **Update state file**: Set Step 4, status = IN_PROGRESS.
 
-26. **Verify the freeze outputs exist**:
+26. **Verify the freeze originals exist** (before publishing):
     - The three published documents: `system-design/04-architecture/architecture.md`, `decisions.md`, `future.md`.
-    - The materialized registry: `system-design/05-components/specs/cross-cutting.md` exists with a valid `Population` status (`MATERIALIZED`).
-    - The two freeze reports: `system-design/05-components/versions/cross-cutting/materialization.md` and `materialization-fidelity.md`.
-    - If any is missing → **Error**: "Promoter/freeze completed but output not found at [path]" — do not mark COMPLETE.
+    - The round-folder registry original: `round-[N]-promote/cross-cutting.md` exists with a valid `Population` status (`MATERIALIZED`).
+    - The two round-folder freeze reports: `round-[N]-promote/materialization.md` and `round-[N]-promote/materialization-fidelity.md` (verdict `CLEAN` — a `MISMATCH` would have HALTed at Step 3c).
+    - If any is missing → **Error**: "Promoter/freeze completed but output not found at [path]" — do **not** publish, do **not** mark COMPLETE.
 
-27. **Copy the freeze record into the round record** (`round-[N]-promote/`, via `cp`): `system-design/05-components/specs/cross-cutting.md`, `system-design/05-components/versions/cross-cutting/materialization.md`, and `.../materialization-fidelity.md` — alongside the already-copied `architecture.md` / `decisions.md` / `future.md`. The parent copies are the published authority; these are the frozen snapshot for this round.
+27. **Publish the registry to 05 — ONLY now, after fidelity CLEAN** (`cp`): copy `round-[N]-promote/cross-cutting.md` → `system-design/05-components/specs/cross-cutting.md`. This is the **single publish point** — the round-folder original is the source of truth; `05-specs` receives the fidelity-verified copy that 05-init consumes. A Step-3c `MISMATCH` HALTs *before* reaching here, so an unverified registry is **never** published and the prior `05-specs` registry (if any) stays intact. The two freeze reports (`materialization.md`, `materialization-fidelity.md`) remain **round-folder records only** — no live 05 agent reads them. Verify `system-design/05-components/specs/cross-cutting.md` now exists with `Population: MATERIALIZED` after the copy; if the copy failed → **Error**, do **not** mark COMPLETE.
 
 28. **Write `round-[N]-promote/promote-metadata.md`** (the freeze record):
     ```markdown
@@ -396,7 +395,7 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the checkpo
 
 ## Exit Criteria
 
-Promote exits by **freezing**: the gate passes clean (or every HIGH is disposed/overridden), the promoter produces the three published documents, the materializer produces the frozen contract registry (`05-components/specs/cross-cutting.md`), the fidelity check returns `CLEAN`, and the `round-[N]-promote` record captures the whole freeze. On a **Resolved** gate disposition or a Step-3b **(D)** escalation the workflow instead HALTs and routes back to Review via `pending-issues.md` — the freeze happens on a subsequent Promote round after Review re-runs. On a Step-3c `MISMATCH` the workflow HALTs promote-local (re-materialize or human-accept) without routing back to Review.
+Promote exits by **freezing**: the gate passes clean (or every HIGH is disposed/overridden), the promoter produces the three published documents, the materializer writes the frozen contract registry original to the round folder, the fidelity check returns `CLEAN`, Finalise publishes the registry to `05-components/specs/cross-cutting.md`, and the `round-[N]-promote` record captures the whole freeze. On a **Resolved** gate disposition or a Step-3b **(D)** escalation the workflow instead HALTs and routes back to Review via `pending-issues.md` — the freeze happens on a subsequent Promote round after Review re-runs. On a Step-3c `MISMATCH` the workflow HALTs promote-local (re-materialize or human-accept) without routing back to Review.
 
 ---
 

@@ -559,7 +559,6 @@ Keep the table sorted alphabetically by component name. The Stage Initialization
 | Component not in stage state | Error: "Component [name] not found in Component Specs table" |
 | Component not NOT_STARTED | Error: "Component [name] status is [status], expected NOT_STARTED" |
 | Contract layer materializing (`Population: MATERIALIZING`) | Error: "Contract layer materialization incomplete. Re-run the Promote stage (which materializes the registry) before creating components." |
-| Legacy (`Population: DEFERRED`) registry + dependency not COMPLETE | Error: "Cannot create [component]: contract layer not materialized and dependency not COMPLETE. Blocked by: [list]" |
 | Deferred-items state inconsistent | Error: "Stage state says initialization is COMPLETE, but deferred-items state is inconsistent: monolithic file still present with content: [yes/no]; per-component file missing: [yes/no]. This suggests the initialize orchestrator's Step 3 (deferred-items processor) did not complete cleanly. Fix: re-run the initialize workflow's deferred-items split/archive step, or manually reconcile, before re-running Create." |
 | Generator fails | Error: Report failure details |
 | Draft not created | Error: "Generator completed but draft not found at expected path" |

@@ -21,14 +21,14 @@ Given the Architecture Overview and the PRD, populate the cross-cutting registry
 **Input:** File paths to:
 - Architecture Overview (`system-design/04-architecture/architecture.md`) — §8 Data Contracts (the CTR table) and §7 Cross-Cutting Concerns (interfaces) are the primary sources
 - PRD (`system-design/02-prd/prd.md`) — §5 Conceptual Data Model is the authoritative field source for owned entities
-- Cross-cutting registry (`system-design/05-components/specs/cross-cutting.md`) — on `FIRST_FREEZE` this is the placeholder you populate; on `MERGE` it is the **live, status-bearing** registry you read for status and write **in place**
+- Cross-cutting registry (live 05-specs, `system-design/05-components/specs/cross-cutting.md`) — **read for status only**: on `FIRST_FREEZE` there is nothing to preserve; on `MERGE` this is the **live, status-bearing** registry you read for each CTR's current status. **You do not write here** — you write the new registry to the **output path the orchestrator passes** (the promote round folder, below), and the orchestrator publishes it to 05-specs after the fidelity gate
 - Architecture pending-issues path (`system-design/04-architecture/versions/pending-issues.md`) — the escalation target for under-pinned contracts
 - **Mode** (`FIRST_FREEZE` | `MERGE`) — supplied by the orchestrator; selects the write behaviour below
 - **Prior-freeze baseline** (`MERGE` only — `system-design/04-architecture/versions/round-[N]-promote/00-prior-published-architecture.md`) — the previously-published `architecture.md`, the Track A source you diff the incoming §8/§7 against. If absent, treat the run as `FIRST_FREEZE` (nothing to diff)
 
-**Output:**
-- Populated `cross-cutting.md` (the registry — you write this directly)
-- Materialization report (`system-design/05-components/versions/cross-cutting/materialization.md`) — what was materialized, what binds where, and the gaps escalated
+**Output** (paths supplied by the orchestrator — write where it points; do **not** hard-code 05-specs):
+- Populated `cross-cutting.md` (the registry) — written to the **output path the orchestrator passes**, the promote round folder (`round-[N]-promote/cross-cutting.md`). The orchestrator publishes it to 05-specs after the fidelity gate.
+- Materialization report — written to the orchestrator-passed report path (`round-[N]-promote/materialization.md`): what was materialized, what binds where, and the gaps escalated
 
 ---
 
@@ -36,7 +36,7 @@ Given the Architecture Overview and the PRD, populate the cross-cutting registry
 
 1. You receive **file paths** as input, not file contents. Read each file from its original path.
 2. Read Architecture §8 + §7 (the frozen contracts) and PRD §5 (the field sources). **On `MERGE`, also read** the live registry (`cross-cutting.md`) for each CTR's current status + stored `Binds:` list, and the prior-freeze baseline (`00-prior-published-architecture.md`) for the Track A source diff.
-3. Write the registry and the report to their output paths; append escalations to the Architecture pending-issues file. **On `MERGE`, write the registry in place** (preserve/merge status per the fail-safe rule); on `FIRST_FREEZE`, overwrite the placeholder.
+3. Write the registry and the report to **the output paths the orchestrator passes** (the promote round folder — **not** 05-specs); append escalations to the Architecture pending-issues file. The **write target is the same in both modes** (the round folder); the modes differ only in how each CTR's status is set (on `MERGE`, preserve/merge status per the fail-safe rule; on `FIRST_FREEZE`, all `MATERIALIZED`).
 
 ---
 
@@ -97,10 +97,10 @@ Do **not** invent the missing decision, and do **not** defer it into a component
 
 ### Step 5: Write the registry
 
-Set **Population: MATERIALIZED** and record that authority remains Architecture §7/§8. Re-derive and write every contract's **obligation / `Binds` / Pattern / Producer / Consumer** columns from the incoming §7/§8/PRD §5 in **both** modes — the re-derivation of *obligations* is identical. The modes differ **only** in how each contract's **Status** is set, and whether you overwrite the placeholder or merge in place:
+Set **Population: MATERIALIZED** and record that authority remains Architecture §7/§8. Re-derive and write every contract's **obligation / `Binds` / Pattern / Producer / Consumer** columns from the incoming §7/§8/PRD §5 in **both** modes — the re-derivation of *obligations* is identical. The modes differ **only** in how each contract's **Status** is set (a fresh `MATERIALIZED` on `FIRST_FREEZE` vs. a preserved/merged status on `MERGE`) — in both modes you write the new registry to the round-folder output path:
 
-- **`FIRST_FREEZE`** — clean full re-projection: overwrite the target (the `MATERIALIZING` placeholder on a true first freeze, or an existing all-`MATERIALIZED` registry — either loses no conformance status, so overwriting is safe). Every materialized contract carries Status **MATERIALIZED** (distinct from the post-hoc `DEFINED`/`VERIFIED` the `contract-extractor`/`contract-reconciler` and `contract-verifier` use later against real bodies). This is the original behaviour; keep it behaviourally equivalent.
-- **`MERGE`** — write **in place** on the live registry, setting each CTR's Status by the **two-track change detection + fail-safe status rule** below. **Never blanket-stamp `MATERIALIZED`** — that would clobber the `DEFINED`/`VERIFIED` conformance 05 accrued (the KT2 violation at re-freeze).
+- **`FIRST_FREEZE`** — clean full re-projection, written to the **round-folder output path** the orchestrator passes. Every materialized contract carries Status **MATERIALIZED** (distinct from the post-hoc `DEFINED`/`VERIFIED` the `contract-extractor`/`contract-reconciler` and `contract-verifier` use later against real bodies). This is the original behaviour (a from-scratch projection); keep it behaviourally equivalent.
+- **`MERGE`** — write the merged registry to the **round-folder output path** (not the live registry), setting each CTR's Status by the **two-track change detection + fail-safe status rule** below, reading the **live 05-specs registry** for the current status you preserve. **Never blanket-stamp `MATERIALIZED`** — that would clobber the `DEFINED`/`VERIFIED` conformance 05 accrued (the KT2 violation at re-freeze).
 
 #### MERGE mode — status-preserving re-freeze (the heart)
 
@@ -196,7 +196,7 @@ Summarize: contracts materialized, bindings resolved, gaps escalated, and REMOVE
 
 ---
 
-## Output Format — Materialization Report (`versions/cross-cutting/materialization.md`)
+## Output Format — Materialization Report (`round-[N]-promote/materialization.md`)
 
 ```markdown
 # Contract Materialization Report
@@ -269,8 +269,8 @@ Complete all steps autonomously without pausing for confirmation. The materializ
 
 ## File Output
 
-- **Registry**: `system-design/05-components/specs/cross-cutting.md` (written directly)
-- **Report**: `system-design/05-components/versions/cross-cutting/materialization.md`
+- **Registry**: the **output path the orchestrator passes** — the promote round folder (`round-[N]-promote/cross-cutting.md`), **not** 05-specs. The orchestrator publishes this round-folder original to `system-design/05-components/specs/cross-cutting.md` after the fidelity gate returns CLEAN.
+- **Report**: the orchestrator-passed report path — the promote round folder (`round-[N]-promote/materialization.md`).
 - **Escalations**: appended to `system-design/04-architecture/versions/pending-issues.md`
 
 **Return**: `{ status: "COMPLETE", mode: "FIRST_FREEZE" | "MERGE", materialized: [N], bindings: [N], escalated: [N], skipped: [N], changed_reset: [N], unchanged_preserved: [N], removed_archived: [N] }`

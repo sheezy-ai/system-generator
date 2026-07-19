@@ -42,9 +42,8 @@ For each consumed interface in the extraction report:
 |-----------|----------------|
 | Producer processed and contract found with matching name/schema | Proceed to field comparison |
 | Producer processed but no matching contract found | **NO_PRODUCER_CONTRACT** (genuine gap) |
-| Producer not yet processed (not in cross-cutting.md) | **PENDING_REGISTRATION** |
 
-**On a `MATERIALIZED` registry:** producer contracts pre-exist as materialized projections from the Promote freeze, so `PENDING_REGISTRATION` (producer not yet in cross-cutting.md) is rare — the producer contract is normally already present. Match the consumed expectation against the materialized entry's **obligation + `Binds:` field list** (the frozen field set), not a verbatim producer schema. A materialized entry whose producer body has not yet been reconciled still carries Status `MATERIALIZED`; treat it as a valid producer contract for matching. `PENDING_REGISTRATION` applies only to legacy fresh-population where nothing was materialized up-front.
+**On a `MATERIALIZED` registry:** producer contracts pre-exist as materialized projections from the Promote freeze, so a producer is normally already present in cross-cutting.md. Match the consumed expectation against the materialized entry's **obligation + `Binds:` field list** (the frozen field set), not a verbatim producer schema. A materialized entry whose producer body has not yet been reconciled still carries Status `MATERIALIZED`; treat it as a valid producer contract for matching.
 
 **Matching heuristics** (in priority order):
 1. Exact name match (contract name = consumed interface name)
@@ -130,7 +129,6 @@ Write the report to the output path.
 | FIELD_MISMATCH | [N] |
 | STRUCTURAL_MISMATCH | [N] |
 | NO_PRODUCER_CONTRACT | [N] |
-| PENDING_REGISTRATION | [N] |
 | **Total consumed interfaces** | **[N]** |
 
 ---
@@ -241,12 +239,6 @@ Write the report to the output path.
 
 [For each gap, explain what the consumer expects and why no matching contract was found]
 
-### PENDING_REGISTRATION
-
-| Consumed Interface | Expected Producer | Notes |
-|-------------------|-------------------|-------|
-| [interface_name] | [producer] | Producer not yet processed — will be matched when producer is extracted |
-
 ---
 
 ## Recommendations
@@ -264,7 +256,7 @@ Write the report to the output path.
 - [ ] Each consumed interface is classified into exactly one category
 - [ ] Field comparisons include all fields from both sides (consumer and producer)
 - [ ] Quotes from specs are included for all mismatches (consumer and producer sides)
-- [ ] NO_PRODUCER_CONTRACT vs PENDING_REGISTRATION distinction is correct (check if producer appears in cross-cutting.md)
+- [ ] NO_PRODUCER_CONTRACT is applied correctly (producer processed but no matching contract appears in cross-cutting.md)
 - [ ] Summary counts match the detail sections
 - [ ] Recommendations are specific and actionable
 
@@ -278,12 +270,6 @@ in documentation text vs `paraphrased` as the actual field name), classify based
 actual field access pattern (code examples, function signatures), not documentation prose.
 If the consumer's code uses the correct field name but surrounding text uses an alias,
 classify as CLEAN with a note — not FIELD_MISMATCH.
-
-**Incremental processing order artifacts**: Components processed before their producers
-will have consumed interfaces classified as PENDING_REGISTRATION. These resolve when the
-producer is processed later. This is inherent to the incremental approach and not a defect.
-The orchestrator's finalisation step should validate that no PENDING items remain after all
-components are processed.
 
 ---
 
@@ -311,4 +297,4 @@ components are processed.
 
 Write the reconciliation report to this path.
 
-**Return**: `{ status: "COMPLETE", clean: [N], minor_mismatch: [N], field_mismatch: [N], structural_mismatch: [N], no_producer: [N], pending: [N] }`
+**Return**: `{ status: "COMPLETE", clean: [N], minor_mismatch: [N], field_mismatch: [N], structural_mismatch: [N], no_producer: [N] }`

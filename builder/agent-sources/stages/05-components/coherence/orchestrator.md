@@ -60,7 +60,7 @@ Before running:
    - IN_PROGRESS
    - NOT_STARTED
 3. **For each component with pending-issues.md**, count unresolved issues
-4. **Read cross-cutting.md** to check population status (`MATERIALIZED`, `POPULATED`, or legacy `DEFERRED`)
+4. **Read cross-cutting.md** to check population status (`MATERIALIZED`, or `COMPLETE`/reconciled)
 
 **Present to human:**
 ```
@@ -72,11 +72,11 @@ Component Status:
 - NOT_STARTED: [N] (list)
 
 Pending Issues: [N] unresolved across [M] components
-Cross-Cutting Contracts: [MATERIALIZED with N contracts | POPULATED/reconciled with N contracts | DEFERRED (legacy)]
+Cross-Cutting Contracts: [MATERIALIZED with N contracts | reconciled (COMPLETE) with N contracts]
 
 Phases to run:
 1. Pending Issues Resolution - [N] issues to triage
-2. Cross-Cutting Reconciliation - [Reconcile bodies vs materialized registry | Already reconciled | Populate (legacy DEFERRED) | Skip]
+2. Cross-Cutting Reconciliation - [Reconcile bodies vs materialized registry | Already reconciled | Skip]
 3. Contract Verification - [Available (contracts present) | Requires materialization/population first]
 4. Consistency Check - Scan for naming/schema drift
 5. Cross-Boundary Routing Reconciliation - verify each spec's routing claims landed in the target's pending-issues
@@ -128,8 +128,7 @@ Proceed? (y/n)
 
 1. **Check cross-cutting.md status**:
    - **If MATERIALIZED**: Ask human whether to run **conformance reconciliation** now — reconcile the realized bodies against the up-front materialized registry (the populate orchestrator handles this mode)
-   - **If POPULATED**: Ask human whether to refresh (re-reconcile from current specs)
-   - **If DEFERRED** (legacy — never materialized): Ask human whether to populate from scratch now
+   - **If COMPLETE** (already reconciled): Ask human whether to refresh (re-reconcile from current specs)
    - **If human declines**: Skip to Phase 4
 
 2. **If populating**, invoke the Cross-Cutting Population Orchestrator:
@@ -148,7 +147,7 @@ Proceed? (y/n)
 
 ### Phase 4: Contract Verification
 
-**Prerequisite:** Cross-cutting.md must contain contract definitions — `MATERIALIZED` (frozen projections) or `POPULATED`/reconciled (body-backed). If `DEFERRED` (never materialized), skip this phase with warning. Against a purely `MATERIALIZED` registry not yet reconciled (Phase 3), verification checks each realized spec against the frozen obligation/`Binds:` set; running Phase 3 reconciliation first is preferable so entries are body-backed (`DEFINED`).
+**Prerequisite:** Cross-cutting.md must contain contract definitions — `MATERIALIZED` (frozen projections) or `COMPLETE`/reconciled (body-backed). Against a purely `MATERIALIZED` registry not yet reconciled (Phase 3), verification checks each realized spec against the frozen obligation/`Binds:` set; running Phase 3 reconciliation first is preferable so entries are body-backed (`DEFINED`).
 
 1. **Read cross-cutting.md** to get contract definitions
 
@@ -307,7 +306,7 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 ## Sign-Off
 
 [ ] All blocking issues resolved
-[ ] Cross-cutting contracts populated and verified
+[ ] Cross-cutting contracts materialized/reconciled and verified
 [ ] Consistency issues addressed
 [ ] Cross-boundary routing claims reconciled (no stranded obligations)
 [ ] Ready for implementation phase
@@ -331,7 +330,6 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 | Condition | Action |
 |-----------|--------|
 | Fewer than 2 COMPLETE components | Error: "Need at least 2 complete components to review coherence" |
-| No pending issues and cross-cutting DEFERRED | Warning: "No issues to resolve and contracts not populated - consider running cross-cutting population" |
 | Human aborts mid-phase | Save progress, report partial completion |
 
 ---

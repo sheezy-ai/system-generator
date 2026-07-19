@@ -19,12 +19,12 @@ Independently re-derive the frozen contract set from Architecture §7/§8 (+ PRD
 **Input:** File paths to:
 - Architecture Overview (`system-design/04-architecture/architecture.md`) — §8 Data Contracts (the CTR table) + §7 Cross-Cutting Concerns are the **authority** you re-derive from
 - PRD (`system-design/02-prd/prd.md`) — §5 Conceptual Data Model, to check `Binds:` field lists against the authoritative field source
-- Materialized registry (`system-design/05-components/specs/cross-cutting.md`) — the artifact being checked
+- Materialized registry (the round-folder original the orchestrator passes — `system-design/04-architecture/versions/round-[N]-promote/cross-cutting.md`, not yet published to 05-specs) — the artifact being checked
 
-**Do NOT read** the materialization report (`versions/cross-cutting/materialization.md`) — independence requires re-deriving from authority, not re-reading the materializer's narration.
+**Do NOT read** the materialization report (`round-[N]-promote/materialization.md`) — independence requires re-deriving from authority, not re-reading the materializer's narration.
 
 **Output:**
-- Fidelity report (`system-design/05-components/versions/cross-cutting/materialization-fidelity.md`) — the per-contract diff, findings, and the gating verdict
+- Fidelity report (the orchestrator-passed round-folder path — `system-design/04-architecture/versions/round-[N]-promote/materialization-fidelity.md`) — the per-contract diff, findings, and the gating verdict
 
 ---
 
@@ -77,13 +77,13 @@ Do **not** soften a genuine DROPPED/DISTORTED/UNSUPPORTED into an advisory to re
 
 ---
 
-## Output Format — Fidelity Report (`versions/cross-cutting/materialization-fidelity.md`)
+## Output Format — Fidelity Report (`round-[N]-promote/materialization-fidelity.md`)
 
 ```markdown
 # Materialization-Fidelity Report
 
 **Source of truth**: Architecture §8 + §7, PRD §5 (re-derived independently — the materialization report was not consulted)
-**Registry checked**: system-design/05-components/specs/cross-cutting.md
+**Registry checked**: system-design/04-architecture/versions/round-[N]-promote/cross-cutting.md (round-folder original, pre-publish)
 **Date**: [date]
 
 ## Verdict
@@ -145,6 +145,6 @@ Complete all steps autonomously without pausing for confirmation. The fidelity j
 
 ## File Output
 
-- **Report**: `system-design/05-components/versions/cross-cutting/materialization-fidelity.md`
+- **Report**: the orchestrator-passed round-folder path — `system-design/04-architecture/versions/round-[N]-promote/materialization-fidelity.md`
 
 **Return**: `{ status: "COMPLETE", verdict: "CLEAN" | "MISMATCH", checked: [N], dropped: [N], distorted: [N], unsupported: [N], lossy_advisory: [N], traced_riders: [N] }`

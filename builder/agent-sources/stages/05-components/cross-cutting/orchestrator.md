@@ -6,8 +6,6 @@
 
 Reconcile the **realized component bodies** against the **already-materialized** cross-cutting registry. Since the Promote stage materializes the inter-component contracts at the freeze (`Population: MATERIALIZED`), this workflow is **no longer initial population** — its role is **post-promotion conformance-over-bodies**: once specs are promoted, walk each component in dependency order, extract the contracts its body actually realizes, and reconcile them against the materialized obligations — confirming conformance (a materialized contract now backed by a real body transitions `MATERIALIZED → DEFINED`) and flagging any divergence for the contract verifier.
 
-**Legacy projects** whose registry was never materialized (`Population: DEFERRED`) fall back to the original behavior: fresh population that extracts and registers contracts from scratch.
-
 **Flow:** All specs promoted → Human invokes this orchestrator → Per-component: extract → reconcile → human review → register → Next component → Finalise
 
 ---
@@ -16,7 +14,7 @@ Reconcile the **realized component bodies** against the **already-materialized**
 
 Run this orchestrator **manually** when:
 - All application-layer component specs have been completed and promoted
-- You want to reconcile the realized bodies against the materialized registry (or, on a legacy `DEFERRED` registry, establish the registry from scratch)
+- You want to reconcile the realized bodies against the materialized registry
 
 **Invocation:**
 ```
@@ -81,7 +79,6 @@ Rule: If a file path appears in your agent invocation, don't read it yourself.
 
 2. **Read cross-cutting.md** and check `Population` status:
    - **If status is `MATERIALIZED`** (expected post-init state): Proceed with **conformance reconciliation** — the registry already holds the frozen contracts from the Promote freeze; this run reconciles the realized bodies against them (see Purpose). Do NOT wipe the materialized entries; treat them as the reconciliation baseline (see the Step 2c conformance note).
-   - **If status is `DEFERRED`** (legacy — contract layer never materialized): Proceed with **fresh population** from scratch.
    - **If status is `IN_PROGRESS`**: Check for population state file and attempt resume (see Resume Support below)
    - **If status is `COMPLETE`**: Warning — "Cross-cutting already reconciled. Re-running will re-reconcile existing contracts. Continue? (y/n)"
 
@@ -99,7 +96,7 @@ Rule: If a file path appears in your agent invocation, don't read it yourself.
 5. **Initialise population state file** at `versions/cross-cutting/population-state.md` (see State File Format below)
 
 6. **Update cross-cutting.md** status section:
-   - Change `**Population**: MATERIALIZED` (or legacy `**Population**: DEFERRED`) to `**Population**: IN_PROGRESS`
+   - Change `**Population**: MATERIALIZED` to `**Population**: IN_PROGRESS`
    - Add `**Started**: [date]`
    - **Preserve any materialized contract entries** — on a `MATERIALIZED` registry they are the reconciliation baseline; do not clear them.
 
@@ -148,7 +145,7 @@ For each component in Processing Order (or resume from current component):
 
 1. **Check if reconciliation needed**:
    - Read the extraction report's consumed interfaces section
-   - **If no consumed interfaces** (component has no dependencies per Processing Order): Skip to Step 2c (Register). Do NOT mention reconciliation or PENDING_REGISTRATION — this component is a pure producer.
+   - **If no consumed interfaces** (component has no dependencies per Processing Order): Skip to Step 2c (Register). Do NOT mention reconciliation — this component is a pure producer.
    - **If consumed interfaces exist and at least one producer has been processed**: Proceed to reconciliation (step 2)
    - **If consumed interfaces exist but NO producers have been processed yet**: Skip reconciliation, proceed to Step 2c. Note which producers are pending — these will be reconciled when those producers are processed later.
 
@@ -177,43 +174,15 @@ For each component in Processing Order (or resume from current component):
 
 All produced contracts are registered automatically. All mismatches are documented as NOTE.
 
-**On a `MATERIALIZED` registry (conformance mode):** the produced contracts already exist as materialized entries. Match each body-realized contract to its existing `CTR-NNN` (the extractor already reads the registry "to check for existing registrations") and **update that entry** — transition its Status `MATERIALIZED → DEFINED` (a real body now backs it) and record any divergence from the materialized obligation/binding as a NOTE — rather than minting a duplicate `CTR-NNN`. A contract a body realizes that is **absent from the materialized set** is a signal (the materializer under-projected, or the body over-reached) that the **frozen contract layer** needs changing — an **authority-level (04) decision, not a local registration**. **Escalate it** to `system-design/04-architecture/versions/pending-issues.md` (`Kind: CROSS-BOUNDARY-UPSTREAM`, `Status: AWAITS_UPSTREAM_REVISION`) with the contract, the realizing component, and why it is absent, so the next Promote re-freeze projects it from §7/§8 — **do not register it locally** (a 05 agent never writes the registry's obligation content; 04 owns obligations, 05 owns status). Flag it in the final summary for review. On a legacy `DEFERRED` registry, register from scratch as below.
+**On a `MATERIALIZED` registry (conformance mode):** the produced contracts already exist as materialized entries. Match each body-realized contract to its existing `CTR-NNN` (the extractor already reads the registry "to check for existing registrations") and **update that entry** — transition its Status `MATERIALIZED → DEFINED` (a real body now backs it) and record any divergence from the materialized obligation/binding as a NOTE — rather than minting a duplicate `CTR-NNN`. A contract a body realizes that is **absent from the materialized set** is a signal (the materializer under-projected, or the body over-reached) that the **frozen contract layer** needs changing — an **authority-level (04) decision, not a local registration**. **Escalate it** to `system-design/04-architecture/versions/pending-issues.md` (`Kind: CROSS-BOUNDARY-UPSTREAM`, `Status: AWAITS_UPSTREAM_REVISION`) with the contract, the realizing component, and why it is absent, so the next Promote re-freeze projects it from §7/§8 — **do not register it locally** (a 05 agent never writes the registry's obligation content; 04 owns obligations, 05 owns status). Flag it in the final summary for review.
 
 1. **Update population state**: Set current component status to REGISTERING
 
-2. **For each produced contract**, append to cross-cutting.md under `## 1. Data Contracts`:
-
-   Group contracts by producer component. If this is the first contract for this producer, add a subsection header:
-
-   ```markdown
-   ### [producer-component]
-
-   #### CTR-NNN: [contract_name]
-
-   - **Producer**: [producer-component]
-   - **Consumer(s)**: [consumer-1], [consumer-2]
-   - **Status**: DEFINED
-   - **Source**: [producer-component] spec, Section [N]
-
-   ##### Schema
-
-   [Schema verbatim from spec — dataclass definition, JSONB structure, function signature, etc.]
-
-   ##### Consumer Expectations
-
-   | Consumer | Required Fields | Notes |
-   |----------|-----------------|-------|
-   | [consumer-1] | [fields used] | [how they use it] |
-   | [consumer-2] | [fields used] | [how they use it] |
-
-   ##### Verification Notes
-
-   *Registered [date] during cross-cutting population.*
-   ```
+2. **Apply the conformance registration** (per the conformance paragraph above): for each body-realized produced contract, locate its existing `CTR-NNN` in cross-cutting.md and **update that entry in place** — transition its Status `MATERIALIZED → DEFINED` (a real body now backs it) and record any divergence from the materialized obligation/binding as a NOTE in its Verification Notes. Do **not** mint a new `CTR-NNN`. A body-realized contract **absent** from the materialized set is **escalated** (not registered) exactly as described in the conformance paragraph above.
 
 3. **Handle mismatches**: For each mismatch found during reconciliation, append to the affected contract's Verification Notes: "Divergence noted: [consumer] expects [detail], producer provides [detail]. To be resolved during verification."
 
-4. **Update Appendix: Contract Status Summary** table — add rows for each registered contract
+4. **Update Appendix: Contract Status Summary** table — update the Status of each reconciled contract's row (`MATERIALIZED → DEFINED`)
 
 5. **Update population state**:
    - Mark current component COMPLETE
@@ -257,11 +226,11 @@ After all components are processed:
    ```markdown
    ## Appendix: Reconciliation Summary
 
-   | Consumer | Clean | Minor | Field | Structural | Gaps | Pending |
-   |----------|-------|-------|-------|------------|------|---------|
-   | email-ingestion | [N] | [N] | [N] | [N] | [N] | [N] |
-   | extraction-agent | [N] | [N] | [N] | [N] | [N] | [N] |
-   | ... | | | | | | |
+   | Consumer | Clean | Minor | Field | Structural | Gaps |
+   |----------|-------|-------|-------|------------|------|
+   | email-ingestion | [N] | [N] | [N] | [N] | [N] |
+   | extraction-agent | [N] | [N] | [N] | [N] | [N] |
+   | ... | | | | | |
    ```
 
 5. **Deferred items validation**:
