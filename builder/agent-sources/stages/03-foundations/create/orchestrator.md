@@ -85,8 +85,10 @@ system-design/03-foundations/
 ### On Start/Resume
 
 1. **Check if state file exists**:
-   - **If NO**: Fresh start — create state file, begin at Step 1
-   - **If YES**: Read it, resume from the first incomplete step
+   - **If NO**: Fresh start — create state file (with `Current Workflow: Create`), begin at Step 1
+   - **If YES**: Read it, check `Current Workflow`:
+     - **If `Review` or `Promote`**: Error — "{Current Workflow} workflow is active. Cannot re-run creation." (Create is a bootstrap-only workflow; once the stage has moved on to Review or Promote, it is not re-run.)
+     - **If `Create`** (or the field is absent on a legacy in-progress create state): Resume from the first incomplete step
 
 2. **Resume logic**:
    - Steps 1-3b (Validate & Setup) are idempotent — always re-run on resume for validation
@@ -104,6 +106,7 @@ system-design/03-foundations/
 # Foundations Workflow State
 
 **Foundations**: 03-foundations/foundations.md
+**Current Workflow**: Create
 **Current Round**: 1
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
 **Gaps Exist**: unknown | true | false

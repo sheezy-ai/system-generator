@@ -20,9 +20,10 @@
    - **If no previous rounds exist** (first ever round): Use the upstream input document: `system-design/02-prd/prd.md`
    - **If previous rounds exist**: Use the full updated document from the last completed round:
      - Last round was create: `versions/round-{N}-create/03-updated-foundations.md` (or `versions/round-{N}-create/00-draft-foundations.md` if only draft exists)
-     - Last round was review: `versions/round-{N}-review/05-updated-foundations.md`
+     - Last round was review: `versions/round-{N}-review/05-updated-foundations.md` **ELSE** `versions/round-{N}-review/00-foundations.md` (the zero-issues path skips the Author, so `05-updated-foundations.md` may not exist)
      - Last round was expand: `versions/round-{N}-expand/05-updated-foundations.md`
-   - **Never use the promoted file** (`foundations.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
+     - Last round was promote: `versions/round-{N}-promote/00-foundations.md` (the input snapshot the promote round froze — the pre-split full document)
+   - **Never use the promoted file** (`foundations.md` in the parent folder) as input — it may have been split by the Promote stage, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Foundations to `system-design/03-foundations/versions/round-[N]-review/00-foundations.md`. All agents in this round work from this copy.
 
@@ -35,6 +36,7 @@
 
 **Foundations**: 03-foundations/foundations.md
 **PRD**: 02-prd/prd.md
+**Current Workflow**: Review
 **Current Round**: 1
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | BLOCKED_UPSTREAM_ISSUE | COMPLETE
 **On Response**: (When WAITING_FOR_HUMAN) Spawn discussion-facilitator agents for issues needing response. Do NOT answer in chat.
@@ -67,12 +69,12 @@
 **State file**: `system-design/03-foundations/versions/workflow-state.md`
 **Working files**: `system-design/03-foundations/versions/round-[N]-review/`
 
-**Final outputs** (created by promoter at exit):
+**Final outputs** (created by the separate **Promote** workflow, not by Review):
 - `system-design/03-foundations/foundations.md` — Clean current-scope Foundations
 - `system-design/03-foundations/decisions.md` — Design rationale and trade-offs
 - `system-design/03-foundations/future.md` — Deferred items and future considerations
 
-Review uses `round-1-review`, `round-2-review`, etc. Creation workflow uses `round-{N}-create`. Both share this state file.
+Review does **not** split the document. Review's final `05-updated-foundations.md` is the **input** to Promote, which produces the three published documents above. Review uses `round-1-review`, `round-2-review`, etc. Creation workflow uses `round-{N}-create`. Both share this state file.
 
 ---
 
@@ -100,7 +102,6 @@ Foundations review uses a **single stage** with 4 technical experts:
 ```
 agents/review/
 ├── orchestrator.md                    # This file
-├── promoter.md                        # Splits Foundations into spec/decisions/future at exit
 ├── experts/
 │   ├── infrastructure-architect.md
 │   ├── data-engineer.md
@@ -125,9 +126,9 @@ Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 
 ```
 system-design/03-foundations/
-├── foundations.md                  # Clean current-scope (created by promoter at exit)
-├── decisions.md                   # Design rationale (created by promoter at exit)
-├── future.md                      # Deferred items (created by promoter at exit)
+├── foundations.md                  # Clean current-scope (created by the separate Promote workflow)
+├── decisions.md                   # Design rationale (created by the separate Promote workflow)
+├── future.md                      # Deferred items (created by the separate Promote workflow)
 └── versions/
     ├── workflow-state.md
     ├── round-{N}-create/              # Creation workflow output
@@ -280,7 +281,7 @@ Output: [resolved file path]
 13. **Update state file**: Mark Step 3 complete
 
 14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
-    - **If zero kept issues**: The document is complete. Skip Steps 3b–10 and proceed directly to Step 11 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–10, set review **COMPLETE** (status = COMPLETE), and **recommend running Promote**. Update state file with history entry: "Zero kept issues after filtering — review complete; Promote recommended." Notify the user: this Review round completed with no kept issues; the document has stabilised — run the **Promote** workflow to split it into `foundations.md` / `decisions.md` / `future.md`. Promote resolves its input as this round's `05-updated-foundations.md` **ELSE** `00-foundations.md` (this zero-issues path skips the Author, so `00-foundations.md` is the input).
     - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
@@ -655,39 +656,16 @@ This gate is mandatory. Do not skip it.
 
 48. **Route to completion**:
     - **Determine maturity**: from this round's `03-issues-discussion.md`, count the **HIGH and MEDIUM** issues this round surfaced and kept at document level. LOW issues do **not** count toward maturity. This round is **mature** if it surfaced **no HIGH or MEDIUM** issues — the convergence criterion: exit on "no HIGH/MEDIUM", **not** "zero issues" (aligning the human routing with the zero-issues auto-gate's intent and the create-stage exit).
-    - **Present the routing choice to the user with the maturity signal**: state `Round [N] — maturity: [mature | not mature]; this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)`. If **mature**, tell the user the document has stabilised and **EXIT (promote) is the default** — remaining LOW items are carried, not chased, and another round is warranted only if they expect genuinely new HIGH/MEDIUM concerns. Then ask: **next round or exit?**
+    - **Present the routing choice to the user with the maturity signal**: state `Round [N] — maturity: [mature | not mature]; this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)`. If **mature**, tell the user the document has stabilised and **EXIT (mark review complete, then run Promote) is the default** — remaining LOW items are carried, not chased, and another round is warranted only if they expect genuinely new HIGH/MEDIUM concerns. Then ask: **next round or exit?**
     - If user chooses next round: Update state file to increment round, reset to Step 1
-    - If user chooses exit: Proceed to Step 11 (Promote)
-
-### Step 11: Promote
-
-49. **Spawn Foundations Promoter**:
-    ```
-    Follow the instructions in: {{AGENTS_PATH}}/03-foundations/review/promoter.md
-
-    Input:
-    - Reviewed Foundations: system-design/03-foundations/versions/round-[N]-review/05-updated-foundations.md
-    - Foundations guide: {{GUIDES_PATH}}/03-foundations-guide.md
-
-    Output:
-    - system-design/03-foundations/foundations.md
-    - system-design/03-foundations/decisions.md
-    - system-design/03-foundations/future.md
-    ```
-
-50. **Verify all three output files exist**:
-    - `system-design/03-foundations/foundations.md`
-    - `system-design/03-foundations/decisions.md`
-    - `system-design/03-foundations/future.md`
-
-51. **Update state file**: status = COMPLETE
+    - If user chooses exit: Mark review **COMPLETE** (status = COMPLETE), add history entry "Review complete — Promote recommended", and **recommend running the Promote workflow**. Review does **not** split the document — Promote is a separate workflow that reads this round's `05-updated-foundations.md` (**ELSE** `00-foundations.md`) and produces `foundations.md` / `decisions.md` / `future.md`.
 
 ---
 
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 0 → 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 11 (Promote)
+- Steps 0 → 1 → 2 → 3 → zero-issues gate: If zero kept issues → set review COMPLETE and recommend running Promote
 - Steps 3 → 3b → 4: If kept issues exist, proceed automatically until Step 4 Discussion
 - Steps 5 → 6+7+8 (parallel) → 9: Execute without pausing between verification steps
 - Step 9 → 10: Execute after human decisions collected (if needed)
@@ -703,13 +681,13 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 ## Exit Criteria
 
-The review exits via one of two paths:
+The review exits (status = COMPLETE, with Promote recommended) via one of two paths:
 
-1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–10 and proceeds directly to Step 11 (Promote).
+1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–10, sets review COMPLETE, and recommends running Promote.
 
 2. **Severity-gated exit (maturity)**: After Step 10, the user exits when the round is **mature** — it surfaced no HIGH or MEDIUM issues (Step 48). Remaining LOW items are carried, not chased. This is a first-class exit, not merely a fallback: the convergence criterion is "no HIGH/MEDIUM", reconciling with the zero-issues gate (which is the stronger short-circuit when nothing at all remains). The user may still override and exit despite open HIGH/MEDIUM if the remaining issues are not worth another round.
 
-**After final round**: Run the Foundations Promoter (Step 11) to split the reviewed Foundations into three documents: `foundations.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
+**After the review completes**: the split is done by the **separate Promote workflow** (not Review). Promote reads the final reviewed Foundations (`05-updated-foundations.md` ELSE `00-foundations.md`) and splits it into three documents: `foundations.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
 
 ---
 

@@ -111,7 +111,7 @@ system-design/02-prd/
 1. **Check if state file exists**:
    - **If NO**: Fresh start — create state file (with `Current Workflow: Create`), begin at Step 1
    - **If YES**: Read it, check `Current Workflow`:
-     - **If `Review`**: Error — "Review workflow is active. Cannot re-run creation."
+     - **If `Review` or `Promote`**: Error — "{Current Workflow} workflow is active. Cannot re-run creation." (Create is a bootstrap-only workflow; once the stage has moved on to Review or Promote, it is not re-run.)
      - **If `Create`**: Resume from the first incomplete step
 
 2. **Resume logic**:
@@ -974,7 +974,7 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 | State file corrupted/unreadable | Warning: Report issue, re-create state from file existence checks |
 | Resume: draft missing but Step 9 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
 | Round N primary source missing | Error: "Round {N} requires draft from round {N-1} but no draft found" |
-| Current Workflow = Review | Error: "Review workflow is active. Cannot re-run creation." |
+| Current Workflow = Review or Promote | Error: "{Current Workflow} workflow is active. Cannot re-run creation." |
 
 ---
 

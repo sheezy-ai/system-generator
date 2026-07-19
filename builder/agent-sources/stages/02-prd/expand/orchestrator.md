@@ -28,9 +28,10 @@ The expand workflow produces an updated PRD that reads as if the expanded capabi
    - **If no previous rounds exist** (first ever round): Use the upstream input document: `system-design/01-blueprint/blueprint.md`
    - **If previous rounds exist**: Use the full updated document from the last completed round:
      - Last round was create: `versions/round-{N}-create/03-updated-prd.md` (or `versions/round-{N}-create/00-draft-prd.md` if only draft exists)
-     - Last round was review: `versions/round-{N}-review/05-updated-prd.md`
+     - Last round was review: `versions/round-{N}-review/05-updated-prd.md` **ELSE** `versions/round-{N}-review/00-prd.md` (the zero-issues path skips the Author, so `05-updated-prd.md` may not exist)
      - Last round was expand: `versions/round-{N}-expand/05-updated-prd.md`
-   - **Never use the promoted file** (`prd.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
+     - Last round was promote: `versions/round-{N}-promote/00-prd.md` (the input snapshot the promote round froze — the pre-split full document)
+   - **Never use the promoted file** (`prd.md` in the parent folder) as input — it may have been split by the Promote stage, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source PRD to `system-design/02-prd/versions/round-[N]-expand/00-prd.md`. All agents in this round work from this copy.
 

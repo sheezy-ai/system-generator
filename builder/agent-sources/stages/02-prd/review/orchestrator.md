@@ -20,9 +20,10 @@
    - **If no previous rounds exist** (first ever round): Use the upstream input document: `system-design/01-blueprint/blueprint.md`
    - **If previous rounds exist**: Use the full updated document from the last completed round:
      - Last round was create: `versions/round-{N}-create/03-updated-prd.md` (or `versions/round-{N}-create/00-draft-prd.md` if only draft exists)
-     - Last round was review: `versions/round-{N}-review/05-updated-prd.md`
+     - Last round was review: `versions/round-{N}-review/05-updated-prd.md` **ELSE** `versions/round-{N}-review/00-prd.md` (the zero-issues path skips the Author, so `05-updated-prd.md` may not exist)
      - Last round was expand: `versions/round-{N}-expand/05-updated-prd.md`
-   - **Never use the promoted file** (`prd.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
+     - Last round was promote: `versions/round-{N}-promote/00-prd.md` (the input snapshot the promote round froze — the pre-split full document)
+   - **Never use the promoted file** (`prd.md` in the parent folder) as input — it may have been split by the Promote stage, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source PRD to `system-design/02-prd/versions/round-[N]-review/00-prd.md`. All agents in this round work from this copy.
 
@@ -77,12 +78,12 @@ Update the state file:
 **State file**: `system-design/02-prd/versions/workflow-state.md`
 **Working files**: `system-design/02-prd/versions/round-[N]-review/`
 
-**Final outputs** (created by promoter at exit):
+**Final outputs** (created by the separate **Promote** workflow, not by Review):
 - `system-design/02-prd/prd.md` — Clean current-scope PRD
 - `system-design/02-prd/decisions.md` — Product decision rationale and trade-offs
 - `system-design/02-prd/future.md` — Deferred features and future considerations
 
-Review outputs go under `versions/round-1-review/`, `versions/round-2-review/`, etc. Creation outputs go under `versions/round-[N]-create/`. Both workflows share the `versions/` folder with a unified state file (`Current Workflow` field distinguishes active workflow).
+Review does **not** split the document. Review's final `05-updated-prd.md` is the **input** to Promote, which produces the three published documents above. Review outputs go under `versions/round-1-review/`, `versions/round-2-review/`, etc. Creation outputs go under `versions/round-[N]-create/`. Both workflows share the `versions/` folder with a unified state file (`Current Workflow` field distinguishes active workflow).
 
 ---
 
@@ -102,8 +103,7 @@ agents/review/
 │
 ├── consolidator.md                    # Step 2: merges expert issues by theme
 ├── author.md                          # Step 5: applies resolved changes
-├── change-verifier.md                 # Step 6: verifies each resolution applied
-└── promoter.md                        # Splits PRD into spec/decisions/future at exit
+└── change-verifier.md                 # Step 6: verifies each resolution applied
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── alignment-verifier.md              # Verifies alignment with source documents
@@ -301,7 +301,7 @@ Output: [resolved file path]
 13. **Update state file**: Mark Step 3 complete, add history entry
 
 14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
-    - **If zero kept issues**: The document is complete. Skip Steps 3b–11 and proceed directly to Step 12 (Promote). Update state file with history entry: "Zero kept issues after filtering — proceeding to promotion."
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–11, set review **COMPLETE** (status = COMPLETE), and **recommend running Promote**. Update state file with history entry: "Zero kept issues after filtering — review complete; Promote recommended." Notify the user: this Review round completed with no kept issues; the document has stabilised — run the **Promote** workflow to split it into `prd.md` / `decisions.md` / `future.md`. Promote resolves its input as this round's `05-updated-prd.md` **ELSE** `00-prd.md` (this zero-issues path skips the Author, so `00-prd.md` is the input).
     - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
@@ -728,34 +728,16 @@ This gate is mandatory. Do not skip it.
 
 49. **Route to completion**:
     - **Determine maturity**: from this round's `03-issues-discussion.md`, count the **HIGH and MEDIUM** issues this round surfaced and kept at document level. LOW issues do **not** count toward maturity. This round is **mature** if it surfaced **no HIGH or MEDIUM** issues — the convergence criterion: exit on "no HIGH/MEDIUM", **not** "zero issues" (aligning the human routing with the zero-issues auto-gate's intent and the create-stage exit).
-    - **Present the routing choice to the user with the maturity signal**: state `Round [N] — maturity: [mature | not mature]; this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)`. If **mature**, tell the user the document has stabilised and **EXIT (promote) is the default** — remaining LOW items are carried, not chased, and another round is warranted only if they expect genuinely new HIGH/MEDIUM concerns. Then ask: **next round or exit?**
+    - **Present the routing choice to the user with the maturity signal**: state `Round [N] — maturity: [mature | not mature]; this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)`. If **mature**, tell the user the document has stabilised and **EXIT (mark review complete, then run Promote) is the default** — remaining LOW items are carried, not chased, and another round is warranted only if they expect genuinely new HIGH/MEDIUM concerns. Then ask: **next round or exit?**
     - If user chooses next round: Update state file to increment round, reset to Step 1
-    - If user chooses exit: Proceed to Step 12 (Promote)
-
-### Step 12: Promote
-
-50. **Run PRD Promoter agent**:
-    ```
-    Follow the instructions in: {{AGENTS_PATH}}/02-prd/review/promoter.md
-
-    Input: system-design/02-prd/versions/round-[N]-review/05-updated-prd.md
-    ```
-    - Agent splits the reviewed PRD into three focused documents
-    - Agent writes to `system-design/02-prd/prd.md`, `decisions.md`, and `future.md`
-
-51. **Verify output files exist**:
-    - `system-design/02-prd/prd.md`
-    - `system-design/02-prd/decisions.md`
-    - `system-design/02-prd/future.md`
-
-52. **Update state file**: status = COMPLETE
+    - If user chooses exit: Mark review **COMPLETE** (status = COMPLETE), add history entry "Review complete — Promote recommended", and **recommend running the Promote workflow**. Review does **not** split the document — Promote is a separate workflow that reads this round's `05-updated-prd.md` (**ELSE** `00-prd.md`) and produces `prd.md` / `decisions.md` / `future.md`.
 
 ---
 
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Steps 1 → 2 → 3 → zero-issues gate: If zero kept issues → skip to Step 12 (Promote)
+- Steps 1 → 2 → 3 → zero-issues gate: If zero kept issues → set review COMPLETE and recommend running Promote
 - Steps 3 → 3b → 4: If kept issues exist, proceed automatically until Step 4 Discussion
 - Steps 5 → 6+7+8+9 (parallel) → 10: Execute without pausing between verification steps
 - Step 10 → 11: Execute after human decisions collected (if needed)
@@ -771,13 +753,13 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 ## Exit Criteria
 
-The review exits via one of two paths:
+The review exits (status = COMPLETE, with Promote recommended) via one of two paths:
 
-1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–11 and proceeds directly to Step 12 (Promote).
+1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The orchestrator skips Steps 3b–11, sets review COMPLETE, and recommends running Promote.
 
 2. **Severity-gated exit (maturity)**: After Step 11, the user exits when the round is **mature** — it surfaced no HIGH or MEDIUM issues (Step 49). Remaining LOW items are carried, not chased. This is a first-class exit, not merely a fallback: the convergence criterion is "no HIGH/MEDIUM", reconciling with the zero-issues gate (which is the stronger short-circuit when nothing at all remains). The user may still override and exit despite open HIGH/MEDIUM if the remaining issues are not worth another round.
 
-**After final round**: Run the PRD Promoter (Step 12) to split the reviewed PRD into three documents: `prd.md` (clean requirements), `decisions.md` (rationale), and `future.md` (deferred items).
+**After the review completes**: the split is done by the **separate Promote workflow** (not Review). Promote reads the final reviewed PRD (`05-updated-prd.md` ELSE `00-prd.md`) and splits it into three documents: `prd.md` (clean requirements), `decisions.md` (rationale), and `future.md` (deferred items).
 
 ---
 
