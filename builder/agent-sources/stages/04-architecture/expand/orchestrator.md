@@ -18,10 +18,10 @@ The expand workflow produces an updated Architecture Overview that reads as if t
 
 1. **Check if state file exists**:
    - **If NO**: Error — "No state file found. Run Create workflow first."
-   - **If YES**: Read it and check `Current Workflow`:
-     - **If `Create` and Status not COMPLETE**: Error — "Creation workflow still in progress"
-     - **If any workflow and Status COMPLETE**: Initialize expand round, preserve existing history
-     - **If `Expand`**: Resume from current round/step
+   - **If YES**: Read it. The action depends on `Status` and `Current Workflow` (pattern-based router — mirrors create/review/promote):
+     - **If `Status: COMPLETE`** (a workflow just finished — regardless of `Current Workflow`, Create/Review/Promote): Initialize expand round, preserve existing history
+     - **If `Status: not COMPLETE`** and **`Current Workflow: Expand`**: Resume from current round/step
+     - **If `Status: not COMPLETE`** and **`Current Workflow`** is anything else (Create, Review, Promote): Error — "Cannot start Expand: {Current Workflow} workflow still in progress"
 
 2. **Determine Architecture Overview source path**:
    - Read the state file history to identify the last completed round number and type
@@ -30,7 +30,7 @@ The expand workflow produces an updated Architecture Overview that reads as if t
      - Last round was create: `versions/round-{N}-create/03-updated-architecture.md` (or `versions/round-{N}-create/00-draft-architecture.md` if only draft exists)
      - Last round was review: `versions/round-{N}-review/05-updated-architecture.md`
      - Last round was expand: `versions/round-{N}-expand/05-updated-architecture.md`
-   - **Never use the promoted file** (`architecture.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
+   - **Never use the promoted file** (`architecture.md` in the parent folder) as input — it may have been split by the Promote stage, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Architecture Overview to `system-design/04-architecture/versions/round-[N]-expand/00-architecture.md`. All agents in this round work from this copy.
 

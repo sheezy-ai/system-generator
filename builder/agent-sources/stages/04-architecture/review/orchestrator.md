@@ -22,7 +22,7 @@
      - Last round was create: `versions/round-{N}-create/03-updated-architecture.md` (or `versions/round-{N}-create/00-draft-architecture.md` if only draft exists)
      - Last round was review: `versions/round-{N}-review/05-updated-architecture.md`
      - Last round was expand: `versions/round-{N}-expand/05-updated-architecture.md`
-   - **Never use the promoted file** (`architecture.md` in the parent folder) as input — it may have been split by the review promoter, losing rationale and future content
+   - **Never use the promoted file** (`architecture.md` in the parent folder) as input — it may have been split by the Promote stage, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Architecture Overview to `system-design/04-architecture/versions/round-[N]-review/00-architecture.md`. All agents in this round work from this copy.
 
@@ -69,7 +69,7 @@
 **State file**: `system-design/04-architecture/versions/workflow-state.md`
 **Working files**: `system-design/04-architecture/versions/round-[N]-review/`
 
-**Final outputs** (created by promoter at exit):
+**Final outputs** (created by the **Promote stage's** promoter, after review hands off — review no longer produces these):
 - `system-design/04-architecture/architecture.md` — Clean current-scope Architecture Overview
 - `system-design/04-architecture/decisions.md` — Design rationale and trade-offs
 - `system-design/04-architecture/future.md` — Deferred items and future considerations
@@ -105,7 +105,6 @@ Architecture Overview review uses a **single stage** with 8 experts focused on s
 ```
 agents/review/
 ├── orchestrator.md                    # This file
-├── promoter.md                        # Splits Architecture into spec/decisions/future at exit
 ├── consolidator.md                    # Step 2: merges expert issues by theme
 ├── author.md                          # Step 5: applies resolved changes
 ├── change-verifier.md                 # Step 6: verifies each resolution applied
@@ -134,9 +133,9 @@ Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 
 ```
 system-design/04-architecture/
-├── architecture.md                # Clean current-scope (created by promoter at exit)
-├── decisions.md                   # Design rationale (created by promoter at exit)
-├── future.md                      # Deferred items (created by promoter at exit)
+├── architecture.md                # Clean current-scope (created by the Promote stage, after review)
+├── decisions.md                   # Design rationale (created by the Promote stage)
+├── future.md                      # Deferred items (created by the Promote stage)
 └── versions/
     ├── workflow-state.md
     ├── round-{N}-create/              # Creation workflow output
@@ -159,10 +158,10 @@ system-design/04-architecture/
     │   ├── 07-alignment-report.md
     │   ├── 08-coherence-report.md
     │   ├── 09-verification-summary.md
-    │   ├── 10-pending-issue-sync.md      # If pending issues were synced
-    │   ├── 11-contract-completeness-gate.md   # Step 12 blocking gate re-run (completeness)
-    │   └── 12-contract-freezability-gate.md   # Step 12 blocking gate re-run (freezability)
+    │   └── 10-pending-issue-sync.md      # If pending issues were synced
     ├── round-2-review/
+    │   └── ...
+    ├── round-{N}-promote/             # Promote stage: gate reports + freeze record (11-/12- gate reports live here now)
     │   └── ...
     └── pending-issues.md
 ```
@@ -296,7 +295,7 @@ Output: [resolved file path]
 13. **Update state file**: Mark Step 3 complete
 
 14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
-    - **If zero kept issues**: The document is complete. Skip Steps 3b–11 and proceed directly to Step 12 (Contract Completeness & Freezability Gate & Promote). **The contract completeness & freezability gate still runs on this path** — the zero-issues auto-gate does not bypass it. Update state file with history entry: "Zero kept issues after filtering — proceeding to the contract completeness & freezability gate then promotion."
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–11 and proceed directly to Step 12 (Mark COMPLETE & Hand to Promote). **The contract completeness & freezability gate still runs — in the Promote stage, on the only road to `architecture.md`** — the zero-issues auto-gate does not bypass it; it just no longer runs inside review. Update state file with history entry: "Zero kept issues after filtering — marking complete and handing to Promote (the gate runs there)."
     - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
@@ -715,74 +714,27 @@ This gate is mandatory. Do not skip it.
     - **Determine maturity**: from this round's `03-issues-discussion.md`, count the **HIGH and MEDIUM** issues this round surfaced and kept at document level. LOW issues do **not** count toward maturity. This round is **mature** if it surfaced **no HIGH or MEDIUM** issues — the convergence criterion: exit on "no HIGH/MEDIUM", **not** "zero issues" (aligning the human routing with the zero-issues auto-gate's intent and the create-stage exit).
     - **Present the routing choice to the user with the maturity signal**: state `Round [N] — maturity: [mature | not mature]; this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)`. If **mature**, tell the user the document has stabilised and **EXIT (promote) is the default** — remaining LOW items are carried, not chased, and another round is warranted only if they expect genuinely new HIGH/MEDIUM concerns. Then ask: **next round or exit?**
     - If user chooses next round: Update state file to increment round, reset to Step 1
-    - If user chooses exit: Proceed to Step 12 (Contract Completeness & Freezability Gate & Promote)
+    - If user chooses exit: Proceed to Step 12 (Mark COMPLETE & Hand to Promote)
 
-### Step 12: Contract Completeness & Freezability Gate & Promote
+### Step 12: Mark COMPLETE & Hand to Promote
 
-**This step runs on every path into promotion — the Step 11 exit choice AND the zero-issues auto-gate (which skips Steps 3b–11 and proceeds directly here). The gate below is the hard backstop that a maturity-override at Step 11, or the zero-issues auto-gate, cannot bypass. The Review promoter is the sole producer of `architecture.md`, so this gate sits on the only road to a promoted Architecture Overview. It is a single gate enforcing both freeze axes — §8 is complete AND freezable — before §8 becomes the authority.**
+**Review no longer runs the gate or the promoter — they moved to the Promote stage.** This step ends the review round and hands off. The gate is **not gone**: it runs in Promote, which is the sole producer of `architecture.md` — so the contract completeness & freezability gate still sits on the only road to a promoted Architecture Overview, just one stage later. A maturity-override at Step 11, or the zero-issues auto-gate, still cannot reach `architecture.md` without passing (or disposing) that gate in Promote.
 
-50. **Contract completeness & freezability gate (blocking — do NOT spawn the promoter until this passes or every HIGH finding, from either reviewer, has a recorded disposition)**:
-    - **Re-run both reviewers** on the document about to be promoted. Each writes its own gate report; both must clear (or have every HIGH disposed). Determine the input document once (`05-updated-architecture.md` if it exists — the Author ran this round; otherwise `00-architecture.md`, the zero-issues path where no Author ran) and pass the same inputs to both.
+50. **Determine the handoff input document** (the reviewed doc Promote will freeze):
+    - `05-updated-architecture.md` if it exists (the Author ran this round), otherwise `00-architecture.md` (the zero-issues path where no Author ran).
 
-      **(a) Contract Completeness reviewer** — is anything **missing** from §8?
-      ```
-      Follow the instructions in: {{AGENTS_PATH}}/04-architecture/review/experts/contract-completeness.md
+51. **Update state file**: set `Status: COMPLETE` and mark Step 12 complete. Record in history: `Round [N] Review complete — handed to Promote`.
 
-      Input:
-      - Architecture Overview: system-design/04-architecture/versions/round-[N]-review/05-updated-architecture.md
-        (if it exists — the Author ran this round; otherwise use round-[N]-review/00-architecture.md,
-         the zero-issues path where no Author ran)
-      - Foundations: system-design/03-foundations/foundations.md
-      - PRD: system-design/02-prd/prd.md
-      - Architecture guide: guides/04-architecture-guide.md
-      - Maturity guide: guides/04-architecture-maturity.md
-
-      Output: system-design/04-architecture/versions/round-[N]-review/11-contract-completeness-gate.md
-      ```
-
-      **(b) Contract Freezability reviewer** — is what is **in** §8 actually **pinnable/freezable**?
-      ```
-      Follow the instructions in: {{AGENTS_PATH}}/04-architecture/review/experts/contract-freezability.md
-
-      Input:
-      - Architecture Overview: system-design/04-architecture/versions/round-[N]-review/05-updated-architecture.md
-        (if it exists — the Author ran this round; otherwise use round-[N]-review/00-architecture.md,
-         the zero-issues path where no Author ran)
-      - Foundations: system-design/03-foundations/foundations.md
-      - PRD: system-design/02-prd/prd.md
-      - Architecture guide: guides/04-architecture-guide.md
-      - Maturity guide: guides/04-architecture-maturity.md
-
-      Output: system-design/04-architecture/versions/round-[N]-review/12-contract-freezability-gate.md
-      ```
-    - **If EITHER reviewer returns any HIGH finding** (an uncontracted cross-component read, or an under-pinned/un-freezable contract): **HALT — do NOT spawn the promoter.** Set status = WAITING_FOR_HUMAN and route **all** HIGH findings from both reports to disposition through the existing discussion machinery (Issue Analyst → Discussion Facilitator, the Step 3b/4 pattern). Each HIGH finding must reach one recorded outcome:
-      - **Resolved** — return to Step 5 (Author) to add the §8 Data Contract (completeness) or pin the obligation / make the delegation resolve in §7/§8/PRD §5 (freezability), then re-run verification and re-run this gate;
-      - **Deferred** — recorded to `future.md` as a knowingly-deferred contract obligation;
-      - **Dismissed** — recorded to `decisions.md` with rationale (why it is not a cross-component read / not a contract, or why the residual is a fenced component realization rather than an un-freezable contract).
-    - A human may knowingly **override** and proceed; the override and its rationale are recorded in `decisions.md`. The gate can be overridden, but it can **never be a silent pass** — every HIGH finding, from either reviewer, leaves a recorded disposition before the promoter runs.
-    - **If both reviewers return no HIGH findings**: proceed to step 51. (MEDIUM/LOW findings are carried, not chased — record them in `future.md` if a human wants them tracked.)
-    - **Note (honest — do not overstate this):** both are the **same** reviewers re-run, not second independent detectors. This buys **unavoidability** — it catches a HIGH gap (a missing contract, or an un-freezable one) that a Step 11 maturity-override or the zero-issues auto-gate would otherwise carry straight into promotion. It does **not** add independent detection or defence-in-depth; the detection already happened (or was skipped) at Step 1. The freezability re-run also guarantees the un-freezable contract is caught **here, before freeze**, rather than escalating from the 05-init materializer after promotion.
-
-51. **Spawn Architecture Promoter** (only after the gate passes clean, or every HIGH finding has a recorded disposition/override):
+52. **Emit the explicit handoff** to the user:
     ```
-    Follow the instructions in: {{AGENTS_PATH}}/04-architecture/review/promoter.md
+    Review round [N] is COMPLETE and mature.
+    NEXT: run the Promote workflow on
+    system-design/04-architecture/versions/round-[N]-review/[05-updated-architecture.md | 00-architecture.md].
 
-    Input:
-    - Reviewed Architecture Overview: system-design/04-architecture/versions/round-[N]-review/05-updated-architecture.md
-    - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
-
-    Output:
-    - system-design/04-architecture/architecture.md
-    - system-design/04-architecture/decisions.md
-    - system-design/04-architecture/future.md
+    Promote runs the contract completeness & freezability gate (the unavoidable freeze backstop)
+    and then splits the reviewed Architecture Overview into architecture.md / decisions.md / future.md.
+    Until Promote runs, no promoted architecture.md is produced.
     ```
-
-52. **Verify all three output files exist**:
-    - `system-design/04-architecture/architecture.md`
-    - `system-design/04-architecture/decisions.md`
-    - `system-design/04-architecture/future.md`
-
-53. **Update state file**: status = COMPLETE
 
 ---
 
@@ -790,7 +742,7 @@ This gate is mandatory. Do not skip it.
 
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2 → 3: Proceed automatically through expert review, consolidation, and filtering
-- **Zero-issues gate** (after Step 3): If zero kept issues, skip directly to Step 12 (Contract Completeness & Freezability Gate & Promote) — the contract completeness & freezability gate still runs
+- **Zero-issues gate** (after Step 3): If zero kept issues, skip directly to Step 12 (Mark COMPLETE & Hand to Promote) — the contract completeness & freezability gate still runs, in the Promote stage
 - Steps 3b → 4: Proceed to issue analysis and discussion
 - Steps 5 → 6+7+8+9 (parallel) → 10: Execute without pausing between verification steps
 - Step 10 → 11: Execute after human decisions collected (if needed)
@@ -808,11 +760,11 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 The review exits via one of two paths:
 
-1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The zero-issues gate triggers this automatically, proceeding directly to Step 12 (Contract Completeness & Freezability Gate & Promote) — where the contract completeness & freezability gate still runs before the promoter (its unavoidability is the point: a zero-issues auto-exit must not carry an uncontracted cross-component read, or an un-freezable contract, into promotion).
+1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The zero-issues gate triggers this automatically, proceeding directly to Step 12 (Mark COMPLETE & Hand to Promote). The contract completeness & freezability gate still runs before the promoter — it now runs in the **Promote stage**, which is the sole producer of `architecture.md` (its unavoidability is the point: a zero-issues auto-exit must not carry an uncontracted cross-component read, or an un-freezable contract, into promotion).
 
 2. **Severity-gated exit (maturity)**: After Step 11, the user exits when the round is **mature** — it surfaced no HIGH or MEDIUM issues (Step 49). Remaining LOW items are carried, not chased. This is a first-class exit, not merely a fallback: the convergence criterion is "no HIGH/MEDIUM" — this is what "multiple rounds until no HIGH issues remain" (above) means, and it reconciles with the zero-issues gate, which is the stronger short-circuit when nothing at all remains. The user may still override and exit despite open HIGH/MEDIUM if the remaining issues are not worth another round.
 
-**After final round**: Step 12 runs the contract completeness & freezability gate (blocking on HIGH findings from either reviewer — an uncontracted cross-component read, or an un-freezable contract) and then the Architecture Promoter, which splits the reviewed Architecture Overview into three documents: `architecture.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
+**After final round**: review marks the round COMPLETE and hands to Promote. The **Promote stage** then runs the contract completeness & freezability gate (blocking on HIGH findings from either reviewer — an uncontracted cross-component read, or an un-freezable contract) and the Architecture Promoter, which splits the reviewed Architecture Overview into three documents: `architecture.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
 
 ---
 

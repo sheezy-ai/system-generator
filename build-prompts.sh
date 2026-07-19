@@ -351,6 +351,29 @@ build_review_workflow() {
     echo "  Built: $output_file"
 }
 
+# Process a single Promote workflow file
+build_promote_workflow() {
+    local stage="$1"
+    local workflow_file="$2"
+    local workflow_name=$(basename "$workflow_file" .md)
+
+    # Get output directory
+    local output_dir_name=$(get_output_dir "$stage")
+    local output_file="$AGENTS_DIR/$output_dir_name/promote/$workflow_name.md"
+
+    # Start with the core workflow file
+    local content
+    content=$(cat "$workflow_file")
+
+    # Inject common sections
+    content=$(inject_common_sections "$content")
+
+    # Write output
+    mkdir -p "$(dirname "$output_file")"
+    echo "$content" > "$output_file"
+    echo "  Built: $output_file"
+}
+
 # Process a single stage file (07-conventions, 08-build)
 build_stage_file() {
     local stage="$1"
@@ -629,6 +652,38 @@ for stage_dir in "$BUILDER_SOURCES/stages"/*; do
 done
 
 echo "Review build complete."
+echo ""
+
+# Build Promote prompts (currently only 04-architecture has this)
+echo "Building Promote prompts..."
+echo ""
+
+# Clean stale promote output files
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
+    if [[ -d "$stage_dir/promote" ]]; then
+        stage=$(basename "$stage_dir")
+        output_dir_name=$(get_output_dir "$stage")
+        clean_output_dir "$AGENTS_DIR/$output_dir_name/promote" "$stage_dir/promote"
+    fi
+done
+
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
+    if [[ -d "$stage_dir/promote" ]]; then
+        stage=$(basename "$stage_dir")
+        echo "Stage: $stage"
+
+        # Build workflow files
+        for workflow_file in "$stage_dir/promote"/*.md; do
+            if [[ -f "$workflow_file" ]]; then
+                build_promote_workflow "$stage" "$workflow_file"
+            fi
+        done
+
+        echo ""
+    fi
+done
+
+echo "Promote build complete."
 echo ""
 
 # Build Expand prompts

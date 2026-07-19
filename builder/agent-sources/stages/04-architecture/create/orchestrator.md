@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Initialize the Architecture stage by setting up structure, exploring architectural concerns from the PRD and Foundations that need structured analysis, generating a draft Architecture Overview enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, finalise the final draft and hand it to the Architecture Review workflow (which promotes it).
+Initialize the Architecture stage by setting up structure, exploring architectural concerns from the PRD and Foundations that need structured analysis, generating a draft Architecture Overview enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, finalise the final draft and hand it to the Architecture Review workflow (which reviews it; the Promote stage then freezes it into `architecture.md`).
 
 **Flow:** Setup → [Explore → Generate → Gap Resolution]* → Finalise (hand to Review)
 
@@ -44,7 +44,7 @@ Files within the explore directory:
 - `03-updated-architecture.md`
 
 **Brief (optional)**: `system-design/04-architecture/brief.md`
-**Final outputs** (created by the Review workflow promoter at review exit — Create does not produce these):
+**Final outputs** (created by the Promote stage's promoter, after a Review round — Create does not produce these):
 - `system-design/04-architecture/architecture.md` — Clean current-scope Architecture Overview
 - `system-design/04-architecture/decisions.md` — Design rationale and trade-offs
 - `system-design/04-architecture/future.md` — Deferred items and future considerations
@@ -84,7 +84,7 @@ agents/04-architecture/review/
 
 ```
 system-design/04-architecture/
-├── architecture.md                # Created by the Review promoter at review exit (Create does not produce it)
+├── architecture.md                # Created by the Promote stage (after a Review round); Create does not produce it
 ├── decisions.md                   # Design rationale (created by Review promoter)
 ├── future.md                      # Deferred items (created by Review promoter)
 └── versions/
@@ -122,7 +122,7 @@ system-design/04-architecture/
 1. **Check if state file exists**:
    - **If NO**: Fresh start — create state file (with `Current Workflow: Create`), begin at Step 1
    - **If YES**: Read it, check `Current Workflow`:
-     - **If `Review`**: Error — "Review workflow is active. Cannot re-run creation."
+     - **If `Review` or `Promote`**: Error — "{Current Workflow} workflow is active. Cannot re-run creation." (Create is a bootstrap-only workflow; once the stage has moved on to Review or Promote, it is not re-run.)
      - **If `Create`**: Resume from the first incomplete step
 
 2. **Resume logic**:
@@ -977,7 +977,7 @@ Do NOT enter the discussion loop until the human has added actual response conte
 
 ## Phase 3: Finalise & Hand to Review
 
-Phase 3 runs only when the human chooses to finalise at Step 11, exiting the explore→generate loop. It finalises the round's draft and hands it to the Architecture Review workflow — it does **not** produce a promoted `architecture.md`. The Review workflow's promoter is the sole producer of `architecture.md`, so a usable promoted Architecture Overview cannot exist without a review round.
+Phase 3 runs only when the human chooses to finalise at Step 11, exiting the explore→generate loop. It finalises the round's draft and hands it to the Architecture Review workflow — it does **not** produce a promoted `architecture.md`. The **Promote stage's** promoter is the sole producer of `architecture.md`, and Promote requires a completed Review round — so a usable promoted Architecture Overview cannot exist without a review round.
 
 ### Step 12: Finalise & Hand to Review
 
@@ -1015,7 +1015,7 @@ Phase 3 runs only when the human chooses to finalise at Step 11, exiting the exp
 
     NEXT: run the Architecture Review workflow — it reads {round-dir}/03-updated-architecture.md
     (or {round-dir}/00-draft-architecture.md if the Author did not run). Create does not
-    produce architecture.md; the Review promoter creates it at review exit.
+    produce architecture.md; the Promote stage creates it after a completed Review round.
     ```
 
 ---
@@ -1066,7 +1066,7 @@ Phase 3 runs only when the human chooses to finalise at Step 11, exiting the exp
 | State file corrupted/unreadable | Warning: Report issue, re-create state from file existence checks |
 | Resume: draft missing but Step 9 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
 | Round N primary source missing | Error: "Round {N} requires draft from round {N-1} but no draft found" |
-| Current Workflow = Review | Error: "Review workflow is active. Cannot re-run creation." |
+| Current Workflow = Review or Promote | Error: "{Current Workflow} workflow is active. Cannot re-run creation." |
 
 ---
 
@@ -1078,13 +1078,13 @@ After this orchestrator completes:
 2. **Human optionally makes manual edits** — Can refine the round draft directly
 3. **Human runs Review workflow** — Invokes the Architecture Review orchestrator
 
-**IMPORTANT**: Create does **not** produce `architecture.md`. The Review workflow reads from the create round's final draft (`{round-dir}/03-updated-architecture.md`, or `00-draft-architecture.md`) — never from a promoted `architecture.md`. The promoted `architecture.md` is created only by the Review workflow's promoter at review exit; until a review round runs, no promoted file exists.
+**IMPORTANT**: Create does **not** produce `architecture.md`. The Review workflow reads from the create round's final draft (`{round-dir}/03-updated-architecture.md`, or `00-draft-architecture.md`) — never from a promoted `architecture.md`. The promoted `architecture.md` is created only by the **Promote stage's** promoter, which runs after a Review round (Promote requires a completed Review round); until Review then Promote run, no promoted file exists.
 
 The Review workflow will:
 - Run expert reviewers on the Architecture
 - Facilitate discussion on issues found
 - Author changes and verify alignment with PRD and Foundations
-- Promote the reviewed version (the promoter is the sole producer of `architecture.md`)
+- Mark the round complete and hand off to the **Promote** stage — which runs the contract completeness & freezability gate then promotes the reviewed version (the Promote-stage promoter is the sole producer of `architecture.md`)
 
 ---
 
