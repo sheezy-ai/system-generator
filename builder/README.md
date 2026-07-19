@@ -68,10 +68,14 @@ Each stage produces documentation at a specific level of abstraction:
 - **Framework internals**: `docs/overview.md` - How it works
 - **Design rationale**: `docs/design-decisions.md` - Why it's built this way
 
-## Two Workflows
+## Workflows
 
 **Create** - Generate a new document from inputs (concept or upstream docs)
 
 **Review** - Refine an existing document through iterative expert review
 
-Both workflows use domain-expert agents, human checkpoints, and alignment verification.
+**Expand** - Add new capability areas or scope changes to an existing document; never promotes — always follow with a Review round
+
+**Promote** - Freeze a reviewed document: split it into spec / decisions / future and record the promotion as a versioned round (stages 02-04; Architecture's Promote also runs the contract gate and materializes the frozen registry for Component Specs)
+
+Create, Review, and Expand use domain-expert agents, human checkpoints, and alignment verification; Promote is an automated guard → split → record freeze that runs after Review.

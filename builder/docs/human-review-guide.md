@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document provides guidance for human review steps across all stages and workflows (Create and Review). When you receive a file with issues requiring your input, this guide explains your role and how to respond effectively.
+This document provides guidance for human review steps across all stages and workflows (Create, Review, and Expand). When you receive a file with issues requiring your input, this guide explains your role and how to respond effectively.
 
 ---
 
