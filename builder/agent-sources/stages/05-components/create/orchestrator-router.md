@@ -131,11 +131,9 @@ Detailed tracking for one component's creation (current round, phase, step, stat
 - [ ] Step 10: Gap Resolution
 - [ ] Step 10c: Creation Verification (alignment + coherence — per-round gate)
 - [ ] Step 11: Promote or Continue
-- [ ] Step 11c: Decomposition Evaluation
-- [ ] Step 11d: Split into Sub-Specs (if approved)
 
 ### Phase 3: Promote
-- [ ] Step 12: Promote & Report (single-spec only; skipped if decomposed)
+- [ ] Step 12: Promote & Report
 
 ## Explore Details
 
@@ -145,13 +143,13 @@ Enrichments Accepted: [N]
 Enrichments Rejected: [N]
 
 ## Pending Decision
-(Router writes the human's decision here before re-dispatching a phase orchestrator; the phase orchestrator reads it. E.g. `skip-exploration`, `concerns-accepted`, `promote`, `another-round`, `10c: FIX` / `10c: ACCEPT`, `decomp: proceed|skip|back`, `decomp: approve|skip`.)
+(Router writes the human's decision here before re-dispatching a phase orchestrator; the phase orchestrator reads it. E.g. `skip-exploration`, `concerns-accepted`, `promote`, `another-round`, `10c: FIX` / `10c: ACCEPT`.)
 
 ## History
 - YYYY-MM-DD: Creation workflow started
 ```
 
-**Step numbering is stable** (1–12, including 9b/9c/9d/10c/11c/11d). The split changes *where the logic lives*, not the step numbers — in-flight state files resume without migration.
+**Step numbering is stable** (1–12, including 9b/9c/9d/10c). The split changes *where the logic lives*, not the step numbers — in-flight state files resume without migration.
 
 ---
 
@@ -233,8 +231,7 @@ system-design/05-components/
 | 10 | Generate (checkpoint) | Present gaps; dispatch generate per iteration |
 | 10c | Generate | Dispatch generate (Action: RUN); checkpoint only if it returns VERIFY_DECISION |
 | 11 | Generate (checkpoint) | Present promote/continue |
-| 11c | Promote (checkpoint) | Present decomposition options; dispatch promote |
-| 11d, 12 | Promote | Dispatch promote (Action: PROMOTE) |
+| 12 | Promote | Dispatch promote (Action: PROMOTE) |
 
 ---
 
@@ -439,39 +436,6 @@ When ready, let me know.
 - **"another round"** → record `## Pending Decision: another-round`, dispatch generate (Action: ANOTHER_ROUND). Generate writes the re-raise ledger, increments the round, resets Steps 1–11, and returns `NEW_ROUND_READY`. Then re-resolve paths for the new round and dispatch explore.
 - **"promote"** → record `## Pending Decision: promote`, dispatch promote (Action: PROMOTE).
 
-### At Step 11c (Decomposition Evaluation)
-
-Promote pauses at two sub-checkpoints and returns to the router for each.
-
-**Confirm-decomposition** (promote returned `DECOMP_CONFIRM`):
-```
-Creation verification complete. About to run decomposition evaluation (Step 11c) — assesses whether the spec should be split into sub-specs before promotion.
-
-This is separable from the decision to promote. You can:
-- Say "proceed" — run decomposition evaluation (may recommend splitting)
-- Say "skip" — go straight to promotion (Step 12), no decomposition check
-- Say "back" — return to the promote/another-round choice
-```
-**STOP.** Record `## Pending Decision: decomp: proceed|skip|back`, dispatch promote. ("back" returns the router to the Step 11 checkpoint.)
-
-**Split-recommended** (promote returned `SPLIT_DECISION`, use the return's proposed split):
-```
-Decomposition recommended.
-
-Report: {round-dir}/00-decomposition-report.md
-
-Proposed split:
-- core: [scope summary, N operations]
-[For each auxiliary:]
-- [name]: [scope summary, N operations, separability score N/5]
-
-Options:
-- "approve" — split into sub-specs before promotion
-- "skip" — promote as single spec
-- "modify" — adjust the split (edit the report, then say "approve")
-```
-**STOP.** Record `## Pending Decision: decomp: approve|skip`, dispatch promote. (For an `ARCHITECTURE_ESCALATION` return, present the escalation note and let the human choose to promote as a single spec or pause to escalate — record their choice and dispatch promote accordingly.)
-
 ---
 
 ## Dispatching Phase Orchestrators
@@ -510,9 +474,9 @@ Component: [component-name]
 Round: [N]
 Action: PROMOTE
 ```
-**Returns:** `DECOMP_CONFIRM` · `SPLIT_DECISION {proposed_split}` · `ARCHITECTURE_ESCALATION {report}` · `PROMOTED {spec_path, summary}` · `DECOMPOSED {sub_specs}`.
+**Returns:** `PROMOTED {spec_path, summary}`.
 
-On `PROMOTED` or `DECOMPOSED`, update state to COMPLETE, update the stage index, report to human, STOP.
+On `PROMOTED`, update state to COMPLETE, update the stage index, report to human, STOP.
 
 ---
 
@@ -529,8 +493,7 @@ Update the stage state (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/vers
 | Event | Update |
 |-------|--------|
 | Creation starts | Component row exists (from initialize) — leave `NOT_STARTED` until promotion |
-| Promotion (single spec) | `NOT_STARTED` → `DRAFT_READY`, set Last Updated |
-| Decomposed | Add sub-spec rows (`DRAFT_READY`); component-level status derived |
+| Promotion | `NOT_STARTED` → `DRAFT_READY`, set Last Updated |
 
 Keep the table sorted alphabetically by component name. The Stage Initialization section is managed by the initialize orchestrator, not this router.
 

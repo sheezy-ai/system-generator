@@ -101,13 +101,9 @@ Run all five verification steps in parallel — they have no dependencies on eac
     - Architecture: {{SYSTEM_DESIGN_PATH}}/system-design/04-architecture/architecture.md
     - Foundations: {{SYSTEM_DESIGN_PATH}}/system-design/03-foundations/foundations.md
     - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/prd.md
-    [If this is a non-core sub-spec (component path contains '/') AND core sub-spec exists:]
-    - Core sub-spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[parent-component]/core.md
 
     Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/07-alignment-report.md
     ```
-
-    **Note on sub-spec alignment**: When reviewing a non-core sub-spec (e.g., `email-sources/quality-metrics`), include the core sub-spec as an additional upstream document. The Alignment Verifier will check that Shared Context references (entity schema, lifecycle state dependencies) match the current state of core.md. For the core sub-spec itself, no additional upstream is needed.
 
     **Contract Verifier** (Step 9):
     ```
