@@ -76,7 +76,7 @@ Cross-Cutting Contracts: [MATERIALIZED with N contracts | reconciled (COMPLETE) 
 
 Phases to run:
 1. Pending Issues Resolution - [N] issues to triage
-2. Contract Conformance & Verification - body-check MATERIALIZED contracts (→ DEFINED) and verify producer/consumer alignment (DEFINED → VERIFIED)
+2. Contract Conformance & Verification - body-check multi-producer/ownerless/interface-only MATERIALIZED contracts (→ DEFINED; single-real-component ones transition at their per-component promote) and verify producer/consumer alignment for all DEFINED contracts (DEFINED → VERIFIED)
 3. Consistency Check - Scan for naming/schema drift
 4. Cross-Boundary Routing Reconciliation - verify each spec's routing claims landed in the target's pending-issues
 
@@ -125,7 +125,10 @@ Proceed? (y/n)
 
 ### Phase 4: Contract Conformance & Verification
 
-**Prerequisite:** Cross-cutting.md must contain contract definitions — `MATERIALIZED` (frozen projections from the Promote freeze) and/or `DEFINED`/`VERIFIED` (already body-backed from prior rounds). This phase is **self-sufficient** — it performs the routine conformance itself; there is no separate reconciliation phase to run first. Iterate over **every** contract in the registry (do **not** narrow the sweep to a subset — the wholesale iteration over all contracts is what re-verifies ownerless composed-query/invariant contracts that no single producer review reaches): for a `MATERIALIZED` entry, check the producer body against the frozen obligation/`Binds:` set and, on a clean check, transition it `MATERIALIZED → DEFINED` (a real body now backs it); for a `DEFINED` entry, verify producer/consumer alignment and, on a pass, transition it `DEFINED → VERIFIED`.
+**Prerequisite:** Cross-cutting.md must contain contract definitions — `MATERIALIZED` (frozen projections from the Promote freeze) and/or `DEFINED`/`VERIFIED` (already body-backed from prior rounds). This phase is **self-sufficient** — it performs the routine conformance itself; there is no separate reconciliation phase to run first. Iterate over **every** contract in the registry (do **not** narrow the sweep to a subset — the wholesale iteration over all contracts is what re-verifies ownerless composed-query/invariant contracts that no single producer review reaches). Two rungs, with a **producer-cardinality split on the first rung (05P-3)**:
+
+- **`MATERIALIZED → DEFINED` (body-check) — this phase owns ONLY the multi-producer / ownerless / interface-only contracts.** For a `MATERIALIZED` entry whose `Producer(s)` is **not** a single real component — two or more producers, the ownerless collective `all domain components …` (comma-free but no owning component), or an interface-only producer like `Source Attribution interface (§7)` / `audit trail (§7)` — check the producer bodies against the frozen obligation/`Binds:` set and, on a clean check, transition it `MATERIALIZED → DEFINED` (a real body now backs it). This is exactly the ownerless/multi-producer wholesale sweep no single producer review reaches. A `MATERIALIZED` entry whose **sole producer is one real component** is body-checked and transitioned to `DEFINED` at **that component's per-component Promote gate** (`promote/orchestrator.md` Step 2), **not here** — leave it untouched (it is not stranded: its producer's promote is its home).
+- **`DEFINED → VERIFIED` (consumer alignment) — this phase owns ALL of them (any producer cardinality).** For a `DEFINED` entry, verify producer/consumer alignment and, on a pass, transition it `DEFINED → VERIFIED`. Nothing else checks consumer-side alignment, so this rung is never narrowed.
 
 1. **Read cross-cutting.md** to get contract definitions
 
@@ -164,7 +167,7 @@ Proceed? (y/n)
 
 5. **Apply resolutions** based on human decisions
 
-6. **Update contract status** in cross-cutting.md: a `MATERIALIZED` entry with a clean producer body-check → `DEFINED`; a `DEFINED` entry that passes producer/consumer alignment → `VERIFIED`. **Preserve the `DEFINED` rung** — it is the `contract-verifier`'s regression-demote target and the Slice-4 re-freeze reset state; never collapse `MATERIALIZED → VERIFIED` directly (a materialized contract must be body-backed as `DEFINED` before it can be consumer-verified as `VERIFIED`)
+6. **Update contract status** in cross-cutting.md: a **multi-producer / ownerless / interface-only** `MATERIALIZED` entry with a clean producer body-check → `DEFINED` (a **single-real-component** `MATERIALIZED` entry transitions at its producer's per-component Promote gate, **not here** — per the split above; leave it untouched); a `DEFINED` entry (any producer cardinality) that passes producer/consumer alignment → `VERIFIED`. **Preserve the `DEFINED` rung** — it is the `contract-verifier`'s regression-demote target and the Slice-4 re-freeze reset state; never collapse `MATERIALIZED → VERIFIED` directly (a materialized contract must be body-backed as `DEFINED` before it can be consumer-verified as `VERIFIED`)
 
 **Output:**
 - Contract verification report
