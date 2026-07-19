@@ -80,7 +80,7 @@ Review outputs go under `versions/round-1-review/`, `versions/round-2-review/`, 
 
 ## Review Structure
 
-Architecture Overview review uses a **single stage** with 7 experts focused on system-level concerns:
+Architecture Overview review uses a **single stage** with 8 experts focused on system-level concerns:
 
 | Expert | Focus |
 |--------|-------|
@@ -91,9 +91,10 @@ Architecture Overview review uses a **single stage** with 7 experts focused on s
 | **FinOps** | Cost implications, budget alignment, cost scaling |
 | **Security** | Trust boundaries, validation ownership, autonomous decision security |
 | **Contract Completeness** | Every implied cross-component data read is a registered §8 contract |
+| **Contract Freezability** | Every §8 contract is freezable — pinned by §7/§8 (+ PRD §5), or a resolvable delegation |
 
 **Notes:**
-- All 7 experts run in parallel
+- All 8 experts run in parallel
 - Focus is on system decomposition, not implementation details
 - Multiple rounds until a round is **mature** — no HIGH or MEDIUM issues surfaced (LOW carried, not chased); see Exit Criteria
 
@@ -115,7 +116,8 @@ agents/review/
     ├── technical-reviewer.md
     ├── finops.md
     ├── security.md
-    └── contract-completeness.md
+    ├── contract-completeness.md
+    └── contract-freezability.md
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
 ├── alignment-verifier.md              # Verifies alignment with source documents
@@ -148,6 +150,7 @@ system-design/04-architecture/
     │   ├── 01-finops.md
     │   ├── 01-security.md
     │   ├── 01-contract-completeness.md
+    │   ├── 01-contract-freezability.md
     │   ├── 02-consolidated-issues.md   # Full detail
     │   ├── 03-issues-discussion.md        # Summary format for human response + inline discussions
     │   ├── 04-author-output.md
@@ -157,7 +160,8 @@ system-design/04-architecture/
     │   ├── 08-coherence-report.md
     │   ├── 09-verification-summary.md
     │   ├── 10-pending-issue-sync.md      # If pending issues were synced
-    │   └── 11-contract-completeness-gate.md   # Step 12 blocking gate re-run
+    │   ├── 11-contract-completeness-gate.md   # Step 12 blocking gate re-run (completeness)
+    │   └── 12-contract-freezability-gate.md   # Step 12 blocking gate re-run (freezability)
     ├── round-2-review/
     │   └── ...
     └── pending-issues.md
@@ -244,7 +248,7 @@ Output: [resolved file path]
    - If source doesn't exist, **error and stop**
 
 3. **Spawn expert agents in parallel**
-   - Spawn **all 7 experts** from the Review Structure roster (System Architect, Data Architect, Integration Architect, Technical Reviewer, FinOps, Security, **Contract Completeness**). Each has a prompt in `agents/review/experts/`.
+   - Spawn **all 8 experts** from the Review Structure roster (System Architect, Data Architect, Integration Architect, Technical Reviewer, FinOps, Security, **Contract Completeness**, **Contract Freezability**). Each has a prompt in `agents/review/experts/`.
    - Pass to each agent:
      - Architecture Overview path: `round-[N]/00-architecture.md`
      - Foundations path, PRD path
@@ -252,7 +256,7 @@ Output: [resolved file path]
      - Maturity guide path: `guides/04-architecture-maturity.md`
      - Output file path
    - Agents verify Architecture Overview against guide criteria and PRD/Foundations requirements within their domain
-   - Agents write to `01-[expert-name].md` (the Contract Completeness expert writes `01-contract-completeness.md`), all merged by the Consolidator at Step 2
+   - Agents write to `01-[expert-name].md` (the Contract Completeness expert writes `01-contract-completeness.md`; the Contract Freezability expert writes `01-contract-freezability.md`), all merged by the Consolidator at Step 2
 
 4. **Wait for all agents to complete**
 
@@ -292,7 +296,7 @@ Output: [resolved file path]
 13. **Update state file**: Mark Step 3 complete
 
 14. **Zero-issues gate**: Read `03-issues-discussion.md` and count kept issues (under the `## Issues` section).
-    - **If zero kept issues**: The document is complete. Skip Steps 3b–11 and proceed directly to Step 12 (Contract-Completeness Gate & Promote). **The contract-completeness gate still runs on this path** — the zero-issues auto-gate does not bypass it. Update state file with history entry: "Zero kept issues after filtering — proceeding to the contract-completeness gate then promotion."
+    - **If zero kept issues**: The document is complete. Skip Steps 3b–11 and proceed directly to Step 12 (Contract Completeness & Freezability Gate & Promote). **The contract completeness & freezability gate still runs on this path** — the zero-issues auto-gate does not bypass it. Update state file with history entry: "Zero kept issues after filtering — proceeding to the contract completeness & freezability gate then promotion."
     - **If one or more kept issues**: Automatically proceed to Step 3b.
 
 ### Step 3b: Issue Analysis
@@ -711,14 +715,16 @@ This gate is mandatory. Do not skip it.
     - **Determine maturity**: from this round's `03-issues-discussion.md`, count the **HIGH and MEDIUM** issues this round surfaced and kept at document level. LOW issues do **not** count toward maturity. This round is **mature** if it surfaced **no HIGH or MEDIUM** issues — the convergence criterion: exit on "no HIGH/MEDIUM", **not** "zero issues" (aligning the human routing with the zero-issues auto-gate's intent and the create-stage exit).
     - **Present the routing choice to the user with the maturity signal**: state `Round [N] — maturity: [mature | not mature]; this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)`. If **mature**, tell the user the document has stabilised and **EXIT (promote) is the default** — remaining LOW items are carried, not chased, and another round is warranted only if they expect genuinely new HIGH/MEDIUM concerns. Then ask: **next round or exit?**
     - If user chooses next round: Update state file to increment round, reset to Step 1
-    - If user chooses exit: Proceed to Step 12 (Contract-Completeness Gate & Promote)
+    - If user chooses exit: Proceed to Step 12 (Contract Completeness & Freezability Gate & Promote)
 
-### Step 12: Contract-Completeness Gate & Promote
+### Step 12: Contract Completeness & Freezability Gate & Promote
 
-**This step runs on every path into promotion — the Step 11 exit choice AND the zero-issues auto-gate (which skips Steps 3b–11 and proceeds directly here). The gate below is the hard backstop that a maturity-override at Step 11, or the zero-issues auto-gate, cannot bypass. The Review promoter is the sole producer of `architecture.md`, so this gate sits on the only road to a promoted Architecture Overview.**
+**This step runs on every path into promotion — the Step 11 exit choice AND the zero-issues auto-gate (which skips Steps 3b–11 and proceeds directly here). The gate below is the hard backstop that a maturity-override at Step 11, or the zero-issues auto-gate, cannot bypass. The Review promoter is the sole producer of `architecture.md`, so this gate sits on the only road to a promoted Architecture Overview. It is a single gate enforcing both freeze axes — §8 is complete AND freezable — before §8 becomes the authority.**
 
-50. **Contract-completeness gate (blocking — do NOT spawn the promoter until this passes or every HIGH finding has a recorded disposition)**:
-    - **Re-run the Contract Completeness reviewer** on the document about to be promoted:
+50. **Contract completeness & freezability gate (blocking — do NOT spawn the promoter until this passes or every HIGH finding, from either reviewer, has a recorded disposition)**:
+    - **Re-run both reviewers** on the document about to be promoted. Each writes its own gate report; both must clear (or have every HIGH disposed). Determine the input document once (`05-updated-architecture.md` if it exists — the Author ran this round; otherwise `00-architecture.md`, the zero-issues path where no Author ran) and pass the same inputs to both.
+
+      **(a) Contract Completeness reviewer** — is anything **missing** from §8?
       ```
       Follow the instructions in: {{AGENTS_PATH}}/04-architecture/review/experts/contract-completeness.md
 
@@ -733,13 +739,29 @@ This gate is mandatory. Do not skip it.
 
       Output: system-design/04-architecture/versions/round-[N]-review/11-contract-completeness-gate.md
       ```
-    - **If it returns any HIGH uncontracted-read finding: HALT — do NOT spawn the promoter.** Set status = WAITING_FOR_HUMAN and route the HIGH findings to disposition through the existing discussion machinery (Issue Analyst → Discussion Facilitator, the Step 3b/4 pattern). Each HIGH finding must reach one recorded outcome:
-      - **Resolved** — return to Step 5 (Author) to add the §8 Data Contract, then re-run verification and re-run this gate;
+
+      **(b) Contract Freezability reviewer** — is what is **in** §8 actually **pinnable/freezable**?
+      ```
+      Follow the instructions in: {{AGENTS_PATH}}/04-architecture/review/experts/contract-freezability.md
+
+      Input:
+      - Architecture Overview: system-design/04-architecture/versions/round-[N]-review/05-updated-architecture.md
+        (if it exists — the Author ran this round; otherwise use round-[N]-review/00-architecture.md,
+         the zero-issues path where no Author ran)
+      - Foundations: system-design/03-foundations/foundations.md
+      - PRD: system-design/02-prd/prd.md
+      - Architecture guide: guides/04-architecture-guide.md
+      - Maturity guide: guides/04-architecture-maturity.md
+
+      Output: system-design/04-architecture/versions/round-[N]-review/12-contract-freezability-gate.md
+      ```
+    - **If EITHER reviewer returns any HIGH finding** (an uncontracted cross-component read, or an under-pinned/un-freezable contract): **HALT — do NOT spawn the promoter.** Set status = WAITING_FOR_HUMAN and route **all** HIGH findings from both reports to disposition through the existing discussion machinery (Issue Analyst → Discussion Facilitator, the Step 3b/4 pattern). Each HIGH finding must reach one recorded outcome:
+      - **Resolved** — return to Step 5 (Author) to add the §8 Data Contract (completeness) or pin the obligation / make the delegation resolve in §7/§8/PRD §5 (freezability), then re-run verification and re-run this gate;
       - **Deferred** — recorded to `future.md` as a knowingly-deferred contract obligation;
-      - **Dismissed** — recorded to `decisions.md` with rationale (why it is not a cross-component read / not a contract).
-    - A human may knowingly **override** and proceed; the override and its rationale are recorded in `decisions.md`. The gate can be overridden, but it can **never be a silent pass** — every HIGH finding leaves a recorded disposition before the promoter runs.
-    - **If the gate returns no HIGH findings**: proceed to step 51. (MEDIUM/LOW findings are carried, not chased — record them in `future.md` if a human wants them tracked.)
-    - **Note (honest — do not overstate this):** this is the **same** reviewer re-run, not a second independent detector. It buys **unavoidability** — it catches a HIGH gap that a Step 11 maturity-override or the zero-issues auto-gate would otherwise carry straight into promotion. It does **not** add independent detection or defence-in-depth; the detection already happened (or was skipped) at Step 1.
+      - **Dismissed** — recorded to `decisions.md` with rationale (why it is not a cross-component read / not a contract, or why the residual is a fenced component realization rather than an un-freezable contract).
+    - A human may knowingly **override** and proceed; the override and its rationale are recorded in `decisions.md`. The gate can be overridden, but it can **never be a silent pass** — every HIGH finding, from either reviewer, leaves a recorded disposition before the promoter runs.
+    - **If both reviewers return no HIGH findings**: proceed to step 51. (MEDIUM/LOW findings are carried, not chased — record them in `future.md` if a human wants them tracked.)
+    - **Note (honest — do not overstate this):** both are the **same** reviewers re-run, not second independent detectors. This buys **unavoidability** — it catches a HIGH gap (a missing contract, or an un-freezable one) that a Step 11 maturity-override or the zero-issues auto-gate would otherwise carry straight into promotion. It does **not** add independent detection or defence-in-depth; the detection already happened (or was skipped) at Step 1. The freezability re-run also guarantees the un-freezable contract is caught **here, before freeze**, rather than escalating from the 05-init materializer after promotion.
 
 51. **Spawn Architecture Promoter** (only after the gate passes clean, or every HIGH finding has a recorded disposition/override):
     ```
@@ -768,7 +790,7 @@ This gate is mandatory. Do not skip it.
 
 **Automatic flow (do NOT pause for human confirmation):**
 - Steps 1 → 2 → 3: Proceed automatically through expert review, consolidation, and filtering
-- **Zero-issues gate** (after Step 3): If zero kept issues, skip directly to Step 12 (Contract-Completeness Gate & Promote) — the contract-completeness gate still runs
+- **Zero-issues gate** (after Step 3): If zero kept issues, skip directly to Step 12 (Contract Completeness & Freezability Gate & Promote) — the contract completeness & freezability gate still runs
 - Steps 3b → 4: Proceed to issue analysis and discussion
 - Steps 5 → 6+7+8+9 (parallel) → 10: Execute without pausing between verification steps
 - Step 10 → 11: Execute after human decisions collected (if needed)
@@ -786,11 +808,11 @@ Do NOT ask "Should I proceed?" between automatic steps. Only stop at the human c
 
 The review exits via one of two paths:
 
-1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The zero-issues gate triggers this automatically, proceeding directly to Step 12 (Contract-Completeness Gate & Promote) — where the contract-completeness gate still runs before the promoter (its unavoidability is the point: a zero-issues auto-exit must not carry an uncontracted cross-component read into promotion).
+1. **Automatic exit (zero-issues gate)**: After Step 3 (scope filter), if zero issues remain in the kept list after consolidation, re-raise detection, and scope/depth filtering, the document is complete. The zero-issues gate triggers this automatically, proceeding directly to Step 12 (Contract Completeness & Freezability Gate & Promote) — where the contract completeness & freezability gate still runs before the promoter (its unavoidability is the point: a zero-issues auto-exit must not carry an uncontracted cross-component read, or an un-freezable contract, into promotion).
 
 2. **Severity-gated exit (maturity)**: After Step 11, the user exits when the round is **mature** — it surfaced no HIGH or MEDIUM issues (Step 49). Remaining LOW items are carried, not chased. This is a first-class exit, not merely a fallback: the convergence criterion is "no HIGH/MEDIUM" — this is what "multiple rounds until no HIGH issues remain" (above) means, and it reconciles with the zero-issues gate, which is the stronger short-circuit when nothing at all remains. The user may still override and exit despite open HIGH/MEDIUM if the remaining issues are not worth another round.
 
-**After final round**: Step 12 runs the contract-completeness gate (blocking on HIGH uncontracted-read findings) and then the Architecture Promoter, which splits the reviewed Architecture Overview into three documents: `architecture.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
+**After final round**: Step 12 runs the contract completeness & freezability gate (blocking on HIGH findings from either reviewer — an uncontracted cross-component read, or an un-freezable contract) and then the Architecture Promoter, which splits the reviewed Architecture Overview into three documents: `architecture.md` (clean spec), `decisions.md` (rationale), and `future.md` (deferred items).
 
 ---
 
