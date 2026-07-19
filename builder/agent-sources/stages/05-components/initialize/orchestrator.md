@@ -7,9 +7,8 @@
 One-time stage-level setup before creating any component specs. Run this once at the start of the Component Specs stage to:
 - Create folder structure for all components
 - Split the monolithic deferred items into component-specific files
-- Materialize the cross-cutting contract registry up-front from Architecture §7/§8 (a resolved contract layer for component creation to consume)
+- Verify the frozen contract registry (materialized + fidelity-checked by the Promote stage) is present before fan-out — 05-init consumes it, it no longer produces it
 - Author step-0 schema-specs for §7 cross-cutting interfaces whose schema layer is deferred (a shared schema components may adopt by reference — not a gate)
-- Fidelity-check the materialized registry against Architecture §7/§8 before component fan-out (a gate: a load-bearing mismatch blocks creation)
 - Initialize pending-issues files for each component
 - Initialize the workflow state file
 
@@ -39,6 +38,8 @@ Run the initialization.
 **Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately with Step 1.
 
 ### Step 1: Read Component List and Compute Priority
+
+**Precondition — the frozen contract registry must already exist (produced by Promote).** Before any component work, assert `system-design/05-components/specs/cross-cutting.md` exists with a materialized `Population` status (`MATERIALIZED`). If it is **absent**, or its `Population` is `MATERIALIZING` (an interrupted freeze) or any non-materialized value → **Error**: "The frozen contract registry is not present. Run the Promote stage (which materializes it) before initializing Component Specs." 05-init **consumes** the frozen registry — as of Slice 4 it no longer produces it (materialization + fidelity were relocated to the Promote stage).
 
 1. **Read Architecture Overview** to find the Component Spec List section (§6)
 
@@ -147,44 +148,9 @@ Run the initialization.
    ```
    Components that already have a `deferred-items.md` (processor wrote items) are left unchanged.
 
-### Step 3a: Materialize the Cross-Cutting Contract Registry (up-front)
+### Step 3a: Author Step-0 Cross-Cutting Interface Schema-Specs
 
-The inter-component data contracts are **already frozen** in Architecture §8 (the CTR table) + §7 (interfaces). Materialize them up-front into `specs/cross-cutting.md` so component creation reads a **resolved contract layer** instead of authoring against §7/§8 with no projected contracts. This is a **projection** of §7/§8 — authority stays upstream (see the Contract Materializer's authority note). It replaces the former DEFERRED placeholder.
-
-1. **Create** `specs/cross-cutting.md` as an empty target (the materializer overwrites it):
-
-```markdown
-# Cross-Cutting Specification
-
-## Status
-
-**Population**: MATERIALIZING
-```
-
-2. **Spawn Contract Materializer** using the Task tool:
-   - **subagent_type**: `general-purpose`
-   - **prompt**:
-     ```
-     Follow the instructions in: {{AGENTS_PATH}}/05-components/cross-cutting/contract-materializer.md
-
-     Input:
-     - Architecture Overview: system-design/04-architecture/architecture.md
-     - PRD: system-design/02-prd/prd.md
-     - Cross-cutting registry: system-design/05-components/specs/cross-cutting.md
-     - Architecture pending-issues: system-design/04-architecture/versions/pending-issues.md
-
-     Output:
-     - Populated registry: system-design/05-components/specs/cross-cutting.md
-     - Materialization report: system-design/05-components/versions/cross-cutting/materialization.md
-     ```
-
-3. **After agent completes**: Verify `cross-cutting.md` status is `MATERIALIZED` and the materialization report was written. Read the report's Escalations count.
-
-4. **If the materializer escalated any under-pinned contracts** (D items appended to Architecture pending-issues): surface this in the Step 5 summary — the Architecture may need an Expand round *before* the affected components are created. This is a signal, not a blocker; the human decides whether to run Expand now or proceed and let the affected contracts resolve later.
-
-### Step 3a-i: Author Step-0 Cross-Cutting Interface Schema-Specs
-
-For each §7 cross-cutting **interface** whose schema layer Architecture leaves unpinned (schema / write-signature / posture / reason-taxonomy / retention deferred to component level), author a **step-0 schema-spec** up-front so the several components that write/read it realize **one shared schema** instead of each improvising a divergent one. This is the schema-layer complement to the Contract Materializer (which projects the §8 CTR *registry*). It is **independent of Step 3a-ii** — it authors interface schema-specs; the fidelity check checks the CTR registry; neither depends on the other.
+For each §7 cross-cutting **interface** whose schema layer Architecture leaves unpinned (schema / write-signature / posture / reason-taxonomy / retention deferred to component level), author a **step-0 schema-spec** up-front so the several components that write/read it realize **one shared schema** instead of each improvising a divergent one. This is the schema-layer complement to the **frozen CTR registry** (`specs/cross-cutting.md`, materialized + fidelity-checked upstream by the Promote stage) — it authors interface schema-specs, a separate artifact from the CTR registry, and does not read or write that registry.
 
 **No gate.** The schema-specs are **step-0 artifacts nothing is forced to consume** — a component that writes/reads an interface **may** adopt one by reference, but component creation does **not** block on them. Do not treat a schema-spec as a prerequisite for any component.
 
@@ -207,47 +173,6 @@ For each §7 cross-cutting **interface** whose schema layer Architecture leaves 
      ```
 
 3. **After agent completes**: Verify the authoring report was written. Read its authored/skipped counts. **Zero interfaces authored is a valid outcome** (none qualified under the selection rule) — not an error. Surface the counts in the Step 5 summary.
-
-### Step 3a-ii: Materialization-Fidelity Check (gate before fan-out)
-
-Independently re-derive the frozen contracts from Architecture §7/§8 and **diff** them against the registry the materializer just wrote, **before** any component is created. A wrong registry entry silently poisons every parallel consumer, so this is a **gate**, not an advisory. It is independent of Step 3a-i (it checks the CTR registry; 3a-i authors interface schema-specs).
-
-1. **Spawn Materialization-Fidelity Checker** using the Task tool:
-   - **subagent_type**: `general-purpose`
-   - **prompt**:
-     ```
-     Follow the instructions in: {{AGENTS_PATH}}/05-components/cross-cutting/materialization-fidelity-checker.md
-
-     Input:
-     - Architecture Overview: system-design/04-architecture/architecture.md
-     - PRD: system-design/02-prd/prd.md
-     - Materialized registry: system-design/05-components/specs/cross-cutting.md
-
-     Output:
-     - Fidelity report: system-design/05-components/versions/cross-cutting/materialization-fidelity.md
-     ```
-
-2. **After agent completes**: Verify the fidelity report was written. Read its **verdict**.
-
-3. **Gate on the verdict:**
-   - **`MISMATCH`** — **STOP. Do not proceed to Step 3b or beyond.** A load-bearing discrepancy between the registry and Architecture §7/§8 would poison every component that consumes the contract. Present the fidelity report to the human and halt:
-
-     ```
-     Materialization-fidelity check found a load-bearing discrepancy between the
-     materialized contract registry and Architecture §7/§8.
-
-     Report: system-design/05-components/versions/cross-cutting/materialization-fidelity.md
-
-     Component creation is BLOCKED — a wrong registry entry poisons every component
-     that consumes the contract. Resolve before initialization continues:
-     - Fix the registry: re-run Step 3a (contract materialization), then re-run this check.
-     - Or confirm the flagged findings are acceptable (record why), then say "proceed".
-
-     Initialization waits here.
-     ```
-
-     Do not continue until the human resolves the mismatch (re-materialize + re-check → `CLEAN`, or an explicit human "proceed" that accepts the findings).
-   - **`CLEAN`** — **auto-proceed** to Step 3b. Record the clean verdict in the Step 5 summary. Advisory LOSSY notes and rider caveats in the report are surfaced for awareness but do **not** gate. *(This mirrors the stage's other severity-gated verification checkpoints — e.g. the per-round Creation Verification gate — where a clean pass proceeds automatically and only findings require a human decision. See the change summary for the clean-case decision rationale.)*
 
 ### Step 3b: Generate Project Scale Reference
 
@@ -303,7 +228,7 @@ Independently re-derive the frozen contracts from Architecture §7/§8 and **dif
 **Status**: COMPLETE
 **Initialized**: YYYY-MM-DD
 
-- [x] Cross-cutting placeholder created
+- [x] Frozen contract registry verified present (materialized by Promote)
 - [x] Component folders created
 - [x] Per-component state files created
 
@@ -350,9 +275,7 @@ Deferred items status:
 - Original archived to: deferred-items-archived-YYYY-MM-DD.md
 
 Cross-cutting contract registry:
-- Materialized specs/cross-cutting.md from Architecture §7/§8 ([N] contracts, [N] bindings resolved)
-- Under-pinned contracts escalated to Architecture pending-issues: [N] (if >0, consider an Architecture Expand round before creating the affected components)
-- Materialization-fidelity check: [CLEAN — registry faithful to §7/§8, fan-out proceeded | (if the run reached here, the check was CLEAN; a MISMATCH would have halted at Step 3a-ii)] ([N] advisory notes for awareness)
+- Consuming the frozen registry produced by Promote: specs/cross-cutting.md ([N] contracts) — materialized and fidelity-verified at the freeze (Promote stage); this stage only reads it
 - Step-0 cross-cutting interface schema-specs authored: [N] (of [M] §7 interfaces evaluated; the rest skipped per the selection rule) — components may adopt by reference, not required
 - Pending-issues.md initialized for each component
 
@@ -378,7 +301,7 @@ system-design/
 ├── project-scale.md                          # Project scale reference (generated in Step 3b)
 └── 05-components/
     ├── specs/
-    │   ├── cross-cutting.md                  # Materialized registry (projection of Architecture §7/§8)
+    │   ├── cross-cutting.md                  # Frozen registry — PRODUCED BY PROMOTE (materialized projection of §7/§8), consumed here
     │   └── cross-cutting-interfaces/         # Step-0 interface schema-specs (one per qualifying §7 interface; may be empty)
     │       └── [interface-name].md
     └── versions/
@@ -386,8 +309,8 @@ system-design/
         ├── workflow-state.md                 # Stage state: initialization + component index
         ├── cross-cutting/
         │   ├── deferred-items.md             # Cross-cutting items (if any)
-        │   ├── materialization.md            # Contract materialization report (bindings + escalations)
-        │   ├── materialization-fidelity.md   # Fidelity-check report (registry vs §7/§8; gates fan-out)
+        │   ├── materialization.md            # Contract materialization report — PRODUCED BY PROMOTE (consumed here)
+        │   ├── materialization-fidelity.md   # Fidelity-check report — PRODUCED BY PROMOTE (consumed here)
         │   └── interface-schemas.md          # Interface schema-authoring report (rule evaluation + authored)
         ├── event-store/
         │   ├── deferred-items.md             # Component-specific items
@@ -415,7 +338,7 @@ system-design/
 | State file already exists | Warning: "Already initialized. Re-running will reset state. Continue? (y/n)" |
 | Deferred Items Processor fails | Error: Report failure, do not create state file |
 | Interface Schema-Author fails (no report written) | Error: Report failure. (Zero interfaces authored is NOT a failure — a written report with 0 authored is a valid outcome.) |
-| Fidelity Checker fails (no report / no verdict) | Error: "Materialization-fidelity check did not produce a verdict. Do not proceed to fan-out — re-run Step 3a-ii." Treat a missing verdict as blocking, never as clean. |
+| Frozen registry missing / not materialized (`specs/cross-cutting.md` absent or `Population` not `MATERIALIZED`) | Error: "The frozen contract registry is not present. Run the Promote stage (which materializes it) before initializing Component Specs." (materialization + fidelity moved to Promote in Slice 4) |
 
 ---
 

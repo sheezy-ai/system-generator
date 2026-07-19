@@ -365,84 +365,6 @@ In Author Output, add a "Cross-Component Requirements" section:
 
 ---
 
-## Syncing Contract Schema Changes
-
-If resolved discussions modified schemas that define data contracts, cross-cutting.md must be updated to stay in sync.
-
-### Process
-
-1. **Identify affected contracts**: Check if any applied changes touched:
-   - JSONB field structures
-   - Event payload definitions
-   - External input/output formats
-   - Any section referenced as a contract Source in cross-cutting.md
-
-2. **Read** `specs/cross-cutting.md` to find contracts where `Consumer = [this-component]`
-
-3. **For each affected contract**:
-   - Update the schema in cross-cutting.md to match the spec changes
-   - Update Source to reference the new spec version/section
-   - Status remains `DEFINED` (or `VERIFIED` if already verified)
-   - Add note: `Updated: Round [N], [ISSUE-ID]`
-
-4. **Log in change log** under Contract Updates section
-
-### What Triggers a Contract Update
-
-| Change Type | Update Required? |
-|-------------|-----------------|
-| Added required field | Yes - add to Required Fields table |
-| Removed required field | Yes - remove from table, note in Verification Notes |
-| Changed field type/constraints | Yes - update field definition |
-| Added optional field | Yes - add to Optional Fields table |
-| Clarified field description | Yes - update description |
-| Unrelated Data Model change | No |
-
-### Change Log Entry Format
-
-```markdown
-## Contract Updates
-
-### CTR-NNN: [contract_name]
-- **Trigger**: [ISSUE-ID] - [brief description]
-- **Changes**: [What was modified in the schema]
-- **Verification Impact**: [If status was VERIFIED, note that re-verification may be needed]
-```
-
-### Re-verification Flag
-
-If a contract had status `VERIFIED` (producer already confirmed conformance) and the schema changes:
-- Update cross-cutting.md with the new schema
-- Add to Verification Notes: `Schema modified Round [N] - re-verification recommended`
-- Do NOT change status back to DEFINED (that's the Verifier's job if needed)
-
----
-
-## Shared Type Registration
-
-If resolved discussions added or modified a type (enum, status set, error codes) that is used by other components:
-
-1. **Check** `specs/cross-cutting.md` Section 2 (Shared Types) for existing types
-2. **If updating existing type**: Update the values summary in cross-cutting.md to match spec changes
-3. **If adding new shared type**:
-   - Ensure it's fully defined in the spec (authoritative source)
-   - Register in cross-cutting.md with TYPE-NNN ID
-   - Include: Defined In, Used By, Type, Values summary
-4. **Log in changelog** under "Shared Type Updates"
-
-### Change Log Entry Format
-
-```markdown
-## Shared Type Updates
-
-### TYPE-NNN: [type_name]
-- **Trigger**: [ISSUE-ID] - [brief description]
-- **Changes**: [What was modified]
-- **Used By Impact**: [List components that may be affected]
-```
-
----
-
 ## Incorporating Discussion Resolutions
 
 1. **Find `>> RESOLVED` markers** in the issues summary file
@@ -484,8 +406,6 @@ This enables tracing any decision back to its originating discussion in `version
 - [ ] Non-component items logged in author output (not written to files)
 - [ ] Unresolved discussions flagged in change log
 - [ ] No `<!-- Reviewed: -->` or `<!-- Scope: -->` HTML comments added to document
-- [ ] Contract schemas in cross-cutting.md updated if Data Model sections changed
-- [ ] Shared types in cross-cutting.md updated if type definitions changed
 - [ ] All changes stay at contract level (no code or upstream convention restating added)
 
 ---
@@ -505,7 +425,6 @@ Complete all steps autonomously without pausing for confirmation. The authoring 
 **Output files**:
 - `[OUTPUT_DIR]/round-[N]-review-[build|ops]/04-author-output.md` — Change log and notes
 - `[OUTPUT_DIR]/round-[N]-review-[build|ops]/05-updated-spec.md` — The updated specification
-- `[SPECS_DIR]/cross-cutting.md` — Update with contract schema/shared type changes (Edit)
 
 ### 04-author-output.md format:
 

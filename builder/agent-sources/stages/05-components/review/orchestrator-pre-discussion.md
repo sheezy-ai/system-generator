@@ -23,7 +23,7 @@ These are instructions for the router to follow directly. The router:
 ### State Files
 
 **Stage state**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/workflow-state.md`
-- Contains stage initialization status (cross-cutting.md, guide.md created)
+- Contains stage initialization status (guide.md created; frozen cross-cutting.md registry verified present)
 - Contains component index (high-level status of all components)
 
 **Per-component state**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/workflow-state.md`

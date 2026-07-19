@@ -34,7 +34,7 @@ Tracks the entire 05-components stage:
 **Status**: COMPLETE
 **Initialized**: 2026-01-04
 
-- [x] Cross-cutting spec created
+- [x] Frozen contract registry verified present (materialized by Promote)
 - [x] Guide created
 
 ## Component Specs
@@ -47,7 +47,7 @@ Tracks the entire 05-components stage:
 ```
 
 This file contains:
-- **Stage initialization status** - Whether cross-cutting.md, guide.md etc. have been created
+- **Stage initialization status** - Whether guide.md etc. have been created and the frozen cross-cutting.md registry is present
 - **Component index** - High-level status of each component's review
 
 ### Per-Component State
