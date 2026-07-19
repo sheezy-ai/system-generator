@@ -91,6 +91,14 @@ Read `06-tasks/versions/workflow-state.md` if it exists:
 - Verify `05-components/specs/cross-cutting.md` exists
 - For each component in the processing order, verify its spec exists in `05-components/specs/[component-name].md`
 - **If any missing**: Error — "Missing: [list]. Cannot proceed."
+- **Assert 05 is frozen** (the whole-stage 05 freeze gate — mirrors 05-init's check of 04's `Frozen-At` token, `05-components/initialize/orchestrator.md:44`, including its staleness guard). Read `05-components/versions/workflow-state.md` and verify **all three**:
+  - it carries a `**Stage-Frozen-At**` marker (stamped by the coherence stage sign-off), **and**
+  - every component in the processing order (Step 2) appears in its `## Frozen Components` manifest, **and**
+  - for each processing-order component, the manifest's recorded promote round **equals the component's current latest `round-N-promote/`** under `05-components/versions/[component]/` (Glob the current `round-*-promote` directories, take the highest N, and compare to the round the manifest records). This catches a component **re-promoted after the freeze** — present in the manifest by name, but at a now-stale round.
+  - **If the marker is absent → Error**: "05 is not frozen — run the coherence stage sign-off (whole-stage promote) before starting Tasks."
+  - **If the marker is present but one or more processing-order components are missing from the manifest → Error**: "05 is frozen but [list] is/are not in the Frozen Components manifest — the frozen stage does not cover the components Tasks would process. Re-run the coherence stage sign-off after promoting them."
+  - **If a component's manifest round is behind its current latest `round-N-promote/` (re-promoted since the freeze) → Error**: "05 changed since the freeze ([X] was re-promoted) — re-run the coherence stage sign-off before starting Tasks."
+  - This makes the freeze **consumed** (06 gates on it) and **fresh** (a re-promote invalidates it), not computed-but-ignored.
 
 ### Step 4: Write workflow state
 
@@ -364,6 +372,9 @@ Exception statuses: FAILED (exceeded max rounds or agent failure), BLOCKED (depe
 | Architecture not found | Error: "Architecture Overview not found at `04-architecture/architecture.md`" |
 | Foundations not found | Error: "Foundations not found at `03-foundations/foundations.md`" |
 | Component spec missing | Error: "Missing spec(s): [list]. Cannot proceed." |
+| 05 not frozen (`Stage-Frozen-At` absent from `05-components/versions/workflow-state.md`) | Error: "05 is not frozen — run the coherence stage sign-off (whole-stage promote) before starting Tasks." |
+| 05 frozen but a processing-order component absent from `## Frozen Components` manifest | Error: "05 is frozen but [list] is/are not in the Frozen Components manifest — re-run the coherence stage sign-off after promoting them." |
+| 05 frozen but a component's manifest round is behind its current latest `round-N-promote/` (re-promoted since the freeze) | Error: "05 changed since the freeze ([X] was re-promoted) — re-run the coherence stage sign-off before starting Tasks." |
 | Circular dependencies in tier computation | Error: report the cycle |
 | Dependency is FAILED | Mark dependent as BLOCKED: "Blocked by [component]" |
 | Pipeline runner subagent fails | Read workflow state to determine component status. If component is not COMPLETE or FAILED, mark FAILED with reason. |

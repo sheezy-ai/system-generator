@@ -55,10 +55,13 @@ Before running:
 ### Phase 1: Gather State
 
 1. **Read stage workflow-state.md** to identify component statuses
-2. **Count components by status**:
-   - COMPLETE
+2. **Count components by status** — recognise the **full stage-index ladder** (`NOT_STARTED → CREATED → IN_PROGRESS → REVIEWED → COMPLETE`; 05P-1 added `CREATED`, 05P-2 added `REVIEWED`). Do **not** miscount `CREATED`/`REVIEWED` as `IN_PROGRESS` or `COMPLETE`:
+   - COMPLETE (promoted — the only "ready" state)
+   - REVIEWED (reviewed-but-not-promoted — **NOT ready**; a component here has passed Review but has not been frozen by its per-component Promote)
    - IN_PROGRESS
+   - CREATED (create-terminal draft, not yet reviewed)
    - NOT_STARTED
+   - **The "all COMPLETE" stage gate (Phase 6/7 freeze) requires every component at `COMPLETE`.** A component at `REVIEWED` (or `CREATED`/`IN_PROGRESS`/`NOT_STARTED`) means the stage is **not** ready to freeze.
 3. **For each component with pending-issues.md**, count unresolved issues
 4. **Read cross-cutting.md** to check population status (`MATERIALIZED`, or `COMPLETE`/reconciled)
 
@@ -68,7 +71,9 @@ Stage Coherence Review
 
 Component Status:
 - COMPLETE: [N] (list)
+- REVIEWED: [N] (list)      # reviewed-but-not-promoted — NOT ready for stage freeze
 - IN_PROGRESS: [N] (list)
+- CREATED: [N] (list)
 - NOT_STARTED: [N] (list)
 
 Pending Issues: [N] unresolved across [M] components
@@ -293,16 +298,48 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 [ ] Ready for implementation phase
 ```
 
+**This sign-off is the whole-stage 05 freeze (05P-5).** When this coherence run is the **all-COMPLETE gate run** (every component at stage-index `COMPLETE`, per the "When to Run" Gate) **and** the `## Blocking Issues` list above is empty, the sign-off is clean and Phase 7 **freezes the stage** (stamps the `Stage-Frozen-At` token + `## Frozen Components` manifest that gates 06). If there are blocking issues, the freeze does **not** happen — the `## Blocking Issues` verdict is the stage HALT.
+
 ---
 
-### Phase 7: Update Stage State
+### Phase 7: Update Stage State — and, on a clean all-COMPLETE sign-off, FREEZE the stage
 
 1. **Add history entry** to `versions/workflow-state.md`:
    ```
    - YYYY-MM-DD: Coherence review completed ([N] issues resolved, [M] deferred)
    ```
 
-2. **Report completion** to human
+2. **Determine whether this run freezes the stage.** This coherence run is the whole-stage 05 freeze (the 05→06 gate) **only if BOTH hold**:
+   - **Every component is at stage-index `COMPLETE`** in the Component Specs table (all promoted). A component at `REVIEWED` (reviewed-but-not-promoted), `IN_PROGRESS`, `CREATED`, or `NOT_STARTED` means the stage is **not** ready — do not freeze. AND
+   - **No blocking issues** remain in the Phase 6 sign-off (`## Blocking Issues` empty / all resolved).
+
+   A **checkpoint** run (some components not yet `COMPLETE`) is **non-freezing**: record the history entry (sub-step 1), report the coherence results, and stop — do **not** stamp.
+
+3. **All-COMPLETE but blocking issues remain → do NOT stamp; HALT.** Report the blockers as the reason the stage cannot be frozen:
+   ```
+   Stage cannot be frozen — [N] blocking issue(s) must be resolved before stage sign-off:
+   - [blocking issue 1]
+   - ...
+   Resolve them (route each back to the relevant component's Review/Promote), then re-run the coherence stage sign-off.
+   ```
+   This is the whole-stage HALT (coherence's own `## Blocking Issues` verdict is the gate).
+
+4. **Clean all-COMPLETE sign-off → STAMP the freeze** into `versions/workflow-state.md`:
+   - Add a **`**Stage-Frozen-At**: [date] — coherence sign-off`** marker to the `## Stage Initialization` block (so it lives beside the stage status).
+   - Write a **`## Frozen Components`** manifest — every component and the Promote round that froze it. Determine each component's promote round from its per-component record: the highest `round-N-promote/` directory under `versions/[component]/` (the filesystem is the source of truth for round numbering, matching `promote/orchestrator.md`). Use Glob to enumerate them.
+     ```markdown
+     ## Frozen Components
+
+     Stage frozen at coherence sign-off — every component below is promoted (`specs/[component].md` published). 06-tasks gates its start on this manifest (the `Stage-Frozen-At` marker + coverage of its processing order).
+
+     | Component | Promote Round | Frozen |
+     |-----------|---------------|--------|
+     | [component-1] | round-[N]-promote | YYYY-MM-DD |
+     | [component-2] | round-[N]-promote | YYYY-MM-DD |
+     | ... | ... | ... |
+     ```
+
+5. **Report completion** to human. On a freeze: state that the stage is frozen (`Stage-Frozen-At` stamped, [N] components in the manifest) and 06-tasks may now start. Otherwise: report the coherence results only (checkpoint) or the blockers (HALT).
 
 ---
 
@@ -311,6 +348,8 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 | Condition | Action |
 |-----------|--------|
 | Fewer than 2 COMPLETE components | Error: "Need at least 2 complete components to review coherence" |
+| All components COMPLETE but blocking issues remain (Phase 7 freeze) | Do NOT stamp `Stage-Frozen-At`. HALT: "Stage cannot be frozen — [N] blocking issue(s) must be resolved before stage sign-off. Resolve and re-run coherence." |
+| Not all components COMPLETE (Phase 7 freeze) | Non-freezing checkpoint run — record history, report results, do not stamp |
 | Human aborts mid-phase | Save progress, report partial completion |
 
 ---
