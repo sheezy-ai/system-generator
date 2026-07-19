@@ -28,8 +28,9 @@ The expand workflow produces an updated Architecture Overview that reads as if t
    - **If no previous rounds exist** (first ever round): Use the upstream input documents: `system-design/02-prd/prd.md` and `system-design/03-foundations/foundations.md`
    - **If previous rounds exist**: Use the full updated document from the last completed round:
      - Last round was create: `versions/round-{N}-create/03-updated-architecture.md` (or `versions/round-{N}-create/00-draft-architecture.md` if only draft exists)
-     - Last round was review: `versions/round-{N}-review/05-updated-architecture.md`
+     - Last round was review: `versions/round-{N}-review/05-updated-architecture.md` **ELSE** `versions/round-{N}-review/00-architecture.md` (the zero-issues path skips the Author, so `05-updated-architecture.md` may not exist)
      - Last round was expand: `versions/round-{N}-expand/05-updated-architecture.md`
+     - Last round was promote: `versions/round-{N}-promote/00-architecture.md` (the input snapshot the promote round froze — the pre-split full document)
    - **Never use the promoted file** (`architecture.md` in the parent folder) as input — it may have been split by the Promote stage, losing rationale and future content
 
 3. **Copy source to round folder**: Copy the source Architecture Overview to `system-design/04-architecture/versions/round-[N]-expand/00-architecture.md`. All agents in this round work from this copy.
