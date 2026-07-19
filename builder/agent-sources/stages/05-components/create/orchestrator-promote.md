@@ -12,7 +12,7 @@ These are instructions for the router to follow directly. The router:
 - Does NOT read agent prompt files — agents read their own instructions
 - Does NOT present to the human or STOP — it returns to the router, which owns all human communication
 
-You COPY the final draft to `specs/[component-name].md` (promotion). You UPDATE the stage index and per-component state. You DO NOT write spec content — agents do that.
+You FINALISE create to its draft path. You do **NOT** write `specs/[component-name].md` — the published spec is written only by the Review workflow's spec-promoter (its sole writer). You UPDATE the stage index and per-component state. You DO NOT write spec content — agents do that.
 
 **Paths, Path Resolution, and the State File Format are defined in the router** (`orchestrator-router.md`). Resolve `{round-dir}` from the current round.
 
@@ -26,19 +26,17 @@ Mark "Step 11: Promote or Continue" complete `[x]` (if not already), add history
 
 ## Step 12: Promote & Report
 
-Runs when the human chose to promote.
+Runs when the human chose to promote (exit the create loop). Create does **not** write `specs/[component-name].md` — that published path is written only by the Review workflow's spec-promoter (the sole writer). Create finalises to its draft, which the Review workflow reads as its Round 1 input.
 
-1. **Determine final draft path** (current round): if `{round-dir}/03-updated-spec.md` exists (Author ran), use it; otherwise `{round-dir}/00-draft-spec.md`.
+1. **Determine final draft path** (current round): if `{round-dir}/03-updated-spec.md` exists (Author ran), use it; otherwise `{round-dir}/00-draft-spec.md`. This is the create-terminal draft.
 
-2. **Copy final draft to specs** (Bash cp): `cp [final draft path] {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`.
+2. **Verify the draft** — confirm the resolved final draft path exists.
 
-3. **Verify promotion** — confirm `specs/[component-name].md` exists.
+3. **Update stage state** (`versions/workflow-state.md`): Component Specs table — update the component row status `NOT_STARTED` → `CREATED`, set Last Updated to today's date; add history entry "[date]: [component-name] creation workflow complete".
 
-4. **Update stage state** (`versions/workflow-state.md`): Component Specs table — update the component row status `NOT_STARTED` → `DRAFT_READY`, set Last Updated to today's date; add history entry "[date]: [component-name] creation workflow complete".
+4. **Update per-component state**: Mark "Step 12" complete `[x]`, set status = COMPLETE, add history entry.
 
-5. **Update per-component state**: Mark "Step 12" complete `[x]`, set status = COMPLETE, add history entry.
-
-6. **Return** `PROMOTED { spec_path: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md, total_rounds: [N], summary: {...} }`. (Router reports completion, including: concerns explored / enrichments accepted-rejected for the final round, whether exploration was skipped, final draft path, gap-resolution summary, and the next-steps pointer to the Review workflow.)
+5. **Return** `PROMOTED { draft_path: [final draft path], total_rounds: [N], summary: {...} }`. (Router reports completion, including: concerns explored / enrichments accepted-rejected for the final round, whether exploration was skipped, final draft path, gap-resolution summary, and the next-steps pointer to the Review workflow.)
 
 ---
 
@@ -46,7 +44,7 @@ Runs when the human chose to promote.
 
 | Return | When |
 |--------|------|
-| `PROMOTED { spec_path, total_rounds, summary }` | Promotion complete |
+| `PROMOTED { draft_path, total_rounds, summary }` | Create finalised — draft ready for Review (specs/ not written) |
 
 Do NOT present anything to the human — the router handles all human communication.
 

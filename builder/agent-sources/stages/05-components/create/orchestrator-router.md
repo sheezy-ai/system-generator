@@ -6,7 +6,7 @@ Central orchestrator that dispatches to phase orchestrators and handles all huma
 
 ## Purpose
 
-Create a single component spec by exploring design concerns, generating a draft enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, promote the final draft to `specs/[component-name].md` for the Review workflow.
+Create a single component spec by exploring design concerns, generating a draft enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, finalise the draft (`round-{N}-create/03-updated-spec.md`, else `00-draft-spec.md`) and hand off to the Review workflow. Create does **not** write `specs/[component-name].md` — the Review workflow's spec-promoter is that path's sole writer.
 
 **Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
 
@@ -60,7 +60,7 @@ Run this router for each component, after the initialize orchestrator has comple
 - Round 1: Architecture + Foundations (two documents)
 - Round N (N≥2): Latest draft from round N-1
 
-**Promoted output**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`
+**Create-terminal draft** (create's final output — NOT `specs/`): `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-{N}-create/03-updated-spec.md` (else `00-draft-spec.md`). The published `specs/[component-name].md` is written later, only by the Review workflow's spec-promoter.
 
 ### Path Resolution
 
@@ -158,7 +158,7 @@ Enrichments Rejected: [N]
 ```
 system-design/05-components/
 ├── specs/
-│   └── [component-name].md            # Promoted from create (then overwritten by Review promoter)
+│   └── [component-name].md            # Written only by Review's spec-promoter (create finalises to round-{N}-create/ drafts, not here)
 └── versions/
     ├── workflow-state.md              # Stage-level state (component index)
     └── [component-name]/
@@ -474,7 +474,7 @@ Component: [component-name]
 Round: [N]
 Action: PROMOTE
 ```
-**Returns:** `PROMOTED {spec_path, summary}`.
+**Returns:** `PROMOTED {draft_path, summary}` (create finalised to its draft; `specs/[component-name].md` is NOT written here).
 
 On `PROMOTED`, update state to COMPLETE, update the stage index, report to human, STOP.
 
@@ -492,8 +492,8 @@ Update the stage state (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/vers
 
 | Event | Update |
 |-------|--------|
-| Creation starts | Component row exists (from initialize) — leave `NOT_STARTED` until promotion |
-| Promotion | `NOT_STARTED` → `DRAFT_READY`, set Last Updated |
+| Creation starts | Component row exists (from initialize) — leave `NOT_STARTED` until create finalises |
+| Create finalises | `NOT_STARTED` → `CREATED`, set Last Updated |
 
 Keep the table sorted alphabetically by component name. The Stage Initialization section is managed by the initialize orchestrator, not this router.
 
@@ -535,7 +535,7 @@ Keep the table sorted alphabetically by component name. The Stage Initialization
 | Gap discussion file not created | Error: "Gap Formatter completed but output not found at expected path" |
 | Author fails | Error: Report failure details |
 | Author output files not created | Error: "Author completed but outputs not found at expected paths" |
-| Promotion copy fails | Error: "Failed to copy final draft to specs/[component-name].md" |
+| Final draft missing at finalise | Error: "Create reached Step 12 but the final draft was not found at the expected round-{N}-create path" |
 | State file corrupted/unreadable | Warning: Report issue, re-create state from file existence checks |
 | Resume: draft missing but Step 9 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
 | Round N primary source missing | Error: "Round {N} requires draft from round {N-1} but no draft found" |
@@ -545,13 +545,13 @@ Keep the table sorted alphabetically by component name. The Stage Initialization
 
 ## What Happens Next
 
-After promotion:
+After create finalises:
 
-1. **Human reviews promoted spec** — Opens `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`
-2. **Human optionally makes manual edits**
+1. **Human reviews the create-terminal draft** — Opens the final draft (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-{N}-create/03-updated-spec.md`, or `00-draft-spec.md` if the Author did not run)
+2. **Human optionally makes manual edits** to that draft
 3. **Human runs Review workflow** — Invokes the Component Review Router for this component
 
-**IMPORTANT**: The Review workflow reads from `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md` for Round 1. This file is created by promotion (Step 12) and MUST exist before starting Review.
+**IMPORTANT**: Create does **not** write `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`. That published path is written only by the Review workflow's spec-promoter (its sole writer). The Review workflow reads the **create-terminal draft** (`versions/[component-name]/round-{N}-create/03-updated-spec.md`, else `00-draft-spec.md`) for its Round 1 — that draft MUST exist before starting Review.
 
 ---
 
