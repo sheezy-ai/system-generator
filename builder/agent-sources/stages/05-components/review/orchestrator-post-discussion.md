@@ -1,8 +1,10 @@
 # Component Spec Review: Post-Discussion Phase
 
-Handles Steps 6-13: Apply Changes, Verification, Execute & Route, and Promote.
+Handles Steps 6-12: Apply Changes, Verification, and Execute & Route.
 
 Runs straight through and returns structured data to router. Router handles human communication.
+
+**Promotion moved out (05P-2):** the spec split/freeze is no longer part of Review — it is its own **Promote** workflow (`{{AGENTS_PATH}}/05-components/promote/orchestrator.md`), the sole writer of `specs/[component-name].md`. Review ends by marking the component review-COMPLETE and handing off to Promote (the router owns that handoff).
 
 ---
 
@@ -31,7 +33,6 @@ These are instructions for the router to follow directly. The router:
 - Absent-From-Freeze Detector: `{{AGENTS_PATH}}/05-components/create/absent-from-freeze-detector.md` (the same body-driven detector spawned at create round-0; run here at **every review round**, since a review edit can introduce a new uncontracted cross-component read)
 - Internal Coherence Checker: `{{AGENTS_PATH}}/universal-agents/internal-coherence-checker.md`
 - Pending Issue Resolver: `{{AGENTS_PATH}}/universal-agents/pending-issue-resolver.md`
-- Spec Promoter: `{{AGENTS_PATH}}/05-components/review/spec-promoter.md`
 
 ---
 
@@ -43,7 +44,6 @@ Router dispatches with an Action parameter:
 |--------|----------|
 | `RUN` | Execute Steps 6-11, return status |
 | `APPLY_DECISIONS` | Read decisions from state file, execute Step 12, return status |
-| `PROMOTE` | Execute Step 13, return completion |
 
 ---
 
@@ -281,44 +281,7 @@ Read `## Pending Decisions` section:
 
 22. **Return to router** with VERIFICATION_CLEAN status and recommendation
 
----
-
-## Action: PROMOTE (Step 13)
-
-Router dispatches after human confirms EXIT.
-
-### Step 13: Promote Spec
-
-23. **Update state file**: Set Step 13, status = IN_PROGRESS
-
-24. **Run Spec Promoter agent**:
-    ```
-    Follow the instructions in: {{AGENTS_PATH}}/05-components/review/spec-promoter.md
-
-    Input:
-    - Reviewed spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/05-updated-spec.md
-    - Component name: [component]
-    - Guide: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/guide.md
-
-    Output:
-    - Implementation spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component].md
-    - Future planning: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/future/[component].md
-    - Decisions: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/decisions/[component].md
-    ```
-
-25. **Verify outputs exist** at all three paths
-
-26. **Update state file**: Mark Step 13 complete, Status = COMPLETE
-
-27. **Return to router**:
-    ```
-    {
-      status: "PROMOTED",
-      implementation_spec: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component].md",
-      future_planning: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/future/[component].md",
-      decisions: "{{SYSTEM_DESIGN_PATH}}/system-design/05-components/decisions/[component].md"
-    }
-    ```
+**On the human's EXIT decision, the router does NOT dispatch this orchestrator again** — promotion is a separate Promote workflow (05P-2). The router marks the component review-COMPLETE and hands off to Promote directly (see the router's "Mark COMPLETE & Hand to Promote").
 
 ---
 
@@ -389,19 +352,7 @@ Router updates state, informs human, stops.
   recommendation: "TRANSITION_TO_OPS"
 }
 ```
-Router presents routing options to human.
-
-### After PROMOTE (Step 13)
-
-```
-{
-  status: "PROMOTED",
-  implementation_spec: "...",
-  future_planning: "...",
-  decisions: "..."
-}
-```
-Router updates state to COMPLETE, reports to human.
+Router presents routing options to human. On EXIT the router marks the component review-COMPLETE and hands off to the Promote workflow (this orchestrator is not re-dispatched for promotion).
 
 ---
 

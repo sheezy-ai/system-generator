@@ -12,7 +12,7 @@ These are instructions for the router to follow directly. The router:
 - Does NOT read agent prompt files — agents read their own instructions
 - Does NOT present to the human or STOP — it returns to the router, which owns all human communication
 
-You FINALISE create to its draft path. You do **NOT** write `specs/[component-name].md` — the published spec is written only by the Review workflow's spec-promoter (its sole writer). You UPDATE the stage index and per-component state. You DO NOT write spec content — agents do that.
+You FINALISE create to its draft path. You do **NOT** write `specs/[component-name].md` — the published spec is written only by the **Promote** workflow's spec-promoter (its sole writer). You UPDATE the stage index and per-component state. You DO NOT write spec content — agents do that.
 
 **Paths, Path Resolution, and the State File Format are defined in the router** (`orchestrator-router.md`). Resolve `{round-dir}` from the current round.
 
@@ -26,7 +26,7 @@ Mark "Step 11: Promote or Continue" complete `[x]` (if not already), add history
 
 ## Step 12: Promote & Report
 
-Runs when the human chose to promote (exit the create loop). Create does **not** write `specs/[component-name].md` — that published path is written only by the Review workflow's spec-promoter (the sole writer). Create finalises to its draft, which the Review workflow reads as its Round 1 input.
+Runs when the human chose to promote (exit the create loop). Create does **not** write `specs/[component-name].md` — that published path is written only by the **Promote** workflow's spec-promoter (the sole writer). Create finalises to its draft, which the Review workflow reads as its Round 1 input.
 
 1. **Determine final draft path** (current round): if `{round-dir}/03-updated-spec.md` exists (Author ran), use it; otherwise `{round-dir}/00-draft-spec.md`. This is the create-terminal draft.
 

@@ -33,8 +33,11 @@ These are instructions for the router to follow directly. The router:
 ### On Start/Resume
 
 1. **Check if per-component state file exists**:
-   - **If NO**: Create it, initialize Round 1 (build) Step 1, add component to stage state's Component Specs table
-   - **If YES**: Read it, resume from current round/part/step
+   - **If NO**: Create it with `Current Workflow: Review`, initialize Round 1 (build) Step 1, and move the component's row in the stage-state Component Specs table to IN_PROGRESS.
+   - **If YES**: Read it. The action depends on `Status` and `Current Workflow` (symmetric state machine — mirrors create/promote):
+     - **`Status: COMPLETE`** (a workflow just finished — regardless of `Current Workflow`: Create, Review, or Promote): a **new Review round is starting**. Set `Current Workflow: Review`, initialize the next sequential round (new round number = highest existing `round-*` directory + 1, per the filesystem-source-of-truth rule below; part = build), set Step 1 and `Status: IN_PROGRESS`, preserve history, and move the stage-index row to IN_PROGRESS.
+     - **`Status: not COMPLETE`** and **`Current Workflow: Review`**: resume from the current round/part/step.
+     - **`Status: not COMPLETE`** and **`Current Workflow`** is anything else (`Create` or `Promote`): Error — "Cannot start Review: {Current Workflow} workflow still in progress." (The router guards this on entry too; this is a defensive backstop.)
 
 2. **Verify round number against filesystem** (before starting a new round):
    - List existing directories: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-*-*/`
@@ -46,7 +49,7 @@ These are instructions for the router to follow directly. The router:
    - **Filesystem is source of truth for round numbering**
 
 3. **Determine spec source path** (used when starting a round):
-   - **First Build round**: Use the **create-terminal draft** — create no longer writes `specs/[component-name].md` (that path is written only by this workflow's spec-promoter at Step 13). Resolve it as: the highest-numbered `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N}-create/` directory, and within it `03-updated-spec.md` if it exists (Author ran), otherwise `00-draft-spec.md`.
+   - **First Build round**: Use the **create-terminal draft** — create no longer writes `specs/[component-name].md` (that path is written only by the **Promote** workflow's spec-promoter, the sole writer). Resolve it as: the highest-numbered `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N}-create/` directory, and within it `03-updated-spec.md` if it exists (Author ran), otherwise `00-draft-spec.md`.
    - **Subsequent Build round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-review-build/05-updated-spec.md`
    - **First Ops round**: Use final Build round's output (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{last-build}-review-build/05-updated-spec.md`)
    - **Subsequent Ops round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-review-ops/05-updated-spec.md`
@@ -67,6 +70,7 @@ These are instructions for the router to follow directly. The router:
 **Foundations**: 03-foundations/foundations.md
 **PRD**: 02-prd/prd.md
 **Current Round**: 3
+**Current Workflow**: Review
 **Current Part**: build
 **Current Step**: 1
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | BLOCKED_UPSTREAM_ISSUE | COMPLETE
@@ -96,7 +100,7 @@ These are instructions for the router to follow directly. The router:
 - [ ] Step 9: Contract Verification
 - [ ] Step 10: Verification Review
 - [ ] Step 11: Execute & Route
-- [ ] Step 12: Promote (on exit only)
+- [ ] Step 12: Mark COMPLETE & Hand to Promote (on exit only — the separate Promote workflow does the split/freeze)
 
 ## History
 - YYYY-MM-DD HH:MM: Round 1 (build) started
