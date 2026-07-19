@@ -113,7 +113,7 @@ The Promote orchestrator re-runs the two contract experts (`review/experts/contr
 ## Output Structure
 
 ```
-system/04-architecture/
+system-design/04-architecture/
 ├── architecture.md                  # Clean current-scope Architecture (created by the Promote workflow)
 ├── decisions.md                     # Design rationale and trade-offs (created by the Promote workflow)
 ├── future.md                        # Deferred items and future considerations (created by the Promote workflow)
@@ -142,13 +142,19 @@ system/04-architecture/
     │   ├── 03-issues-discussion.md   # Inline discussions happen here
     │   ├── 04-author-output.md
     │   ├── 05-updated-architecture.md
-    │   ├── 06-alignment-report.md
-    │   └── 07-change-verification-report.md
+    │   ├── 06-change-verification-report.md
+    │   ├── 07-alignment-report.md
+    │   ├── 08-coherence-report.md
+    │   ├── 09-verification-summary.md
+    │   └── 10-pending-issue-sync.md      # If pending issues were synced
     └── round-N-promote/             # Promote workflow: the freeze record (Slice 3)
         ├── 00-architecture.md               # Input snapshot (the reviewed doc being frozen)
         ├── 00-prior-published-architecture.md # Prior architecture.md — MERGE re-freeze baseline
         ├── 11-contract-completeness-gate.md  # Gate re-run (completeness)
         ├── 12-contract-freezability-gate.md  # Gate re-run (freezability)
+        ├── architecture.md                   # Copy of the promoted spec
+        ├── decisions.md                      # Copy of the promoted decisions
+        ├── future.md                         # Copy of the promoted future
         ├── cross-cutting.md                  # Materialized registry original (published to 05-specs after fidelity CLEAN)
         ├── materialization.md                # Materialization report
         ├── materialization-fidelity.md       # Fidelity report
@@ -158,7 +164,7 @@ system/04-architecture/
 **Promotion**: Promotion is a separate **Promote** workflow (not a step of Review) — the single freeze. After a Review round completes, Promote guards that the last completed round was Review, re-runs the contract completeness/freezability gate, then the Architecture Promoter splits the final reviewed document into three files, materializes the frozen contract registry (`05-components/specs/cross-cutting.md`) and fidelity-checks it — all recorded under `round-N-promote/`. Promote stamps a `Frozen-At` freeze-identity token into both `architecture.md`'s header and the registry Status block, so 05-init can reject a registry stale versus the current architecture (the stale-registry guard); a MERGE re-freeze additionally flags every producer of a changed write-direction contract for re-verification at its next review. `architecture.md` is the clean current-scope spec consumed by downstream stages. `decisions.md` captures architectural rationale and trade-offs. `future.md` captures deferred items, future components, and open questions. This matches the Components stage split pattern (see DEC-072, DEC-081, DEC-082).
 
 **Downstream deferred items:**
-- `system/05-components/versions/deferred-items.md` - Implementation details
+- `system-design/05-components/versions/deferred-items.md` - Implementation details
 
 ---
 
@@ -170,13 +176,13 @@ Read the Architecture Overview creation orchestrator at:
 agents/04-architecture/create/orchestrator.md
 
 Then create an Architecture Overview from:
-- PRD: system/02-prd/prd.md
-- Foundations: system/03-foundations/foundations.md
+- PRD: system-design/02-prd/prd.md
+- Foundations: system-design/03-foundations/foundations.md
 
 Start the creation workflow.
 ```
 
-The generator accepts an optional brief at `system/04-architecture/brief.md`. If present, the brief's settled decisions are incorporated directly rather than being marked as gaps. The brief can be structured (matching guide sections), a flat list of decisions, or freeform prose. See DEC-073.
+The generator accepts an optional brief at `system-design/04-architecture/brief.md`. If present, the brief's settled decisions are incorporated directly rather than being marked as gaps. The brief can be structured (matching guide sections), a flat list of decisions, or freeform prose. See DEC-073.
 
 **Review Architecture Overview:**
 ```
@@ -184,9 +190,9 @@ Read the Architecture Overview review orchestrator at:
 agents/04-architecture/review/orchestrator.md
 
 Then run the review workflow for:
-- Architecture Overview: system/04-architecture/architecture.md
-- Foundations: system/03-foundations/foundations.md
-- PRD: system/02-prd/prd.md
+- Architecture Overview: system-design/04-architecture/architecture.md
+- Foundations: system-design/03-foundations/foundations.md
+- PRD: system-design/02-prd/prd.md
 
 Start or resume the review.
 ```

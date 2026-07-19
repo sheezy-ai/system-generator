@@ -2,7 +2,7 @@
 
 Foundations captures **shared technical decisions** that apply across all components. It answers the cross-cutting technical questions once, so component specs don't have to re-ask them.
 
-For general workflow mechanics, see `workflow-create.md` and `workflow-review.md`.
+For general workflow mechanics, see `workflow-create.md`, `workflow-review.md`, `workflow-promote.md`, and `workflow-expand.md`.
 
 ---
 
@@ -101,9 +101,15 @@ agents/03-foundations/
 │       ├── data-engineer.md
 │       ├── security-engineer.md
 │       └── platform-engineer.md
-└── promote/
-    ├── orchestrator.md              # Guard -> split -> record (separate workflow)
-    └── promoter.md                  # Splits Foundations into foundations/decisions/future
+├── promote/
+│   ├── orchestrator.md              # Guard -> split -> record (separate workflow)
+│   └── promoter.md                  # Splits Foundations into foundations/decisions/future
+└── expand/
+    ├── orchestrator.md              # Adds new conventions/tech decisions (never promotes)
+    ├── scope-analyst.md             # Turns trigger into an Expansion Brief
+    ├── expansion-explorer.md        # Investigates one capability area
+    ├── proposal-filter.md           # Filters/formats proposals for human review
+    └── integration-author.md        # Applies approved changes seamlessly
 ```
 
 ---
@@ -111,7 +117,7 @@ agents/03-foundations/
 ## Output Structure
 
 ```
-system/03-foundations/
+system-design/03-foundations/
 ├── foundations.md               # Clean current-scope Foundations (created by promoter)
 ├── decisions.md                 # Design rationale and trade-offs (created by promoter)
 ├── future.md                    # Deferred items and future considerations (created by promoter)
@@ -121,24 +127,38 @@ system/03-foundations/
     ├── workflow-state.md        # Current workflow state
     ├── round-1-create/           # Create workflow output
     │   ├── 00-assessment.md         # Assessor output (technology assessment)
-    │   └── 00-draft-foundations.md  # Generator output (human augments this)
-    └── round-N-review/          # Review workflow output (round 1, 2, etc.)
-        ├── 01-infrastructure-architect.md
-        ├── 01-data-engineer.md
-        ├── 01-security-engineer.md
-        ├── 01-platform-engineer.md
-        ├── 02-consolidated-issues.md
-        ├── 03-issues-discussion.md   # Inline discussions happen here
-        ├── 04-author-output.md
-        ├── 05-updated-foundations.md
-        └── 06-alignment-report.md
+    │   ├── 00-draft-foundations.md  # Generator output (human augments this)
+    │   ├── 01-gap-discussion.md     # Gap formatter output (if gaps exist)
+    │   ├── 02-author-output.md      # Author changelog (if gaps exist)
+    │   └── 03-updated-foundations.md # Author output (if gaps exist)
+    ├── round-N-review/          # Review workflow output (round 1, 2, etc.)
+    │   ├── 00-foundations.md            # Snapshot of input (copied at round start)
+    │   ├── 01-infrastructure-architect.md
+    │   ├── 01-data-engineer.md
+    │   ├── 01-security-engineer.md
+    │   ├── 01-platform-engineer.md
+    │   ├── 02-consolidated-issues.md
+    │   ├── 03-issues-discussion.md   # Inline discussions happen here
+    │   ├── 04-author-output.md
+    │   ├── 05-updated-foundations.md
+    │   ├── 06-change-verification-report.md
+    │   ├── 07-alignment-report.md
+    │   ├── 08-coherence-report.md
+    │   ├── 09-verification-summary.md
+    │   └── 10-pending-issue-sync.md  # If pending issues were synced
+    └── round-N-promote/         # Promote workflow record
+        ├── 00-foundations.md           # Input snapshot (the reviewed doc being split)
+        ├── foundations.md              # Copy of the promoted spec
+        ├── decisions.md                # Copy of the promoted decisions
+        ├── future.md                   # Copy of the promoted future
+        └── promote-metadata.md         # date, source review round, input file used
 ```
 
 **Promotion**: Promotion is a separate **Promote** workflow (not a step of Review). After a Review round completes, Promote guards that the last completed round was Review, then the Foundations Promoter splits the final reviewed document into three files, recorded under `round-N-promote/`. `foundations.md` is the clean current-scope spec consumed by downstream stages. `decisions.md` captures design rationale and trade-offs for reference. `future.md` captures deferred items and open questions. This matches the Components stage split pattern (see DEC-072, DEC-081).
 
 **Downstream deferred items (for Foundations content that's too detailed):**
-- `system/04-architecture/versions/deferred-items.md` - System decomposition, component boundaries
-- `system/05-components/versions/deferred-items.md` - Implementation details, specific configurations
+- `system-design/04-architecture/versions/deferred-items.md` - System decomposition, component boundaries
+- `system-design/05-components/versions/deferred-items.md` - Implementation details, specific configurations
 
 ---
 
@@ -150,12 +170,12 @@ Read the Foundations creation orchestrator at:
 agents/03-foundations/create/orchestrator.md
 
 Then create Foundations from:
-- PRD: system/02-prd/prd.md
+- PRD: system-design/02-prd/prd.md
 
 Start the creation workflow.
 ```
 
-The generator accepts an optional brief at `system/03-foundations/brief.md`. If present, the brief's settled decisions are incorporated directly rather than being marked as gaps. The brief can be structured (matching guide sections), a flat list of decisions, or freeform prose. See DEC-073.
+The generator accepts an optional brief at `system-design/03-foundations/brief.md`. If present, the brief's settled decisions are incorporated directly rather than being marked as gaps. The brief can be structured (matching guide sections), a flat list of decisions, or freeform prose. See DEC-073.
 
 **Review Foundations:**
 ```
@@ -163,8 +183,8 @@ Read the Foundations review orchestrator at:
 agents/03-foundations/review/orchestrator.md
 
 Then run the review workflow for:
-- Foundations: system/03-foundations/foundations.md
-- PRD: system/02-prd/prd.md
+- Foundations: system-design/03-foundations/foundations.md
+- PRD: system-design/02-prd/prd.md
 
 Start or resume the review.
 ```
@@ -182,6 +202,16 @@ Foundations uses a custom create workflow with an Assess step and a structured g
 **Gap discussion:** After generation, gaps are extracted, formatted, and analysed by Gap Analyst agents (with options, trade-offs, and recommendations). The human reviews proposals inline and discusses unresolved items with Discussion Facilitator agents. Once all gaps are resolved, the Author applies decisions to produce the final draft.
 
 This is a single-round workflow (no multi-round exploration loop). The assessment step serves the same purpose as the exploration phase in Blueprint/PRD — surfacing trade-offs and collecting human direction before generation — but in a lighter-weight form appropriate for technology selection decisions.
+
+---
+
+## Expand Workflow
+
+Adds new conventions or technology decisions to a promoted Foundations when downstream work discovers content that wasn't in the original scope. Runs Scope → Explore → Integrate → Verify: a Scope Analyst turns the trigger into an Expansion Brief, parallel Expansion Explorers produce change sets, the Integration Author applies approved proposals seamlessly, and the review verification agents (change, alignment, coherence, enumeration) confirm the result. The expansion is alignment-verified against the Blueprint.
+
+**Expand never promotes — always follow an Expand round with a Review round before promotion.**
+
+See `workflow-expand.md` for details.
 
 ---
 

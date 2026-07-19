@@ -2,7 +2,7 @@
 
 The PRD (Product Requirements Document) defines **what** we're building in a specific phase. It translates the Blueprint's strategic vision into concrete capabilities, success criteria, and scope boundaries.
 
-For general workflow mechanics, see `workflow-create.md` and `workflow-review.md`.
+For general workflow mechanics, see `workflow-create.md`, `workflow-review.md`, `workflow-promote.md`, and `workflow-expand.md`.
 
 ---
 
@@ -44,7 +44,7 @@ See `guides/02-prd-guide.md` for full detail on each section.
 
 ## Expert Panel
 
-PRD uses five domain experts for the Review workflow:
+PRD uses six domain experts for the Review workflow:
 
 | Expert | Code | Domain Focus |
 |--------|------|--------------|
@@ -53,6 +53,7 @@ PRD uses five domain experts for the Review workflow:
 | **Customer Advocate** | CUST | User value, adoption barriers |
 | **Operator** | OPS | Delivery feasibility, launch readiness |
 | **Compliance/Legal** | COMPL | GDPR, CCPA, SOC2, PCI-DSS, HIPAA, accessibility |
+| **Security** | SEC | Trust boundaries, attack surfaces, autonomous-decision/agent risk, credential handling |
 
 **Why no technical feasibility expert:** PRD defines *what* to build at requirements level. Technical feasibility (can we build this with available technology) is answered in downstream stages: Foundations, Architecture Overview, and Component Specs. The Operator expert covers *operational* feasibility (can we deliver and sustain this). See DEC-036.
 
@@ -98,6 +99,16 @@ Copies the final draft to `prd.md`.
 
 ---
 
+## Expand Workflow
+
+Adds new capability areas to a promoted PRD when downstream work discovers content that wasn't in the original scope. Runs Scope → Explore → Integrate → Verify: a Scope Analyst turns the trigger into an Expansion Brief, parallel Expansion Explorers produce change sets, the Integration Author applies approved proposals seamlessly, and the review verification agents (change, alignment, coherence, enumeration) confirm the result. The expansion is alignment-verified against the Blueprint.
+
+**Expand never promotes — always follow an Expand round with a Review round before promotion.**
+
+See `workflow-expand.md` for details.
+
+---
+
 ## Scope Determination
 
 PRD scope comes from the Blueprint's **MVP Definition** section. The Generator extracts:
@@ -136,10 +147,17 @@ agents/02-prd/
 │       ├── commercial.md
 │       ├── customer-advocate.md
 │       ├── operator.md
-│       └── compliance-legal.md
-└── promote/
-    ├── orchestrator.md                # Guard -> split -> record (separate workflow)
-    └── promoter.md                    # Splits PRD into prd/decisions/future
+│       ├── compliance-legal.md
+│       └── security.md
+├── promote/
+│   ├── orchestrator.md                # Guard -> split -> record (separate workflow)
+│   └── promoter.md                    # Splits PRD into prd/decisions/future
+└── expand/
+    ├── orchestrator.md                # Adds new capability areas (never promotes)
+    ├── scope-analyst.md               # Turns trigger into an Expansion Brief
+    ├── expansion-explorer.md          # Investigates one capability area
+    ├── proposal-filter.md             # Filters/formats proposals for human review
+    └── integration-author.md          # Applies approved changes seamlessly
 ```
 
 ---
@@ -169,14 +187,29 @@ system-design/02-prd/
     │   ├── explore/
     │   │   └── [same explore files]
     │   └── [same generate files]
-    └── round-{N}-review/              # Review round outputs
-        ├── 01-[expert].md
-        ├── 02-consolidated-issues.md
-        ├── 03-issues-discussion.md
-        ├── 04-author-output.md
-        ├── 05-updated-prd.md
-        ├── 06-alignment-report.md
-        └── 07-change-verification-report.md
+    ├── round-{N}-review/              # Review round outputs
+    │   ├── 00-prd.md                  # Snapshot of input (copied at round start)
+    │   ├── 01-product-manager.md
+    │   ├── 01-commercial.md
+    │   ├── 01-customer-advocate.md
+    │   ├── 01-operator.md
+    │   ├── 01-compliance-legal.md
+    │   ├── 01-security.md
+    │   ├── 02-consolidated-issues.md
+    │   ├── 03-issues-discussion.md
+    │   ├── 04-author-output.md
+    │   ├── 05-updated-prd.md
+    │   ├── 06-change-verification-report.md
+    │   ├── 07-alignment-report.md
+    │   ├── 08-coherence-report.md
+    │   ├── 09-verification-summary.md
+    │   └── 10-pending-issue-sync.md   # If pending issues were synced
+    └── round-{N}-promote/             # Promote workflow record
+        ├── 00-prd.md                  # Input snapshot (the reviewed doc being split)
+        ├── prd.md                     # Copy of the promoted spec
+        ├── decisions.md               # Copy of the promoted decisions
+        ├── future.md                  # Copy of the promoted future
+        └── promote-metadata.md        # date, source review round, input file used
 ```
 
 **Promotion**: Promotion is a separate **Promote** workflow (not a step of Review). After a Review round completes, Promote guards that the last completed round was Review, then the PRD Promoter splits the final reviewed document into `prd.md` (clean current-scope requirements), `decisions.md` (product decision rationale and trade-offs), and `future.md` (deferred features and open questions), recorded under `round-N-promote/`. This matches the Components stage split pattern (see DEC-072, DEC-081).
