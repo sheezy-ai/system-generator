@@ -126,18 +126,20 @@ agents/02-prd/
 │   ├── generator.md                   # Creates draft from Blueprint + enrichments (round 1)
 │   ├── enrichment-applicator.md       # Applies enrichments to existing draft (round 2+)
 │   └── author.md                      # Applies gap resolutions to draft
-└── review/
-    ├── orchestrator.md
-    ├── promoter.md                    # Splits PRD into spec/decisions/future at exit
-    ├── author.md
-    ├── consolidator.md
-    ├── change-verifier.md
-    └── experts/
-        ├── product-manager.md
-        ├── commercial.md
-        ├── customer-advocate.md
-        ├── operator.md
-        └── compliance-legal.md
+├── review/
+│   ├── orchestrator.md
+│   ├── author.md
+│   ├── consolidator.md
+│   ├── change-verifier.md
+│   └── experts/
+│       ├── product-manager.md
+│       ├── commercial.md
+│       ├── customer-advocate.md
+│       ├── operator.md
+│       └── compliance-legal.md
+└── promote/
+    ├── orchestrator.md                # Guard -> split -> record (separate workflow)
+    └── promoter.md                    # Splits PRD into prd/decisions/future
 ```
 
 ---
@@ -146,7 +148,7 @@ agents/02-prd/
 
 ```
 system-design/02-prd/
-├── prd.md                             # Promoted from create (then overwritten by Review)
+├── prd.md                             # Published by the Promote workflow (create writes an initial draft; Review refines in versions/)
 ├── brief.md                           # Optional human-provided brief
 └── versions/
     ├── deferred-items.md              # Content deferred from upstream stages
@@ -176,6 +178,8 @@ system-design/02-prd/
         ├── 06-alignment-report.md
         └── 07-change-verification-report.md
 ```
+
+**Promotion**: Promotion is a separate **Promote** workflow (not a step of Review). After a Review round completes, Promote guards that the last completed round was Review, then the PRD Promoter splits the final reviewed document into `prd.md` (clean current-scope requirements), `decisions.md` (product decision rationale and trade-offs), and `future.md` (deferred features and open questions), recorded under `round-N-promote/`. This matches the Components stage split pattern (see DEC-072, DEC-081).
 
 **Downstream deferred items (for PRD content that's too detailed):**
 - `system-design/03-foundations/versions/deferred-items.md` - Technology choices

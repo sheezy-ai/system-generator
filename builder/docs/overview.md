@@ -99,7 +99,7 @@ Stages 01–05 have guides (in `guides/`) that define what belongs at each level
 
 ## Workflows
 
-Each stage supports up to three workflows:
+Each stage supports up to four workflows:
 
 ### Create Workflow
 
@@ -158,6 +158,20 @@ Trigger ──▶ Scope Analyst ──▶ Human reviews brief ──▶ Explorer
 Expand never promotes — always follow with a Review round. Available for stages 01–04.
 
 See `workflow-expand.md` for details.
+
+### Promote Workflow
+
+Freezes a reviewed document by splitting it into three published files — the clean current-scope spec (`[document].md`), `decisions.md` (rationale), and `future.md` (deferred items). Promote is a separately-triggered workflow (not a step of Review), recorded as its own `round-N-promote` round.
+
+```
+Reviewed document ──▶ Guard (last round was Review) ──▶ Promoter (split) ──▶ Record ──▶ Done
+```
+
+- **Review-mandatory guard** — Promote refuses to run unless the last completed round was Review, so an unreviewed draft can never become a published spec
+- **Promoter** — the sole producer of the published spec; splits the reviewed document into spec / decisions / future
+- **Record** — captured under `round-N-promote/` (input snapshot + copies + metadata)
+
+At review exit (zero-issues gate or maturity), Review completes and *recommends* running Promote — it no longer promotes automatically. Available for stages 02–04. Architecture additionally runs a contract completeness/freezability gate and materializes the frozen contract registry for stage 05; stage 05 uses its own spec-promoter. See `workflow-promote.md` for details.
 
 ## Key Concepts
 

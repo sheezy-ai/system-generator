@@ -213,8 +213,10 @@ versions/round-[N]-expand/
 | **Expert review** | No | Yes (parallel experts) | No |
 | **Proposals** | Enrichments (new content) | Issues (problems with existing) | Change sets (new + modified) |
 | **Integration** | Generator or Applicator | Author (surgical fixes) | Integration Author (seamless) |
-| **Promotes** | Yes | Yes | No — always follow with Review |
+| **Promotes** | Yes — to a draft, then Review | No — Promote is a separate workflow | No — always follow with Review |
 | **Available stages** | All (01–05) | All (01–05) | 01–04 |
+
+*(Promote is a fourth workflow — a mechanical split-and-record freeze, separately triggered after Review; see `workflow-promote.md`. It has no exploration, experts, or content generation, so it is not contrasted row-by-row here.)*
 
 ---
 

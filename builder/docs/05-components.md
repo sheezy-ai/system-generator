@@ -172,6 +172,8 @@ Run the initializer before creating any component specs. It:
 4. Creates the workflow state file with all components listed as PENDING
 5. Reports summary of what was created
 
+**Registry precondition:** the cross-cutting contract registry (`specs/cross-cutting.md`) is produced by the **Promote** stage (Architecture's freeze), not by 05-init — the initializer *consumes* it. 05-init requires the registry to be present and checks that its `Frozen-At` freeze-identity token matches the current `architecture.md`; a mismatch (a registry stale versus the architecture it should project — e.g. after a promote HALT) errors and requires a re-promote before component specs can be created. See DEC-082.
+
 The orchestrator will error if you try to create a spec without initializing first.
 
 ### Per-Component Creation Workflow

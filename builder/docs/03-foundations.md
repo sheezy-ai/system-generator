@@ -91,17 +91,19 @@ agents/03-foundations/
 │   ├── assessor.md                  # Lightweight technology assessment before generation
 │   ├── generator.md
 │   └── author.md                    # Applies resolved gap discussions
-└── review/
-    ├── orchestrator.md
-    ├── promoter.md                  # Splits Foundations into spec/decisions/future at exit
-    ├── author.md
-    ├── consolidator.md
-    ├── change-verifier.md
-    └── experts/
-        ├── infrastructure-architect.md
-        ├── data-engineer.md
-        ├── security-engineer.md
-        └── platform-engineer.md
+├── review/
+│   ├── orchestrator.md
+│   ├── author.md
+│   ├── consolidator.md
+│   ├── change-verifier.md
+│   └── experts/
+│       ├── infrastructure-architect.md
+│       ├── data-engineer.md
+│       ├── security-engineer.md
+│       └── platform-engineer.md
+└── promote/
+    ├── orchestrator.md              # Guard -> split -> record (separate workflow)
+    └── promoter.md                  # Splits Foundations into foundations/decisions/future
 ```
 
 ---
@@ -132,7 +134,7 @@ system/03-foundations/
         └── 06-alignment-report.md
 ```
 
-**Promotion**: At exit, the Foundations Promoter splits the final reviewed document into three files. `foundations.md` is the clean current-scope spec consumed by downstream stages. `decisions.md` captures design rationale and trade-offs for reference. `future.md` captures deferred items and open questions. This matches the Components stage split pattern (see DEC-072).
+**Promotion**: Promotion is a separate **Promote** workflow (not a step of Review). After a Review round completes, Promote guards that the last completed round was Review, then the Foundations Promoter splits the final reviewed document into three files, recorded under `round-N-promote/`. `foundations.md` is the clean current-scope spec consumed by downstream stages. `decisions.md` captures design rationale and trade-offs for reference. `future.md` captures deferred items and open questions. This matches the Components stage split pattern (see DEC-072, DEC-081).
 
 **Downstream deferred items (for Foundations content that's too detailed):**
 - `system/04-architecture/versions/deferred-items.md` - System decomposition, component boundaries

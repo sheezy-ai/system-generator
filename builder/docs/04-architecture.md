@@ -37,7 +37,7 @@ For general workflow mechanics, see `workflow-create.md` and `workflow-review.md
 
 ## Expert Panel
 
-Architecture Overview uses five experts for the Review workflow:
+Architecture Overview uses eight experts for the Review workflow:
 
 | Expert | Code | Focus |
 |--------|------|-------|
@@ -46,8 +46,11 @@ Architecture Overview uses five experts for the Review workflow:
 | **Integration Architect** | INT | Component interactions, contracts, integration patterns |
 | **Technical Reviewer** | TECH | Feasibility, Foundations alignment, complexity |
 | **FinOps** | FINOPS | Cost implications, budget alignment, scaling cost characteristics |
+| **Security** | SEC | Architecture-level trust boundaries, auth flows between components |
+| **Contract Completeness** | CONTRACT | Every cross-component read (incl. §5 decisions) resolves to a §8 data contract, or its ownership is flagged — closes the silent-uncontracted-read class |
+| **Contract Freezability** | FREEZE | Each §8 contract is pinnable/freezable (the materializer's Frozen / Freezable-but-delegated / Under-pinned classification, run in-round before the freeze) |
 
-**Note:** Security is not an expert at this stage. Security decisions are made in Foundations and reviewed by the Security Engineer during Foundations Review. Architecture-level security concerns (trust boundaries, auth flows between components) are addressed during Architecture Overview Review by the Technical Reviewer. See DEC-038 for rationale.
+**Contract Completeness + Contract Freezability** are the review half of the promote-stage freeze gate: they surface uncontracted or un-freezable cross-component reads *in-round*, where discussion already lives, so they can be resolved before promotion. The same two checks re-run as the hard, unavoidable gate in the **Promote workflow** (see "Promotion", below). *(Security became a review expert via a separate change, superseding the earlier "security is out of scope at Architecture" position.)*
 
 ---
 
@@ -83,19 +86,27 @@ agents/04-architecture/
 │   ├── requirements-extractor.md      # Extracts PRD requirements checklist
 │   ├── coverage-checker.md            # Verifies draft covers all checklist items
 │   └── author.md                      # Applies resolved gap discussions
-└── review/
-    ├── orchestrator.md
-    ├── promoter.md                  # Splits Architecture into spec/decisions/future at exit
-    ├── author.md
-    ├── consolidator.md
-    ├── change-verifier.md
-    └── experts/
-        ├── system-architect.md
-        ├── data-architect.md
-        ├── integration-architect.md
-        ├── technical-reviewer.md
-        └── finops.md
+├── review/
+│   ├── orchestrator.md              # Exits mature → hands off to the Promote workflow (no longer runs the promoter)
+│   ├── author.md
+│   ├── consolidator.md
+│   ├── change-verifier.md
+│   └── experts/
+│       ├── system-architect.md
+│       ├── data-architect.md
+│       ├── integration-architect.md
+│       ├── technical-reviewer.md
+│       ├── finops.md
+│       ├── security.md
+│       ├── contract-completeness.md    # Freeze gate (review half): uncontracted cross-component reads
+│       └── contract-freezability.md    # Freeze gate (review half): un-freezable/under-pinned contracts
+└── promote/                        # The single freeze — its own workflow (Slice 3), after Review
+    ├── orchestrator.md              # Guard → gate → split → materialize → fidelity → publish → re-verify flag → record
+    ├── promoter.md                  # Splits the reviewed Architecture into architecture.md/decisions.md/future.md (moved here from review/)
+    ├── contract-materializer.md     # Projects §7/§8 → the frozen cross-cutting registry (FIRST_FREEZE | status-preserving MERGE)
+    └── materialization-fidelity-checker.md  # Re-derives §7/§8 and diffs the registry (gate: MISMATCH halts the freeze)
 ```
+The Promote orchestrator re-runs the two contract experts (`review/experts/contract-completeness.md`, `…/contract-freezability.md`) as the hard gate — they live in `review/` and are cross-referenced, not duplicated.
 
 ---
 
@@ -103,9 +114,9 @@ agents/04-architecture/
 
 ```
 system/04-architecture/
-├── architecture.md                  # Clean current-scope Architecture (created by promoter)
-├── decisions.md                     # Design rationale and trade-offs (created by promoter)
-├── future.md                        # Deferred items and future considerations (created by promoter)
+├── architecture.md                  # Clean current-scope Architecture (created by the Promote workflow)
+├── decisions.md                     # Design rationale and trade-offs (created by the Promote workflow)
+├── future.md                        # Deferred items and future considerations (created by the Promote workflow)
 └── versions/
     ├── deferred-items.md             # Content deferred from upstream stages
     ├── pending-issues.md            # Issues flagged for upstream review
@@ -121,21 +132,30 @@ system/04-architecture/
     │   ├── 01-gap-discussion.md
     │   ├── 02-author-output.md
     │   └── 03-updated-architecture.md
-    └── round-N-review/              # Review workflow output
-        ├── 01-system-architect.md
-        ├── 01-data-architect.md
-        ├── 01-integration-architect.md
-        ├── 01-technical-reviewer.md
-        ├── 01-finops.md
-        ├── 02-consolidated-issues.md
-        ├── 03-issues-discussion.md   # Inline discussions happen here
-        ├── 04-author-output.md
-        ├── 05-updated-architecture.md
-        ├── 06-alignment-report.md
-        └── 07-change-verification-report.md
+    ├── round-N-review/              # Review workflow output
+    │   ├── 01-system-architect.md   # (one 01-[expert].md per expert — 8 experts incl. security + the two contract experts)
+    │   ├── 01-data-architect.md
+    │   ├── 01-integration-architect.md
+    │   ├── 01-technical-reviewer.md
+    │   ├── 01-finops.md
+    │   ├── 02-consolidated-issues.md
+    │   ├── 03-issues-discussion.md   # Inline discussions happen here
+    │   ├── 04-author-output.md
+    │   ├── 05-updated-architecture.md
+    │   ├── 06-alignment-report.md
+    │   └── 07-change-verification-report.md
+    └── round-N-promote/             # Promote workflow: the freeze record (Slice 3)
+        ├── 00-architecture.md               # Input snapshot (the reviewed doc being frozen)
+        ├── 00-prior-published-architecture.md # Prior architecture.md — MERGE re-freeze baseline
+        ├── 11-contract-completeness-gate.md  # Gate re-run (completeness)
+        ├── 12-contract-freezability-gate.md  # Gate re-run (freezability)
+        ├── cross-cutting.md                  # Materialized registry original (published to 05-specs after fidelity CLEAN)
+        ├── materialization.md                # Materialization report
+        ├── materialization-fidelity.md       # Fidelity report
+        └── promote-metadata.md               # Freeze record (date, source review round, gate verdict, mode, Frozen-At token)
 ```
 
-**Promotion**: At exit, the Architecture Promoter splits the final reviewed document into three files. `architecture.md` is the clean current-scope spec consumed by downstream stages. `decisions.md` captures architectural rationale and trade-offs. `future.md` captures deferred items, future components, and open questions. This matches the Components stage split pattern (see DEC-072).
+**Promotion**: Promotion is a separate **Promote** workflow (not a step of Review) — the single freeze. After a Review round completes, Promote guards that the last completed round was Review, re-runs the contract completeness/freezability gate, then the Architecture Promoter splits the final reviewed document into three files, materializes the frozen contract registry (`05-components/specs/cross-cutting.md`) and fidelity-checks it — all recorded under `round-N-promote/`. Promote stamps a `Frozen-At` freeze-identity token into both `architecture.md`'s header and the registry Status block, so 05-init can reject a registry stale versus the current architecture (the stale-registry guard); a MERGE re-freeze additionally flags every producer of a changed write-direction contract for re-verification at its next review. `architecture.md` is the clean current-scope spec consumed by downstream stages. `decisions.md` captures architectural rationale and trade-offs. `future.md` captures deferred items, future components, and open questions. This matches the Components stage split pattern (see DEC-072, DEC-081, DEC-082).
 
 **Downstream deferred items:**
 - `system/05-components/versions/deferred-items.md` - Implementation details
@@ -177,7 +197,7 @@ Start or resume the review.
 
 Architecture uses a custom create workflow with a full exploration loop, similar to Blueprint and PRD creation.
 
-**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → finalise draft → **hand to Review** (Create no longer promotes — the Promote workflow runs after Review; see "Promotion")
 
 **Explore phase:**
 1. **Concern Identifier** — reads PRD + Foundations and identifies 3-5 architectural concerns worth exploring (component decomposition alternatives, data flow patterns, integration approaches, pipeline orchestration)
@@ -195,7 +215,7 @@ Architecture uses a custom create workflow with a full exploration loop, similar
 **Human checkpoints:**
 - Concern review (Step 3)
 - Enrichment review (Step 7)
-- Gap resolution / promote decision (Step 10)
+- Gap resolution / finalise-or-another-round decision (Create finalises the draft and hands to Review; it does not promote)
 
 ---
 

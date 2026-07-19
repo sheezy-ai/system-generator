@@ -457,7 +457,7 @@ After verification completes, human decides:
 4. Human judgment ("good enough")
 
 **Promoting the document:**
-After final round, manually copy the updated document to the stage's main location to promote it. The original is preserved in versions until explicitly overwritten.
+Promotion is a separate **Promote** workflow (stages 02–04), not a step of Review. After the final review round completes, run Promote: it guards that the last completed round was Review, then splits the reviewed document into the published `[document].md` / `decisions.md` / `future.md` and records the promotion under `round-N-promote/`. Review itself never writes the promoted files — at exit it completes and recommends running Promote. See `workflow-promote.md`.
 
 ---
 
