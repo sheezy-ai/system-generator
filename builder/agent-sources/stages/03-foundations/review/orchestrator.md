@@ -568,7 +568,7 @@ This gate is mandatory. Do not skip it.
 
     Options:
     1. **Sync now** - Apply all to upstream documents
-    2. **Defer all** - Leave for later
+    2. **Defer all** - Do NOT route. Each finding stays only in this round's `07-alignment-report.md` — a working artifact of this review round that no other stage reads — so the target stage will not see it unless it is separately re-raised.
     3. **Select individually** - Choose per issue
 
     ### Coherence Gaps (if HIGH/MEDIUM items)
@@ -598,7 +598,7 @@ This gate is mandatory. Do not skip it.
 
     a. **If "Defer all"**:
        - Skip sync entirely - no file to write, no agent to spawn
-       - Issues remain documented in `07-alignment-report.md` for later pickup
+       - The findings are NOT routed anywhere. They remain only in this round's `07-alignment-report.md`, a working artifact of this review round that no downstream or upstream stage reads; the target stage will not encounter them unless they are separately re-raised. Choose Defer only when that dropped outcome is intended.
        - Proceed to step 46
 
     b. **If "Sync now" or "Select individually"**:
