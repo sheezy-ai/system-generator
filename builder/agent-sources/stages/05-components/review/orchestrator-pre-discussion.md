@@ -49,7 +49,7 @@ These are instructions for the router to follow directly. The router:
    - **Filesystem is source of truth for round numbering**
 
 3. **Determine spec source path** (used when starting a round):
-   - **First Build round**: Use the **create-terminal draft** — create no longer writes `specs/[component-name].md` (that path is written only by the **Promote** workflow's spec-promoter, the sole writer). Resolve it as: the highest-numbered `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N}-create/` directory, and within it `03-updated-spec.md` if it exists (Author ran), otherwise `00-draft-spec.md`.
+   - **First Build round**: Use the **create-terminal draft** — create no longer writes `specs/[component-name].md` (that path is written only by the **Promote** workflow's promoter, the sole writer). Resolve it as: the highest-numbered `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N}-create/` directory, and within it `03-updated-spec.md` if it exists (Author ran), otherwise `00-draft-spec.md`.
    - **Subsequent Build round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-review-build/05-updated-spec.md`
    - **First Ops round**: Use final Build round's output (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{last-build}-review-build/05-updated-spec.md`)
    - **Subsequent Ops round**: Use `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-{N-1}-review-ops/05-updated-spec.md`

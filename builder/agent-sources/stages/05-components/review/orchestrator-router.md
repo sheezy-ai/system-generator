@@ -208,7 +208,7 @@ Your choice?
 
 ## Mark COMPLETE & Hand to Promote
 
-Reached when the human chooses **EXIT** at the routing decision, or when pre-discussion returns **ZERO_ISSUES** (nothing to review this part). This ends the Review workflow for the component and hands off to Promote. **Review no longer runs the spec-promoter** — it moved to the Promote workflow, which is the sole writer of `specs/[component-name].md`. The freeze is not gone: it runs in Promote, on the only road to the published spec.
+Reached when the human chooses **EXIT** at the routing decision, or when pre-discussion returns **ZERO_ISSUES** (nothing to review this part). This ends the Review workflow for the component and hands off to Promote. **Review no longer runs the promoter** — it moved to the Promote workflow, which is the sole writer of `specs/[component-name].md`. The freeze is not gone: it runs in Promote, on the only road to the published spec.
 
 1. **Determine the handoff input document** (the reviewed spec Promote will freeze), from the last completed Review round `R` and part:
    - `round-[R]-review-[build|ops]/05-updated-spec.md` if it exists (the Author ran), otherwise `round-[R]-review-[build|ops]/00-spec.md` (the zero-issues path, no Author ran).

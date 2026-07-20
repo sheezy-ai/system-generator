@@ -6,7 +6,7 @@ Central orchestrator that dispatches to phase orchestrators and handles all huma
 
 ## Purpose
 
-Create a single component spec by exploring design concerns, generating a draft enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, finalise the draft (`round-{N}-create/03-updated-spec.md`, else `00-draft-spec.md`) and hand off to the Review workflow. Create does **not** write `specs/[component-name].md` — the **Promote** workflow's spec-promoter is that path's sole writer.
+Create a single component spec by exploring design concerns, generating a draft enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, finalise the draft (`round-{N}-create/03-updated-spec.md`, else `00-draft-spec.md`) and hand off to the Review workflow. Create does **not** write `specs/[component-name].md` — the **Promote** workflow's promoter is that path's sole writer.
 
 **Flow:** Setup → [Explore → Generate → Gap Resolution]* → Finalise (hand to Review)
 
@@ -60,7 +60,7 @@ Run this router for each component, after the initialize orchestrator has comple
 - Round 1: Architecture + Foundations (two documents)
 - Round N (N≥2): Latest draft from round N-1
 
-**Create-terminal draft** (create's final output — NOT `specs/`): `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-{N}-create/03-updated-spec.md` (else `00-draft-spec.md`). The published `specs/[component-name].md` is written later, only by the Promote workflow's spec-promoter.
+**Create-terminal draft** (create's final output — NOT `specs/`): `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component-name]/round-{N}-create/03-updated-spec.md` (else `00-draft-spec.md`). The published `specs/[component-name].md` is written later, only by the Promote workflow's promoter.
 
 ### Path Resolution
 
@@ -158,7 +158,7 @@ Enrichments Rejected: [N]
 ```
 system-design/05-components/
 ├── specs/
-│   └── [component-name].md            # Written only by Promote's spec-promoter (create finalises to round-{N}-create/ drafts, not here)
+│   └── [component-name].md            # Written only by Promote's promoter (create finalises to round-{N}-create/ drafts, not here)
 └── versions/
     ├── workflow-state.md              # Stage-level state (component index)
     └── [component-name]/
@@ -467,7 +467,7 @@ Action: [RUN | ANOTHER_ROUND]
 
 ### Step 12: Finalise & Report (inline)
 
-When the human chooses **finalise** at Step 11, the router finalises directly — there is no separate phase orchestrator. Create does **not** write `specs/[component-name].md`; that published path is written only by the **Promote** workflow's spec-promoter (its sole writer). Creation Verification already ran this round at Step 10c, so finalisation proceeds straight through:
+When the human chooses **finalise** at Step 11, the router finalises directly — there is no separate phase orchestrator. Create does **not** write `specs/[component-name].md`; that published path is written only by the **Promote** workflow's promoter (its sole writer). Creation Verification already ran this round at Step 10c, so finalisation proceeds straight through:
 
 1. **Resolve the create-terminal draft** (current round): if `{round-dir}/03-updated-spec.md` exists (Author ran) use it; otherwise `{round-dir}/00-draft-spec.md`.
 2. **Verify** the resolved draft exists (else the Step-12 error in Error Handling).
@@ -548,7 +548,7 @@ After create finalises:
 2. **Human optionally makes manual edits** to that draft
 3. **Human runs Review workflow** — Invokes the Component Review Router for this component
 
-**IMPORTANT**: Create does **not** write `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`. That published path is written only by the **Promote** workflow's spec-promoter (its sole writer). The Review workflow reads the **create-terminal draft** (`versions/[component-name]/round-{N}-create/03-updated-spec.md`, else `00-draft-spec.md`) for its Round 1 — that draft MUST exist before starting Review.
+**IMPORTANT**: Create does **not** write `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`. That published path is written only by the **Promote** workflow's promoter (its sole writer). The Review workflow reads the **create-terminal draft** (`versions/[component-name]/round-{N}-create/03-updated-spec.md`, else `00-draft-spec.md`) for its Round 1 — that draft MUST exist before starting Review.
 
 ---
 
