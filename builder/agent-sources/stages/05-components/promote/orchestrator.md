@@ -79,7 +79,7 @@ Invoked for one component: `[component-name]`.
 ```
 agents/05-components/promote/
 ├── orchestrator.md    # This file
-└── spec-promoter.md   # Splits the reviewed spec into specs/future/decisions (moved here from review in 05P-2; unchanged)
+└── promoter.md        # Splits the reviewed spec into specs/future/decisions (moved here from review in 05P-2; renamed from spec-promoter.md for cross-stage naming alignment)
 
 Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
 ├── {{AGENTS_PATH}}/05-components/create/absent-from-freeze-detector.md   # BLOCKING here (non-gating in review)
@@ -186,7 +186,7 @@ Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
 
 15. **Spawn the Spec Promoter** (FOREGROUND) on the snapshot:
     ```
-    Follow the instructions in: {{AGENTS_PATH}}/05-components/promote/spec-promoter.md
+    Follow the instructions in: {{AGENTS_PATH}}/05-components/promote/promoter.md
 
     Input:
     - Reviewed spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/00-spec.md
