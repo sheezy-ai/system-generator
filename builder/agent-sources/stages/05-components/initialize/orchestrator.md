@@ -61,12 +61,12 @@ Comparison is **equality of the `round-[N]-promote` id strings only** — no ord
    - **Partial/scoped**: dependencies containing "scoped to" or "only" — e.g., `events (scoped to find_entities_by_source only)`. These are non-blocking for priority computation. The component can be fully specced except for the scoped capability. Record the partial dependency in the table but do not count it as blocking.
    - **Full component**: all other dependencies — e.g., `entities`, `events`, `pipeline`. These are blocking.
 
-5. **Compute priority tiers** via topological sort on blocking dependencies:
+5. **Compute priority tiers** via topological sort on blocking dependencies. **Priority is advisory, not a blocking gate.** This stage runs against the **frozen contract registry** (the precondition asserted above): every cross-component dependency in the §6 table is already discharged by a frozen contract, and each component spec is authored against the Architecture + the registry — **never against a sibling component spec**. Components are therefore all authorable **in parallel**; the tier is only a soft convenience ordering (foundational data-owners first), not a constraint on when a spec can be written.
    - **Tier 1**: components with no blocking component dependencies (only cross-cutting and/or partial)
    - **Tier 2**: components whose blocking dependencies are all in tier 1
    - **Tier 3**: components whose blocking dependencies are all in tiers 1-2
    - Continue until all components are assigned a tier
-   - **If a cycle is detected**: error — "Circular dependency detected: [cycle]. Cannot compute priority."
+   - **If a cycle is detected** (two or more components that depend on each other): this is **not** an error. Under the frozen contract registry a mutual dependency is discharged by the frozen contracts on both edges (a producer and consumer that each read the other via a frozen CTR is expected and fine), so it does not block authoring. Collapse the cycle: assign every component in it the **same tier** — the highest tier among their *non-cycle* blocking dependencies, or Tier 1 if they have none — and continue.
 
 6. **Do NOT read or use the Architecture's "Spec creation order" narrative** for priority. The narrative is advisory documentation. Priority is derived from the dependency graph — this prevents drift between stated priority and actual dependencies.
 

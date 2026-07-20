@@ -40,7 +40,7 @@ Safe to re-invoke — the router reads the per-component state file and resumes 
 
 ## When to Run
 
-Run this router for each component, after the initialize orchestrator has completed. Components should be initialized in priority order, respecting dependencies.
+Run this router for each component, after the initialize orchestrator has completed. **Priority order (from initialization) is advisory, not a dependency constraint.** Each component spec is authored against the Architecture + Foundations + the **frozen contract registry** — never against a sibling component spec — so components are authorable in **any order and in parallel**. Following priority order (foundational data-owners first) is a convenience for surfacing contract gaps early, not a prerequisite: a later-tier component does not wait on an earlier-tier one.
 
 ---
 
