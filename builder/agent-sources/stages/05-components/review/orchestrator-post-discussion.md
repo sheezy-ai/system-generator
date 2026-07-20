@@ -209,7 +209,7 @@ Read `## Pending Decisions` section:
 18. **Handle pending issue sync based on decision**:
 
     a. **If sync_action = DEFER_ALL**:
-       - Skip sync — issues remain in alignment report for later
+       - Skip sync — the findings are NOT routed anywhere; they remain only in this round's 07-alignment-report.md, a working artifact of this review round that no other stage reads, so the target stage will not encounter them unless they are separately re-raised. Choose DEFER_ALL only when that dropped outcome is intended.
 
     b. **If sync_action = SYNC_ALL or SELECTIVE**:
        - Run Pending Issue Resolver agent:

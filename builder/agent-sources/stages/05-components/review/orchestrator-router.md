@@ -162,7 +162,7 @@ Options: ACKNOWLEDGE_AND_BLOCK or PROCEED_ANYWAY
 ### Pending Issues to Sync Upstream
 | ID | Target | Summary |
 |----|--------|---------|
-Options: SYNC_ALL, DEFER_ALL, or specify per issue
+Options: SYNC_ALL, DEFER_ALL, or specify per issue. (DEFER_ALL does NOT route: findings stay only in this round's alignment report, which no other stage reads — the target stage won't see them unless separately re-raised.)
 ```
 
 **Collect decisions, update state:**
