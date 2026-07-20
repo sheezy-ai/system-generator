@@ -297,7 +297,7 @@ Automatically proceed to Step 10.
 
 ## Step 10c: Creation Verification (alignment + coherence — per-round gate)
 
-Verify alignment with source documents and internal coherence **every round**, immediately after gap resolution and before the human's promote/continue choice. Mirrors the Review workflow's post-author verification gate (its Steps 7–10 + the `VERIFICATION_CLEAN` predicate): each round ends alignment- and coherence-clean, so cross-section gaps cannot accrete across rounds and the promote/continue decision is made on a fully-verified draft.
+Verify alignment with source documents and internal coherence **every round**, immediately after gap resolution and before the human's finalise/continue choice. Mirrors the Review workflow's post-author verification gate (its Steps 7–10 + the `VERIFICATION_CLEAN` predicate): each round ends alignment- and coherence-clean, so cross-section gaps cannot accrete across rounds and the finalise/continue decision is made on a fully-verified draft.
 
 **On resume**: if complete, compute the convergence signal and return `ROUND_COMPLETE`. If a Step 10c decision is pending (`## Pending Decision: 10c: FIX|ACCEPT`), act on it (below).
 
@@ -362,7 +362,7 @@ Verify alignment with source documents and internal coherence **every round**, i
 - **Creation Verification (Step 10c)**: whether it was **clean on the first pass** or required rework (from the Step 10c history entry).
 - **Verdict** — a round is **diminishing-returns** if it resolved **no HIGH or MEDIUM gaps**, all excess findings were KEEP'd/confirmed, and Step 10c was clean first-pass (the round produced only LOW/polish refinement). Otherwise it made **substantive** change. This is a *recommendation to the human*, not an auto-terminate.
 
-**Also carry forward the rigour-gap exit predicate** (a **separate, independent** exit signal from the severity-based `convergence_signal` above — do not conflate them). Read `Rigour-Gap Exit Predicate` from the `## Explore Details` section of the state file (the explore phase persisted it this round at Step 2). Do **not** recompute it — it reflects this round's Concern Identifier result (`MET` = the identifier surfaced zero rigour-gap-qualifying concerns). Pass it through unchanged as `rigour_gap_exit`. If the field is absent (e.g. a legacy in-flight state file), set `rigour_gap_exit = unknown`. This predicate is presented to the human at the promote checkpoint alongside `convergence_signal`; it does **not** auto-terminate the loop.
+**Also carry forward the rigour-gap exit predicate** (a **separate, independent** exit signal from the severity-based `convergence_signal` above — do not conflate them). Read `Rigour-Gap Exit Predicate` from the `## Explore Details` section of the state file (the explore phase persisted it this round at Step 2). Do **not** recompute it — it reflects this round's Concern Identifier result (`MET` = the identifier surfaced zero rigour-gap-qualifying concerns). Pass it through unchanged as `rigour_gap_exit`. If the field is absent (e.g. a legacy in-flight state file), set `rigour_gap_exit = unknown`. This predicate is presented to the human at the finalise checkpoint alongside `convergence_signal`; it does **not** auto-terminate the loop.
 
 **Set status = WAITING_FOR_HUMAN** and **return**:
 ```
@@ -380,7 +380,7 @@ ROUND_COMPLETE {
                   coherence: {round-dir}/05-coherence-report.md }
 }
 ```
-(Router presents promote / another-round. On "promote" it dispatches the promote phase; on "another round" it re-dispatches this phase with Action: ANOTHER_ROUND.)
+(Router presents finalise / another-round. On "finalise" the router finalises inline; on "another round" it re-dispatches this phase with Action: ANOTHER_ROUND.)
 
 ---
 
@@ -396,7 +396,7 @@ The human chose "another round". Perform the round-boundary bookkeeping (no huma
    Record **only** findings whose Step 10 resolution left the draft text **unchanged** — APPLIED fixes self-suppress (the draft changed, so a re-scan sees the fix; it is the no-change waivers/KEEPs that would otherwise be re-flagged verbatim every round).
 
 3. **Update state**:
-   - Mark "Step 11: Promote or Continue" complete `[x]`
+   - Mark "Step 11: Finalise or Continue" complete `[x]`
    - Increment `Current Round`
    - Reset Steps 1–11 to unchecked `[ ]` (includes Step 10c)
    - Set phase = Explore, `Explore Phase` = active, `Gaps Exist` = unknown
@@ -413,7 +413,7 @@ The human chose "another round". Perform the round-boundary bookkeeping (no huma
 | `GAPS_READY { gap_discussion_file, counts }` | Step 10 first entry — gaps ready for review |
 | `GAPS_NEED_HUMAN { issues_awaiting_human }` | Mid Step 10 loop — router asks the human to reply |
 | `VERIFY_DECISION { alignment_issues, coherence_gaps, rework_pass }` | Step 10c found HIGH/MEDIUM or an alignment HALT |
-| `ROUND_COMPLETE { convergence_signal, ... }` | Round gate passed — router presents promote/continue |
+| `ROUND_COMPLETE { convergence_signal, ... }` | Round gate passed — router presents finalise/continue |
 | `NEW_ROUND_READY { new_round }` | After Action: ANOTHER_ROUND bookkeeping |
 
 Do NOT present anything to the human — the router handles all human communication.

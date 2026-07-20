@@ -181,7 +181,7 @@ The orchestrator will error if you try to create a spec without initializing fir
 Component Specs uses the **Explore** creation pattern (see `workflow-create.md`):
 
 ```
-[Explore → Generate → Gap Resolution]* → Promote
+[Explore → Generate → Gap Resolution]* → Finalise
 ```
 
 **Phase 1 — Explore**: Design Concern Identifier reads Architecture + Foundations and identifies 3-5 design concerns for the component (operation contracts, data model trade-offs, error vocabulary, atomicity boundaries). Human reviews concerns. Concern Explorers investigate each in parallel, proposing enrichments. Consolidator merges, Scope Filter removes wrong-level items, human reviews enrichments. Enrichment Author produces exploration summary.
@@ -206,7 +206,7 @@ agents/05-components/
 │   ├── deferred-items-processor.md  # Splits deferred items by component
 │   └── interface-schema-author.md   # Authors step-0 §7 cross-cutting interface schema-specs
 ├── create/
-│   ├── orchestrator.md             # Per-component workflow ([Explore → Generate → Gap Resolution]* → Promote)
+│   ├── orchestrator.md             # Per-component workflow ([Explore → Generate → Gap Resolution]* → Finalise)
 │   ├── concern-identifier.md       # Identifies design concerns for exploration
 │   ├── concern-explorer.md         # Explores one concern deeply (parallel)
 │   ├── exploration-consolidator.md # Merges explorer outputs by spec section

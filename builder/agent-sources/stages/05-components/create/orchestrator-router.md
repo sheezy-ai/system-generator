@@ -8,9 +8,9 @@ Central orchestrator that dispatches to phase orchestrators and handles all huma
 
 Create a single component spec by exploring design concerns, generating a draft enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, finalise the draft (`round-{N}-create/03-updated-spec.md`, else `00-draft-spec.md`) and hand off to the Review workflow. Create does **not** write `specs/[component-name].md` — the **Promote** workflow's spec-promoter is that path's sole writer.
 
-**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Finalise (hand to Review)
 
-The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the Architecture and Foundations. Round 2+ explores from the previous round's draft, finding concerns and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to promote at the promote/continue checkpoint.
+The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the Architecture and Foundations. Round 2+ explores from the previous round's draft, finding concerns and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to finalise at the finalise/continue checkpoint.
 
 **Phase orchestrators do work. Router talks to human.**
 
@@ -20,7 +20,7 @@ The explore→generate cycle can repeat for as many rounds as the human wants. R
 
 **Immediate execution**: The user invoking this orchestrator IS the instruction to execute. Do not ask for confirmation before starting. Proceed immediately.
 
-- Dispatch to phase orchestrators (explore, generate, promote)
+- Dispatch to phase orchestrators (explore, generate); finalise inline
 - Receive structured returns from phase orchestrators
 - Present status and questions to human
 - Collect human responses and decisions
@@ -106,7 +106,7 @@ Detailed tracking for one component's creation (current round, phase, step, stat
 **PRD**: 02-prd/prd.md
 **Current Round**: 1
 **Current Workflow**: Create
-**Current Phase**: Explore | Generate | Promote
+**Current Phase**: Explore | Generate | Finalise
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
 **Gaps Exist**: unknown | true | false
 **Explore Phase**: active | skipped | complete
@@ -130,20 +130,20 @@ Detailed tracking for one component's creation (current round, phase, step, stat
 - [ ] Step 9d: Excess Verification (binding)
 - [ ] Step 10: Gap Resolution
 - [ ] Step 10c: Creation Verification (alignment + coherence — per-round gate)
-- [ ] Step 11: Promote or Continue
+- [ ] Step 11: Finalise or Continue
 
-### Phase 3: Promote
-- [ ] Step 12: Promote & Report
+### Phase 3: Finalise
+- [ ] Step 12: Finalise & Report
 
 ## Explore Details
 
 Concerns: [CON-1, CON-2, ...] or [none]
-Rigour-Gap Exit Predicate: MET | not-met   (set by explore Step 2 each round: MET iff the Concern Identifier surfaced zero rigour-gap-qualifying concerns; carried to the Step 11 promote checkpoint)
+Rigour-Gap Exit Predicate: MET | not-met   (set by explore Step 2 each round: MET iff the Concern Identifier surfaced zero rigour-gap-qualifying concerns; carried to the Step 11 finalise checkpoint)
 Enrichments Accepted: [N]
 Enrichments Rejected: [N]
 
 ## Pending Decision
-(Router writes the human's decision here before re-dispatching a phase orchestrator; the phase orchestrator reads it. E.g. `skip-exploration`, `concerns-accepted`, `promote`, `another-round`, `10c: FIX` / `10c: ACCEPT`.)
+(Router writes the human's decision here before re-dispatching a phase orchestrator; the phase orchestrator reads it. E.g. `skip-exploration`, `concerns-accepted`, `finalise`, `another-round`, `10c: FIX` / `10c: ACCEPT`.)
 
 ## History
 - YYYY-MM-DD: Creation workflow started
@@ -230,8 +230,8 @@ system-design/05-components/
 | 9, 9b, 9c, 9d | Generate | Dispatch generate (Action: RUN) |
 | 10 | Generate (checkpoint) | Present gaps; dispatch generate per iteration |
 | 10c | Generate | Dispatch generate (Action: RUN); checkpoint only if it returns VERIFY_DECISION |
-| 11 | Generate (checkpoint) | Present promote/continue |
-| 12 | Promote | Dispatch promote (Action: PROMOTE) |
+| 11 | Generate (checkpoint) | Present finalise/continue |
+| 12 | Finalise & Report | Finalise draft, update state, report, STOP (inline) |
 
 ---
 
@@ -249,7 +249,7 @@ Concerns file: [concerns_file]
 
 [Convergence note — include per the return's convergence_note:
  - 0 concerns: "No rigour gaps found this round — strong convergence signal. I recommend skipping exploration (→ re-verify at generate) or promoting; explore only to push further."
- - 1 concern: "Only one concern surfaced — thin, likely-converging round. Worth weighing explore-this-concern vs. promote."]
+ - 1 concern: "Only one concern surfaced — thin, likely-converging round. Worth weighing explore-this-concern vs. finalise."]
 
 [N] concerns identified:
 - CON-1: [Name] — [Focus]
@@ -392,11 +392,11 @@ Creation verification (round {N}) found issues:
 > MEDIUM gaps: **ACCEPT** recommended — on rework pass [N], these are likely diminishing-returns implications. FIX only if build-affecting.
 
 [If first pass:]
-For each: **FIX** (return to Author) or **ACCEPT** (carry to the promote/continue decision as-is)?
+For each: **FIX** (return to Author) or **ACCEPT** (carry to the finalise/continue decision as-is)?
 ```
 **STOP.** Record `## Pending Decision: 10c: FIX [findings]` or `10c: ACCEPT`, dispatch generate (Action: RUN). On FIX it re-authors and re-verifies (looping back here if issues persist); on ACCEPT it computes the convergence signal and returns `ROUND_COMPLETE`.
 
-### At Step 11 (Promote or Continue)
+### At Step 11 (Finalise or Continue)
 
 Generate returned `ROUND_COMPLETE` (use the return's `convergence_signal`, `rigour_gap_exit`, gap summary, and report paths). **Present** — the human sees **two independent convergence signals** and decides; neither auto-exits the loop:
 ```
@@ -414,27 +414,27 @@ The spec passed this round's full gate: no missing requirements (coverage/depth)
 Convergence — two signals:
 
 1. Rigour-gap exit predicate (round {N}): [MET | not met]
-[If MET:] → **CONVERGED — promote warranted.** This round's concern identification surfaced **zero rigour-gap-qualifying concerns** — the workflow's explicit exit predicate. Another round is unlikely to surface load-bearing concerns. (This is the decisive convergence signal; you still decide — it informs, it does not auto-promote.)
+[If MET:] → **CONVERGED — finalise warranted.** This round's concern identification surfaced **zero rigour-gap-qualifying concerns** — the workflow's explicit exit predicate. Another round is unlikely to surface load-bearing concerns. (This is the decisive convergence signal; you still decide — it informs, it does not auto-finalise.)
 [If not met:] → Concerns were surfaced this round, so the rigour-gap exit predicate does not hold; weigh the severity signal below.
 
 2. Severity signal (round {N}): [substantive | diminishing-returns]
 - Gaps resolved this round: [X HIGH, Y MEDIUM, Z LOW] (or "none")
 - Over-build (Step 9d): [all KEEP'd/confirmed | drove edits]
 - Creation Verification (Step 10c): [clean first pass | required rework]
-[If diminishing-returns:] → **Recommend promote.** This round resolved no HIGH/MEDIUM concerns and made only low-value/polish refinement; another round would likely surface more of the same. Exit on "no HIGH/MEDIUM", not "zero possible refinements".
+[If diminishing-returns:] → **Recommend finalise.** This round resolved no HIGH/MEDIUM concerns and made only low-value/polish refinement; another round would likely surface more of the same. Exit on "no HIGH/MEDIUM", not "zero possible refinements".
 [If substantive:] → This round made substantive (HIGH/MEDIUM) change; another round may still surface load-bearing concerns worth resolving before promotion.
 
 You can:
-- Say "promote" — promote the current draft
+- Say "finalise" — finalise the current draft (hand to Review)
 - Say "another round" — run another explore→generate cycle
 
 When ready, let me know.
 ```
-**STOP.** The rigour-gap exit predicate and the severity signal are **inputs the human acts on**, not gates that fire automatically — the promote decision stays human-gated regardless of either signal.
+**STOP.** The rigour-gap exit predicate and the severity signal are **inputs the human acts on**, not gates that fire automatically — the finalise decision stays human-gated regardless of either signal.
 
 **On response:**
 - **"another round"** → record `## Pending Decision: another-round`, dispatch generate (Action: ANOTHER_ROUND). Generate writes the re-raise ledger, increments the round, resets Steps 1–11, and returns `NEW_ROUND_READY`. Then re-resolve paths for the new round and dispatch explore.
-- **"promote"** → record `## Pending Decision: promote`, dispatch promote (Action: PROMOTE).
+- **"finalise"** → record `## Pending Decision: finalise`, then proceed to Step 12 (Finalise & Report) inline (below).
 
 ---
 
@@ -465,18 +465,15 @@ Action: [RUN | ANOTHER_ROUND]
 ```
 **Returns:** `GAPS_READY {gap_discussion_file, counts}` · `GAPS_NEED_HUMAN {...}` · `VERIFY_DECISION {alignment_issues, coherence_gaps, rework_pass}` · `ROUND_COMPLETE {convergence_signal, rigour_gap_exit, gap_summary, report_paths}` · `NEW_ROUND_READY {new_round}`.
 
-### Promote
+### Step 12: Finalise & Report (inline)
 
-```
-Follow the instructions in: {{AGENTS_PATH}}/05-components/create/orchestrator-promote.md
+When the human chooses **finalise** at Step 11, the router finalises directly — there is no separate phase orchestrator. Create does **not** write `specs/[component-name].md`; that published path is written only by the **Promote** workflow's spec-promoter (its sole writer). Creation Verification already ran this round at Step 10c, so finalisation proceeds straight through:
 
-Component: [component-name]
-Round: [N]
-Action: PROMOTE
-```
-**Returns:** `PROMOTED {draft_path, summary}` (create finalised to its draft; `specs/[component-name].md` is NOT written here).
-
-On `PROMOTED`, update state to COMPLETE, update the stage index, report to human, STOP.
+1. **Resolve the create-terminal draft** (current round): if `{round-dir}/03-updated-spec.md` exists (Author ran) use it; otherwise `{round-dir}/00-draft-spec.md`.
+2. **Verify** the resolved draft exists (else the Step-12 error in Error Handling).
+3. **Update stage state** (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/workflow-state.md`): Component Specs table — component row `NOT_STARTED` → `CREATED`, set Last Updated to today; add history entry "[date]: [component-name] creation workflow complete". Keep the table sorted alphabetically.
+4. **Update per-component state**: mark Step 11 and Step 12 complete `[x]`, set status = COMPLETE, add history entry "Finalised draft from round {N}".
+5. **Report to human and STOP**: the final draft path, the round summary (concerns explored / enrichments accepted-rejected, gap-resolution summary from this round's `ROUND_COMPLETE` return), and the next-steps pointer to the **Review** workflow. `specs/[component-name].md` is NOT written here.
 
 ---
 
