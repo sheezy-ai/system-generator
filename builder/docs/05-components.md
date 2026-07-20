@@ -84,7 +84,7 @@ The Consolidator groups issues by these Component Spec-specific themes:
 
 ## Extended Review Workflow
 
-Component Specs uses an extended 12-step review process (vs the standard 7-step workflow in `workflow-review.md`). Key additions: build/ops phase splitting, issue routing, contract verification, pending issue sync, and spec promotion.
+Component Specs uses an extended 12-step review process (vs the standard 7-step workflow in `workflow-review.md`). Key additions: build/ops phase splitting, issue routing, contract verification, pending issue sync, and a handoff to the separate **Promote** workflow (spec promotion is no longer part of Review — see the `promote/` tree and the Promotion section below).
 
 ### Steps
 
@@ -102,7 +102,7 @@ Component Specs uses an extended 12-step review process (vs the standard 7-step 
 | 9 | Post-discussion | Contract Verification (cross-component contract alignment) |
 | 10 | Post-discussion | Evaluate results (NEEDS_REWORK / NEEDS_DECISIONS / VERIFICATION_CLEAN) |
 | 11 | Post-discussion | Execute & Route (apply decisions, sync pending issues, choose next action) |
-| 12 | Post-discussion | Promote spec (on exit only) |
+| 12 | Router only | Mark COMPLETE & hand to the separate Promote workflow (on exit only) |
 
 ### Build/Ops Phases
 
@@ -131,7 +131,8 @@ After each round, the routing decision determines next action:
 | Issue Analyst | 4 | Proactive analysis with options/recommendations before human sees issues |
 | Contract Verifier | 9 | Validates cross-component contract alignment |
 | Pending Issue Resolver | 11 | Logs human-decided alignment findings to upstream registers, log-only (LOG/DEFER/REJECT) |
-| Spec Promoter | 12 | Produces implementation spec, decisions doc, and future planning doc |
+
+(Spec promotion — producing the implementation spec / decisions / future docs — is no longer a Review step; it is the separate **Promote** workflow's promoter. See the Promotion section below.)
 
 ### Verification Pipeline
 
@@ -188,7 +189,7 @@ Component Specs uses the **Explore** creation pattern (see `workflow-create.md`)
 
 **Phase 2 — Generate**: Generator creates draft WITH enrichment context. Coverage Checker verifies Architecture requirements. Depth Checker verifies minimum specification depth (typed inputs/outputs, named error rules, index declarations, atomicity boundaries). Gap resolution via full pipeline. Author applies resolutions.
 
-**Phase 3 — Promote or Continue**: Human chooses to promote the draft or run another explore→generate round. Creation verification (alignment + coherence) runs before promotion.
+**Phase 3 — Finalise or Continue**: Human chooses to finalise the draft (hand to Review) or run another explore→generate round. Creation verification (alignment + coherence) runs before finalising. Create does not write `specs/` — the reviewed spec is published by the separate Promote workflow.
 
 The explore→generate cycle can repeat. Round 1 explores from Architecture + Foundations. Round 2+ explores from the previous round's draft.
 
@@ -221,27 +222,30 @@ agents/05-components/
 │   └── absent-from-freeze-detector.md # Escalates cross-component contracts absent from the frozen registry (CROSS-BOUNDARY-UPSTREAM)
 ├── coherence/
 │   └── orchestrator.md             # Stage coherence review
-└── review/
-    ├── orchestrator-router.md        # Main entry point, routes to phases
-    ├── orchestrator-pre-discussion.md  # Steps 1-5: Expert review through discussion
-    ├── orchestrator-discussion.md    # Discussion facilitation
-    ├── orchestrator-post-discussion.md # Steps 6-12: Apply, verify, promote
-    ├── author.md
-    ├── consolidator.md
-    ├── issue-router.md               # Routes issues upstream/lateral
-    ├── change-verifier.md
-    ├── contract-verifier.md
-    ├── spec-promoter.md
-    └── experts/
-        ├── build/
-        │   ├── api-designer.md
-        │   ├── data-modeller.md
-        │   ├── integration-reviewer.md
-        │   └── technical-lead.md
-        └── ops/
-            ├── operations-reviewer.md
-            ├── security-reviewer.md
-            └── test-engineer.md
+├── review/
+│   ├── orchestrator-router.md        # Main entry point, routes to phases
+│   ├── orchestrator-pre-discussion.md  # Steps 1-5: Expert review through discussion
+│   ├── orchestrator-discussion.md    # Discussion facilitation
+│   ├── orchestrator-post-discussion.md # Steps 6-12: Apply, verify, hand to Promote
+│   ├── author.md
+│   ├── consolidator.md
+│   ├── issue-router.md               # Routes issues upstream/lateral
+│   ├── decision-triage.md           # Flags must-engage decisions for the human before discussion
+│   ├── change-verifier.md
+│   ├── contract-verifier.md
+│   └── experts/
+│       ├── build/
+│       │   ├── api-designer.md
+│       │   ├── data-modeller.md
+│       │   ├── integration-reviewer.md
+│       │   └── technical-lead.md
+│       └── ops/
+│           ├── operations-reviewer.md
+│           ├── security-reviewer.md
+│           └── test-engineer.md
+└── promote/
+    ├── orchestrator.md              # Promote workflow: guard → split → record (sole producer of specs/[component].md)
+    └── promoter.md                  # Produces the published spec + decisions + future docs
 ```
 
 ---
