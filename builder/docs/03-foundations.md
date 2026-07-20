@@ -195,7 +195,7 @@ Start or resume the review.
 
 Foundations uses a custom create workflow with an Assess step and a structured gap discussion loop, rather than the generic Setup → Generate → Report flow.
 
-**Flow:** Setup → **Assess** → [Human checkpoint] → Generate → Gap Format → Gap Analyse → [Human checkpoint: gap discussion] → Author → Promote
+**Flow:** Setup → **Assess** → [Human checkpoint] → Generate → Gap Format → Gap Analyse → [Human checkpoint: gap discussion] → Author → Finalise (hand to Review)
 
 **Assess step:** The Assessor reads the PRD, Foundations guide, deferred items, and brief (if any). For each technology category, it evaluates viable options against PRD constraints, identifies coupled decisions, and presents a structured assessment to the human for directional preferences. The human's preferences then guide the Generator, producing better first-draft proposals and fewer gaps.
 

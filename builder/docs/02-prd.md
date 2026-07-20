@@ -78,12 +78,12 @@ The Consolidator groups issues by these PRD-specific themes:
 
 PRD has a custom create workflow, unlike the generic Setup → Generate → Report pattern used by stages 03-05 (see `workflow-create.md`).
 
-**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Finalise (hand to Review)
 
 The explore→generate cycle iterates for as many rounds as the human wants:
 - **Round 1** explores from `blueprint.md`
 - **Round 2+** explores from the previous round's draft
-- The human exits the loop by choosing to promote at Gap Resolution
+- The human exits the loop by choosing to finalise at Gap Resolution
 
 ### Explore Phase (Steps 1-8)
 
@@ -91,11 +91,11 @@ Identifies capability areas from the Blueprint that need product-level decomposi
 
 ### Generate Phase (Steps 9-10)
 
-Generates a draft PRD from the Blueprint + accepted enrichments + brief (if provided). The human then reviews gaps and chooses to promote, answer gaps, or do another round.
+Generates a draft PRD from the Blueprint + accepted enrichments + brief (if provided). The human then reviews gaps and chooses to finalise, answer gaps, or do another round.
 
-### Promote Phase (Step 11)
+### Finalise Phase (Step 11)
 
-Copies the final draft to `prd.md`.
+Finalises the round's draft (Status = COMPLETE) and hands it to the Review workflow. Create does **not** publish `prd.md` — the separate, review-gated Promote stage is the sole producer of `prd.md`, produced after a completed Review round.
 
 ---
 

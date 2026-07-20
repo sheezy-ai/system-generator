@@ -4,11 +4,11 @@
 
 ## Purpose
 
-Initialize the PRD stage by setting up structure, exploring capability areas from the Blueprint that need product-level decomposition, generating a draft PRD enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, promote the final draft.
+Initialize the PRD stage by setting up structure, exploring capability areas from the Blueprint that need product-level decomposition, generating a draft PRD enriched by exploration findings, resolving gaps with the human, and iterating through additional explore→generate rounds as needed. When the human is satisfied, finalise the final draft and hand it to the PRD Review workflow (which reviews it; the Promote stage then publishes it as `prd.md`).
 
-**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Promote
+**Flow:** Setup → [Explore → Generate → Gap Resolution]* → Finalise (hand to Review)
 
-The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the Blueprint. Round 2+ explores from the previous round's draft, finding capability areas and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to promote at Gap Resolution.
+The explore→generate cycle can repeat for as many rounds as the human wants. Round 1 explores from the Blueprint. Round 2+ explores from the previous round's draft, finding capability areas and enrichments that the earlier round missed or underexplored. The human exits the loop by choosing to finalise at Gap Resolution.
 
 ---
 
@@ -44,7 +44,7 @@ Files within the explore directory:
 
 **Brief** (optional): `system-design/02-prd/brief.md`
 
-**Promoted output**: `system-design/02-prd/prd.md`
+**Final output** (created by the Promote stage, after a Review round — Create does not produce it): `system-design/02-prd/prd.md`
 
 ---
 
@@ -72,7 +72,7 @@ agents/universal-agents/
 
 ```
 system-design/02-prd/
-├── prd.md                         # Promoted from create (then overwritten by Review)
+├── prd.md                         # Created by the Promote stage (after a Review round); Create does not produce it
 ├── brief.md                       # Optional human-provided brief
 └── versions/
     ├── deferred-items.md           # Upstream deferred items for this stage
@@ -158,8 +158,8 @@ system-design/02-prd/
 - [ ] Step 10: Gap Resolution
 - [ ] Step 10b: Creation Verification
 
-### Phase 3: Promote
-- [ ] Step 11: Promote
+### Phase 3: Finalise & Hand to Review
+- [ ] Step 11: Finalise & Hand to Review
 
 ## Explore Details
 
@@ -187,7 +187,6 @@ Enrichments Rejected: [N]
 - You READ input files to validate they exist
 - You SPAWN agents to do work
 - You CREATE structure files (deferred-items.md, pending-issues.md, gap-resolutions.md)
-- You COPY the final draft to `prd.md` (promotion)
 - You DO NOT write draft content, exploration content, or author output — agents do that
 - You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
 - Spawn agents in FOREGROUND (not background) — agents need interactive approval for file writes
@@ -701,7 +700,7 @@ Only proceed to step 3 after the human signals they have responded.
    - Edit the draft directly — replace gap markers with your answers
    - Provide answers here — I'll create a resolutions file and have the Author apply them
    - Say "another round" — run another explore→generate cycle using this draft as input
-   - Say "promote" — promote the current draft as-is
+   - Say "finalise" — finalise the current draft and hand it to Review
 
    When ready, let me know how you'd like to proceed.
    ```
@@ -713,7 +712,7 @@ Only proceed to step 3 after the human signals they have responded.
    Draft: {round-dir}/00-draft-prd.md
 
    You can:
-   - Say "promote" — promote the draft
+   - Say "finalise" — finalise the draft and hand it to Review
    - Say "another round" — run another explore→generate cycle to deepen the PRD
 
    When ready, let me know.
@@ -735,13 +734,13 @@ Only proceed to step 3 after the human signals they have responded.
    - **Re-resolve paths** using Path Resolution with the new round number
    - **Loop to Step 1**
 
-   **If "promote"** or "promote as-is":
-   - Update state file: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry "Promoting draft from round {N}"
+   **If "finalise"** or "finalise as-is":
+   - Update state file: Mark "Step 10: Gap Resolution" complete `[x]`, add history entry "Finalising draft from round {N}"
    - Proceed to Step 11
 
    **If human edited the draft directly**:
-   - After human confirms edits are done, ask: "Draft updated. Promote or another round?"
-   - Wait for response, handle "promote" or "another round" as above
+   - After human confirms edits are done, ask: "Draft updated. Finalise or another round?"
+   - Wait for response, handle "finalise" or "another round" as above
 
    **If human provides answers in conversation**:
    - **Create gap resolutions file** at `{round-dir}/01-gap-resolutions.md` recording the human's answers in gap discussion format:
@@ -782,8 +781,8 @@ Only proceed to step 3 after the human signals they have responded.
      ```
    - Wait for Author to complete
    - Verify outputs exist
-   - Ask: "Gaps resolved and applied. Promote or another round?"
-   - Wait for response, handle "promote" or "another round" as above
+   - Ask: "Gaps resolved and applied. Finalise or another round?"
+   - Wait for response, handle "finalise" or "another round" as above
 
 ---
 
@@ -835,7 +834,7 @@ Only proceed to step 3 after the human signals they have responded.
 
 5. **If all CLEAN** (alignment PROCEED with no issues, coherence COHERENT or LOW only, enumeration COMPLETE or LOW only):
     - Update state file: Mark "Step 10b: Creation Verification" complete `[x]`, add history entry
-    - Proceed to promote
+    - Proceed to Step 11
 
 6. **Track rework pass count**: Count how many times verification has been run in this round. The first verification is pass 1. Each FIX that returns to Author and re-runs verification increments the count.
 
@@ -863,36 +862,29 @@ Only proceed to step 3 after the human signals they have responded.
     > MEDIUM gaps: **ACCEPT** recommended — on rework pass [N], these are likely diminishing-returns implications. FIX only if build-affecting.
 
     [If first pass:]
-    For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
+    For each: **FIX** (return to Author) or **ACCEPT** (finalise as-is)?
     ```
     - If FIX: Spawn Author to address issues, then re-run verification
-    - If ACCEPT: Proceed to promote
+    - If ACCEPT: Proceed to Step 11
     - Update state file: Mark "Step 10b: Creation Verification" complete `[x]`, add history entry
 
 ---
 
-## Phase 3: Promote
+## Phase 3: Finalise & Hand to Review
 
-Phase 3 runs only when the human chooses to promote at Step 10, exiting the explore→generate loop.
+Phase 3 runs only when the human chooses to finalise at Step 10, exiting the explore→generate loop. It finalises the round's draft and hands it to the PRD Review workflow — it does **not** produce a promoted `prd.md`. The **Promote stage** is the sole producer of `prd.md`, and Promote requires a completed Review round — so a usable promoted PRD cannot exist without a review round.
 
-### Step 11: Promote
+### Step 11: Finalise & Hand to Review
 
 1. **Determine final draft path** (from the current round):
     - If `{round-dir}/03-updated-prd.md` exists (Author ran): Use it
     - Otherwise: Use `{round-dir}/00-draft-prd.md`
 
-2. **Copy final draft to `prd.md`** using Bash cp:
-    ```
-    cp [final draft path] system-design/02-prd/prd.md
-    ```
+2. **Update state file**: Mark "Step 11: Finalise & Hand to Review" complete `[x]`, set status = COMPLETE, add history entry
 
-3. **Verify promotion** — Confirm `system-design/02-prd/prd.md` exists
+3. **Check downstream deferred items** for items the Generator deferred
 
-4. **Update state file**: Mark "Step 11: Promote" complete `[x]`, set status = COMPLETE, add history entry
-
-5. **Check downstream deferred items** for items the Generator deferred
-
-6. **Present summary**:
+4. **Present summary**:
     ```
     PRD creation complete (after {total_rounds} round(s)).
 
@@ -904,7 +896,6 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
     Final draft: {round-dir}/00-draft-prd.md
     [If Author ran in final round:]
     Updated: {round-dir}/03-updated-prd.md
-    Promoted to: system-design/02-prd/prd.md
 
     Brief: [Used / Not provided]
 
@@ -921,10 +912,9 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
     - [Y] items to Architecture deferred items
     - [Z] items to Components deferred items
 
-    Next steps:
-    1. Review prd.md — verify promoted content looks correct
-    2. When ready, run the PRD Review workflow
-       (Review reads from: system-design/02-prd/prd.md)
+    NEXT: run the PRD Review workflow — it reads {round-dir}/03-updated-prd.md
+    (or {round-dir}/00-draft-prd.md if the Author did not run). Create does not
+    produce prd.md; the Promote stage creates it after a completed Review round.
     ```
 
 ---
@@ -935,18 +925,18 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 - Steps 1 → 2: Setup then identifier
 - Steps 4 → 5 → 6: Explorers then consolidator then scope filter
 - Steps 8 → 9: Enrichment author then generator
-- Steps 10b → 11: Verification then promote (unless issues found)
+- Steps 10b → 11: Verification then finalise & hand to review (unless issues found)
 
 **Automatic flow discipline**: Between automatic steps, the orchestrator updates state and spawns the next agent without pausing. Do not read files unless the step instructions explicitly direct you to. Each step already specifies what the orchestrator reads (e.g., "Read the capabilities file," "Check for Gap Summary"). If a read is not in the step instructions, do not perform it — agents read their own inputs.
 
 **Human checkpoints:**
 - **Step 3** — WAITING_FOR_HUMAN for capability review
 - **Step 7** — WAITING_FOR_HUMAN for enrichment review until all enrichments resolved
-- **Step 10** — WAITING_FOR_HUMAN for gap resolution (promote vs another round)
+- **Step 10** — WAITING_FOR_HUMAN for gap resolution (finalise vs another round)
 
 **Skip paths:**
 - **Explore skip** — If fewer than 2 capability areas (Step 2) or human says "skip" (Step 3) → jump to Step 9
-- **Gap skip** — If no gaps in draft (Step 10) → still present promote/another-round choice
+- **Gap skip** — If no gaps in draft (Step 10) → still present finalise/another-round choice
 
 **Loop path:**
 - **Another round** — If human says "another round" at Step 10 → increment round, reset Steps 1–10, loop to Step 1
@@ -970,7 +960,6 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 | Draft not created | Error: "Generator completed but draft not found at expected path" |
 | Author fails | Error: Report failure details |
 | Author output files not created | Error: "Author completed but outputs not found" |
-| Promotion copy fails | Error: "Failed to copy final draft to prd.md" |
 | State file corrupted/unreadable | Warning: Report issue, re-create state from file existence checks |
 | Resume: draft missing but Step 9 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
 | Round N primary source missing | Error: "Round {N} requires draft from round {N-1} but no draft found" |
@@ -982,17 +971,17 @@ Phase 3 runs only when the human chooses to promote at Step 10, exiting the expl
 
 After this orchestrator completes:
 
-1. **Human reviews promoted PRD** — Opens `system-design/02-prd/prd.md`
-2. **Human optionally makes manual edits** — Can refine directly
+1. **Human optionally reviews the final draft** — Opens `{round-dir}/03-updated-prd.md` (or `00-draft-prd.md` if the Author did not run)
+2. **Human optionally makes manual edits** — Can refine the round draft directly
 3. **Human runs Review workflow** — Invokes the PRD Review orchestrator
 
-**IMPORTANT**: The Review workflow reads from `system-design/02-prd/prd.md` for Round 1. This file is created by the promotion step (Step 11). It MUST exist before starting the Review workflow.
+**IMPORTANT**: Create does **not** produce `prd.md`. The Review workflow reads from the create round's final draft (`{round-dir}/03-updated-prd.md`, or `00-draft-prd.md`) — never from a promoted `prd.md`. The promoted `prd.md` is created only by the **Promote stage**, which runs after a Review round (Promote requires a completed Review round); until Review then Promote run, no promoted file exists.
 
 The Review workflow will:
 - Run expert reviewers on the PRD
 - Facilitate discussion on issues found
 - Author changes and verify alignment with Blueprint
-- Promote final version (overwriting `prd.md` with reviewed version)
+- Mark the round complete and hand off to the **Promote** stage — which splits the reviewed PRD into `prd.md` / `decisions.md` / `future.md` (the Promote stage is the sole producer of `prd.md`)
 
 ---
 

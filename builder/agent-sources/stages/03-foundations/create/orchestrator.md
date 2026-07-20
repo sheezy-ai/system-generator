@@ -4,9 +4,9 @@
 
 ## Purpose
 
-Initialize the Foundations stage by setting up structure, generating a draft Foundations document from the PRD, resolving any gaps through structured discussion, and promoting the final draft to `foundations.md` for the Review workflow.
+Initialize the Foundations stage by setting up structure, generating a draft Foundations document from the PRD, resolving any gaps through structured discussion, then finalising the draft and handing it to the Review workflow (which reviews it; the Promote stage then publishes `foundations.md`).
 
-**Flow:** Orchestrator (this) → Assessor → Generator → Gap Discussion (if gaps) → Author (if gaps) → Promote → Review workflow
+**Flow:** Orchestrator (this) → Assessor → Generator → Gap Discussion (if gaps) → Author (if gaps) → Finalise (hand to Review) → Review workflow
 
 ---
 
@@ -27,8 +27,7 @@ Run this orchestrator at the start of the Foundations stage, after the PRD is co
 **Author output**: `system-design/03-foundations/versions/round-1-create/02-author-output.md`
 **Updated draft**: `system-design/03-foundations/versions/round-1-create/03-updated-foundations.md`
 **Brief (optional)**: `system-design/03-foundations/brief.md`
-**Promoted output**: `system-design/03-foundations/foundations.md`
-**Final outputs** (created by Review workflow promoter — overwrites promoted output):
+**Final outputs** (created by the Promote stage's promoter, after a Review round — Create does not produce these):
 - `system-design/03-foundations/foundations.md` — Clean current-scope Foundations
 - `system-design/03-foundations/decisions.md` — Design rationale and trade-offs
 - `system-design/03-foundations/future.md` — Deferred items and future considerations
@@ -61,7 +60,7 @@ agents/03-foundations/review/
 
 ```
 system-design/03-foundations/
-├── foundations.md                 # Promoted from create (then overwritten by Review promoter)
+├── foundations.md                 # Created by the Promote stage (after a Review round); Create does not produce it
 ├── decisions.md                   # Design rationale (created by Review promoter)
 ├── future.md                      # Deferred items (created by Review promoter)
 └── versions/
@@ -96,7 +95,7 @@ system-design/03-foundations/
    - Step 4 (Generator) is non-idempotent — if marked complete, verify draft exists and skip. Generator uses assessment output as additional input.
    - Steps 5-7 conditional on `Gaps Exist` flag — if `false`, skip to Step 8
    - Step 6 can resume at WAITING_FOR_HUMAN — re-read discussion file and continue loop
-   - Step 8 (Promote) — if marked complete, workflow is done
+   - Step 8 (Finalise & Hand to Review) — if marked complete, workflow is done
 
 3. **Update state file** at each step transition (instructions inline below)
 
@@ -121,7 +120,7 @@ system-design/03-foundations/
 - [ ] Step 6: Discussion Loop
 - [ ] Step 7: Apply Decisions
 - [ ] Step 7b: Creation Verification
-- [ ] Step 8: Promote & Report
+- [ ] Step 8: Finalise & Hand to Review
 
 ## History
 - YYYY-MM-DD HH:MM: Creation workflow started
@@ -143,7 +142,6 @@ system-design/03-foundations/
 - You READ input files to validate they exist
 - You SPAWN agents (Assessor, Generator, Gap Formatter, Discussion Facilitator, Author) to do work
 - You CREATE structure files (deferred-items.md, pending-issues.md)
-- You COPY the final draft to `foundations.md` (promotion)
 - You DO NOT write draft Foundations content, gap discussion content, or author output — agents do that
 - You DO NOT answer, analyse, or respond to human discussion points — discussion facilitator agents do that
 
@@ -335,7 +333,7 @@ Only proceed after the human signals they have responded (e.g., "done", "ready",
 2. **Check for Gap Summary section** — Look for `## Gap Summary` heading
 
 3. **If no Gap Summary, or all subsections empty** (Must Answer, Should Answer, and Assumptions all show "None" or similar):
-   - **Update state file**: Set `Gaps Exist` = `false`, mark Steps 5-7 complete `[x]`, add history entry "No gaps found — skipping to promotion"
+   - **Update state file**: Set `Gaps Exist` = `false`, mark Steps 5-7 complete `[x]`, add history entry "No gaps found — skipping to Step 8 (Finalise)"
    - **Skip Steps 5-7, proceed to Step 8**
 
 4. **Spawn Gap Formatter agent** using Task tool:
@@ -558,37 +556,29 @@ This gate is mandatory. Do not skip it.
     ### Coherence Gaps
     [List HIGH/MEDIUM gaps with source section, target section, and summary]
 
-    For each: **FIX** (return to Author) or **ACCEPT** (promote as-is)?
+    For each: **FIX** (return to Author) or **ACCEPT** (finalise as-is)?
     ```
     - If FIX: Spawn Author to address issues, then re-run verification
     - If ACCEPT: Proceed to Step 8
     - Update state file: Mark "Step 7b: Creation Verification" complete `[x]`, add history entry
 
-### Step 8: Promote & Report
+### Step 8: Finalise & Hand to Review
 
 24. **Determine final draft path**:
     - If Steps 5-7 ran (gaps existed): Use `system-design/03-foundations/versions/round-1-create/03-updated-foundations.md`
     - If Steps 5-7 were skipped (no gaps): Use `system-design/03-foundations/versions/round-1-create/00-draft-foundations.md`
 
-25. **Copy final draft to `foundations.md`** using Bash cp:
-    ```
-    cp [final draft path] system-design/03-foundations/foundations.md
-    ```
+25. **Update state file**: Mark "Step 8: Finalise & Hand to Review" complete `[x]`, set status = COMPLETE, add history entry
 
-26. **Verify promotion** — Confirm `system-design/03-foundations/foundations.md` exists
+26. **Check downstream deferred items** for items the Generator deferred
 
-27. **Update state file**: Mark "Step 8: Promote & Report" complete `[x]`, set status = COMPLETE, add history entry
-
-28. **Check downstream deferred items** for items the Generator deferred
-
-29. **Present summary**:
+27. **Present summary**:
     ```
     Foundations creation complete.
 
     Draft: system-design/03-foundations/versions/round-1-create/00-draft-foundations.md
     [If gaps resolved:]
     Updated: system-design/03-foundations/versions/round-1-create/03-updated-foundations.md
-    Promoted to: system-design/03-foundations/foundations.md
 
     Brief: [Used / Not provided]
 
@@ -605,10 +595,10 @@ This gate is mandatory. Do not skip it.
     - [X] items to Architecture deferred items
     - [Y] items to Components deferred items
 
-    Next steps:
-    1. Review foundations.md — verify promoted content looks correct
-    2. When ready, run the Foundations Review workflow
-       (Review reads from: system-design/03-foundations/foundations.md)
+    NEXT: run the Foundations Review workflow — it reads the create round's final
+    draft (03-updated-foundations.md if the Author ran, else 00-draft-foundations.md).
+    Create does not produce foundations.md; the Promote stage creates it after a
+    completed Review round.
     ```
 
 ---
@@ -642,7 +632,6 @@ This gate is mandatory. Do not skip it.
 | Gap discussion file not created | Error: "Gap Formatter completed but output not found at expected path" |
 | Author fails | Error: Report failure details |
 | Author output files not created | Error: "Author completed but outputs not found at expected paths" |
-| Promotion copy fails | Error: "Failed to copy final draft to foundations.md" |
 | State file corrupted/unreadable | Warning: Report issue, re-create state from file existence checks |
 | Resume: draft missing but Step 4 marked complete | Error: "State says Generator complete but draft not found — re-run Generator or fix state file" |
 
@@ -652,17 +641,17 @@ This gate is mandatory. Do not skip it.
 
 After this orchestrator completes:
 
-1. **Human reviews promoted Foundations** — Opens `system-design/03-foundations/foundations.md`
-2. **Human optionally makes manual edits** — Can refine directly
+1. **Human optionally reviews the final draft** — Opens `system-design/03-foundations/versions/round-1-create/03-updated-foundations.md` (or `00-draft-foundations.md` if the Author did not run)
+2. **Human optionally makes manual edits** — Can refine the round draft directly
 3. **Human runs Review workflow** — Invokes the Foundations Review orchestrator
 
-**IMPORTANT**: The Review workflow reads from `system-design/03-foundations/foundations.md` for Round 1. This file is created by the promotion step (Step 8). It MUST exist before starting the Review workflow.
+**IMPORTANT**: Create does **not** produce `foundations.md`. The Review workflow reads from the create round's final draft (`03-updated-foundations.md`, or `00-draft-foundations.md` if the Author did not run) — never from a promoted `foundations.md`. The promoted `foundations.md` is created only by the **Promote stage**, which runs after a Review round (Promote requires a completed Review round); until Review then Promote run, no promoted file exists.
 
 The Review workflow will:
 - Run expert reviewers on the Foundations
 - Facilitate discussion on issues found
 - Author changes and verify alignment with PRD
-- Promote final version (overwriting `foundations.md` with reviewed version)
+- Mark the round complete and hand off to the **Promote** stage — which splits the reviewed Foundations into `foundations.md` / `decisions.md` / `future.md` (the Promote stage is the sole producer of `foundations.md`)
 
 ---
 
