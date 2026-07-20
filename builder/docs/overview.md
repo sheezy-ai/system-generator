@@ -171,7 +171,7 @@ Reviewed document ──▶ Guard (last round was Review) ──▶ Promoter (sp
 - **Promoter** — the sole producer of the published spec; splits the reviewed document into spec / decisions / future
 - **Record** — captured under `round-N-promote/` (input snapshot + copies + metadata)
 
-At review exit (zero-issues gate or maturity), Review completes and *recommends* running Promote — it no longer promotes automatically. Available for stages 02–04. Architecture additionally runs a contract completeness/freezability gate and materializes the frozen contract registry for stage 05; stage 05 uses its own spec-promoter. See `workflow-promote.md` for details.
+At review exit (zero-issues gate or maturity), Review completes and *recommends* running Promote — it no longer promotes automatically. Available for stages 02–04. Architecture additionally runs a contract completeness/freezability gate and materializes the frozen contract registry for stage 05; stage 05 uses its own promote workflow (`promoter.md`). See `workflow-promote.md` for details.
 
 ## Key Concepts
 
