@@ -20,48 +20,62 @@ Transform a reviewed Foundations document into three focused documents:
 
 ## Output
 
-- Foundations: `system-design/03-foundations/foundations.md`
-- Future planning: `system-design/03-foundations/future.md`
-- Decisions: `system-design/03-foundations/decisions.md`
+Write the three documents to the **output paths provided at invocation** (the Promote orchestrator passes round-folder paths — `round-[N]-promote/foundations.md` / `future.md` / `decisions.md`; it publishes them to the live parent after the document-conservation gate returns CLEAN):
+- Foundations — clean current-scope technical decisions, conventions, and policies
+- Future planning — deferred items and future considerations
+- Decisions — design rationale and trade-offs
 
 ---
 
 ## Separation Criteria
+
+**§1–10 are verbatim-preserved — the narrowing rule that governs everything below.** The promoter's **only** edits to §1 Technology Choices … §10 Deployment & Infrastructure are **removal of `<!-- … -->` HTML comments**. It does **NOT** extract rationale, decisions, trade-offs, or future content, and does **NOT** brief-note-substitute, *within* §1–10 — inline rationale prose in a convention section **stays inline, byte-for-byte**. The **only** content the promoter MOVES is authored **outside** §1–10:
+- the **standalone `## Design Decisions` section** (the `DD-NNN:` blocks the project authors *below* §11) → `decisions.md`; and
+- **§11 Open Questions** → `future.md` (leaving the §11 header + a reference).
+
+The content-type tables below describe the *shapes* of movable content, but per this rule the promoter **only acts on them when they appear outside §1–10** (in the standalone Design-Decisions section, or in §11). If a project authored no standalone Design-Decisions section and kept its rationale inline in §1–10, that rationale **stays inline** and `decisions.md` is an empty stub — a valid, guide-consistent outcome. §1–10 conventions are never transformed.
 
 ### Stays in Foundations
 
 | Content Type | Example | Rationale |
 |--------------|---------|-----------|
 | All 11 guide sections with current-scope content | Technology Choices, Data Conventions, etc. | Core implementation guidance |
-| Brief accepted limitation notes | "Accepted limitation: X. See decisions.md for rationale." | Implementer needs to know constraint exists |
-| One-liner future flags | "Future consideration: Add X if Y exceeds threshold" | Signals intent without detail |
-| Decision statements without rationale | "We use PostgreSQL 15" | The "what" stays; the "why" moves |
+| **All of §1–10, verbatim** (incl. any inline rationale) | Any convention prose in §1–10 | §1–10 are byte-preserved; nothing is extracted from them |
+| Brief accepted limitation notes **already authored in §1–10** | "Accepted limitation: X. See decisions.md for rationale." | Stays as authored — the promoter does not create or rewrite these |
+| One-liner future flags **already authored in §1–10** | "Future consideration: Add X if Y exceeds threshold" | Stays as authored inline |
+| Decision statements with or without inline rationale | "We use PostgreSQL 15" (+ any inline "because …") | Both the "what" and any inline "why" stay in §1–10; only the standalone Design-Decisions section moves |
 | Cross-cutting conventions and policies | Naming conventions, error categories, log format | Developers need these to build |
 
 ### Moves to Future Planning
 
+**Scope:** the promoter MOVES **§11 Open Questions** to `future.md`. The other shapes below move to `future.md` **only if they are authored outside §1–10** (e.g. within §11, or the standalone Design-Decisions section). Any future-flavoured content that appears *inside* §1–10 **stays inline, verbatim** (per the §1–10-verbatim rule) — it is not extracted.
+
 | Content Type | Example | Rationale |
 |--------------|---------|-----------|
 | §11 Open Questions table | Deferred decisions with context and impact | Items needing future resolution |
-| Multi-paragraph future blocks | "In Phase 1b, when traffic increases..." | Forward-looking, not needed now |
-| Migration criteria | "Migrate to X when any of: A, B, C" | Planning concern |
-| Effort estimates for future work | "Estimated effort: ~2-3 hours" | Planning concern |
-| Deferred decision paragraphs | Items explicitly marked as deferred or future scope | Not actionable now |
-| "Later phase" items | "In a future phase, consider adding..." | Forward-looking detail |
+| Multi-paragraph future blocks (outside §1–10) | "In Phase 1b, when traffic increases..." | Forward-looking, not needed now |
+| Migration criteria (outside §1–10) | "Migrate to X when any of: A, B, C" | Planning concern |
+| Effort estimates for future work (outside §1–10) | "Estimated effort: ~2-3 hours" | Planning concern |
+| Deferred decision paragraphs (outside §1–10) | Items explicitly marked as deferred or future scope | Not actionable now |
+| "Later phase" items (outside §1–10) | "In a future phase, consider adding..." | Forward-looking detail |
 
 ### Moves to Decisions
 
+**Scope:** the promoter MOVES the **standalone `## Design Decisions` section** (authored below §11) wholesale to `decisions.md`. The rationale shapes below move **only as they appear inside that standalone section** — trade-offs, alternatives, and "why not" analyses that are inline within §1–10 **stay inline, verbatim** (per the §1–10-verbatim rule). The sole §1–10 edit is `<!-- … -->` HTML-comment removal.
+
 | Content Type | Example | Rationale |
 |--------------|---------|-----------|
-| `<!-- Rationale: ... -->` HTML comments | `<!-- Rationale: FND-003 - Changed to short-lived tokens... -->` | Design rationale |
-| Design Decisions section (`DD-NNN:` blocks) | `DD-001: Token-Based Auth Strategy` with Decision/Rationale/Alternatives | Formal decision records |
-| `Source: Round N: ISSUE-ID` references | `Source: Round 1: FND-003` | Traceability (moves with its decision) |
-| Trade-off analyses | "We chose X over Y because..." | Decision context |
-| "Alternatives considered/rejected" blocks | "Alternatives: 1. Option A — rejected because..." | Alternative analysis |
-| Full rationale for accepted limitations | Multi-paragraph explanation of why a limitation is acceptable | Detailed reasoning |
-| "Why not..." explanations | "We considered X but rejected it because..." | Alternative analysis |
+| `<!-- Rationale: ... -->` HTML comments | `<!-- Rationale: FND-003 - Changed to short-lived tokens... -->` | Removed from §1–10 (the sole sanctioned §1–10 edit); the design rationale lives in the standalone Design-Decisions section |
+| Standalone Design Decisions section (`DD-NNN:` blocks) | `DD-001: Token-Based Auth Strategy` with Decision/Rationale/Alternatives | Formal decision records — the primary movable unit |
+| `Source: Round N: ISSUE-ID` references | `Source: Round 1: FND-003` | Traceability (moves with its DD block) |
+| Trade-off analyses (within the standalone section) | "We chose X over Y because..." | Decision context |
+| "Alternatives considered/rejected" blocks (within the standalone section) | "Alternatives: 1. Option A — rejected because..." | Alternative analysis |
+| Full rationale for accepted limitations (within the standalone section) | Multi-paragraph explanation of why a limitation is acceptable | Detailed reasoning |
+| "Why not..." explanations (within the standalone section) | "We considered X but rejected it because..." | Alternative analysis |
 
 ### Judgment Calls
+
+**These judgment calls do NOT apply to §1–10** — those ten sections are verbatim-preserved and are never weighed for extraction. Use the calls below only to place content that is already **outside** §1–10 (the standalone Design-Decisions section, and §11).
 
 When uncertain which document content belongs in:
 
@@ -81,14 +95,14 @@ When uncertain which document content belongs in:
 
 ## Foundations Structure
 
-Preserve the original 11-section structure. Within each section:
-1. Remove extracted content cleanly (no orphaned references)
-2. Keep prose flowing naturally
-3. Preserve all current-scope conventions, policies, and configuration guidance
-4. Remove HTML rationale comments (they move to decisions.md)
-5. Replace full Design Decisions section with brief notes referencing decisions.md
-6. Replace full accepted limitation rationale with brief notes referencing decisions.md
-7. Keep §11 Open Questions as a section header with a reference to future.md
+**§1–10 are verbatim-preserved.** These ten sections (§1 Technology Choices … §10 Deployment & Infrastructure) are copied **byte-for-byte** into `foundations.md` so the document-conservation gate can verify them. The promoter does **NOT** re-flow, re-order, re-word, condense, split, or extract rationale/decisions/future from them — inline rationale prose in a convention section **stays inline, byte-for-byte**. The **only** content the promoter MOVES is authored **outside** §1–10:
+- the **standalone `## Design Decisions` section** (the `DD-NNN:` blocks the project authors *below* §11) → `decisions.md`; and
+- **§11 Open Questions** → `future.md`.
+
+Preserve the original 11-section structure. The promoter's edits are therefore limited to:
+1. **Remove `<!-- … -->` HTML comments from §1–10** (the sole sanctioned edit to those sections); keep everything else in §1–10 byte-identical to the reviewed source.
+2. **Extract the standalone `## Design Decisions` section** (below §11) to `decisions.md` — move the `DD-NNN:` blocks with their `Source:` references intact. If no such standalone section exists, extract nothing (decisions.md is an empty stub) and leave §1–10 untouched.
+3. **Move §11 Open Questions content to `future.md`**, keeping §11 in `foundations.md` as a section header with a reference to future.md.
 
 ---
 
@@ -268,8 +282,18 @@ For each of the 11 sections, verify the output Foundations still covers the guid
 - [ ] Foundations reads naturally without gaps
 - [ ] All 11 sections present and substantive
 - [ ] No `<!-- Rationale: ... -->` HTML comments remain in Foundations
-- [ ] No full Design Decisions section remains in Foundations (only brief notes referencing decisions.md)
-- [ ] No multi-paragraph future/deferred blocks remain in Foundations
+- [ ] The standalone `## Design Decisions` section has been extracted to decisions.md (it does not remain in foundations.md); §1–10 are otherwise unchanged
+- [ ] §11 Open Questions content has been moved to future.md (only the §11 header + reference to future.md remain in foundations.md)
+- [ ] §1 Technology Choices is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §2 Architecture Patterns is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §3 Authentication & Authorization is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §4 Data Conventions is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §5 API Conventions is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §6 Error Handling is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §7 Logging & Observability is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §8 Security Baseline is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §9 Testing Conventions is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §10 Deployment & Infrastructure is **byte-identical** to the reviewed source (modulo HTML-comment removal)
 - [ ] No orphaned references to removed content
 - [ ] Future planning doc has clear groupings
 - [ ] Decisions doc captures all rationale content
@@ -278,7 +302,7 @@ For each of the 11 sections, verify the output Foundations still covers the guid
 
 ### Cross-Reference Checks
 
-- [ ] Brief notes in Foundations correctly reference decisions.md sections
+- [ ] Any reference to decisions.md that already existed inline in §1–10 still resolves (the promoter does not add new brief-note references to §1–10)
 - [ ] §11 references future.md
 - [ ] Future.md references decisions.md where relevant
 - [ ] All three docs reference each other in their References sections
@@ -337,9 +361,9 @@ Complete all steps autonomously without pausing for confirmation. The promotion 
 
 ## File Output
 
-**Output files** (all three always created):
-- `system-design/03-foundations/foundations.md` — Clean current-scope Foundations
-- `system-design/03-foundations/future.md` — Future planning (or stub)
-- `system-design/03-foundations/decisions.md` — Decisions (or stub)
+**Output files** (all three always created): Write the three documents to the **output paths passed at invocation** (the round-folder originals: `round-[N]-promote/foundations.md` / `future.md` / `decisions.md`):
+- Foundations (clean current-scope Foundations, §1–10 verbatim)
+- Future planning (or stub)
+- Decisions (or stub)
 
-These overwrite existing files at these locations. The review workflow maintains versioned backups in `versions/round-N/` directories.
+The Promote orchestrator publishes them to the live paths (`system-design/03-foundations/foundations.md` / `future.md` / `decisions.md`) only after the document-conservation gate returns CLEAN. Do not write to the live paths directly.

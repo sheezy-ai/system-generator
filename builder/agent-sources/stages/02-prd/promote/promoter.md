@@ -20,9 +20,10 @@ Transform a reviewed PRD into three focused documents:
 
 ## Output
 
-- PRD: `system-design/02-prd/prd.md`
-- Future planning: `system-design/02-prd/future.md`
-- Decisions: `system-design/02-prd/decisions.md`
+Write the three documents to the **output paths provided at invocation** (the Promote orchestrator passes round-folder paths — `round-[N]-promote/prd.md` / `future.md` / `decisions.md`; it publishes them to the live parent after the document-conservation gate returns CLEAN):
+- PRD — clean current-scope product requirements
+- Future planning — deferred features and future considerations
+- Decisions — product decision rationale and trade-offs
 
 ---
 
@@ -82,7 +83,9 @@ When uncertain which document content belongs in:
 
 ## PRD Structure
 
-Preserve the original 11-section structure. Within each section:
+**Verbatim-preserve §5 Conceptual Data Model, §8 Integration Points, and §9 Compliance and Constraints.** These are copied **byte-for-byte** into `prd.md` — do NOT re-flow, re-order, re-word, condense, split, or extract rationale/decisions/future from them. The only sanctioned edit is removal of `<!-- … -->` HTML comments. The "Moves to Decisions / Moves to Future" content-type extraction (and any brief-note substitution) applies **only to the other sections** (§1 Phase Goal, §2 Success Criteria, §3 Capabilities, §4 Scope, §6 Key Decisions, §7 User Workflows, §10 Risks and Dependencies, §11 Definition of Done).
+
+Preserve the original 11-section structure. Within each **transformable** section (i.e. every section *except* §5/§8/§9, which are verbatim per the rule above — instructions 1–7 do NOT apply to those three):
 1. Remove extracted content cleanly (no orphaned references)
 2. Keep prose flowing naturally
 3. Preserve all current-scope requirements, capabilities, and criteria
@@ -287,6 +290,9 @@ For each of the 11 sections, verify the output PRD still covers the guide's expe
 - [ ] Key Decisions simplified to statements with decisions.md references
 - [ ] No multi-paragraph future/deferred blocks remain in PRD
 - [ ] No orphaned references to removed content
+- [ ] §5 Conceptual Data Model is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §8 Integration Points is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §9 Compliance and Constraints is **byte-identical** to the reviewed source (modulo HTML-comment removal)
 - [ ] Future planning doc has clear groupings
 - [ ] Decisions doc captures all rationale content
 - [ ] Cross-references between all three docs are accurate
@@ -355,9 +361,9 @@ Complete all steps autonomously without pausing for confirmation. The promotion 
 
 ## File Output
 
-**Output files** (all three always created):
-- `system-design/02-prd/prd.md` — Clean current-scope PRD
-- `system-design/02-prd/future.md` — Future planning (or stub)
-- `system-design/02-prd/decisions.md` — Decisions (or stub)
+**Output files** (all three always created): Write the three documents to the **output paths passed at invocation** (the round-folder originals: `round-[N]-promote/prd.md` / `future.md` / `decisions.md`):
+- PRD (clean current-scope PRD)
+- Future planning (or stub)
+- Decisions (or stub)
 
-These overwrite existing files at these locations. The review workflow maintains versioned backups in `versions/round-N-review/` directories.
+The Promote orchestrator publishes them to the live paths (`system-design/02-prd/prd.md` / `future.md` / `decisions.md`) only after the document-conservation gate returns CLEAN. Do not write to the live paths directly.
