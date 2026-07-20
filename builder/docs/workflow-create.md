@@ -1,6 +1,6 @@
 # Create Workflow
 
-The Create workflow generates a draft document from upstream inputs. Each stage declares which creation pattern it follows. The human exits the loop by choosing to promote, then runs the Review workflow to refine the promoted draft.
+The Create workflow generates a draft document from upstream inputs. Each stage declares which creation pattern it follows. The human exits the loop by choosing to **finalise** the draft, which hands it to the Review workflow. Create does **not** publish the canonical document — the review-gated **Promote** workflow is its sole producer (see `workflow-promote.md`). *(Exception: Blueprint (01) currently still publishes inline at Create — a known deferred inconsistency; 02–05 finalise-and-hand-to-review.)*
 
 For the standard review workflow (used after creation), see `workflow-review.md`.
 
@@ -15,7 +15,7 @@ Two patterns define how create workflows approach draft production, listed from 
 ### Pattern: Select
 
 ```
-Setup → Assess → [Human checkpoint] → Generate → Gap Resolution Pipeline → Promote
+Setup → Assess → [Human checkpoint] → Generate → Gap Resolution Pipeline → Finalise (hand to Review)
 ```
 
 **When to use**: Technology and convention selection problems where options are bounded and the input (PRD) implies constraints but doesn't prescribe specific choices. Assessment surfaces trade-offs and collects human direction before generation.
@@ -40,7 +40,7 @@ Setup → Assess → [Human checkpoint] → Generate → Gap Resolution Pipeline
 | 5 (cont) | Analyse gaps | Gap Analyst | Auto |
 | 6 | Discussion | Discussion Facilitator | Human checkpoint |
 | 7 | Apply decisions | Author | Auto |
-| 8 | Promote | Orchestrator | Auto |
+| 8 | Finalise & Hand to Review | Orchestrator | Auto |
 
 #### State File Template
 
@@ -58,7 +58,7 @@ Setup → Assess → [Human checkpoint] → Generate → Gap Resolution Pipeline
 - [ ] Step 5: Format & Analyse Gaps
 - [ ] Step 6: Discussion Loop
 - [ ] Step 7: Apply Decisions
-- [ ] Step 8: Promote & Report
+- [ ] Step 8: Finalise & Hand to Review
 ```
 
 ---
@@ -66,7 +66,7 @@ Setup → Assess → [Human checkpoint] → Generate → Gap Resolution Pipeline
 ### Pattern: Explore
 
 ```
-Setup → [Explore → Generate/Apply → Gap Resolution]* → Promote
+Setup → [Explore → Generate/Apply → Gap Resolution]* → Finalise (hand to Review)
 ```
 
 **When to use**: Design problems where multiple viable alternatives need structured exploration before generation. The input needs decomposition into areas worth investigating, parallel deep-dives, and human review of proposed enrichments before the draft is produced.
@@ -97,7 +97,7 @@ Setup → [Explore → Generate/Apply → Gap Resolution]* → Promote
 | 9b | Generate | Coverage verification (if applicable) | Requirements Extractor + Coverage Checker | Auto |
 | 9c | Generate | Depth verification (if applicable) | Depth Checker | Auto |
 | 10 | Generate | Gap resolution | Varies by stage | Human checkpoint |
-| 11 | Promote | Promote | Orchestrator | Auto |
+| 11 | Finalise | Finalise & Hand to Review | Orchestrator | Auto |
 
 #### Stage Variations
 
@@ -115,7 +115,7 @@ Setup → [Explore → Generate/Apply → Gap Resolution]* → Promote
 
 ```markdown
 **Current Workflow**: Create
-**Current Phase**: Explore | Generate | Promote
+**Current Phase**: Explore | Generate | Finalise
 **Current Round**: 1
 **Status**: IN_PROGRESS | WAITING_FOR_HUMAN | COMPLETE
 **Gaps Exist**: unknown | true | false
@@ -139,8 +139,8 @@ Setup → [Explore → Generate/Apply → Gap Resolution]* → Promote
 - [ ] Step 9c: Depth Verification (if applicable)
 - [ ] Step 10: Gap Resolution
 
-### Phase 3: Promote
-- [ ] Step 11: Promote & Report
+### Phase 3: Finalise
+- [ ] Step 11: Finalise & Hand to Review
 ```
 
 ---
@@ -186,7 +186,7 @@ Component Specs is unique: it produces multiple specs (one per component) rather
 - Verify coverage and depth
 - Resolve gaps through structured discussion
 - Iterate (human can request additional explore→generate rounds)
-- Promote final draft
+- Finalise draft (hand to Review; Create does not write `specs/`)
 
 **Pattern:** Explore
 
@@ -194,7 +194,7 @@ Component Specs is unique: it produces multiple specs (one per component) rather
 
 ### Component-Level: Review
 
-**Run for each component** after creation promotes the draft.
+**Run for each component** after creation finalises the draft.
 
 **Orchestrator:** `agents/05-components/review/orchestrator-router.md`
 
@@ -267,8 +267,8 @@ This ensures agents operate only on files and don't execute arbitrary commands o
 
 ## After Creation
 
-Once the draft is promoted:
+Once the draft is finalised:
 
 1. **Run the Review workflow** to refine the document (see `workflow-review.md`)
-2. Review workflow iterates until document is satisfactory
-3. Final document is promoted to `system-design/[stage]/[document].md`
+2. Review workflow iterates until the document is satisfactory
+3. **Run the Promote workflow** — it publishes the reviewed document to `system-design/[stage]/[document].md` (see `workflow-promote.md`). *(Blueprint (01) currently publishes at Create instead — deferred.)*

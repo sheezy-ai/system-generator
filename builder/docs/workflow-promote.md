@@ -2,7 +2,7 @@
 
 The Promote workflow **freezes** a reviewed document by splitting it into three published files — the clean current-scope spec, its design rationale, and its deferred items — and recording the promotion as its own version round. It is a separately-triggered workflow: Review no longer promotes at exit (it completes and *recommends* running Promote). Available for stages **02 (PRD)**, **03 (Foundations)**, and **04 (Architecture)**.
 
-> Stage 01 (Blueprint) is not split — it copies the reviewed document to its canonical path. Stage 05 (Component Specs) keeps its own `spec-promoter`. See DEC-072 (the split) and DEC-081 (the decoupling).
+> Stage 01 (Blueprint) is not split — it copies the reviewed document to its canonical path. Stage 05 (Component Specs) keeps its own `promote/` workflow (`promoter.md`). See DEC-072 (the split) and DEC-081 (the decoupling).
 
 For general workflow mechanics, see `workflow-create.md` and `workflow-review.md`.
 
@@ -119,4 +119,4 @@ Promote exits by **freezing**: the guard passes, the promoter produces the three
 | **Materialize + fidelity** | No | No | Yes (freezes the registry for 05) |
 | **Backward-edge / pending-issues** | No | No | Yes |
 
-01 copies (no split); 05 uses its own `spec-promoter`.
+01 copies (no split); 05 uses its own `promote/` workflow (`promoter.md`).
