@@ -21,9 +21,10 @@ Transform a reviewed Architecture Overview into three focused documents:
 
 ## Output
 
-- Architecture Overview: `system-design/04-architecture/architecture.md`
-- Future planning: `system-design/04-architecture/future.md`
-- Decisions: `system-design/04-architecture/decisions.md`
+Write the three documents to the **output paths provided at invocation** (the Promote orchestrator passes round-folder paths; it publishes them to the live parent after the conservation gate):
+- Architecture Overview — clean current-scope Architecture Overview
+- Future planning — deferred items and future considerations
+- Decisions — design rationale and trade-offs
 
 ---
 
@@ -89,6 +90,8 @@ When uncertain which document content belongs in:
 ---
 
 ## Architecture Overview Structure
+
+**Verbatim-preserve §6, §8, and the §7 cross-cutting interface-contract text.** §6 (Component Spec List), §8 (Data Contracts), and the §7 interface definitions the §8 contracts reference (e.g. the Audit Trail Interface and Source Attribution Interface specifications) are copied **byte-for-byte** into the clean Architecture Overview. Do **NOT** re-flow, re-number, re-order, re-word, condense, or split any part of them. The **only** sanctioned edit to these is removal of `<!-- … -->` HTML comments. All content transformation (rationale/future extraction, §5 condensation, replacing the Design Decisions block with references) applies **only to §1–5, §9, and non-interface §7 prose.**
 
 Preserve the original 9-section structure. Within each section:
 1. Remove extracted content cleanly (no orphaned references)
@@ -311,8 +314,9 @@ For each of the 9 sections, verify the output Architecture Overview still covers
 - [ ] §5 contains decision statements only (no multi-paragraph rationale)
 - [ ] No multi-paragraph future/deferred blocks remain
 - [ ] No orphaned references to removed content
-- [ ] Component Spec List (§6) is complete and unmodified
-- [ ] Data Contracts (§8) are complete and unmodified
+- [ ] Component Spec List (§6) is complete and **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] Data Contracts (§8) are complete and **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §7 interface-contract definitions (Audit Trail / Source Attribution) are byte-identical to the reviewed source (modulo HTML-comment removal)
 - [ ] `**Frozen-At**: [freeze-token]` present in architecture.md's header (inserted/overwritten this promote, not merely preserved; fallback provenance line used only if no Version/Last Updated header exists)
 - [ ] Future planning doc has clear groupings
 - [ ] Decisions doc captures all rationale content
@@ -382,9 +386,9 @@ Complete all steps autonomously without pausing for confirmation. The promotion 
 
 ## File Output
 
-**Output files** (all three always created):
-- `system-design/04-architecture/architecture.md` — Clean current-scope Architecture Overview
-- `system-design/04-architecture/future.md` — Future planning (or stub)
-- `system-design/04-architecture/decisions.md` — Decisions (or stub)
+**Output files** (all three always created): Write the three documents to the **output paths passed at invocation** (the round-folder originals: `round-[N]-promote/architecture.md` / `decisions.md` / `future.md`):
+- Clean current-scope Architecture Overview
+- Future planning (or stub)
+- Decisions (or stub)
 
-These overwrite existing files at these locations. The review workflow maintains versioned backups in `versions/round-N/` directories.
+The Promote orchestrator publishes them to the live parent (`system-design/04-architecture/*.md`) only after the document-conservation gate returns CLEAN. Do not write to the live parent directly.
