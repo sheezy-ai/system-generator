@@ -21,9 +21,10 @@ Transform a reviewed component spec into three focused documents:
 
 ## Output
 
-- Implementation spec: `system-design/05-components/specs/[component-name].md`
-- Future planning: `system-design/05-components/future/[component-name].md`
-- Decisions: `system-design/05-components/decisions/[component-name].md`
+Write the three documents to the **output paths provided at invocation** (the Promote orchestrator passes round-folder paths; it publishes them to the live parent after the document-conservation gate returns CLEAN):
+- Implementation spec — what to build for the current phase
+- Future planning — Phase 1b+ growth paths and deferred items
+- Decisions — design rationale and trade-offs
 
 ---
 
@@ -79,7 +80,9 @@ When uncertain which document content belongs in:
 
 ## Implementation Spec Structure
 
-Preserve the original 13-section structure. Within each section:
+**Verbatim-preserve §3 Interfaces, §4 Data Model, and §7 Integration.** These sections are copied **byte-for-byte** into the implementation spec — do NOT re-flow, re-order, re-word, condense, split, or extract rationale from them. The only sanctioned edit is removal of `<!-- … -->` HTML comments. All content transformation (Deliberate-Design/rationale extraction → decisions, Phase-1b+/future extraction → future) applies **only to the other sections** (Overview, Scope, Behaviour, Dependencies, Error Handling, Observability, Security, Testing, Open Questions, Related Decisions).
+
+Preserve the original 13-section structure. Within each **transformable** section (i.e. every section *except* §3/§4/§7, which are verbatim per the rule above — instructions 1–6 do NOT apply to those three):
 1. Remove extracted content cleanly (no orphaned references)
 2. Keep prose flowing naturally
 3. Preserve all code examples relevant to Phase 1a
@@ -269,6 +272,9 @@ For each of the 13 sections, verify the output spec still answers the guide's "Q
 - [ ] No "Phase 1b+ Growth Path" blocks remain in implementation spec
 - [ ] No full "Deliberate Design" blocks remain in implementation spec (only brief notes)
 - [ ] No orphaned references to removed content
+- [ ] §3 Interfaces is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §4 Data Model is **byte-identical** to the reviewed source (modulo HTML-comment removal)
+- [ ] §7 Integration is **byte-identical** to the reviewed source (modulo HTML-comment removal)
 - [ ] Future planning doc has clear theme groupings
 - [ ] Decisions doc captures all rationale content
 - [ ] Cross-references between all three docs are accurate
@@ -338,9 +344,9 @@ Complete all steps autonomously without pausing for confirmation. The promotion 
 
 ## File Output
 
-**Output files** (all three always created):
-- `system-design/05-components/specs/[component-name].md` — Implementation spec
-- `system-design/05-components/future/[component-name].md` — Future planning (or stub)
-- `system-design/05-components/decisions/[component-name].md` — Decisions (or stub)
+**Output files** (all three always created): Write the three documents to the **output paths passed at invocation** (the round-folder originals: `round-[N]-promote/spec.md` / `future.md` / `decisions.md`):
+- Implementation spec (clean current-phase spec)
+- Future planning (or stub)
+- Decisions (or stub)
 
-These overwrite existing files at these locations. The review workflow maintains versioned backups in `versions/[component-name]/round-N/` directories.
+The Promote orchestrator publishes them to the live paths (`system-design/05-components/specs/[component-name].md` / `future/[component-name].md` / `decisions/[component-name].md`) only after the document-conservation gate returns CLEAN. Do not write to the live paths directly.

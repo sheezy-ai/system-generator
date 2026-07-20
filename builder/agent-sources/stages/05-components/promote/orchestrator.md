@@ -6,7 +6,7 @@
 
 The per-component freeze. Runs **after a Review round completes for this component**; promotes the reviewed spec — splitting it into the published `specs/[component-name].md` / `future/[component-name].md` / `decisions/[component-name].md` — and records the promotion as a versioned `round-N-promote` round.
 
-Because the Spec Promoter is the **sole producer of `specs/[component-name].md`** and Promote is the only workflow that runs it, this workflow sits on the **only road** to a published component spec (create finalises to a draft; review finalises to a reviewed draft; neither writes `specs/`). Create → Review → **Promote** [guard → split → record] → frozen.
+Because the Spec Promoter is the **sole producer of `specs/[component-name].md`** and Promote is the only workflow that runs it, this workflow sits on the **only road** to a published component spec (create finalises to a draft; review finalises to a reviewed draft; neither writes `specs/`). Create → Review → **Promote** [guard → conformance-gate → split → conservation-gate → publish → record] → frozen.
 
 **Structural note (05P-3):** this workflow *guards* its input, runs a **blocking Conformance Gate** (Step 2), then *runs the Spec Promoter* and records the freeze. The gate seeds the contract status ladder — it transitions **this component's sole-producer** contracts `MATERIALIZED → DEFINED` on a clean body-check (the gate's teeth: a `contract-verifier` re-run is a no-op on a first freeze, so the body-check itself is the gate), runs the absent-from-freeze detector **BLOCKING** (non-gating in Review, gating here), and on a re-freeze re-runs the `contract-verifier` for regression. **Producer-cardinality split:** multi-producer / ownerless / interface-only contracts are **not** touched here — they stay `MATERIALIZED` for the whole-stage gate / coherence Phase 4 (the only altitudes that see all producer bodies).
 
@@ -51,6 +51,7 @@ Invoked for one component: `[component-name]`.
 - [ ] Step 1: Guard & Snapshot
 - [ ] Step 2: Conformance Gate (body-check → MATERIALIZED → DEFINED; absent-from-freeze BLOCKING; re-freeze regression)
 - [ ] Step 3: Promote (split)
+- [ ] Step 3a: Document-conservation gate
 - [ ] Step 4: Finalise (verify + record + mark COMPLETE)
 
 ## History
@@ -65,7 +66,7 @@ Invoked for one component: `[component-name]`.
 **State file**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/workflow-state.md`
 **Working record**: `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/`
 
-**Published outputs** (created by the Spec Promoter — the sole writer of these paths):
+**Published outputs** (the Spec Promoter writes the round-folder originals at Step 3; the orchestrator PUBLISHES them to the live `specs/`/`future/`/`decisions/` paths at Step 3a, only after the conservation gate returns CLEAN):
 - `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md` — Implementation spec
 - `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/future/[component-name].md` — Future planning
 - `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/decisions/[component-name].md` — Design decisions
@@ -79,7 +80,10 @@ Invoked for one component: `[component-name]`.
 ```
 agents/05-components/promote/
 ├── orchestrator.md    # This file
-└── promoter.md        # Splits the reviewed spec into specs/future/decisions (moved here from review in 05P-2; renamed from spec-promoter.md for cross-stage naming alignment)
+└── promoter.md        # Splits the reviewed spec into spec/future/decisions round-folder originals (moved here from review in 05P-2; renamed from spec-promoter.md for cross-stage naming alignment)
+
+Universal agents (in {{AGENTS_PATH}}/universal-agents/):
+└── document-conservation-checker.md    # Step 3a: document split conservation gate (verbatim §3/§4/§7 + cross-refs gate; prose/decisions/future advisory) — invoked with 05's Verbatim-critical sections list
 
 Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
 ├── {{AGENTS_PATH}}/05-components/create/absent-from-freeze-detector.md   # BLOCKING here (non-gating in review)
@@ -97,7 +101,8 @@ Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
 **Orchestrator Boundaries**
 - You READ the state file, `specs/cross-cutting.md` (contract statuses + `Producer(s)`), and workflow outputs.
 - You RUN the Conformance Gate (Step 2): apply the producer-cardinality classifier and the body-check yourself; **SPAWN** the Absent-From-Freeze Detector (always, BLOCKING) and — on a re-freeze only — the `contract-verifier` (both in FOREGROUND).
-- You SPAWN the Spec Promoter to do the split (in FOREGROUND, not background — it needs interactive approval for file writes).
+- You SPAWN the Spec Promoter to do the split (in FOREGROUND, not background — it needs interactive approval for file writes); the promoter now writes the round-folder originals only.
+- You SPAWN the Document-Conservation Checker (Step 3a, FOREGROUND) and — only after its verdict is CLEAN — PUBLISH the round-folder originals to the live `specs/`/`future/`/`decisions/` paths via `cp`. This publish is the single writer of those live paths.
 - You EDIT `specs/cross-cutting.md` to transition **this component's sole-producer** contracts `MATERIALIZED → DEFINED` on a clean body-check — a gate status action (05 owns contract *status*), not authored obligation content. You do **not** touch multi-producer / ownerless / interface-only contracts.
 - You UPDATE the state file with status changes.
 - You WRITE the round-record metadata (incl. the gate verdict + dispositions + transitions) directly via Edit (an orchestrator record, not authored content).
@@ -194,28 +199,62 @@ Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
     - Guide: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/guide.md
 
     Output:
-    - Implementation spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md
-    - Future planning: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/future/[component-name].md
-    - Decisions: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/decisions/[component-name].md
+    - Implementation spec: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/spec.md
+    - Future planning: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/future.md
+    - Decisions: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/decisions.md
     ```
+    The promoter writes these round-folder originals; the live `specs/`/`future/`/`decisions/` paths are published by Step 3a after the conservation gate returns CLEAN.
 
-16. **Copy the promoted set into the round record**: copy `specs/[component-name].md`, `future/[component-name].md`, `decisions/[component-name].md` into `round-[N]-promote/` (the frozen snapshot for this round). The `specs/`/`future/`/`decisions/` copies are the published authority; these are the round's working record.
+16. **Update state file**: Mark Step 3 complete.
 
-17. **Update state file**: Mark Step 3 complete.
+17. **Automatically proceed to Step 3a.**
 
-18. **Automatically proceed to Step 4.**
+---
+
+### Step 3a: Document-conservation gate (new)
+
+**Ordering invariant:** the Step-3a publish (below) is the single writer of the live `specs/`/`future/`/`decisions/` paths; nothing between Step 3 (split to the round folder) and this publish reads them. The published spec is what 06-tasks / coherence consume, so it must be conservation-verified before it becomes that authority.
+
+- **Update state file**: Set Step 3a, `Status: IN_PROGRESS`.
+
+- **Spawn the Document-Conservation Checker** (universal agent, FOREGROUND):
+  ```
+  Follow the instructions in: {{AGENTS_PATH}}/universal-agents/document-conservation-checker.md
+
+  Input:
+  - Reviewed source (pre-split): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/00-spec.md
+  - Split outputs (round-folder originals): {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/spec.md, future.md, decisions.md
+  - Stage guide: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/guide.md
+  - Promoter separation criteria (the split rulebook — used only by the advisory checks to recognise legitimate transformations): {{AGENTS_PATH}}/05-components/promote/promoter.md
+  - Verbatim-critical sections: §3 Interfaces, §4 Data Model, §7 Integration
+
+  Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/conservation.md
+  ```
+
+- **Gate on the verdict:**
+  - **`MISMATCH`** → **HALT (promote-local):** `Status: WAITING_FOR_HUMAN`; present the conservation report. Disposition: a genuine content drop/distortion in §3/§4/§7 → re-run the promoter (Step 3); or an explicit human accept/override recorded to `decisions/[component-name].md`. Do **NOT** publish the docs.
+  - **`CLEAN`** → proceed to publish (below). Advisory findings are recorded (non-gating).
+  - **missing / no verdict** → **treat as blocking** (never clean): `Document-conservation check produced no verdict — re-run Step 3a.`
+
+- **Publish the documents** (single doc-publish point — ONLY after CLEAN), via `cp`:
+  - `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/spec.md` → `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/specs/[component-name].md`
+  - `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/future.md` → `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/future/[component-name].md`
+  - `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/decisions.md` → `{{SYSTEM_DESIGN_PATH}}/system-design/05-components/decisions/[component-name].md`
+  - Verify all three published files now exist; if any copy failed → **Error**, do not proceed.
+
+- **Update state file**: Mark Step 3a complete; **automatically proceed to Step 4.**
 
 ---
 
 ### Step 4: Finalise
 
-19. **Update state file**: Set Step 4, `Status: IN_PROGRESS`.
+18. **Update state file**: Set Step 4, `Status: IN_PROGRESS`.
 
-20. **Verify the freeze outputs exist** (before marking COMPLETE):
-    - The three published documents: `specs/[component-name].md`, `future/[component-name].md`, `decisions/[component-name].md`.
+19. **Verify the freeze outputs exist** (before marking COMPLETE):
+    - The three published documents: `specs/[component-name].md`, `future/[component-name].md`, `decisions/[component-name].md` — published at Step 3a and **conservation-verified** (§3/§4/§7 byte-identical to the reviewed spec).
     - If any is missing → **Error**: "Spec Promoter completed but output not found at [path]" — do **not** mark COMPLETE.
 
-21. **Write `round-[N]-promote/promote-metadata.md`** (the freeze record — now includes the gate verdict, HIGH-gap dispositions, and contract-status transitions):
+20. **Write `round-[N]-promote/promote-metadata.md`** (the freeze record — now includes the gate verdict, HIGH-gap dispositions, and contract-status transitions):
     ```markdown
     # Promote Round [N] — [component-name]
 
@@ -249,28 +288,29 @@ Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
     - decisions/[component-name].md
     ```
 
-22. **Update state file**: `Status: COMPLETE`; mark Step 4 complete. Record in history: `Round [N] (Promote) complete — froze round-[R]-review-[build|ops]; gate [CLEAN | disposed]; [K] contracts MATERIALIZED → DEFINED; specs/[component-name].md published`.
+21. **Update state file**: `Status: COMPLETE`; mark Step 4 complete. Record in history: `Round [N] (Promote) complete — froze round-[R]-review-[build|ops]; gate [CLEAN | disposed]; [K] contracts MATERIALIZED → DEFINED; specs/[component-name].md published`.
 
-23. **Update the stage index** (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/workflow-state.md`): set the component's row in the Component Specs table to `COMPLETE`, Last Updated to today's date; add a history entry `[date]: [component-name] promoted (specs/ published)`. Keep the table sorted alphabetically.
+22. **Update the stage index** (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/workflow-state.md`): set the component's row in the Component Specs table to `COMPLETE`, Last Updated to today's date; add a history entry `[date]: [component-name] promoted (specs/ published)`. Keep the table sorted alphabetically.
 
-24. **Report** to the user: the component freeze is complete; `specs/[component-name].md` / `future/[component-name].md` / `decisions/[component-name].md` are published, and `round-[N]-promote/` holds the record. Name any contracts transitioned `MATERIALIZED → DEFINED`, and any HIGH gap promoted past and where it was recorded.
+23. **Report** to the user: the component freeze is complete; `specs/[component-name].md` / `future/[component-name].md` / `decisions/[component-name].md` are published, and `round-[N]-promote/` holds the record. Name any contracts transitioned `MATERIALIZED → DEFINED`, and any HIGH gap promoted past and where it was recorded.
 
 ---
 
 ## Stopping Points
 
-**Automatic flow (do NOT pause for human confirmation):** Step 1 → 2 → 3 → 4 proceed automatically **unless the Conformance Gate (Step 2) HALTs** on a HIGH finding.
+**Automatic flow (do NOT pause for human confirmation):** Step 1 → 2 → 3 → 3a → 4 proceed automatically **unless** the Conformance Gate (Step 2) HALTs on a HIGH finding, or the conservation check returns `MISMATCH` (Step 3a).
 
-**Human checkpoint (orchestrator handles it directly):**
+**Human checkpoints (orchestrator handles them directly):**
 - **Step 2 (Conformance Gate)** — a body-check FAIL, a `contract-verifier` regression demotion, or an absent-from-freeze `ABSENCES_ESCALATED` verdict: set `Status: WAITING_FOR_HUMAN`. Every HIGH gets a recorded disposition before the promoter runs (Resolved → log + HALT for a Review / Architecture re-freeze; Deferred → `future/`; Dismissed / Override → `decisions/`). A **Resolved** disposition HALTs the workflow here — it does not reach the split.
+- **Step 3a (conservation)** — if the conservation check returns `MISMATCH`: set `Status: WAITING_FOR_HUMAN`, **HALT promote-local** (re-run the promoter at Step 3, or an explicit human accept/override recorded to `decisions/[component-name].md`). The docs are **not** published until the check is CLEAN.
 
-Do NOT ask "Should I proceed?" between automatic steps. Only stop at the checkpoint above.
+Do NOT ask "Should I proceed?" between automatic steps. Only stop at the checkpoints above.
 
 ---
 
 ## Exit Criteria
 
-Promote exits by **freezing**: the Conformance Gate passes clean (or every HIGH is disposed/overridden), the Spec Promoter produces the three published documents, and the `round-[N]-promote` record captures the freeze (gate verdict + contract-status transitions). On a **Resolved** gate disposition the workflow instead HALTs and routes back to Review (or Architecture re-freeze then Review) via `pending-issues.md` — the freeze happens on a subsequent Promote round. The review-mandatory guard (On Start) errors (without stranding) if the last completed round was not a Review round.
+Promote exits by **freezing**: the Conformance Gate passes clean (or every HIGH is disposed/overridden), the Spec Promoter writes the three documents to the round folder, the document-conservation gate (Step 3a) returns `CLEAN` and the orchestrator publishes the three documents to the live `specs/`/`future/`/`decisions/` paths, and the `round-[N]-promote` record captures the freeze (gate verdict + contract-status transitions). On a **Resolved** gate disposition the workflow instead HALTs and routes back to Review (or Architecture re-freeze then Review) via `pending-issues.md` — the freeze happens on a subsequent Promote round. On a Step-3a `MISMATCH` the workflow HALTs promote-local (re-run the promoter, or human-accept) without routing back to Review — the docs are not published until conservation is CLEAN. The review-mandatory guard (On Start) errors (without stranding) if the last completed round was not a Review round.
 
 **Contract-status ladder (reconciliation):** this gate transitions **only** `MATERIALIZED → DEFINED` for **this-component-sole-producer** contracts. `DEFINED → VERIFIED` (consumer alignment) and the `MATERIALIZED → DEFINED` of **multi-producer / ownerless / interface-only** contracts stay with coherence Phase 4 / the whole-stage gate (the only altitudes that see all producer bodies). So **every contract has a home** and none is stranded `MATERIALIZED` forever: single-real-component → per-component promote; everything else → whole-stage. The `DEFINED` rung is preserved (the `contract-verifier`'s regression-demote target, `VERIFIED → FAIL → DEFINED`).
 
@@ -289,7 +329,10 @@ Promote exits by **freezing**: the Conformance Gate passes clean (or every HIGH 
 | `contract-verifier` regression demotion (re-freeze) | Demote `VERIFIED → DEFINED` (never below); HIGH-equivalent → disposition; the `DEFINED` rung is the floor |
 | Gate agent (absent-detector / contract-verifier) fails | Error: report which agent failed; do not proceed to the promoter |
 | Spec Promoter fails | Error: Report failure details; do not mark COMPLETE |
-| Published output missing after split | Error: "Spec Promoter completed but output not found at [path]" — do not mark COMPLETE |
+| Document-conservation check returns `MISMATCH` (Step 3a) | HALT promote-local: WAITING_FOR_HUMAN — re-run the promoter (Step 3) or human-accept; do NOT publish the docs |
+| Document-conservation check produces no verdict | Error: treat as blocking, re-run Step 3a |
+| Published doc missing after Step-3a publish | Error: do not proceed; do not mark COMPLETE |
+| Published output missing at Step-4 verify | Error: "Spec Promoter completed but output not found at [path]" — do not mark COMPLETE |
 
 ---
 
