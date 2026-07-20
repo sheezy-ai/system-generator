@@ -289,7 +289,7 @@ Output: [resolved file path]
 
 - **Gate on the verdict:**
   - **`MISMATCH`** → **HALT (promote-local):** status = WAITING_FOR_HUMAN; present the conservation report. Disposition: a genuine content drop/distortion → re-run the promoter (Step 3); or an explicit human accept/override recorded to `decisions.md`. Do **NOT** publish the docs.
-  - **`CLEAN`** → proceed to publish (below). Advisory findings are recorded (non-gating).
+  - **`CLEAN`** → proceed to publish (below). Advisory findings are recorded (non-gating). **Also read the checker's `placement_smells` count** (from its return JSON / `round-[N]-promote/conservation.md`) and carry it forward to the Step-4c completion report. This is informational only — it never gates, HALTs, or changes the CLEAN publish path.
   - **missing / no verdict** → **treat as blocking** (never clean): `Document-conservation check produced no verdict — re-run Step 3a.`
 
 - **Publish the documents** (single doc-publish point — ONLY after CLEAN), via `cp`:
@@ -447,6 +447,7 @@ This step keeps the materializer a **pure projector** — the **orchestrator** (
 28. **Update state file**: status = COMPLETE; record the promotion in the round record + state history (`Round [N] (Promote) complete — froze round-[R]-review; gate [CLEAN | disposed]; materialize [FIRST_FREEZE | MERGE]; fidelity CLEAN`).
 
 29. **Report** to the user: the freeze is complete; the three published documents are current, the contract registry is materialized + fidelity-verified, and `round-[N]-promote/` holds the record. If any HIGH was promoted past, name it and where it was recorded. If MERGE ran, note the changed/reset/preserved counts.
+    - **Placement-smell notice (informational only — from the Step-3a `placement_smells` count):** **if `placement_smells > 0`**, append exactly ONE non-blocking line to this report: *Note: [N] placement smell(s) flagged — current-scope content routed to `decisions`/`future` that may belong in the clean spec. Non-blocking (the freeze published); review `round-[N]-promote/conservation.md` if you want to correct placement in a follow-up.* **If `placement_smells` is 0, say nothing.** This is informational only — **never HALT, wait, or ask a decision** on it, and it does not add a step.
 
 ---
 

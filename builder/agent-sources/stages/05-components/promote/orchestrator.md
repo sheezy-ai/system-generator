@@ -233,7 +233,7 @@ Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
 
 - **Gate on the verdict:**
   - **`MISMATCH`** → **HALT (promote-local):** `Status: WAITING_FOR_HUMAN`; present the conservation report. Disposition: a genuine content drop/distortion in §3/§4/§7 → re-run the promoter (Step 3); or an explicit human accept/override recorded to `decisions/[component-name].md`. Do **NOT** publish the docs.
-  - **`CLEAN`** → proceed to publish (below). Advisory findings are recorded (non-gating).
+  - **`CLEAN`** → proceed to publish (below). Advisory findings are recorded (non-gating). **Also read the checker's `placement_smells` count** (from its return JSON / `round-[N]-promote/conservation.md`) and carry it forward to the Step-4 completion report. This is informational only — it never gates, HALTs, or changes the CLEAN publish path.
   - **missing / no verdict** → **treat as blocking** (never clean): `Document-conservation check produced no verdict — re-run Step 3a.`
 
 - **Publish the documents** (single doc-publish point — ONLY after CLEAN), via `cp`:
@@ -293,6 +293,7 @@ Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
 22. **Update the stage index** (`{{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/workflow-state.md`): set the component's row in the Component Specs table to `COMPLETE`, Last Updated to today's date; add a history entry `[date]: [component-name] promoted (specs/ published)`. Keep the table sorted alphabetically.
 
 23. **Report** to the user: the component freeze is complete; `specs/[component-name].md` / `future/[component-name].md` / `decisions/[component-name].md` are published, and `round-[N]-promote/` holds the record. Name any contracts transitioned `MATERIALIZED → DEFINED`, and any HIGH gap promoted past and where it was recorded.
+    - **Placement-smell notice (informational only — from the Step-3a `placement_smells` count):** **if `placement_smells > 0`**, append exactly ONE non-blocking line to this report: *Note: [N] placement smell(s) flagged — current-scope content routed to `decisions`/`future` that may belong in the clean spec. Non-blocking (the freeze published); review `round-[N]-promote/conservation.md` if you want to correct placement in a follow-up.* **If `placement_smells` is 0, say nothing.** This is informational only — **never HALT, wait, or ask a decision** on it, and it does not add a step.
 
 ---
 

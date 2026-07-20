@@ -75,6 +75,16 @@ Is each moved unit in the **right** doc — rationale in the decisions doc (not 
 
 Leftover working-doc comments in the published-candidate clean spec (e.g. residual `<!-- … -->` that should have been stripped from the transformed sections), or the version header not refreshed. Advisory.
 
+#### Placement smell (actionable advisory) — a distinct, surfaced classification
+
+Separately from the general advisory notes above, **classify** one specific, actionable subset so the orchestrator can passively surface just it. A **placement smell** is a **current-scope unit of a *non-verbatim-critical* section** of the reviewed source that appears in the split `decisions.md` or `future.md` but is **absent from the clean spec** — i.e. current-scope content that belongs in the clean spec was exiled *out* of it into a rationale/future doc. This stays **advisory / non-gating** — it never flips the verdict; it is only *classified* so the orchestrator can surface it in the completion report it already prints.
+
+- **Exile of a *verbatim-critical* section is NOT this class** — that is already a **gating** Check-1 MISMATCH, not a placement smell.
+- **Correctly-moved** rationale (→ `decisions`), deferred/future/open-question items (→ `future`), and decision blocks are **not** placement smells — that is the sanctioned split.
+- This is a **high-signal subset only.** When it is genuinely uncertain whether a unit is exiled current-scope content vs a legitimate move, **fail toward not-a-smell** — do NOT inflate the count.
+
+Report each such unit in the dedicated `## Placement Smells (actionable advisory)` section (below), and set `placement_smells` in the return JSON to the count (0 when none). This does **not** change the gating set (Checks 1–2 remain the only gating checks) or the verdict.
+
 ### Confidence discipline (state per-check)
 
 - **Checks 1–2 are mechanical / near-mechanical and reliable** — the verbatim-critical sections carry zero legitimate mutation (exact diff), and cross-reference resolution is a link check. Gate on these.
@@ -118,6 +128,7 @@ Do **not** soften a genuine gating finding into an advisory to reach `CLEAN`, an
 | Decisions/future drops (advisory) | [N] |
 | Placement issues (advisory) | [N] |
 | Hygiene issues (advisory) | [N] |
+| Placement smells (actionable advisory) | [N] |
 
 ## Gating Findings (HALT the publish)
 
@@ -129,6 +140,13 @@ Do **not** soften a genuine gating finding into an advisory to reach `CLEAN`, an
 
 | Check | Unit | Where it landed (or MISSING) | Why advisory (human may still review) |
 |-------|------|------------------------------|----------------------------------------|
+
+## Placement Smells (actionable advisory)
+
+Current-scope content of a **non-verbatim-critical** section that landed in `decisions`/`future` but is **absent from the clean spec** — it looks like it belongs in the clean spec. Advisory / non-gating (never flips the verdict); surfaced so a human can correct placement in a follow-up. Empty when none. `placement_smells` (return JSON) = the row count.
+
+| Source section (current-scope unit) | Landed in (decisions / future) | Why it looks like clean-spec content that was exiled |
+|--------------------------------------|--------------------------------|------------------------------------------------------|
 ```
 
 ---
@@ -155,4 +173,6 @@ Complete all steps autonomously without pausing for confirmation. The conservati
 
 - **Report**: the orchestrator-passed round-folder path — `…/round-[N]-promote/conservation.md`
 
-**Return**: `{ status: "COMPLETE", verdict: "CLEAN" | "MISMATCH", gating_findings: [N], advisory_notes: [N] }`
+**Return**: `{ status: "COMPLETE", verdict: "CLEAN" | "MISMATCH", gating_findings: [N], advisory_notes: [N], placement_smells: [N] }`
+
+(`placement_smells` is the actionable-advisory count — it does **not** gate; the verdict is still driven by Checks 1–2 alone.)

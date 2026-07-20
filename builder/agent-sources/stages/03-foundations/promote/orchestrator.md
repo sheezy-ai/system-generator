@@ -210,7 +210,7 @@ The **review-mandatory guard runs at On Start** (guard-first — before any stat
 
 - **Gate on the verdict:**
   - **`MISMATCH`** → **HALT (promote-local):** `Status: WAITING_FOR_HUMAN`; present the conservation report. Disposition: a genuine content drop/distortion in §1–10 (or a dangling cross-reference) → re-run the promoter (Step 2); or an explicit human accept/override recorded to `decisions.md`. Do **NOT** publish the docs.
-  - **`CLEAN`** → proceed to publish (below). Advisory findings are recorded (non-gating).
+  - **`CLEAN`** → proceed to publish (below). Advisory findings are recorded (non-gating). **Also read the checker's `placement_smells` count** (from its return JSON / `round-[N]-promote/conservation.md`) and carry it forward to the Step-3 Finalise report. This is informational only — it never gates, HALTs, or changes the CLEAN publish path.
   - **missing / no verdict** → **treat as blocking** (never clean): `Document-conservation check produced no verdict — re-run Step 2a.`
 
 - **Publish the documents** (single doc-publish point — ONLY after CLEAN), via `cp`:
@@ -246,6 +246,7 @@ The **review-mandatory guard runs at On Start** (guard-first — before any stat
 15. **Update state file**: status = COMPLETE; record the promotion in the round record + state history (`Round [N] (Promote) complete — split round-[R]-review; conservation gate [CLEAN | disposed]`).
 
 16. **Report** to the user: the split is complete; the three published documents (`foundations.md`, `decisions.md`, `future.md`) are current (conservation-verified) and `round-[N]-promote/` holds the record (incl. the conservation report).
+    - **Placement-smell notice (informational only — from the Step-2a `placement_smells` count):** **if `placement_smells > 0`**, append exactly ONE non-blocking line to this report: *Note: [N] placement smell(s) flagged — current-scope content routed to `decisions`/`future` that may belong in the clean spec. Non-blocking (the split published); review `round-[N]-promote/conservation.md` if you want to correct placement in a follow-up.* **If `placement_smells` is 0, say nothing.** This is informational only — **never HALT, wait, or ask a decision** on it, and it does not add a step.
 
 ---
 
