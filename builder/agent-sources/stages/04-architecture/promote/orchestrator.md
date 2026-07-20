@@ -81,9 +81,11 @@ Because the promoter is the **sole producer of `architecture.md`** and Promote i
 agents/04-architecture/promote/
 ├── orchestrator.md                     # This file
 ├── promoter.md                         # Splits the reviewed Architecture into spec/decisions/future
-├── document-conservation-checker.md    # Step 3a: document split conservation gate (verbatim §6/§8/§7 + cross-refs gate; prose/decisions/future advisory)
 ├── contract-materializer.md            # Step 3b: materialize the registry (FIRST_FREEZE | MERGE) — relocated here in Slice 5
 └── materialization-fidelity-checker.md # Step 3c: fidelity gate — relocated here in Slice 5
+
+Universal agents (in {{AGENTS_PATH}}/universal-agents/):
+└── document-conservation-checker.md    # Step 3a: document split conservation gate (verbatim §6/§8/§7 + cross-refs gate; prose/decisions/future advisory) — invoked with 04's Verbatim-critical sections list
 
 Gate reviewers (re-run — they LIVE in review, not moved):
 ├── {{AGENTS_PATH}}/04-architecture/review/experts/contract-completeness.md
@@ -273,13 +275,14 @@ Output: [resolved file path]
 
 - **Spawn the Document-Conservation Checker** (FOREGROUND):
   ```
-  Follow the instructions in: {{AGENTS_PATH}}/04-architecture/promote/document-conservation-checker.md
+  Follow the instructions in: {{AGENTS_PATH}}/universal-agents/document-conservation-checker.md
 
   Input:
   - Reviewed source (pre-split): system-design/04-architecture/versions/round-[N]-promote/00-architecture.md
   - Split outputs (round-folder originals): system-design/04-architecture/versions/round-[N]-promote/architecture.md, decisions.md, future.md
   - Architecture guide: {{GUIDES_PATH}}/04-architecture-guide.md
   - Promoter separation criteria (the split rulebook — used only by the advisory checks to recognise legitimate transformations): {{AGENTS_PATH}}/04-architecture/promote/promoter.md
+  - Verbatim-critical sections: §6 (Component Spec List), §8 (Data Contracts), and the §7 interface-contract definitions (Audit Trail Interface, Source Attribution Interface)
 
   Output: system-design/04-architecture/versions/round-[N]-promote/conservation.md
   ```
