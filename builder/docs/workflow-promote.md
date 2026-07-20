@@ -19,11 +19,12 @@ A **review-mandatory guard** enforces this structurally: Promote asserts that th
 ## Flow
 
 ```
-Reviewed document ──▶ Guard & Snapshot ──▶ [04: Contract Gate] ──▶ Promoter (split) ──▶ [04: Materialize + Fidelity] ──▶ Record ──▶ Done
+Reviewed document ──▶ Guard & Snapshot ──▶ [04: Contract Gate] ──▶ Promoter (split → round-folder) ──▶ Document-Conservation Gate ──▶ Publish ──▶ [04: Materialize + Fidelity] ──▶ Record ──▶ Done
 ```
 
-- **02 / 03:** `Guard & Snapshot → Split → Record` — a plain split-and-record freeze.
-- **04:** additionally runs the contract completeness/freezability **gate** (re-running the two review experts as the hard, unavoidable backstop), then after the split **materializes** the frozen contract registry (`05-components/specs/cross-cutting.md`) and **fidelity-checks** it — closing the 04/05 seam. See `04-architecture.md`.
+- **All splitting stages (02/03/04/05):** the promoter writes the three docs to the `round-N-promote/` folder, a **document-conservation gate** (universal checker) verifies the split preserved the stage's verbatim-critical sections + cross-refs, and the orchestrator **publishes to the live paths only after the gate is CLEAN** (round-first). A conservation `MISMATCH` HALTs before publish. See DEC-085.
+- **02 / 03:** `Guard & Snapshot → Split → Conservation Gate → Publish → Record` — no longer a plain split-and-record (the gate can HALT), but **no** contract freeze/materialization (that is 04-only).
+- **04:** additionally runs the contract completeness/freezability **gate** (re-running the two review experts as the hard, unavoidable backstop), then after the split+conservation-publish **materializes** the frozen contract registry (`05-components/specs/cross-cutting.md`) and **fidelity-checks** it — closing the 04/05 seam. See `04-architecture.md`.
 
 ---
 
@@ -31,11 +32,12 @@ Reviewed document ──▶ Guard & Snapshot ──▶ [04: Contract Gate] ─�
 
 | Step | Name | Actor | Human? |
 |------|------|-------|--------|
-| 1 | Guard & Snapshot | Orchestrator | Auto |
-| 2 | Promote (split) | Promoter | Auto |
+| 1 | Guard & Snapshot | Orchestrator | Auto (guard runs at On Start, before any state mutation) |
+| 2 | Promote (split → round-folder) | Promoter | Auto |
+| 2a | Document-conservation gate → publish | Checker + Orchestrator | Auto, unless MISMATCH |
 | 3 | Finalise | Orchestrator | Auto |
 
-There are no human checkpoints — Promote guards, splits, and records automatically. (04 inserts the gate at Step 2 and materialize/fidelity at Steps 3b/3c; a HIGH gate finding or a fidelity `MISMATCH` there halts for human disposition.)
+Promote runs automatically **except** that the Step-2a conservation gate **HALTs for a human on a MISMATCH** (a verbatim-critical section was not preserved across the split). On CLEAN it publishes and continues; a placement smell (current-scope content routed to decisions/future) is surfaced as a passive, non-blocking note in the completion report. (04 additionally inserts the contract gate at Step 2 and materialize/fidelity at Steps 3b/3c; a HIGH gate finding or a fidelity `MISMATCH` there also halts for human disposition.) See DEC-085.
 
 ### Step 1 — Guard & Snapshot
 

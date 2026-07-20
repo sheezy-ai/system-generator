@@ -150,7 +150,7 @@ agents/02-prd/
 │       ├── compliance-legal.md
 │       └── security.md
 ├── promote/
-│   ├── orchestrator.md                # Guard -> split -> record (separate workflow)
+│   ├── orchestrator.md                # Guard -> split -> conservation-gate -> publish -> record (separate workflow)
 │   └── promoter.md                    # Splits PRD into prd/decisions/future
 └── expand/
     ├── orchestrator.md                # Adds new capability areas (never promotes)
@@ -212,7 +212,7 @@ system-design/02-prd/
         └── promote-metadata.md        # date, source review round, input file used
 ```
 
-**Promotion**: Promotion is a separate **Promote** workflow (not a step of Review). After a Review round completes, Promote guards that the last completed round was Review, then the PRD Promoter splits the final reviewed document into `prd.md` (clean current-scope requirements), `decisions.md` (product decision rationale and trade-offs), and `future.md` (deferred features and open questions), recorded under `round-N-promote/`. This matches the Components stage split pattern (see DEC-072, DEC-081).
+**Promotion**: Promotion is a separate **Promote** workflow (not a step of Review). After a Review round completes, Promote guards (at On Start, guard-first) that the last completed round was Review, then the PRD Promoter splits the final reviewed document into `round-N-promote/` originals — `prd.md` (clean current-scope requirements), `decisions.md` (product decision rationale and trade-offs), and `future.md` (deferred features and open questions). A **document-conservation gate** then verifies the split preserved §5 / §8 / §9 verbatim and that cross-references resolve; the orchestrator publishes to the live paths only after the gate is CLEAN (a `MISMATCH` HALTs before publish). This matches the Components stage split pattern (see DEC-072, DEC-081, DEC-085).
 
 **Downstream deferred items (for PRD content that's too detailed):**
 - `system-design/03-foundations/versions/deferred-items.md` - Technology choices

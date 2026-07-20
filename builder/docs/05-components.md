@@ -436,7 +436,7 @@ Verifies cross-component coherence before stage sign-off. Addresses issues that 
 
 ### Promotion
 
-After a component's review reaches EXIT (ops phase, no HIGH issues), the Spec Promoter produces three deliverables:
+After a component's review reaches EXIT (ops phase, no HIGH issues), the separate per-component **Promote** workflow runs (review-mandatory guard at On Start → conformance gate → split → conservation gate → publish → record). The promoter splits the reviewed spec into `round-N-promote/` originals; a **document-conservation gate** verifies §3 Interfaces / §4 Data Model / §7 Integration were preserved verbatim (and cross-references resolve), and the three deliverables are published only after the gate is CLEAN (a `MISMATCH` HALTs). See DEC-085. The deliverables:
 
 | Output | Location | Content |
 |--------|----------|---------|

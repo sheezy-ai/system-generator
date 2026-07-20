@@ -102,7 +102,7 @@ agents/03-foundations/
 │       ├── security-engineer.md
 │       └── platform-engineer.md
 ├── promote/
-│   ├── orchestrator.md              # Guard -> split -> record (separate workflow)
+│   ├── orchestrator.md              # Guard -> split -> conservation-gate -> publish -> record (separate workflow)
 │   └── promoter.md                  # Splits Foundations into foundations/decisions/future
 └── expand/
     ├── orchestrator.md              # Adds new conventions/tech decisions (never promotes)
@@ -154,7 +154,7 @@ system-design/03-foundations/
         └── promote-metadata.md         # date, source review round, input file used
 ```
 
-**Promotion**: Promotion is a separate **Promote** workflow (not a step of Review). After a Review round completes, Promote guards that the last completed round was Review, then the Foundations Promoter splits the final reviewed document into three files, recorded under `round-N-promote/`. `foundations.md` is the clean current-scope spec consumed by downstream stages. `decisions.md` captures design rationale and trade-offs for reference. `future.md` captures deferred items and open questions. This matches the Components stage split pattern (see DEC-072, DEC-081).
+**Promotion**: Promotion is a separate **Promote** workflow (not a step of Review). After a Review round completes, Promote guards (at On Start, guard-first) that the last completed round was Review, then the Foundations Promoter splits the final reviewed document into `round-N-promote/` originals. The promoter is **narrowed** so §1–10 conventions stay byte-verbatim — the only §1–10 edit is HTML-comment removal, and the only content moved is the standalone `## Design Decisions` block and §11 (inline convention rationale stays inline). A **document-conservation gate** then verifies §1–10 were preserved verbatim and that cross-references resolve; the orchestrator publishes to the live paths only after the gate is CLEAN (a `MISMATCH` HALTs before publish). `foundations.md` is the clean current-scope spec consumed by downstream stages. `decisions.md` captures design rationale and trade-offs for reference. `future.md` captures deferred items and open questions. This matches the Components stage split pattern (see DEC-072, DEC-081, DEC-085).
 
 **Downstream deferred items (for Foundations content that's too detailed):**
 - `system-design/04-architecture/versions/deferred-items.md` - System decomposition, component boundaries
