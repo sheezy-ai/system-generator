@@ -130,7 +130,7 @@ After each round, the routing decision determines next action:
 | Issue Router | 3 | Routes upstream/lateral issues to pending-issues files |
 | Issue Analyst | 4 | Proactive analysis with options/recommendations before human sees issues |
 | Contract Verifier | 9 | Validates cross-component contract alignment |
-| Pending Issue Resolver | 11 | Executes human-decided pending issue resolutions (APPLY/DEFER/REJECT) |
+| Pending Issue Resolver | 11 | Logs human-decided alignment findings to upstream registers, log-only (LOG/DEFER/REJECT) |
 | Spec Promoter | 12 | Produces implementation spec, decisions doc, and future planning doc |
 
 ### Verification Pipeline

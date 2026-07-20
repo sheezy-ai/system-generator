@@ -505,7 +505,7 @@ This gate is mandatory. Do not skip it.
 44. **Update state file**: Set Step 11, status = IN_PROGRESS
 
 45. **Handle pending issue sync** (if alignment verification found SYNC_UPSTREAM items):
-    - Same pending issue resolver pattern as review workflow
+    - Same pending issue resolver pattern as review workflow — **log-only**: the resolver logs each finding to the target stage's `pending-issues.md` register (for that stage's next review to action) and never edits an upstream document; per-issue decisions use `LOG | DEFER | REJECT`
     - Sync to Blueprint if applicable
 
 45b. **Close consumed escalations in this stage's own pending-issues (cross-stage re-raise ledger)**: for each `AWAITS_UPSTREAM_REVISION` (P2) escalation this round consumed at Step 1, transition its entry in `system-design/03-foundations/versions/pending-issues.md` and move it to `## Resolved Issues`:

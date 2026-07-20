@@ -224,11 +224,12 @@ Read `## Pending Decisions` section:
          - PRD: {{SYSTEM_DESIGN_PATH}}/system-design/02-prd/versions/pending-issues.md
 
          Decisions:
-         [If SYNC_ALL: all issues get APPLY]
+         [If SYNC_ALL: all issues get LOG]
          [If SELECTIVE: per-issue decisions from state file]
-         - PI-001: APPLY | DEFER | REJECT
-         - PI-002: APPLY | DEFER | REJECT
+         - PI-001: LOG | DEFER | REJECT
+         - PI-002: LOG | DEFER | REJECT
          ...
+         (LOG = append to the target register as UNRESOLVED; DEFER = do not route; REJECT = log WONT_FIX with a Concern key. The resolver never edits an upstream document.)
 
          Output: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-review-[build|ops]/11-pending-issue-sync.md
          ```
@@ -258,7 +259,7 @@ Read `## Pending Decisions` section:
         - `**Resolution:** [why it was dismissed — the human-approved rationale]`
       APPLIED-inline resolutions do **not** need a ledger entry (the spec text changed, so a future round sees the fix directly). It is specifically the **no-spec-change dismissals** that must be recorded — otherwise the unchanged spec text invites the identical concern to be re-raised next round, which is the review loop's non-convergence trap.
 
-    Rationale: this step ensures each component's own pending-issues file reflects the truth of what each round closed. Without it, downstream readers (other components, Coherence reviews, future rounds) see stale Unresolved entries that have actually been addressed. The orchestrator separates this from step 18's Pending Issue Resolver because the Resolver's semantic is "edit upstream documents (Architecture/Foundations/PRD)", whereas this step's semantic is "close entries in this component's own pending-issues register".
+    Rationale: this step ensures each component's own pending-issues file reflects the truth of what each round closed. Without it, downstream readers (other components, Coherence reviews, future rounds) see stale Unresolved entries that have actually been addressed. The orchestrator separates this from step 18's Pending Issue Resolver because the Resolver's semantic is "log findings to the **upstream** registers (Architecture/Foundations/PRD)", whereas this step's semantic is "close entries in this component's **own** pending-issues register".
 
 19. **If halt_action = ACKNOWLEDGE_AND_BLOCK**:
     - Write blocking issue to upstream pending-issues.md

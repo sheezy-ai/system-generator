@@ -22,7 +22,7 @@ Component Specs also has **per-component** pending-issues files for lateral/cros
 - **Issue Router** (05-components review) appends escalated upstream issues and lateral cross-component issues, classified by `Kind` (see Cross-Boundary Requirements below)
 - **Enrichment Scope Filter** (05-components create) appends cross-boundary requirements surfaced during exploration — P1 lateral to a peer, P2 upstream to Architecture/Foundations
 - **Author** (05-components create and review) appends cross-boundary requirements surfaced during gap/issue resolution, and marks issues as RESOLVED
-- **Pending Issue Resolver** updates status for human-decided resolutions (APPLY → RESOLVED, DEFER → DEFERRED, REJECT → WONT_FIX)
+- **Pending Issue Resolver** (review Step 11 alignment-sync) **logs** new alignment findings to the target upstream register (`LOG` → new `UNRESOLVED` entry; `REJECT` → new `WONT_FIX` entry with a `Concern key`; `DEFER` → not routed) and sets status on existing entries. It **does not edit upstream documents** and no longer produces `RESOLVED` — an alignment finding reaches `RESOLVED` only when the owning stage's own next-review Author fixes it.
 - **Architecture Promote** (`04-architecture/promote`) — on a re-freeze (MERGE), appends a durable re-verify flag (`CROSS-BOUNDARY-PEER`, `HIGH`) to each affected write-direction producer's file when its contract obligation changed at the freeze; consumed at that producer's next review (Slice 6)
 
 ## Who Reads
@@ -227,7 +227,7 @@ Consolidator should check if the quoted text still exists in the document:
               ┌────────────┼────────────┐
               │            │            │
      Author applies   Human defers   Human rejects
-      fix (APPLY)      (DEFER)        (REJECT)
+      fix              (DEFER)        (REJECT)
               │            │            │
               ▼            ▼            ▼
        ┌──────────┐ ┌──────────┐ ┌──────────┐
@@ -235,7 +235,7 @@ Consolidator should check if the quoted text still exists in the document:
        └──────────┘ └──────────┘ └──────────┘
 ```
 
-DEFERRED and WONT_FIX are set by the Pending Issue Resolver based on human decisions during the review workflow (Step 11) or Stage Coherence Review (Phase 2).
+DEFERRED and WONT_FIX are set by the Pending Issue Resolver based on human decisions during the review workflow (Step 11). (The 05 Stage Coherence Review resolves its lateral items by editing the target spec inline — it does not route through the Resolver.)
 
 **AWAITS_UPSTREAM_REVISION** is a variant of UNRESOLVED for `CROSS-BOUNDARY-UPSTREAM` (P2) escalations: the item is a live obligation on an already-completed upstream stage. It transitions to RESOLVED when that stage's next revision round actions it (and the change propagates downstream via the Alignment Verifier). It is never silently treated as resolved.
 

@@ -566,8 +566,10 @@ This gate is mandatory. Do not skip it.
     | ID | Target | Summary | Certainty |
     |----|--------|---------|-----------|
 
+    (Before listing: cross-check each finding against its target `pending-issues.md` register with the shared matcher — `target-stage + section-anchor + concern-gist`, semantic not string-equality, staleness-gated. A finding matching an existing **WONT_FIX** is shown **inline, tagged** `[RE-RAISE — dismissed Round N: rationale]`, default-drop (never hidden). One matching an existing **UNRESOLVED** is annotated "already logged as PI-NNN, awaiting upstream". If the cited upstream section materially changed since the match, treat as not-matched and show normally. Uncertain ⇒ show.)
+
     Options:
-    1. **Sync now** - Apply all to upstream documents
+    1. **Sync now** - Log all to their target stage's register (`pending-issues.md`), for that stage's next review to action. Does NOT edit any upstream document.
     2. **Defer all** - Do NOT route. Each finding stays only in this round's `07-alignment-report.md` — a working artifact of this review round that no other stage reads — so the target stage will not see it unless it is separately re-raised.
     3. **Select individually** - Choose per issue
 
@@ -612,11 +614,12 @@ This gate is mandatory. Do not skip it.
          - PRD: system-design/02-prd/versions/pending-issues.md
 
          Decisions:
-         [If "Sync now": all issues get APPLY]
+         [If "Sync now": all issues get LOG]
          [If "Select individually": per-issue decisions from human]
-         - PI-001: APPLY | DEFER | REJECT
-         - PI-002: APPLY | DEFER | REJECT
+         - PI-001: LOG | DEFER | REJECT
+         - PI-002: LOG | DEFER | REJECT
          ...
+         (LOG = append to the target register as UNRESOLVED; DEFER = do not route; REJECT = log WONT_FIX with a Concern key. The resolver never edits an upstream document.)
 
          Output: system-design/03-foundations/versions/round-[N]-review/10-pending-issue-sync.md
          ```
@@ -645,7 +648,7 @@ This gate is mandatory. Do not skip it.
     - Update the Summary table counts (UNRESOLVED ↓, RESOLVED ↑)
     - **Do not touch entries that were not merged into this round's issue stream** (e.g., Unresolved entries logged after Step 2 but before Step 10) — those carry forward to the next round
 
-    Rationale: this step ensures the Foundations-stage pending-issues file reflects the truth of what each round closed. Without it, downstream stages reading this file see stale Unresolved entries that have actually been addressed. The orchestrator separates this from step 45's Pending Issue Resolver because the Resolver's semantic is "edit upstream documents", whereas this step's semantic is "close entries in our own pending-issues register".
+    Rationale: this step ensures the Foundations-stage pending-issues file reflects the truth of what each round closed. Without it, downstream stages reading this file see stale Unresolved entries that have actually been addressed. The orchestrator separates this from step 45's Pending Issue Resolver because the Resolver's semantic is "log findings to the **upstream** register (PRD)", whereas this step's semantic is "close entries in our **own** pending-issues register".
 
 46. **If HALT was acknowledged**:
     - Write blocking issue to upstream pending-issues.md (same format as above)

@@ -304,7 +304,16 @@ For each conflict found:
 
 **Target:** [e.g., system-design/04-architecture/versions/pending-issues.md]
 **Severity:** SHOWSTOPPER | HIGH | MEDIUM | LOW
+**Derived from:** DISC-NNN
 **Summary:** [Brief description for pending-issues.md]
+
+**Upstream (This Document) States:**
+> "[exact quote from the upstream/source document]"
+**Section:** [upstream section ref]
+
+**Downstream (Verified Document) States:**
+> "[exact quote from the document being verified]"
+**Section:** [downstream section ref]
 
 **Issue:**
 [Full description of what's wrong in the source]
@@ -316,6 +325,8 @@ For each conflict found:
 [What happens if not fixed]
 
 ---
+
+**Note:** the two quote blocks + section refs above are what the Pending Issue Resolver needs to build a well-formed register `DISCREPANCY` entry directly (no PI→DISC content-join). The verifier carries them here; the resolver synthesizes the remaining register fields (`Source`, `Logged`, `>> RESPONSE:` marker, and — for a REJECT→`WONT_FIX` — a `Concern key`).
 
 ## Aligned Areas (Confirmation)
 

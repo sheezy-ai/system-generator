@@ -86,17 +86,17 @@ Issues: [ID1, ID2, ID3, ...]
 
 ### Pending Issue Resolver
 
-**Purpose:** Executes human-decided resolutions to pending issues logged during alignment verification. Applies changes to upstream documents (Architecture, Foundations) or component specs.
+**Purpose:** Executes human decisions on alignment-verification findings by **logging** each to the target upstream stage's `pending-issues.md` register — for that stage's next review to action. It never edits an upstream document (that would bypass the stage's own review); the fix is applied later by the owning stage's Author via the register→Consolidator→Author loop.
 
 **Used in:** Review workflow (05-components extended workflow, Step 11)
 
 **Trigger:** Automatic - runs when human approves pending issue sync
 
 **How it works:**
-- Reads pending issues with human decisions (APPLY/DEFER/REJECT)
-- For APPLY decisions, applies surgical edits to the target document
-- Produces a sync report documenting all changes
-- Updates pending-issues.md to mark resolved items
+- Reads alignment findings with human decisions (LOG/DEFER/REJECT)
+- For LOG: appends a new `UNRESOLVED` entry to the target upstream register (never edits the upstream document); for REJECT: logs a `WONT_FIX` entry with a `Concern key`; for DEFER: does not route
+- Dedups against existing register entries with the shared matcher (never silently skips — records skips in the report)
+- Produces a sync report documenting every logged / rejected / deferred / skipped finding
 
 **Prompt:** `agents/universal-agents/pending-issue-resolver.md`
 

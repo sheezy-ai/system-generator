@@ -159,10 +159,11 @@ These changes were partially applied. For each: ACCEPT or REWORK?
 Options: ACKNOWLEDGE_AND_BLOCK or PROCEED_ANYWAY
 
 [If pending_issue_sync items exist:]
+(Before listing: cross-check each finding against its target `pending-issues.md` register with the shared matcher — `target-stage + section-anchor + concern-gist`, semantic not string-equality, staleness-gated. A finding matching an existing WONT_FIX is shown inline, tagged `[RE-RAISE — dismissed Round N: rationale]`, default-drop (never hidden); one matching an existing UNRESOLVED is annotated "already logged as PI-NNN, awaiting upstream"; a materially-changed upstream section reopens normally; uncertain ⇒ show.)
 ### Pending Issues to Sync Upstream
-| ID | Target | Summary |
-|----|--------|---------|
-Options: SYNC_ALL, DEFER_ALL, or specify per issue. (DEFER_ALL does NOT route: findings stay only in this round's alignment report, which no other stage reads — the target stage won't see them unless separately re-raised.)
+| ID | Target | Summary | Register status |
+|----|--------|---------|-----------------|
+Options: SYNC_ALL (log all to the target stages' registers for their next review to action — does NOT edit any upstream document), DEFER_ALL, or specify per issue. (DEFER_ALL does NOT route: findings stay only in this round's alignment report, which no other stage reads — the target stage won't see them unless separately re-raised.)
 ```
 
 **Collect decisions, update state:**
