@@ -4,23 +4,6 @@ Design decisions for the system-builder framework. For how the system works, see
 
 ---
 
-### DEC-001: Simplified Create Workflow (Superseded)
-
-**Original decision:** Create workflow is simplified to: Setup → Generator → Human augments. No experts, consolidator, or author in Create. Review workflow handles all expert review.
-
-**Original rationale:** "Gaps are just issues" - review experts can identify both missing decisions (gaps) and problems with existing decisions (issues). Separate Create experts duplicated Review expert domains. Simpler flow: Create produces a draft, human augments it, Review refines it.
-
-**Superseded by stage-specific create workflows:**
-- **Blueprint**: Explore phase (dimension identification → parallel explorers → enrichment review) + Decision Orchestrator + iterative rounds
-- **PRD**: Explore phase (capability identification → parallel explorers → enrichment review) + Enrichment Applicator for round 2+
-- **Foundations**: Assess step (technology assessment with inline human preferences) + structured gap analysis pipeline
-- **Architecture**: Full explore phase + Enrichment Applicator + independent coverage verification + structured gap analysis pipeline
-- **Components**: Independent coverage verification + structured gap analysis pipeline
-
-**Rationale for supersession:** The original simplified flow produced too many gaps requiring blind proposals. Pre-generation exploration and assessment surface trade-offs and collect human direction before generation, producing better first drafts. Independent coverage verification catches silent omissions. The original principle ("gaps are just issues") remains true for the Review workflow.
-
----
-
 ### DEC-003: No Tiered Review Options
 
 **Decision:** Framework encodes review depth per document type. No "light" vs "full" options.
@@ -403,8 +386,6 @@ Design decisions for the system-builder framework. For how the system works, see
 
 **Rationale:** The original Foundations workflow generated blind proposals for all technology decisions, producing 42 gaps requiring multi-round discussion (9 of which needed back-and-forth). Pre-generation assessment with human direction reduces gaps by settling most decisions before the Generator runs. Inline `>> HUMAN:` responses persist in the assessment file, surviving workflow resume — unlike conversation-context preferences that would be lost. Foundations is a selection problem (pick technologies) not a design problem (explore structure), so a lightweight assessor is sufficient — no full exploration loop needed.
 
-**Supersedes:** DEC-001 for Foundations stage.
-
 ---
 
 ### DEC-077: Architecture Exploration Loop
@@ -412,8 +393,6 @@ Design decisions for the system-builder framework. For how the system works, see
 **Decision:** Architecture creation uses the full explore→generate pattern from Blueprint/PRD: concern identification → parallel concern explorers → consolidation → scope filtering → human enrichment review → enrichment author → generator. Supports multi-round iteration and an Enrichment Applicator for round 2+ (targeted edits, not regeneration).
 
 **Rationale:** Architecture involves design problems (system decomposition, component boundaries, data flow patterns, integration approaches) where multiple viable alternatives exist. Unlike Foundations (technology selection from a menu), Architecture decisions have significant trade-off space that benefits from structured exploration before committing to a draft. The Foundations assessor pattern was considered but rejected as insufficient for the design complexity. The Blueprint/PRD exploration loop was adapted with Architecture-specific concerns (structural alternatives, not strategic dimensions or capability decomposition).
-
-**Supersedes:** DEC-001 for Architecture stage.
 
 ---
 
@@ -443,7 +422,7 @@ Design decisions for the system-builder framework. For how the system works, see
 
 ### DEC-081: Promote as Its Own Workflow (Decoupled from Review)
 
-**Decision:** Promotion (the spec/decisions/future split, DEC-072) is a **separately-triggered Promote workflow** rather than the final step of Review, at stages 02 (PRD), 03 (Foundations), and 04 (Architecture). Each Promote run is its own globally-numbered `round-N-promote` round: it applies a **review-mandatory guard** (the last completed round must be Review), snapshots the reviewed document, runs the stage promoter to split it into the three published files, and records the promotion (input snapshot, copies, metadata) under `round-N-promote/`. Review no longer writes the published files — at its exit (zero-issues gate or maturity) it completes and *recommends* running Promote. Stage 04's Promote additionally runs the contract completeness/freezability gate and materializes + fidelity-checks the frozen contract registry consumed by stage 05 (these are 04-only, per Slices 1–5; 02/03 Promote adds no contract freeze — but **every** splitting stage now runs a document-conservation gate on the split, DEC-085). Stage 01 is unchanged (it copies, it does not split); stage 05 keeps its own spec-promoter.
+**Decision:** Promotion (the spec/decisions/future split, DEC-072) is a **separately-triggered Promote workflow** rather than the final step of Review, at stages 02 (PRD), 03 (Foundations), and 04 (Architecture). Each Promote run is its own globally-numbered `round-N-promote` round: it applies a **review-mandatory guard** (the last completed round must be Review), snapshots the reviewed document, runs the stage promoter to split it into the three published files, and records the promotion (input snapshot, copies, metadata) under `round-N-promote/`. Review no longer writes the published files — at its exit (zero-issues gate or maturity) it completes and *recommends* running Promote. Stage 04's Promote additionally runs the contract completeness/freezability gate and materializes + fidelity-checks the frozen contract registry consumed by stage 05 (these are 04-only; 02/03 Promote adds no contract freeze — but **every** splitting stage now runs a document-conservation gate on the split, DEC-085). Stage 01 is unchanged (it copies, it does not split); stage 05 keeps its own spec-promoter.
 
 As part of the same change, a latent **source-selection defect class** was fixed across 02/03/04: the review/expand orchestrators resolved the last-completed-round input by naming a file the round may not have written — (a) no branch existed for a `promote` round (a dead spot on the canonical Expand → Review → Promote cycle), and (b) the `review` branch named `05-updated-<doc>.md` unconditionally, but the zero-issues review path skips the Author and writes only `00-<doc>.md`. Both are fixed with a uniform fallback: `promote → round-N-promote/00-<doc>.md`, and `review → 05-updated-<doc>.md` ELSE `round-N-review/00-<doc>.md`. (The `review`-branch case was live in committed stage 04.)
 
@@ -463,7 +442,7 @@ As part of the same change, a latent **source-selection defect class** was fixed
 
 **Rationale:** Before this, a contract could be frozen at Architecture (§8) but only checked for completeness at stage 05, so an uncontracted cross-component read (specimen `search_vector` / DD-010) could fall through the 04/05 seam. Moving materialization + fidelity into Promote puts the whole freeze on the *only road* to a promoted `architecture.md`, closing the seam; the freeze-identity token converts "did 05 consume the registry matching this architecture?" from a sequencing assumption into a guard; round-first write-order guarantees 05 never sees an unverified registry. Builds on the contract completeness/freezability gate (see DEC-081) and the spec/decisions/future split (DEC-072).
 
-**Known deferred limitation:** on a MERGE re-freeze, resetting a changed contract to `DEFINED` erases its regression baseline — the per-round contract-verifier reads "previously `VERIFIED`?" from the mutable status column, which the reset overwrote — so a re-freeze-induced break surfaces as `FAIL` (HIGH) rather than `REGRESSION` (CRITICAL). The fix (a durable per-CTR `Last-Verified: (verdict, freeze, date)` field written by both VERIFIED-writers — the contract-verifier and coherence Phase 4 — plus a paired backfill) is separable and deferred to its own slice; the reset-to-`DEFINED` behaviour is safe-by-honesty in the meantime. *(Slices 4–6.)*
+**Known deferred limitation:** on a MERGE re-freeze, resetting a changed contract to `DEFINED` erases its regression baseline — the per-round contract-verifier reads "previously `VERIFIED`?" from the mutable status column, which the reset overwrote — so a re-freeze-induced break surfaces as `FAIL` (HIGH) rather than `REGRESSION` (CRITICAL). The fix (a durable per-CTR `Last-Verified: (verdict, freeze, date)` field written by both VERIFIED-writers — the contract-verifier and coherence Phase 4 — plus a paired backfill) is separable and deferred to its own slice; the reset-to-`DEFINED` behaviour is safe-by-honesty in the meantime.
 
 ---
 
@@ -471,7 +450,7 @@ As part of the same change, a latent **source-selection defect class** was fixed
 
 **Decision:** Retire the pre-materialization cross-cutting **conformance workflow** (the `cross-cutting/` orchestrator + `contract-extractor` + `contract-reconciler`), obsolete under the materialized model (DEC-082) and redundant with coherence Phase 4; delete the emptied `cross-cutting/` directory and relocate `interface-schema-author` to `initialize/`. Routine conformance of realized bodies against the frozen registry (`MATERIALIZED → DEFINED → VERIFIED`, the `DEFINED` rung preserved) is absorbed into **coherence Phase 4**, kept self-sufficient with a wholesale iteration over all contracts (Slice-6's ownerless re-verify depends on it). Add a body-driven **absent-from-freeze detector** (runs at create round-0 and every review round) that scans **produced and consumed** cross-component interfaces and escalates any interface absent from the frozen registry via `CROSS-BOUNDARY-UPSTREAM` to Architecture for the next re-freeze — it never registers a contract locally.
 
-**Rationale:** The old Population workflow reconciled contracts *bottom-up* from finished component bodies — a model made obsolete once contracts are materialized *top-down* from Architecture §7/§8 at Promote, and duplicative of coherence Phase 4. The detector fills the one gap the top-down model leaves: a body that realizes or *consumes* a cross-component interface absent from the freeze must escalate upstream, not silently register a local contract. The **consumer-side** scan is the load-bearing new capability — it is what catches the `search_vector`-class uncontracted read at the component level. *(Slice 7.)*
+**Rationale:** The old Population workflow reconciled contracts *bottom-up* from finished component bodies — a model made obsolete once contracts are materialized *top-down* from Architecture §7/§8 at Promote, and duplicative of coherence Phase 4. The detector fills the one gap the top-down model leaves: a body that realizes or *consumes* a cross-component interface absent from the freeze must escalate upstream, not silently register a local contract. The **consumer-side** scan is the load-bearing new capability — it is what catches the `search_vector`-class uncontracted read at the component level.
 
 ---
 
@@ -505,5 +484,3 @@ This is the **foundational principle** beneath the promote-stage contract machin
 - **Placement-smell advisory-notify.** The one un-gateable but actionable case — non-verbatim-critical current-scope content **exiled from the clean spec** into decisions/future — is surfaced **passively** in the promote-completion report (a single informational line, only when present), never as a checkpoint or decision prompt.
 
 **Rationale:** The split is the transition from reviewed draft to the published authority every downstream stage trusts, and before this it had the pipeline's weakest verification — only the promoter's **self-check** (the DEC-058 anti-pattern: the splitter verifying its own split). The contract freeze already had an **independent** re-derivation gate (DEC-082's materialization-fidelity checker); the document split is the other half of the same freeze act, at comparable stakes. A split that silently corrupts a **verbatim-critical, downstream-trusted** section poisons that authority invisibly — for §5/§8 via *mechanical binding* (the 04 materializer re-derives contracts from them and the fidelity checker trusts the same corrupted source), and for Foundations §1–10 via *authority-rubric* (build/tasks/architecture implement or check *against* the conventions, so a corrupted convention silently mis-builds and no check flags its own rubric). This **reverses** DEC-081's "02/03 Promote is a plain split-and-record / no human checkpoints" characterization — 02/03 Promote can now HALT on a conservation MISMATCH — but adds **no** contract freeze/materialization to 02/03 (those stay 04-only, per DEC-082): a conservation gate is a verbatim-conservation check on the split, not a freeze gate. Builds on DEC-072 (the split) and DEC-081 (review-gated Promote).
-
-**Commits:** `975c9df` (04), `b6a03cc` (universalize the checker), `bcfc1c6` (05), `345ee45` (02/03 + Foundations narrowing + guard-before-mutate fix), `ec08a22` (placement-smell notify).
