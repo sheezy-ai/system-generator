@@ -222,6 +222,8 @@ agents/05-components/
 │   └── absent-from-freeze-detector.md # Escalates cross-component contracts absent from the frozen registry (CROSS-BOUNDARY-UPSTREAM)
 ├── coherence/
 │   └── orchestrator.md             # Stage coherence review
+├── retire/
+│   └── orchestrator.md             # Retire an ORPHANED component (guarded, reversible, sweep-checked; human-triggered)
 ├── review/
 │   ├── orchestrator-router.md        # Main entry point, routes to phases
 │   ├── orchestrator-pre-discussion.md  # Steps 1-5: Expert review through discussion
@@ -410,7 +412,7 @@ Component Specs should stabilize before Tasks are generated. If a spec changes s
 
 ## Stage-Wide Workflows
 
-Beyond individual component creation and review, Component Specs has one stage-wide workflow (Stage Coherence Review). The cross-cutting contract registry is **materialized up-front** by the Promote stage (frozen from Architecture §7/§8), not populated from component bodies — the legacy Cross-Cutting Population workflow that extracted/reconciled contracts from finished specs has been **retired** (obsolete under the materialized model). Routine conformance of realized bodies against the frozen registry (`MATERIALIZED → DEFINED → VERIFIED`) is now performed by **coherence Phase 4**, and a cross-component contract a body realizes but that is **absent from the frozen registry** is caught by the per-component **absent-from-freeze detector** (create round-0 and every review round), which escalates it `CROSS-BOUNDARY-UPSTREAM` to Architecture for the next re-freeze.
+Beyond individual component creation and review, Component Specs has two stage-wide workflows: **Stage Coherence Review** and **Component Retirement** (retire an ORPHANED component). The cross-cutting contract registry is **materialized up-front** by the Promote stage (frozen from Architecture §7/§8), not populated from component bodies — the legacy Cross-Cutting Population workflow that extracted/reconciled contracts from finished specs has been **retired** (obsolete under the materialized model). Routine conformance of realized bodies against the frozen registry (`MATERIALIZED → DEFINED → VERIFIED`) is now performed by **coherence Phase 4**, and a cross-component contract a body realizes but that is **absent from the frozen registry** is caught by the per-component **absent-from-freeze detector** (create round-0 and every review round), which escalates it `CROSS-BOUNDARY-UPSTREAM` to Architecture for the next re-freeze.
 
 ### Stage Coherence Review
 
@@ -437,6 +439,20 @@ Verifies cross-component coherence before stage sign-off. Addresses issues that 
 | 7 | Update Stage State | Add history entry to workflow-state.md |
 
 **Output:** `versions/coherence/[date]-coherence-report.md` with status (COHERENT or ISSUES_REMAINING), summary table, blocking/deferred issues, and sign-off checklist.
+
+### Component Retirement (ORPHANED)
+
+When an Architecture re-promote **drops a component from §6**, the Tier-2 decomposition-membership detector flags it **ORPHANED** (instantiated in 05, no longer required by §6) and HALTs to the human. The **retire** orchestrator (`retire/orchestrator.md`) is the defined, non-destructive action the human then triggers by name against that component. It is the retire slice of the deferred R8 re-decomposition work — re-split / merge / re-parent remain deferred and human-driven.
+
+Retirement is **guarded, reversible, and reference-checked**, and touches only 05-owned realized artifacts (the 04-owned §8 registry is escalated, never edited):
+
+- **Preconditions** — 05 initialized + an active `## Component Specs` row; genuinely ORPHANED re-confirmed against *current* §6 (the detector's stateless diff, not its cached proposal); a **possible-rename guard** that refuses if any MISSING coexists (a rename surfaces as missing+orphaned; §6 has no rename-stable id).
+- **Step 1 — Blocking sweep** (the load-bearing safety surface, purpose-built): (a) a **whole-spec name-occurrence scan** of every *other* component spec — prose + Dependencies column + structured tables — HALT on any hit; (b) a **§8 producer *and* consumer check** in `specs/cross-cutting.md` — HALT + escalate a `CROSS-BOUNDARY-UPSTREAM` entry to 04 pending-issues on either. Expected ordering: re-Review live dependents first (their re-align drops the reference), then retire.
+- **Step 2 — Archive, not delete** — `versions/[component]/` → `versions/retired/[component]-YYYY-MM-DD/` and `specs/[component].md` → `specs/archived/[component]-retired-YYYY-MM-DD.md`, each with a header note (reversible; reserved namespaces kept out of the live `versions/*/` and `specs/*.md` glob paths).
+- **Step 3 — Update the stage index** — **remove** the `## Component Specs` row (so the detector no longer sees it as instantiated → no re-flag), add a **status-less** `## Retired Components` audit row (status-less so no status-keyed reader mistakes it for a live component), and a history entry.
+- **Step 4 — Direct re-coherence** — the human re-runs the coherence sign-off (freeze) so `## Frozen Components` regenerates without the retiree. Retirement itself does not freeze.
+
+**Output:** a retirement report (`versions/retired/[date]-[component]-retirement.md`) — swept references, §8 escalations, archived artifacts, audit row — never a silent mutation.
 
 ### Promotion
 
