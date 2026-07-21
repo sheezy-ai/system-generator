@@ -40,7 +40,7 @@ If invoked despite a precondition being unmet, **no-op** and report `SKIPPED (pr
 **Detection compares the instantiated set against the CURRENT §6 — never against a prior-published-§6 snapshot.** This is the load-bearing correctness property: a MISSING component the human *defers* at re-promote `k` must still surface at `k+1`, `k+2`, … until it is instantiated or removed from §6. A prior-vs-new §6 diff would silently drop that deferred delta on the next promote (it is no longer "newly added"). Diffing the instantiated set vs current §6 is **stateless** and cannot drop a standing delta.
 
 1. **Extract the current §6 component set** — the component slugs in the new (just-frozen) architecture's §6 Component Spec List (the "Spec" column / component name). This is the **required** set.
-2. **Extract the instantiated set** — the component rows in the 05 stage-index Component Specs table (any status: NOT_STARTED … COMPLETE — all are "instantiated" for membership purposes; `05-init` seeds these rows from §6). This is the **realized** set.
+2. **Extract the instantiated set** — the component rows in the 05 stage-index **`## Component Specs` section only** (any status: NOT_STARTED … COMPLETE — all are "instantiated" for membership purposes; `05-init` seeds these rows from §6). This is the **realized** set. **Scope-pin (defense-in-depth):** extract from the `## Component Specs` table **exclusively** — never any other section. In particular do **not** read the `## Retired Components` audit section (a status-less log of components deliberately removed from §6); counting a retired row here would re-surface it as ORPHANED on every run. Removal + the status-less retired schema already prevent this; this pin is redundant hardening.
 3. **Compute the membership diff (current §6 ↔ instantiated) — this IS the detection:**
    - **MISSING** = in current §6, **not** in the instantiated set → §6 requires it but 05 never instantiated it (05 must Create → Review → Promote it).
    - **ORPHANED** = in the instantiated set, **not** in current §6 → 05 holds a component §6 no longer requires (retire / re-parent).
@@ -78,7 +78,7 @@ Write the report to the output path:
 ### ORPHANED — instantiated, no longer in §6
 | Component (instantiated) | Current 05 status | Action for human |
 |--------------------------|-------------------|------------------|
-| [slug] | [status] | Retire / re-parent (human decision) |
+| [slug] | [status] | Retire (trigger `05-components/retire/orchestrator.md`) / re-parent (human decision) |
 
 ### Possible renames (missing+orphaned pairs — degraded form, no stable §6 id)
 | Orphaned (old) | Missing (new) | Note |

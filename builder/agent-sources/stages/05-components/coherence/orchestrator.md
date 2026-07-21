@@ -55,7 +55,7 @@ Before running:
 ### Phase 1: Gather State
 
 1. **Read stage workflow-state.md** to identify component statuses
-2. **Count components by status** — recognise the **full stage-index ladder** (`NOT_STARTED → CREATED → IN_PROGRESS → REVIEWED → COMPLETE`; 05P-1 added `CREATED`, 05P-2 added `REVIEWED`). Do **not** miscount `CREATED`/`REVIEWED` as `IN_PROGRESS` or `COMPLETE`:
+2. **Count components by status** — over the **`## Component Specs` section only** (scope-pin, defense-in-depth: never count rows from the status-less `## Retired Components` audit section — a retired component has left the live set and must not affect the status counts or the all-COMPLETE freeze gate; the retired schema is status-less so a status count skips it regardless, but pin the section explicitly here). Recognise the **full stage-index ladder** (`NOT_STARTED → CREATED → IN_PROGRESS → REVIEWED → COMPLETE`; 05P-1 added `CREATED`, 05P-2 added `REVIEWED`). Do **not** miscount `CREATED`/`REVIEWED` as `IN_PROGRESS` or `COMPLETE`:
    - COMPLETE (promoted — the only "ready" state)
    - REVIEWED (reviewed-but-not-promoted — **NOT ready**; a component here has passed Review but has not been frozen by its per-component Promote)
    - IN_PROGRESS

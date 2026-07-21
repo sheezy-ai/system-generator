@@ -265,6 +265,14 @@ For each §7 cross-cutting **interface** whose schema layer Architecture leaves 
 | [component-2] | 2 | [component-1] |
 | ... | N | ... |
 
+## Retired Components
+
+Audit record of components removed from the stage after Architecture §6 dropped them (written by the **retire** orchestrator — `05-components/retire/orchestrator.md`). **Status-less by design** — a retired component is NOT in the live component set (`## Component Specs` above); no status-keyed reader (the decomposition-membership detector's instantiated-set read, the coherence status count, the all-COMPLETE freeze gate) counts these rows, so a retired component can never re-flag as ORPHANED or block the freeze. Archives are reversible (see the archive locations). Empty at initialization — a component is added here only when it is retired.
+
+| Component | Retired | Reason | Archived (versions) | Archived (spec) | Rename hint |
+|-----------|---------|--------|---------------------|-----------------|-------------|
+| *(none retired yet)* | | | | | |
+
 ## History
 
 - YYYY-MM-DD: Initialization complete. N components ready for spec creation.
