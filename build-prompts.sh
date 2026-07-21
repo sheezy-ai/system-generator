@@ -249,6 +249,29 @@ build_coherence_workflow() {
     echo "  Built: $output_file"
 }
 
+# Process a single Retire workflow file
+build_retire_workflow() {
+    local stage="$1"
+    local workflow_file="$2"
+    local workflow_name=$(basename "$workflow_file" .md)
+
+    # Get output directory
+    local output_dir_name=$(get_output_dir "$stage")
+    local output_file="$AGENTS_DIR/$output_dir_name/retire/$workflow_name.md"
+
+    # Start with the core workflow file
+    local content
+    content=$(cat "$workflow_file")
+
+    # Inject common sections
+    content=$(inject_common_sections "$content")
+
+    # Write output
+    mkdir -p "$(dirname "$output_file")"
+    echo "$content" > "$output_file"
+    echo "  Built: $output_file"
+}
+
 # Process a single Create workflow file
 build_create_workflow() {
     local stage="$1"
@@ -601,6 +624,38 @@ for stage_dir in "$BUILDER_SOURCES/stages"/*; do
 done
 
 echo "Coherence build complete."
+echo ""
+
+# Build Retire prompts (currently only 05-components has this)
+echo "Building Retire prompts..."
+echo ""
+
+# Clean stale retire output files
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
+    if [[ -d "$stage_dir/retire" ]]; then
+        stage=$(basename "$stage_dir")
+        output_dir_name=$(get_output_dir "$stage")
+        clean_output_dir "$AGENTS_DIR/$output_dir_name/retire" "$stage_dir/retire"
+    fi
+done
+
+for stage_dir in "$BUILDER_SOURCES/stages"/*; do
+    if [[ -d "$stage_dir/retire" ]]; then
+        stage=$(basename "$stage_dir")
+        echo "Stage: $stage"
+
+        # Build workflow files
+        for workflow_file in "$stage_dir/retire"/*.md; do
+            if [[ -f "$workflow_file" ]]; then
+                build_retire_workflow "$stage" "$workflow_file"
+            fi
+        done
+
+        echo ""
+    fi
+done
+
+echo "Retire build complete."
 echo ""
 
 # Build Review prompts
