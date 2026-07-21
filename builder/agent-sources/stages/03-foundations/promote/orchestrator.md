@@ -45,9 +45,14 @@ Because the promoter is the **sole producer of `foundations.md`** and Promote is
 
 ### Round [N] (Promote)
 - [ ] Step 1: Guard & Snapshot
+- [ ] Step 1b: Upstream Freshness Gate (equality clause on the direct 02 edge)
 - [ ] Step 2: Promote (split)
 - [ ] Step 2a: Document-conservation gate
 - [ ] Step 3: Finalise
+
+<!-- written by Review at round completion — Promote READS it (Step 1b), never writes it; do not overwrite these values on a template regen -->
+## Upstream Freshness (reconciled-against)
+- 02-prd:          round-[N]-promote
 
 ## History
 - YYYY-MM-DD HH:MM: Round [N] (Promote) started — splitting round-[R]-review
@@ -78,6 +83,7 @@ agents/03-foundations/promote/
 └── promoter.md                         # Splits the reviewed Foundations into foundations/decisions/future round-folder originals
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
+├── realign-check.md                    # Step 1b: freshness re-align callable unit (runs the AV on the stale 02 edge, advances an ALIGNED edge, HALTs on a discrepancy)
 └── document-conservation-checker.md    # Step 2a: document split conservation gate (verbatim §1–10 + cross-refs gate; prose/decisions/future advisory) — invoked with 03's Verbatim-critical sections list
 ```
 
@@ -159,7 +165,41 @@ The **review-mandatory guard runs at On Start** (guard-first — before any stat
 
 6. **Update state file**: Mark Step 1 complete.
 
-7. **Automatically proceed to Step 2.**
+7. **Automatically proceed to Step 1b.**
+
+---
+
+### Step 1b: Upstream Freshness Gate (equality clause on the direct alignment-source edges)
+
+**The freshness clause (generalises the 05-init check):** *A stage may not promote while, for any of its direct alignment-source edges, the consumer's recorded `Frozen-At` ≠ that source's current `Frozen-At`.* Foundations' sole direct source is the **PRD** (`alignment-verifier.md` source table), so this gate has **one live edge: 03←02**.
+
+- **Update state file**: Set Step 1b, status = IN_PROGRESS.
+
+- **Detect (per direct edge — automatic, metadata-only):** for the **02-prd** edge, compare:
+  - **Recorded** — `- 02-prd:` in the `## Upstream Freshness (reconciled-against)` block of `system-design/03-foundations/versions/workflow-state.md`.
+  - **Source current** — the `**Frozen-At**` value in the current `system-design/02-prd/prd.md` header.
+  - **Two absent cases, kept distinct:**
+    - **Source's `Frozen-At` absent** (the PRD never stamped — pre-adoption) → **inert no-op**, not a staleness error (the exact 05-init rule): record "02 edge inert (source token absent)" and proceed. Do not HALT.
+    - **Consumer's recorded value absent** (never recorded this edge) → **stale**: cleared **only by an actual AV re-check** (below), never by a bare stamp.
+  - **Fresh** (recorded == source current) → edge clean.
+
+- **If every edge is fresh or inert** → mark Step 1b complete; **automatically proceed to Step 2.**
+
+- **If the 02 edge is stale** → run the **Re-Align Check** callable unit (the gate-step; the AV re-checks, the wrapper advances/routes/logs — §3.4):
+  ```
+  Follow the instructions in: {{AGENTS_PATH}}/universal-agents/realign-check.md
+
+  Inputs:
+  - Consumer document: system-design/03-foundations/versions/round-[N]-promote/00-foundations.md
+  - Consumer freshness record: system-design/03-foundations/versions/workflow-state.md (## Upstream Freshness)
+  - Stale-edge list: { 02-prd, system-design/02-prd/prd.md, [recorded 02-prd value or absent] }
+  - Stage guide: {{GUIDES_PATH}}/03-foundations-guide.md
+  - Output report: system-design/03-foundations/versions/round-[N]-promote/01-realign-report.md
+  ```
+  - **`ALL_ADVANCED`** (the AV read zero discrepancies for 02, or the edge is inert) → the wrapper advanced the recorded `Frozen-At` to the AV-read token. Mark Step 1b complete; **proceed to Step 2.**
+  - **`HALT_DISPOSITION_NEEDED`** (the AV found a discrepancy against 02 — even a non-SHOWSTOPPER one) → **HALT (freshness):** set `Status: WAITING_FOR_HUMAN`; present the re-align report. The human **resolves** (conform-down / sync-up a PI to `02-prd/versions/pending-issues.md`, then re-run Promote after the PRD's next Review) **or records a dismiss/override** that advances the edge with a rationale (to `decisions.md`). Do **NOT** run the promoter until the edge is advanced. Advance on the AV **`ALIGNED`-for-source** verdict (per-source zero discrepancies) — **never** on the AV's global `PROCEED`.
+
+- **Update state file**: record the freshness verdict (fresh / advanced / disposed) in the history.
 
 ---
 
@@ -174,6 +214,7 @@ The **review-mandatory guard runs at On Start** (guard-first — before any stat
     Input:
     - Reviewed Foundations: system-design/03-foundations/versions/round-[N]-promote/00-foundations.md
     - Foundations guide: {{GUIDES_PATH}}/03-foundations-guide.md
+    - Freeze token: round-[N]-promote   (stamp into foundations.md's header as **Frozen-At** — the Foundations freeze identity downstream stages reconcile against; foundations.md has a Version/Last Updated block, so the promoter inserts the line there)
 
     Output:
     - system-design/03-foundations/versions/round-[N]-promote/foundations.md
@@ -246,15 +287,17 @@ The **review-mandatory guard runs at On Start** (guard-first — before any stat
 15. **Update state file**: status = COMPLETE; record the promotion in the round record + state history (`Round [N] (Promote) complete — split round-[R]-review; conservation gate [CLEAN | disposed]`).
 
 16. **Report** to the user: the split is complete; the three published documents (`foundations.md`, `decisions.md`, `future.md`) are current (conservation-verified) and `round-[N]-promote/` holds the record (incl. the conservation report).
+    - **Eager-detect line (advisory — static direct-consumer list):** append: *This re-promote advanced Foundations' `Frozen-At`, so it staled the direct downstream consumers of Foundations — **04-architecture, 05-components**. Each re-aligns lazily at its own next Promote (its freshness gate auto-re-checks and either auto-clears or surfaces a discrepancy); nothing is auto-fired across completed stages.*
     - **Placement-smell notice (informational only — from the Step-2a `placement_smells` count):** **if `placement_smells > 0`**, append exactly ONE non-blocking line to this report: *Note: [N] placement smell(s) flagged — current-scope content routed to `decisions`/`future` that may belong in the clean spec. Non-blocking (the split published); review `round-[N]-promote/conservation.md` if you want to correct placement in a follow-up.* **If `placement_smells` is 0, say nothing.** This is informational only — **never HALT, wait, or ask a decision** on it, and it does not add a step.
 
 ---
 
 ## Stopping Points
 
-**Automatic flow (do NOT pause for human confirmation):** Step 1 → 2 → 2a → 3 proceed automatically **unless** the document-conservation gate (Step 2a) returns `MISMATCH`.
+**Automatic flow (do NOT pause for human confirmation):** Step 1 → 1b → 2 → 2a → 3 proceed automatically **unless** the freshness gate (Step 1b) HALTs on a live upstream discrepancy, or the document-conservation gate (Step 2a) returns `MISMATCH`.
 
-**Human checkpoint (orchestrator handles it directly):**
+**Human checkpoints (orchestrator handles them directly):**
+- **Step 1b (freshness)** — if the 02 edge is stale and the re-align check returns `HALT_DISPOSITION_NEEDED` (the AV found a discrepancy against the current PRD): set `Status: WAITING_FOR_HUMAN`. The human resolves (conform-down / sync-up a PI to PRD, re-run after PRD Review) or records a dismiss/override that advances the edge. The promoter does not run until the edge is advanced.
 - **Step 2a (conservation)** — if the conservation check returns `MISMATCH`: set `Status: WAITING_FOR_HUMAN`, **HALT promote-local** (re-run the promoter at Step 2, or an explicit human accept/override recorded to `decisions.md`). The docs are **not** published until the check is CLEAN.
 
 Otherwise Promote guards, splits, conservation-checks, publishes, and records without pausing. Do NOT ask "Should I proceed?" between the automatic steps.
@@ -275,6 +318,7 @@ Promote exits by **splitting**: the review-mandatory guard passes, the promoter 
 | Last completed round was not Review | Error: "Promote requires a completed Review round; last round was {type}." |
 | `Status: not COMPLETE` + other workflow in progress | Error: "Cannot start Promote: {Current Workflow} workflow still in progress" |
 | Reviewed document not found | Error: "Review round [R] completed but no reviewed document found." |
+| Freshness gate: 02 edge stale, re-align returns `HALT_DISPOSITION_NEEDED` (Step 1b) | HALT (freshness): WAITING_FOR_HUMAN — human resolves (conform-down / sync-up PI to PRD) or records a dismiss/override that advances the edge. Do NOT run the promoter until the edge is advanced. Advance on `ALIGNED`-for-source, never on `PROCEED` |
 | Promoter fails | Error: Report failure details; do not mark COMPLETE |
 | Document-conservation check returns `MISMATCH` (Step 2a) | HALT promote-local: WAITING_FOR_HUMAN — re-run the promoter (Step 2) or human-accept; do NOT publish the docs |
 | Document-conservation check produces no verdict | Error: treat as blocking, re-run Step 2a |

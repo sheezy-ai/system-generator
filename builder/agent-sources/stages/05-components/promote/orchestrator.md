@@ -49,10 +49,17 @@ Invoked for one component: `[component-name]`.
 
 ### Round [N] (Promote)
 - [ ] Step 1: Guard & Snapshot
+- [ ] Step 1b: Upstream Freshness Gate (equality clause on the direct 02 + 03 + 04 edges)
 - [ ] Step 2: Conformance Gate (body-check → MATERIALIZED → DEFINED; absent-from-freeze BLOCKING; re-freeze regression)
 - [ ] Step 3: Promote (split)
 - [ ] Step 3a: Document-conservation gate
 - [ ] Step 4: Finalise (verify + record + mark COMPLETE)
+
+<!-- written by the Review router at round completion — Promote READS it (Step 1b), never writes it; do not overwrite these per-component values on a template regen -->
+## Upstream Freshness (reconciled-against)
+- 02-prd:          round-[N]-promote
+- 03-foundations:  round-[N]-promote
+- 04-architecture: round-[N]-promote
 
 ## History
 - YYYY-MM-DD HH:MM: Round [N] (Promote) started — freezing round-[R]-review-[build|ops]
@@ -83,6 +90,7 @@ agents/05-components/promote/
 └── promoter.md        # Splits the reviewed spec into spec/future/decisions round-folder originals (moved here from review in 05P-2; renamed from spec-promoter.md for cross-stage naming alignment)
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
+├── realign-check.md                    # Step 1b: freshness re-align callable unit (runs the AV on stale 02/03/04 edges, advances an ALIGNED edge, HALTs on a discrepancy)
 └── document-conservation-checker.md    # Step 3a: document split conservation gate (verbatim §3/§4/§7 + cross-refs gate; prose/decisions/future advisory) — invoked with 05's Verbatim-critical sections list
 
 Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
@@ -127,7 +135,39 @@ Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
 
 4. **Update state file**: Mark Step 1 complete.
 
-5. **Automatically proceed to Step 2.**
+5. **Automatically proceed to Step 1b.**
+
+---
+
+### Step 1b: Upstream Freshness Gate (equality clause on this component's direct alignment-source edges)
+
+**The freshness clause (generalises the 05-init check), applied PER COMPONENT:** *A component may not freeze `specs/[component-name].md` while, for any of its direct alignment-source edges, its recorded `Frozen-At` ≠ that source's current `Frozen-At`.* A 05 component spec's direct sources are the **PRD**, **Foundations**, and **Architecture** (`alignment-verifier.md` source table), so this gate has **three live edges per component: 05←{02, 03, 04}**. (`05-init`'s registry `Frozen-At` check is a one-time setup precondition, **not** the mid-stage backstop — the 04 edge is held and gated here per component like the others; a mid-stage 04 re-promote staled this edge even though 05-init already ran.)
+
+- **Update state file**: Set Step 1b, `Status: IN_PROGRESS`.
+
+- **Detect (per direct edge — automatic, metadata-only):** for **each** of the 02-prd, 03-foundations, and 04-architecture edges, compare:
+  - **Recorded** — the matching line in the `## Upstream Freshness (reconciled-against)` block of **this component's** `workflow-state.md`.
+  - **Source current** — the `**Frozen-At**` value in the current source header (`system-design/02-prd/prd.md`, `system-design/03-foundations/foundations.md`, `system-design/04-architecture/architecture.md`).
+  - **Two absent cases, kept distinct (per edge):** source token absent → **inert no-op** (not stale); consumer record absent → **stale**, cleared only by an actual AV re-check (never a bare stamp). Recorded == current → fresh.
+
+- **If every edge is fresh or inert** → mark Step 1b complete; **automatically proceed to Step 2.**
+
+- **If any edge is stale** → run the **Re-Align Check** callable unit (the gate-step; the AV re-checks, the wrapper advances/routes/logs — §3.4), passing **only the stale edges**:
+  ```
+  Follow the instructions in: {{AGENTS_PATH}}/universal-agents/realign-check.md
+
+  Inputs:
+  - Consumer document: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/00-spec.md
+  - Consumer freshness record: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/workflow-state.md (## Upstream Freshness)
+  - Stale-edge list: [only the stale edges among { 02-prd, .../02-prd/prd.md }, { 03-foundations, .../03-foundations/foundations.md }, { 04-architecture, .../04-architecture/architecture.md }, each with its recorded value or absent]
+  - Stage guide: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/guide.md
+  - Output report: {{SYSTEM_DESIGN_PATH}}/system-design/05-components/versions/[component]/round-[N]-promote/01-realign-report.md
+  ```
+  - **`ALL_ADVANCED`** (the AV read zero discrepancies for each stale source, or an edge is inert) → the wrapper advanced each recorded `Frozen-At` to its AV-read token. Mark Step 1b complete; **proceed to Step 2.**
+  - **`HALT_DISPOSITION_NEEDED`** (the AV found a discrepancy against a stale source — even a non-SHOWSTOPPER one) → **HALT (freshness):** set `Status: WAITING_FOR_HUMAN`; present the re-align report. Per discrepant edge, the human **resolves** (conform-down / sync-up a PI to that source's `versions/pending-issues.md`, re-run after the source's next Review) **or records a dismiss/override** that advances the edge (to `decisions/[component-name].md`). Do **NOT** proceed to the Step-2 Conformance Gate until every stale edge is advanced. Advance on the AV **`ALIGNED`-for-source** verdict — **never** on the AV's global `PROCEED`.
+    - **Note (R5 — no confusing double-HALT):** the 04→05 **contract** freshness is separately gated by the registry `Frozen-At` (05-init precondition) and the Step-2 conformance body-check; this Step-1b **prose** edge to 04 is a different object (registry = contracts; this edge = prose alignment). If both would fire, resolve the freshness edge here first (it is the broader re-check); do not treat them as two independent blockers on the same drift.
+
+- **Update state file**: record the per-edge freshness verdict (fresh / advanced / disposed) in the history.
 
 ---
 
@@ -299,9 +339,10 @@ Gate agents (re-run at Step 2 — they LIVE in review/create, not moved):
 
 ## Stopping Points
 
-**Automatic flow (do NOT pause for human confirmation):** Step 1 → 2 → 3 → 3a → 4 proceed automatically **unless** the Conformance Gate (Step 2) HALTs on a HIGH finding, or the conservation check returns `MISMATCH` (Step 3a).
+**Automatic flow (do NOT pause for human confirmation):** Step 1 → 1b → 2 → 3 → 3a → 4 proceed automatically **unless** the freshness gate (Step 1b) HALTs on a live upstream discrepancy, the Conformance Gate (Step 2) HALTs on a HIGH finding, or the conservation check returns `MISMATCH` (Step 3a).
 
 **Human checkpoints (orchestrator handles them directly):**
+- **Step 1b (freshness)** — if a direct 02/03/04 edge is stale and the re-align check returns `HALT_DISPOSITION_NEEDED` (the AV found a discrepancy against the current source): set `Status: WAITING_FOR_HUMAN`. Per discrepant edge, the human resolves (conform-down / sync-up a PI to the source, re-run after that source's Review) or records a dismiss/override that advances the edge. The Conformance Gate does not run until every stale edge is advanced.
 - **Step 2 (Conformance Gate)** — a body-check FAIL, a `contract-verifier` regression demotion, or an absent-from-freeze `ABSENCES_ESCALATED` verdict: set `Status: WAITING_FOR_HUMAN`. Every HIGH gets a recorded disposition before the promoter runs (Resolved → log + HALT for a Review / Architecture re-freeze; Deferred → `future/`; Dismissed / Override → `decisions/`). A **Resolved** disposition HALTs the workflow here — it does not reach the split.
 - **Step 3a (conservation)** — if the conservation check returns `MISMATCH`: set `Status: WAITING_FOR_HUMAN`, **HALT promote-local** (re-run the promoter at Step 3, or an explicit human accept/override recorded to `decisions/[component-name].md`). The docs are **not** published until the check is CLEAN.
 
@@ -325,6 +366,7 @@ Promote exits by **freezing**: the Conformance Gate passes clean (or every HIGH 
 | Last completed round was not a Review round | Error (no state mutation): "Promote requires a completed Review round; last round was {type}." |
 | `Status: not COMPLETE` + other workflow in progress | Error: "Cannot start Promote: {Current Workflow} workflow still in progress" |
 | Reviewed spec not found | Error: "Review round [R] completed but no reviewed spec found for [component]." |
+| Freshness gate: a 02/03/04 edge stale, re-align returns `HALT_DISPOSITION_NEEDED` (Step 1b) | HALT (freshness): WAITING_FOR_HUMAN — per discrepant edge, human resolves (conform-down / sync-up PI to the source) or records a dismiss/override that advances the edge. Do NOT run the Conformance Gate until every stale edge is advanced. Advance on `ALIGNED`-for-source, never on `PROCEED` |
 | Conformance body-check FAIL (sole-producer contract) | HALT — WAITING_FOR_HUMAN: log to this component's `pending-issues.md`; "Conformance gate HIGH — re-run Review to fix the producer body, then re-run Promote." Do not transition, do not spawn the promoter |
 | Absent-from-freeze returns `ABSENCES_ESCALATED` | HALT — WAITING_FOR_HUMAN: detector already escalated to Architecture `pending-issues.md`; "re-run Architecture Promote (re-freeze) then this component's Review before re-running Promote." Do not spawn the promoter |
 | `contract-verifier` regression demotion (re-freeze) | Demote `VERIFIED → DEFINED` (never below); HIGH-equivalent → disposition; the `DEFINED` rung is the floor |

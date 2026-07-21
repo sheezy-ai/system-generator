@@ -15,6 +15,7 @@ Transform a reviewed Foundations document into three focused documents:
 |-------|------|---------|
 | Reviewed Foundations | Provided at invocation | Source document to split |
 | Guide | `guides/03-foundations-guide.md` | Validation reference |
+| Freeze token | Provided at invocation (`round-[N]-promote`) | Stamp into `foundations.md`'s header as `**Frozen-At**` — the Foundations' freeze identity (the version each downstream consumer records as reconciled-against) |
 
 ---
 
@@ -103,6 +104,16 @@ Preserve the original 11-section structure. The promoter's edits are therefore l
 1. **Remove `<!-- … -->` HTML comments from §1–10** (the sole sanctioned edit to those sections); keep everything else in §1–10 byte-identical to the reviewed source.
 2. **Extract the standalone `## Design Decisions` section** (below §11) to `decisions.md` — move the `DD-NNN:` blocks with their `Source:` references intact. If no such standalone section exists, extract nothing (decisions.md is an empty stub) and leave §1–10 untouched.
 3. **Move §11 Open Questions content to `future.md`**, keeping §11 in `foundations.md` as a section header with a reference to future.md.
+
+### Stamp the freeze identity into the header (required — insert, do not merely preserve)
+
+The promoter is the **sole producer** of `foundations.md`. This edit adds **one explicit header write** — the Foundations' freeze identity — mirroring 04's Architecture promoter exactly. Use the `round-[N]-promote` freeze token passed at invocation:
+
+- **`foundations.md` carries a `**Version**` / `**Last Updated**` header block** (`**Version**` / `**Last Updated**` / `**PRD**` under the `# Foundations` title): **insert (or update)** a `**Frozen-At**: [freeze-token]` line into that block, placed directly after the `**Last Updated**` line. This is the primary path for Foundations.
+- **If a `**Frozen-At**` line already exists** in the header (a re-freeze) → **overwrite** its value with the current freeze token (do not append a duplicate).
+- **Fallback — no `**Version**` / `**Last Updated**` header exists:** insert a **minimal provenance line** immediately under the top-level `# Foundations` title: `**Frozen-At**: [freeze-token]`. Do not fabricate a Version or date you were not given.
+
+The header line sits **outside** the verbatim-preserved §1–10, so the document-conservation gate tolerates it (§1–10 stay byte-identical). This is the record downstream stages (04/05) reconcile against; the `promote-metadata.md` may additionally *record* the token for audit, but the header stamp is the single authoritative source.
 
 ---
 
@@ -249,7 +260,7 @@ This document captures design rationale, trade-offs, and deliberate choices for 
    - Rationale/decision content → decisions
 4. **Extract** content, noting which section it came from
 5. **Group** extracted content by theme within each target document
-6. **Write** the clean Foundations with brief reference notes where content was extracted
+6. **Write** the clean Foundations with brief reference notes where content was extracted, and **stamp the freeze identity** into its header: insert/overwrite `**Frozen-At**: [freeze-token]` per "Stamp the freeze identity into the header" above (insert into the existing `**Version**`/`**Last Updated**` block; fallback: a minimal provenance line under the title if no such block exists)
 7. **Write** the future planning doc with grouped future content
 8. **Write** the decisions doc with grouped rationale content
 9. **Validate** output Foundations against guide (see Quality Checks)
@@ -284,6 +295,7 @@ For each of the 11 sections, verify the output Foundations still covers the guid
 - [ ] No `<!-- Rationale: ... -->` HTML comments remain in Foundations
 - [ ] The standalone `## Design Decisions` section has been extracted to decisions.md (it does not remain in foundations.md); §1–10 are otherwise unchanged
 - [ ] §11 Open Questions content has been moved to future.md (only the §11 header + reference to future.md remain in foundations.md)
+- [ ] `**Frozen-At**: [freeze-token]` present in foundations.md's header (inserted/overwritten this promote into the `**Version**`/`**Last Updated**` block, not merely preserved; fallback provenance line only if no such block exists)
 - [ ] §1 Technology Choices is **byte-identical** to the reviewed source (modulo HTML-comment removal)
 - [ ] §2 Architecture Patterns is **byte-identical** to the reviewed source (modulo HTML-comment removal)
 - [ ] §3 Authentication & Authorization is **byte-identical** to the reviewed source (modulo HTML-comment removal)

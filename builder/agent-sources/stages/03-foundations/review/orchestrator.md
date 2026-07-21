@@ -56,6 +56,12 @@
 - [ ] Step 9: Verification Review
 - [ ] Step 10: Execute & Route
 
+## Upstream Freshness (reconciled-against)
+
+The upstream `Frozen-At` this stage last reconciled against, **one line per direct alignment-source edge** (Foundations' sole direct source is the PRD — `alignment-verifier.md` source table). Written at Review completion (below) from the AV-read token; read by the Promote guard's freshness clause. Absent until the first Review round whose Alignment Verifier ran (the zero-issues fast-path advances no edge — it runs no AV).
+
+- 02-prd:          round-[N]-promote
+
 ## History
 - YYYY-MM-DD HH:MM: Round 1 started
 - YYYY-MM-DD HH:MM: Step 1 complete (N issues identified)
@@ -661,7 +667,13 @@ This gate is mandatory. Do not skip it.
     - **Determine maturity**: from this round's `03-issues-discussion.md`, count the **HIGH and MEDIUM** issues this round surfaced and kept at document level. LOW issues do **not** count toward maturity. This round is **mature** if it surfaced **no HIGH or MEDIUM** issues — the convergence criterion: exit on "no HIGH/MEDIUM", **not** "zero issues" (aligning the human routing with the zero-issues auto-gate's intent and the create-stage exit).
     - **Present the routing choice to the user with the maturity signal**: state `Round [N] — maturity: [mature | not mature]; this round surfaced [N] HIGH, [M] MEDIUM ([K] LOW carried)`. If **mature**, tell the user the document has stabilised and **EXIT (mark review complete, then run Promote) is the default** — remaining LOW items are carried, not chased, and another round is warranted only if they expect genuinely new HIGH/MEDIUM concerns. Then ask: **next round or exit?**
     - If user chooses next round: Update state file to increment round, reset to Step 1
-    - If user chooses exit: Mark review **COMPLETE** (status = COMPLETE), add history entry "Review complete — Promote recommended", and **recommend running the Promote workflow**. Review does **not** split the document — Promote is a separate workflow that reads this round's `05-updated-foundations.md` (**ELSE** `00-foundations.md`) and produces `foundations.md` / `decisions.md` / `future.md`.
+    - If user chooses exit: **Record upstream freshness** (below), then mark review **COMPLETE** (status = COMPLETE), add history entry "Review complete — Promote recommended", and **recommend running the Promote workflow**. Review does **not** split the document — Promote is a separate workflow that reads this round's `05-updated-foundations.md` (**ELSE** `00-foundations.md`) and produces `foundations.md` / `decisions.md` / `future.md`.
+
+49. **Record upstream freshness (the reconciled-against watermark — TOCTOU-safe).** Because this round ran the Alignment Verifier (Step 7), advance the per-edge freshness record to **the `Frozen-At` the AV actually read**:
+    - Read this round's `07-alignment-report.md` `## Frozen-At Read (per source)` block; extract the `frozen-at` token the AV read for the **02-prd** source.
+    - Write/update the `## Upstream Freshness (reconciled-against)` block in `system-design/03-foundations/versions/workflow-state.md`: set `- 02-prd: [AV-read token]`. This says exactly "reconciled against *this* PRD version" — the version the AV compared, not the PRD's current-at-completion value.
+    - If the AV recorded `ABSENT` for 02-prd (the PRD carried no `**Frozen-At**` — a pre-adoption artifact), record `- 02-prd: ABSENT`; the Promote guard treats an absent-source token as inert (a no-op), not stale.
+    - **Zero-issues fast-path caveat:** a round that exited via the zero-issues gate (Step 14) ran **no** Alignment Verifier, so there is no AV-read token — it advances **no** edge (the record is left unchanged). The Promote guard then correctly forces a real Review round before the stage can freeze.
 
 ---
 

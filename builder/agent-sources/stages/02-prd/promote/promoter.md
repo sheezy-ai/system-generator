@@ -15,6 +15,7 @@ Transform a reviewed PRD into three focused documents:
 |-------|------|---------|
 | Reviewed PRD | Provided at invocation | Source document to split |
 | Guide | `guides/02-prd-guide.md` | Validation reference |
+| Freeze token | Provided at invocation (`round-[N]-promote`) | Stamp into `prd.md`'s header as `**Frozen-At**` — the PRD's freeze identity (the version each downstream consumer records as reconciled-against) |
 
 ---
 
@@ -93,6 +94,16 @@ Preserve the original 11-section structure. Within each **transformable** sectio
 5. Simplify Key Decisions entries: keep decision statement, replace full rationale with brief note referencing decisions.md
 6. Replace full accepted limitation rationale with brief notes referencing decisions.md
 7. Keep Scope section's "out of scope" as brief list; move detailed future descriptions to future.md
+
+### Stamp the freeze identity into the header (required — insert, do not merely preserve)
+
+The promoter is the **sole producer** of `prd.md`. This edit adds **one explicit header write** — the PRD's freeze identity — mirroring 04's Architecture promoter exactly. Use the `round-[N]-promote` freeze token passed at invocation:
+
+- **If a `**Version**` / `**Last Updated**` header block exists** at the top of the file: **insert (or update)** a `**Frozen-At**: [freeze-token]` line into that block (place it directly after the `**Last Updated**` line).
+- **Fallback — no `**Version**` / `**Last Updated**` header exists** (the current `prd.md` shape — the title `# PRD: ...` is followed directly by `## 1. ...`): insert a **minimal provenance line** immediately under the top-level `# ...` title of `prd.md`: `**Frozen-At**: [freeze-token]`. Do not fabricate a Version or date you were not given — the single `Frozen-At` line is sufficient to establish freeze identity.
+- **If a `**Frozen-At**` line already exists** in the header (a re-freeze) → **overwrite** its value with the current freeze token (do not append a duplicate).
+
+The header line sits **outside** every verbatim-critical section (§5/§8/§9), so the document-conservation gate tolerates it. This is the record downstream stages (03/04/05) reconcile against; the `promote-metadata.md` may additionally *record* the token for audit, but the header stamp is the single authoritative source.
 
 ---
 
@@ -254,7 +265,7 @@ Decisions made during review where no PRD change was needed.
    - Rationale/decision content → decisions
 4. **Extract** content, noting which section it came from
 5. **Group** extracted content by theme within each target document
-6. **Write** the clean PRD with brief reference notes where content was extracted
+6. **Write** the clean PRD with brief reference notes where content was extracted, and **stamp the freeze identity** into its header: insert/overwrite `**Frozen-At**: [freeze-token]` per "Stamp the freeze identity into the header" above (fallback: a minimal provenance line under the title, the current `prd.md` shape)
 7. **Write** the future planning doc with grouped future content
 8. **Write** the decisions doc with grouped rationale content
 9. **Validate** output PRD against guide (see Quality Checks)
@@ -289,6 +300,7 @@ For each of the 11 sections, verify the output PRD still covers the guide's expe
 - [ ] No `<!-- Rationale: ... -->` HTML comments remain in PRD
 - [ ] Key Decisions simplified to statements with decisions.md references
 - [ ] No multi-paragraph future/deferred blocks remain in PRD
+- [ ] `**Frozen-At**: [freeze-token]` present in prd.md's header (inserted/overwritten this promote, not merely preserved; fallback provenance line under the title used because prd.md has no Version/Last Updated header block)
 - [ ] No orphaned references to removed content
 - [ ] §5 Conceptual Data Model is **byte-identical** to the reviewed source (modulo HTML-comment removal)
 - [ ] §8 Integration Points is **byte-identical** to the reviewed source (modulo HTML-comment removal)

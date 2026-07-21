@@ -64,6 +64,7 @@ Before running:
    - **The "all COMPLETE" stage gate (Phase 6/7 freeze) requires every component at `COMPLETE`.** A component at `REVIEWED` (or `CREATED`/`IN_PROGRESS`/`NOT_STARTED`) means the stage is **not** ready to freeze.
 3. **For each component with pending-issues.md**, count unresolved issues
 4. **Read cross-cutting.md** to check population status (`MATERIALIZED`, or `COMPLETE`/reconciled)
+5. **Read each component's upstream-freshness record (the linchpin freshness read — load-bearing, blocking at sign-off).** For every component, read the `## Upstream Freshness (reconciled-against)` block in its `versions/[component]/workflow-state.md` and compare each recorded edge (02-prd, 03-foundations, 04-architecture) against that source's **current** `**Frozen-At**` (`system-design/02-prd/prd.md`, `system-design/03-foundations/foundations.md`, `system-design/04-architecture/architecture.md`). Flag a component as **STALE** if any recorded edge ≠ the source's current (absent-source token = inert, not stale; absent-consumer-record = stale). This is the **only backstop for a component that already promoted `COMPLETE` and then went stale on a mid-stage 04 (or 02/03) re-promote** — its own per-component Promote guard (Step 1b) never re-fires. `05-init`'s registry `Frozen-At` check runs once at stage start and never re-fires, so it is not this backstop. **Omit or mis-wire this read and already-frozen components ride stale into 06.**
 
 **Present to human:**
 ```
@@ -76,6 +77,7 @@ Component Status:
 - CREATED: [N] (list)
 - NOT_STARTED: [N] (list)
 
+Upstream Freshness: [N] component(s) STALE against current 02/03/04 (list each: component — stale edge(s) recorded vs current)   # blocking at sign-off
 Pending Issues: [N] unresolved across [M] components
 Cross-Cutting Contracts: [MATERIALIZED with N contracts | reconciled (COMPLETE) with N contracts]
 
@@ -292,11 +294,14 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 ## Sign-Off
 
 [ ] All blocking issues resolved
+[ ] Every component fresh against current 02/03/04 (no STALE upstream-freshness edge — Phase 1 read)
 [ ] Cross-cutting contracts materialized/reconciled and verified
 [ ] Consistency issues addressed
 [ ] Cross-boundary routing claims reconciled (no stranded obligations)
 [ ] Ready for implementation phase
 ```
+
+**A STALE upstream-freshness edge (Phase 1) is a blocking issue for sign-off** — list each stale component under `## Blocking Issues`. Clear it by re-running the stale component's Review (re-align against the new source) then its Promote, before re-running this coherence sign-off. This is the linchpin backstop for an already-`COMPLETE` component that went stale on a mid-stage upstream re-promote.
 
 **This sign-off is the whole-stage 05 freeze (05P-5).** When this coherence run is the **all-COMPLETE gate run** (every component at stage-index `COMPLETE`, per the "When to Run" Gate) **and** the `## Blocking Issues` list above is empty, the sign-off is clean and Phase 7 **freezes the stage** (stamps the `Stage-Frozen-At` token + `## Frozen Components` manifest that gates 06). If there are blocking issues, the freeze does **not** happen — the `## Blocking Issues` verdict is the stage HALT.
 
@@ -309,20 +314,22 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
    - YYYY-MM-DD: Coherence review completed ([N] issues resolved, [M] deferred)
    ```
 
-2. **Determine whether this run freezes the stage.** This coherence run is the whole-stage 05 freeze (the 05→06 gate) **only if BOTH hold**:
+2. **Determine whether this run freezes the stage.** This coherence run is the whole-stage 05 freeze (the 05→06 gate) **only if ALL hold**:
    - **Every component is at stage-index `COMPLETE`** in the Component Specs table (all promoted). A component at `REVIEWED` (reviewed-but-not-promoted), `IN_PROGRESS`, `CREATED`, or `NOT_STARTED` means the stage is **not** ready — do not freeze. AND
+   - **No component is STALE** against the current 02/03/04 (the Phase 1 upstream-freshness read — the linchpin backstop for an already-`COMPLETE` component staled by a mid-stage upstream re-promote). AND
    - **No blocking issues** remain in the Phase 6 sign-off (`## Blocking Issues` empty / all resolved).
 
    A **checkpoint** run (some components not yet `COMPLETE`) is **non-freezing**: record the history entry (sub-step 1), report the coherence results, and stop — do **not** stamp.
 
-3. **All-COMPLETE but blocking issues remain → do NOT stamp; HALT.** Report the blockers as the reason the stage cannot be frozen:
+3. **All-COMPLETE but blocking issues remain (including any STALE upstream-freshness edge) → do NOT stamp; HALT.** Report the blockers as the reason the stage cannot be frozen:
    ```
    Stage cannot be frozen — [N] blocking issue(s) must be resolved before stage sign-off:
    - [blocking issue 1]
+   - STALE: [component] recorded [edge]=[X] but current [source] Frozen-At=[Y] — re-run its Review (re-align) + Promote
    - ...
    Resolve them (route each back to the relevant component's Review/Promote), then re-run the coherence stage sign-off.
    ```
-   This is the whole-stage HALT (coherence's own `## Blocking Issues` verdict is the gate).
+   This is the whole-stage HALT (coherence's own `## Blocking Issues` verdict — now including any STALE component — is the gate).
 
 4. **Clean all-COMPLETE sign-off → STAMP the freeze** into `versions/workflow-state.md`:
    - Add a **`**Stage-Frozen-At**: [date] — coherence sign-off`** marker to the `## Stage Initialization` block (so it lives beside the stage status).
@@ -349,6 +356,7 @@ Compile all findings into `versions/coherence/[date]-coherence-report.md`:
 |-----------|--------|
 | Fewer than 2 COMPLETE components | Error: "Need at least 2 complete components to review coherence" |
 | All components COMPLETE but blocking issues remain (Phase 7 freeze) | Do NOT stamp `Stage-Frozen-At`. HALT: "Stage cannot be frozen — [N] blocking issue(s) must be resolved before stage sign-off. Resolve and re-run coherence." |
+| All components COMPLETE but a component is STALE against current 02/03/04 (Phase 1 freshness read) | Do NOT stamp `Stage-Frozen-At`. HALT: "Stage cannot be frozen — [component] is stale against current [source]. Re-run its Review (re-align) + Promote, then re-run coherence." (The linchpin backstop for an already-COMPLETE component staled by a mid-stage upstream re-promote.) |
 | Not all components COMPLETE (Phase 7 freeze) | Non-freezing checkpoint run — record history, report results, do not stamp |
 | Human aborts mid-phase | Save progress, report partial completion |
 

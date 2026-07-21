@@ -45,6 +45,7 @@ Because the promoter is the **sole producer of `prd.md`** and Promote is the onl
 
 ### Round [N] (Promote)
 - [ ] Step 1: Guard & Snapshot
+- [ ] Step 1b: Upstream Freshness Gate (forward-provision only — inert; 01 never stamps)
 - [ ] Step 2: Promote (split)
 - [ ] Step 2a: Document-conservation gate
 - [ ] Step 3: Finalise
@@ -159,7 +160,19 @@ The **review-mandatory guard runs at On Start** (guard-first — before any stat
 
 6. **Update state file**: Mark Step 1 complete.
 
-7. **Automatically proceed to Step 2.**
+7. **Automatically proceed to Step 1b.**
+
+---
+
+### Step 1b: Upstream Freshness Gate (forward-provision only — INERT for 02)
+
+**The freshness clause (generalises the 05-init check):** *A stage may not promote while, for any of its direct alignment-source edges, the consumer's recorded `Frozen-At` ≠ that source's current `Frozen-At`.*
+
+**For 02 this clause is wired for consistency but is permanently INERT and never fires.** The PRD's sole upstream is **01-blueprint**, which has **no Promote workflow and never stamps `Frozen-At`** (`agents/01-blueprint/` is create/review/expand only). So the 02←01 edge degrades permanently to the **absent-source-token no-op** (source `Frozen-At` absent → inert, not a staleness error — the 05-init rule). There is nothing to detect, re-check, advance, or HALT on.
+
+- **Update state file**: Set Step 1b, status = IN_PROGRESS.
+- **No-op:** record "02←01 freshness edge inert (01-blueprint never stamps `Frozen-At`) — forward-provision only" in the history. This becomes live only if 01 later gains a promote/`Frozen-At` stamp; until then, do **not** run the re-align check and do **not** HALT.
+- **Update state file**: Mark Step 1b complete; **automatically proceed to Step 2.**
 
 ---
 
@@ -174,6 +187,7 @@ The **review-mandatory guard runs at On Start** (guard-first — before any stat
     Input:
     - Reviewed PRD: system-design/02-prd/versions/round-[N]-promote/00-prd.md
     - PRD guide: {{GUIDES_PATH}}/02-prd-guide.md
+    - Freeze token: round-[N]-promote   (stamp into prd.md's header as **Frozen-At** — the PRD freeze identity downstream stages reconcile against; prd.md has no Version/Last Updated block, so the promoter uses the fallback provenance-line path)
 
     Output:
     - system-design/02-prd/versions/round-[N]-promote/prd.md
@@ -246,13 +260,14 @@ The **review-mandatory guard runs at On Start** (guard-first — before any stat
 15. **Update state file**: status = COMPLETE; record the promotion in the round record + state history (`Round [N] (Promote) complete — split round-[R]-review; conservation gate [CLEAN | disposed]`).
 
 16. **Report** to the user: the split is complete; the three published documents (`prd.md`, `decisions.md`, `future.md`) are current (conservation-verified) and `round-[N]-promote/` holds the record (incl. the conservation report).
+    - **Eager-detect line (advisory — static direct-consumer list):** append: *This re-promote advanced the PRD's `Frozen-At`, so it staled the direct downstream consumers of the PRD — **03-foundations, 04-architecture, 05-components**. Each re-aligns lazily at its own next Promote (its freshness gate auto-re-checks and either auto-clears or surfaces a discrepancy); nothing is auto-fired across completed stages.* Under equality every direct consumer is trivially stale the instant the token changes, so this is the static consumer list — cheap and advisory, not a per-token compute.
     - **Placement-smell notice (informational only — from the Step-2a `placement_smells` count):** **if `placement_smells > 0`**, append exactly ONE non-blocking line to this report: *Note: [N] placement smell(s) flagged — current-scope content routed to `decisions`/`future` that may belong in the clean spec. Non-blocking (the split published); review `round-[N]-promote/conservation.md` if you want to correct placement in a follow-up.* **If `placement_smells` is 0, say nothing.** This is informational only — **never HALT, wait, or ask a decision** on it, and it does not add a step.
 
 ---
 
 ## Stopping Points
 
-**Automatic flow (do NOT pause for human confirmation):** Step 1 → 2 → 2a → 3 proceed automatically **unless** the document-conservation gate (Step 2a) returns `MISMATCH`.
+**Automatic flow (do NOT pause for human confirmation):** Step 1 → 1b → 2 → 2a → 3 proceed automatically **unless** the document-conservation gate (Step 2a) returns `MISMATCH`. (Step 1b, the freshness gate, is forward-provision only for 02 and never HALTs — 01 never stamps `Frozen-At`.)
 
 **Human checkpoint (orchestrator handles it directly):**
 - **Step 2a (conservation)** — if the conservation check returns `MISMATCH`: set `Status: WAITING_FOR_HUMAN`, **HALT promote-local** (re-run the promoter at Step 2, or an explicit human accept/override recorded to `decisions.md`). The docs are **not** published until the check is CLEAN.

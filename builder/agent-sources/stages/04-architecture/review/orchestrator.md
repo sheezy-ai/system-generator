@@ -57,6 +57,13 @@
 - [ ] Step 10: Verification Review
 - [ ] Step 11: Execute & Route
 
+## Upstream Freshness (reconciled-against)
+
+The upstream `Frozen-At` this stage last reconciled against, **one line per direct alignment-source edge** (Architecture's direct sources are the PRD and Foundations — `alignment-verifier.md` source table). Written at Review completion (Step 12) from the AV-read tokens; read by the Promote guard's freshness clause (Step 1b). Absent until the first Review round whose Alignment Verifier ran (the zero-issues fast-path advances no edge — it runs no AV).
+
+- 02-prd:          round-[N]-promote
+- 03-foundations:  round-[N]-promote
+
 ## History
 - YYYY-MM-DD HH:MM: Round 1 started
 - YYYY-MM-DD HH:MM: Step 1 complete (N issues identified)
@@ -725,6 +732,12 @@ This gate is mandatory. Do not skip it.
 
 50. **Determine the handoff input document** (the reviewed doc Promote will freeze):
     - `05-updated-architecture.md` if it exists (the Author ran this round), otherwise `00-architecture.md` (the zero-issues path where no Author ran).
+
+50b. **Record upstream freshness (the reconciled-against watermark — TOCTOU-safe).** If this round ran the Alignment Verifier (Step 7 — i.e. **not** the zero-issues path), advance the per-edge freshness record to **the `Frozen-At` the AV actually read**:
+    - Read this round's `07-alignment-report.md` `## Frozen-At Read (per source)` block; extract the token the AV read for the **02-prd** and **03-foundations** sources.
+    - Write/update the `## Upstream Freshness (reconciled-against)` block in `system-design/04-architecture/versions/workflow-state.md`: set `- 02-prd: [AV-read token]` and `- 03-foundations: [AV-read token]`. These say "reconciled against *these* PRD/Foundations versions" — the versions the AV compared, not their current-at-completion values.
+    - Record `ABSENT` for any source the AV read as `ABSENT` (a pre-adoption artifact carrying no `**Frozen-At**`); the Promote guard treats an absent-source token as inert (a no-op), not stale.
+    - **Zero-issues fast-path caveat:** the zero-issues path (Step 3 → Step 12, no Author, no Step-7 AV) ran **no** Alignment Verifier — it advances **no** edge (leave the record unchanged). The Promote guard then correctly forces a real Review round before the stage can freeze.
 
 51. **Update state file**: set `Status: COMPLETE` and mark Step 12 complete. Record in history: `Round [N] Review complete — handed to Promote`.
 

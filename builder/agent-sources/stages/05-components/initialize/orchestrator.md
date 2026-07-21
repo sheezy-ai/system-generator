@@ -115,6 +115,14 @@ Comparison is **equality of the `round-[N]-promote` id strings only** — no ord
 
      *No review rounds yet.*
 
+     ## Upstream Freshness (reconciled-against)
+
+     Per-edge reconciled-against `Frozen-At` for this component's direct alignment sources (02/03/04). Populated at the first Review completion (from the AV-read token); read + gated at this component's Promote guard (Step 1b) and blocking at the coherence stage sign-off. Absent until the first Review round whose Alignment Verifier ran.
+
+     - 02-prd:          (not yet reconciled)
+     - 03-foundations:  (not yet reconciled)
+     - 04-architecture: (not yet reconciled)
+
      ## History
 
      - YYYY-MM-DD: Initialized
@@ -238,6 +246,8 @@ For each §7 cross-cutting **interface** whose schema layer Architecture leaves 
 - [x] Frozen contract registry verified present (materialized by Promote)
 - [x] Component folders created
 - [x] Per-component state files created
+
+**Decomposition-membership edge (no recorded watermark needed).** The Tier-2 decomposition-membership detector (fired from Architecture Promote on a §6 roster change) is **history-independent**: it diffs the **instantiated component set** (the Component Specs table rows below) against the **current** Architecture §6 directly, so it needs no recorded "decomposed-from" token here. The stage-index rows themselves ARE the realized-membership record the detector reads.
 
 ## Component Specs
 

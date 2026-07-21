@@ -45,6 +45,7 @@ Because the promoter is the **sole producer of `architecture.md`** and Promote i
 
 ### Round [N] (Promote)
 - [ ] Step 1: Guard & Snapshot
+- [ ] Step 1b: Upstream Freshness Gate (equality clause on the direct 02 + 03 edges)
 - [ ] Step 2: Contract Completeness & Freezability Gate
 - [ ] Step 3: Promote (split)
 - [ ] Step 3a: Document-conservation gate
@@ -53,6 +54,12 @@ Because the promoter is the **sole producer of `architecture.md`** and Promote i
 - [ ] Step 4: Finalise (publish registry)
 - [ ] Step 4b: Write-direction re-verify flag (MERGE only)
 - [ ] Step 4c: Record the freeze & mark complete
+- [ ] Step 4d: Decomposition-membership detection (Tier-2 — §6 roster set-diff; MERGE + 05-initialized only)
+
+<!-- written by Review at round completion — Promote READS it (Step 1b), never writes it; do not overwrite these values on a template regen -->
+## Upstream Freshness (reconciled-against)
+- 02-prd:          round-[N]-promote
+- 03-foundations:  round-[N]-promote
 
 ## History
 - YYYY-MM-DD HH:MM: Round [N] (Promote) started — freezing round-[R]-review
@@ -85,7 +92,9 @@ agents/04-architecture/promote/
 └── materialization-fidelity-checker.md # Step 3c: fidelity gate — relocated here in Slice 5
 
 Universal agents (in {{AGENTS_PATH}}/universal-agents/):
-└── document-conservation-checker.md    # Step 3a: document split conservation gate (verbatim §6/§8/§7 + cross-refs gate; prose/decisions/future advisory) — invoked with 04's Verbatim-critical sections list
+├── realign-check.md                    # Step 1b: freshness re-align callable unit (runs the AV, advances an ALIGNED edge, HALTs on a discrepancy)
+├── document-conservation-checker.md    # Step 3a: document split conservation gate (verbatim §6/§8/§7 + cross-refs gate; prose/decisions/future advisory) — invoked with 04's Verbatim-critical sections list
+└── decomposition-membership-detector.md # Step 4d: Tier-2 §6-roster set-diff detector (MERGE + 05-initialized only; auto-proposes MISSING/ORPHANED, HALTs advisory)
 
 Gate reviewers (re-run — they LIVE in review, not moved):
 ├── {{AGENTS_PATH}}/04-architecture/review/experts/contract-completeness.md
@@ -188,7 +197,41 @@ Output: [resolved file path]
 
 6. **Update state file**: Mark Step 1 complete.
 
-7. **Automatically proceed to Step 2.**
+7. **Automatically proceed to Step 1b.**
+
+---
+
+### Step 1b: Upstream Freshness Gate (equality clause on the direct alignment-source edges)
+
+**The freshness clause (generalises the 05-init check):** *A stage may not promote while, for any of its direct alignment-source edges, the consumer's recorded `Frozen-At` ≠ that source's current `Frozen-At`.* Architecture's direct sources are the **PRD** and **Foundations** (`alignment-verifier.md` source table), so this gate has **two live edges: 04←02 and 04←03**. This is what closes the "silent middle": if 02 (or 03) re-promotes, 04's recorded edge is stale and 04 cannot freeze until it re-aligns against the new source — **independent of whether any PI was filed against 04** (the gate keys off the edge, not off PI-presence).
+
+- **Update state file**: Set Step 1b, status = IN_PROGRESS.
+
+- **Detect (per direct edge — automatic, metadata-only):** for **each** of the 02-prd and 03-foundations edges, compare:
+  - **Recorded** — the `- 02-prd:` / `- 03-foundations:` lines in the `## Upstream Freshness (reconciled-against)` block of `system-design/04-architecture/versions/workflow-state.md`.
+  - **Source current** — the `**Frozen-At**` value in the current source header (`system-design/02-prd/prd.md` / `system-design/03-foundations/foundations.md`).
+  - **Two absent cases, kept distinct (per edge):**
+    - **Source's `Frozen-At` absent** (the source never stamped — pre-adoption) → **inert no-op** for that edge, not a staleness error (the 05-init rule). Do not HALT on it.
+    - **Consumer's recorded value absent** (never recorded this edge) → **stale**: cleared **only by an actual AV re-check** (below), never by a bare stamp.
+  - **Fresh** (recorded == source current) → edge clean.
+
+- **If every edge is fresh or inert** → mark Step 1b complete; **automatically proceed to Step 2.**
+
+- **If any edge is stale** → run the **Re-Align Check** callable unit (the gate-step; the AV re-checks, the wrapper advances/routes/logs — §3.4), passing **only the stale edges** in the stale-edge list (a discrepancy against one source must not block advancing a clean edge to the other — the wrapper decides each edge on its own per-source discrepancy count):
+  ```
+  Follow the instructions in: {{AGENTS_PATH}}/universal-agents/realign-check.md
+
+  Inputs:
+  - Consumer document: system-design/04-architecture/versions/round-[N]-promote/00-architecture.md
+  - Consumer freshness record: system-design/04-architecture/versions/workflow-state.md (## Upstream Freshness)
+  - Stale-edge list: [only the stale edges — e.g. { 02-prd, system-design/02-prd/prd.md, [recorded value|absent] }, { 03-foundations, system-design/03-foundations/foundations.md, [recorded value|absent] }]
+  - Stage guide: {{GUIDES_PATH}}/04-architecture-guide.md
+  - Output report: system-design/04-architecture/versions/round-[N]-promote/01-realign-report.md
+  ```
+  - **`ALL_ADVANCED`** (the AV read zero discrepancies for each stale source, or an edge is inert) → the wrapper advanced each recorded `Frozen-At` to its AV-read token. Mark Step 1b complete; **proceed to Step 2.**
+  - **`HALT_DISPOSITION_NEEDED`** (the AV found a discrepancy against a stale source — even a non-SHOWSTOPPER one) → **HALT (freshness):** set `Status: WAITING_FOR_HUMAN`; present the re-align report. Per discrepant edge, the human **resolves** (conform-down / sync-up a PI to that source's `versions/pending-issues.md`, then re-run Promote after the source's next Review) **or records a dismiss/override** that advances the edge with a rationale (to `decisions.md`). Do **NOT** proceed to the Step-2 gate until every stale edge is advanced. Advance on the AV **`ALIGNED`-for-source** verdict (per-source zero discrepancies) — **never** on the AV's global `PROCEED`.
+
+- **Update state file**: record the per-edge freshness verdict (fresh / advanced / disposed) in the history.
 
 ---
 
@@ -447,16 +490,49 @@ This step keeps the materializer a **pure projector** — the **orchestrator** (
 28. **Update state file**: status = COMPLETE; record the promotion in the round record + state history (`Round [N] (Promote) complete — froze round-[R]-review; gate [CLEAN | disposed]; materialize [FIRST_FREEZE | MERGE]; fidelity CLEAN`).
 
 29. **Report** to the user: the freeze is complete; the three published documents are current, the contract registry is materialized + fidelity-verified, and `round-[N]-promote/` holds the record. If any HIGH was promoted past, name it and where it was recorded. If MERGE ran, note the changed/reset/preserved counts.
+    - **Eager-detect line (advisory — static direct-consumer list):** append: *This re-promote advanced Architecture's `Frozen-At`, so it staled the direct downstream consumer of Architecture — **05-components** (held and gated per component). Each component re-aligns lazily at its own next Promote (its per-component freshness gate auto-re-checks), and the coherence stage sign-off blocks on any already-frozen component still stale. Nothing is auto-fired across completed stages.*
     - **Placement-smell notice (informational only — from the Step-3a `placement_smells` count):** **if `placement_smells > 0`**, append exactly ONE non-blocking line to this report: *Note: [N] placement smell(s) flagged — current-scope content routed to `decisions`/`future` that may belong in the clean spec. Non-blocking (the freeze published); review `round-[N]-promote/conservation.md` if you want to correct placement in a follow-up.* **If `placement_smells` is 0, say nothing.** This is informational only — **never HALT, wait, or ask a decision** on it, and it does not add a step.
+
+---
+
+### Step 4d: Decomposition-membership detection (Tier-2 — §6 roster set-diff; advisory)
+
+**The freeze is already COMPLETE (Step 4c).** This step is a **post-publish, advisory** detection that a §6 **set-membership** change (a component added or removed) may require 05 to instantiate a new component or retire an orphaned one — a class Tier-1 per-component freshness structurally cannot see. It **auto-detects + auto-proposes the delta and HALTs to the human**; it builds/runs **no** automated re-decomposition (deferred — 05 has no Expand, re-init is destructive). It never un-publishes the freeze.
+
+30. **Preconditions (skip cleanly, do not error):**
+    - **SKIP on FIRST_FREEZE** — Materialize Mode was `FIRST_FREEZE` (there is no `round-[N]-promote/00-prior-published-architecture.md` to diff). Record "Step 4d: N/A (FIRST_FREEZE)" and finish.
+    - **SKIP when 05 is uninitialized** — `system-design/05-components/versions/workflow-state.md` is absent or has no Component Specs table (no instantiated set to compare). Record "Step 4d: N/A (05 uninitialized)" and finish.
+    - Otherwise (MERGE + 05 initialized) → run the detector.
+
+31. **Compute a cheap §6 roster set-diff first.** Compare the §6 component-slug set of `round-[N]-promote/00-prior-published-architecture.md` vs the just-published `system-design/04-architecture/architecture.md`. **If the sets are identical** (a benign §6 reword, or no §6 change) → record "Step 4d: no §6 roster delta" and finish — do **not** spawn the detector (avoid a wasted run).
+
+32. **On a roster delta, spawn the Decomposition-Membership Detector** (FOREGROUND):
+    ```
+    Follow the instructions in: {{AGENTS_PATH}}/universal-agents/decomposition-membership-detector.md
+
+    Input:
+    - Prior published architecture: system-design/04-architecture/versions/round-[N]-promote/00-prior-published-architecture.md
+    - New published architecture: system-design/04-architecture/architecture.md
+    - 05 stage index: system-design/05-components/versions/workflow-state.md
+
+    Output: system-design/04-architecture/versions/round-[N]-promote/13-decomposition-membership.md
+    ```
+
+33. **Surface the detector verdict (advisory HALT — no automated action):**
+    - **`NO_DELTA`** → note "no decomposition-membership change" and finish.
+    - **`DELTA_PROPOSED`** → present the proposed delta to the user: the **MISSING** components (§6 now requires, not instantiated — 05 must Create → Review → Promote them) and **ORPHANED** components (instantiated, no longer in §6 — human retires/re-parents), plus any **missing+orphaned pair** the detector flags as a possible rename (the safe degraded form — §6 carries no rename-stable id). The **human decides and triggers** any re-decomposition by hand. Do **NOT** modify 05 or re-run 05-init; the detector and this step only detect + propose. The freeze stands.
+
+34. **Update state file**: record the Step 4d outcome (N/A / no-delta / DELTA_PROPOSED with the added/removed lists) in the history.
 
 ---
 
 ## Stopping Points
 
 **Automatic flow (do NOT pause for human confirmation):**
-- Step 1 → 2 → 3 → 3a → 3b → 3c → 4 → 4b → 4c: proceed automatically **unless** the gate (Step 2) HALTs, the conservation check returns `MISMATCH` (Step 3a), the materializer escalates a (D) contract (Step 3b), or the fidelity check returns `MISMATCH` (Step 3c). Step 4b (write-direction re-verify flag) is MERGE-only and never HALTs — it writes durable producer flags and proceeds.
+- Step 1 → 1b → 2 → 3 → 3a → 3b → 3c → 4 → 4b → 4c → 4d: proceed automatically **unless** the freshness gate (Step 1b) HALTs on a live upstream discrepancy, the gate (Step 2) HALTs, the conservation check returns `MISMATCH` (Step 3a), the materializer escalates a (D) contract (Step 3b), or the fidelity check returns `MISMATCH` (Step 3c). Step 4b (write-direction re-verify flag) is MERGE-only and never HALTs — it writes durable producer flags and proceeds. Step 4d (decomposition-membership detection) is MERGE + 05-initialized only, runs **after** the freeze is COMPLETE, and is **advisory** — on a §6 roster delta it surfaces a proposed MISSING/ORPHANED delta for the human but never un-publishes the freeze or auto-acts.
 
 **Human checkpoints (orchestrator handles these directly):**
+- **Step 1b (freshness)** — if a direct 02/03 edge is stale and the re-align check returns `HALT_DISPOSITION_NEEDED` (the AV found a discrepancy against the current source): WAITING_FOR_HUMAN. Per discrepant edge, the human resolves (conform-down / sync-up a PI to the source, re-run after that source's Review) or records a dismiss/override that advances the edge. The Step-2 gate does not run until every stale edge is advanced.
 - **Step 2 (gate)** — if EITHER reviewer returns a HIGH finding: WAITING_FOR_HUMAN. Every HIGH gets a recorded disposition (Resolved → log to `pending-issues.md` + HALT for a Review round; Deferred → `future.md`; Dismissed / Override → `decisions.md`) before the promoter runs.
 - **Step 3a (conservation)** — if the conservation check returns `MISMATCH`: WAITING_FOR_HUMAN, **HALT promote-local** (re-run the promoter at Step 3, or an explicit human accept/override recorded to `decisions.md`). The docs are **not** published until the check is CLEAN.
 - **Step 3b (materialize)** — if the materializer escalates an under-pinned **(D)** contract: WAITING_FOR_HUMAN, **HALT backward-to-Review** via `pending-issues.md` (re-run Review to pin it, then re-run Promote). Rare — the Step-2 freezability reviewer should already have caught it.
@@ -480,6 +556,7 @@ Promote exits by **freezing**: the gate passes clean (or every HIGH is disposed/
 | Last completed round was not Review | Error: "Promote requires a completed Review round; last round was {type}." |
 | `Status: not COMPLETE` + other workflow in progress | Error: "Cannot start Promote: {Current Workflow} workflow still in progress" |
 | Reviewed document not found | Error: "Review round [R] completed but no reviewed document found." |
+| Freshness gate: a 02/03 edge stale, re-align returns `HALT_DISPOSITION_NEEDED` (Step 1b) | HALT (freshness): WAITING_FOR_HUMAN — per discrepant edge, human resolves (conform-down / sync-up PI to the source) or records a dismiss/override that advances the edge. Do NOT run the Step-2 gate until every stale edge is advanced. Advance on `ALIGNED`-for-source, never on `PROCEED` |
 | Gate reviewer fails | Error: Report which reviewer failed; do not proceed to the promoter |
 | Promoter fails | Error: Report failure details; do not mark COMPLETE |
 | Published output file missing after promote | Error: "Promoter completed but output not found at [path]" |
