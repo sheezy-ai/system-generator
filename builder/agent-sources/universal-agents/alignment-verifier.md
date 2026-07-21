@@ -14,7 +14,8 @@ Given a document and its source documents, verify alignment:
 1. Identify any contradictions between the document and sources
 2. Classify each discrepancy (fix here, fix upstream, or intentional)
 3. Determine if any upstream issues are showstoppers
-4. Produce an alignment report with PROCEED or HALT recommendation
+4. **Record, per source, the `Frozen-At` freeze-identity token you read** from that source's header (the freshness watermark — see "Recording the Frozen-At you read" below)
+5. Produce an alignment report with PROCEED or HALT recommendation
 
 **Input:** File paths to:
 - Document to verify
@@ -51,6 +52,16 @@ The orchestrator will read your report and present sync options to the human.
 
 Blueprint (01) has no alignment verification - its source (concept) is informal.
 Tasks (06) uses Coverage Checker instead of Alignment Verifier.
+
+---
+
+## Recording the Frozen-At you read (freshness watermark)
+
+Each promoted source document carries a `**Frozen-At**: round-[N]-promote` line in its header (stamped by that stage's promoter — the source's freeze identity). As you read each source, **capture the `Frozen-At` token you actually read** and report it per source (see Output Format: the Summary table's `Frozen-At (read)` column **and** the machine-readable `## Frozen-At Read (per source)` block).
+
+- Read the token verbatim from the source's header block (or a minimal provenance line under its title). Report the exact `round-[N]-promote` string.
+- **If a source carries no `**Frozen-At**` line** (a pre-adoption artifact, or 01-blueprint which never stamps one), record `ABSENT` for that source. Do **not** treat absence as a discrepancy — it is a freshness-record gap, not an alignment fault.
+- This token is what a freshness gate advances a consumer's per-edge record to — it is the version you actually compared against, captured at your run time. Report exactly what you read; do not infer or normalise it.
 
 ---
 
@@ -207,9 +218,10 @@ List the key assertions the document makes:
 ### Step 3: Verify Against Each Source
 
 For each source document:
-1. Identify what the source says about the same topics
-2. Compare claims
-3. Note any conflicts
+1. **Read and record the source's `Frozen-At` token** (the freshness watermark — verbatim, or `ABSENT` if the source carries none; see "Recording the Frozen-At you read")
+2. Identify what the source says about the same topics
+3. Compare claims
+4. Note any conflicts
 
 ### Step 4: Classify Each Discrepancy
 
@@ -240,15 +252,26 @@ For each conflict found:
 
 ## Summary
 
-| Source | Discrepancies | Pending Issues |
-|--------|---------------|----------------|
-| [Source 1] | [N] | [N] |
-| [Source 2] | [N] | [N] |
-| **Total** | [N] | [N] |
+| Source | Frozen-At (read) | Discrepancies | Pending Issues |
+|--------|------------------|---------------|----------------|
+| [Source 1] | [round-N-promote \| ABSENT] | [N] | [N] |
+| [Source 2] | [round-N-promote \| ABSENT] | [N] | [N] |
+| **Total** | — | [N] | [N] |
 
 **Alignment Status:** ALIGNED | DISCREPANCIES_FOUND
 **Pending Issue Severity:** NONE | LOW | MEDIUM | HIGH | SHOWSTOPPER
 **Abstraction-level items skipped:** [N]
+
+---
+
+## Frozen-At Read (per source)
+
+The freshness watermark each source carried when this run read it — the machine-readable record the freshness-gate re-align wrapper parses. One line per source; `ABSENT` where the source carries no `**Frozen-At**` line. **Per-source `Discrepancies` is the count from the Summary table above** (the wrapper advances an edge only when it is 0 for that source — never on the global PROCEED recommendation).
+
+```
+- source: [stage label, e.g. 02-prd]   frozen-at: [round-N-promote | ABSENT]   discrepancies: [N]
+- source: [stage label, e.g. 03-foundations]   frozen-at: [round-N-promote | ABSENT]   discrepancies: [N]
+```
 
 ---
 
@@ -364,6 +387,7 @@ For each conflict found:
 
 Before completing:
 - [ ] All source documents read and compared
+- [ ] Each source's `Frozen-At` token recorded (verbatim `round-N-promote`, or `ABSENT`) in the Summary table AND the `## Frozen-At Read (per source)` block
 - [ ] Each discrepancy has exact quotes from both documents
 - [ ] Each discrepancy has category AND certainty level
 - [ ] FIX_DOCUMENT vs SYNC_UPSTREAM vs REVIEW_NEEDED classification is justified
